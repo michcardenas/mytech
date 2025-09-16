@@ -24,10 +24,10 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-     Paginator::useBootstrapFive();
-         View::composer(['layouts.app', 'layouts.app_admin'], NavbarComposer::class);
+    //  Paginator::useBootstrapFive();
+    //      View::composer(['layouts.app', 'layouts.app_admin'], NavbarComposer::class);
 
-         View::share('categories', Category::orderBy('name')->get());
+    //      View::share('categories', Category::orderBy('name')->get());
 
          
     }
