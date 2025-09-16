@@ -638,7 +638,7 @@
         <div class="navbar-container">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="navbar-brand">
-                <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions" class="logo-img">
+                <img src="{{ asset('images/icon.png') }}" alt="MY Tech Solutions" class="logo-img">
             </a>
 
             <!-- Desktop Navigation -->
@@ -687,7 +687,7 @@
 <footer class="footer-custom">              
     <div class="container">                      
         <div class="footer-brand">                                  
-            <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions Logo" class="logo-img">                                         
+            <img src="{{ asset('images/icon.png') }}" alt="MY Tech Solutions Logo" class="logo-img">                                         
             <h3>MY Tech Solutions</h3>                              
             <p>Desarrollo web profesional que impulsa tu negocio</p>                      
         </div>                                
