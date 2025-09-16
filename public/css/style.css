@@ -1,0 +1,147 @@
+ body {
+            margin: 0;
+            background-color: linear-gradient(135deg, #101820 0%, #1a252f 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: black;
+        }
+        nav {
+            background-color: #013105;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 40px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .logo img {
+            height: 75px;
+        }
+        .logo span {
+            font-size: 1.2rem;
+            letter-spacing: 2px;
+            font-weight: 500;
+            color: #e0d9c0;
+        }
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+        }
+        .nav-links a {
+            color: #00A9E0;
+            text-decoration: none;
+            font-size: 0.95rem;
+            position: relative;
+        }
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: #00A9E0;
+        }
+        .nav-icons {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+        }
+        .nav-icons i {
+            color: #e0d9c0;
+            font-size: 1.1rem;
+            cursor: pointer;
+        }
+
+
+        /* FIN LAYOUTS */
+
+      
+/* adminproductos */
+
+.table-custom {
+        background-color: #02280a;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+    .table-custom thead {
+        background-color: #044d1c;
+        color: #f7a831;
+    }
+    .table-custom tbody tr {
+        border-bottom: 1px solid #e5e5e5;
+    }
+    .table-custom tbody tr td {
+        vertical-align: middle;
+        color: #e5e5e5;
+    }
+    
+    .table-custom .btn-warning {
+        background-color: #f7a831;
+        border: none;
+        color: #000;
+    }
+    .table-custom .btn-danger {
+        background-color: #c9302c;
+        border: none;
+    }
+    .btn-primary {
+        background-color: #f7a831;
+        border: none;
+        color: #000;
+    }
+    .btn-primary:hover {
+        background-color: #e29d2b;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
+    @keyframes slideInUp {
+        from {
+            opacity: 0;
+        transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .hero-content h1 {
+            font-size: 2.5rem;
+        }
+        
+        .hero-content .lead {
+            font-size: 1.2rem;
+        }
+        
+        .carousel-control-prev,
+        .carousel-control-next {
+            width: 50px;
+            height: 50px;
+        }
+        
+        .carousel-control-prev {
+            left: 20px;
+        }
+        
+        .carousel-control-next {
+            right: 20px;
+        }
+    }
