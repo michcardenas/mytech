@@ -34,6 +34,12 @@ class Page extends Model
         return $this->sections()->where('name', $name)->first();
     }
 
+    // Relación con SEO
+  public function seo()
+{
+    return $this->hasOne(\App\Models\Seo::class);
+}
+
     // Obtener página por slug
     public static function getBySlug($slug)
     {

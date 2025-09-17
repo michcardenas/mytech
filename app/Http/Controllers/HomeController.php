@@ -12,13 +12,16 @@ use App\Models\Section;
 
 class HomeController extends Controller
 {
-public function index()
+public function index() 
 {
-    // Obtener la página de inicio y TODAS sus secciones (activas e inactivas)
-    $page = Page::where('slug', 'inicio')->with(['sections' => function($query) {
-        $query->orderBy('order'); // Quitamos el filtro is_active para mostrar todas
-    }])->first();
-
+    // Obtener la página de inicio y TODAS sus secciones (activas e inactivas) + SEO
+    $page = Page::where('slug', 'inicio')->with([
+        'sections' => function($query) {
+            $query->orderBy('order'); // Quitamos el filtro is_active para mostrar todas
+        },
+        'seo' // AGREGAR ESTA LÍNEA - Cargar datos SEO
+    ])->first();
+ 
     // Si no existe la página, crear datos por defecto
     if (!$page) {
         $sectionsData = [
@@ -27,24 +30,26 @@ public function index()
             'cta' => null,
             'categories' => null
         ];
+        $seo = null; // SEO por defecto si no hay página
     } else {
         // Convertir las secciones en un array asociativo para fácil acceso
         $sectionsData = [];
         foreach($page->sections as $section) {
             $sectionsData[$section->name] = $section;
         }
+        $seo = $page->seo; // Obtener SEO de la página
     }
-
+ 
     // Obtener productos destacados
     $featuredProducts = Product::with(['category', 'images'])
         ->where('stock', '>', 0)
         ->limit(8)
         ->get();
-             
+                  
     // Obtener categorías para navegación
     $categories = Category::with('products')->get();
-
-    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page'));
+ 
+    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo'));
 }
 
     public function about()

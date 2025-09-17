@@ -3,36 +3,245 @@
 
 @section('content')
 <style>
-    body, .container { background: #101820 !important; color: #FCFAF1; }
-    .main-content { background: #1a252f; padding: 20px; border-radius: 8px; border: 1px solid #00A9E0; }
-    .section-card { background: #2a3441; border: 1px solid #00A9E0; border-radius: 8px; margin-bottom: 25px; }
-    .section-header { background: #1a252f; padding: 15px; border-bottom: 1px solid rgba(0, 169, 224, 0.3); }
-    .section-body { padding: 20px; }
-    .form-control, .form-select, .form-control:focus { background: #101820; border: 1px solid #00A9E0; color: #FCFAF1; }
-    .form-control:focus { border-color: #f7a831; box-shadow: 0 0 0 0.2rem rgba(247, 168, 49, 0.25); }
-    .btn-success { background-color: #00A9E0; border-color: #00A9E0; }
-    .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
-    h2, h4 { color: #00A9E0 !important; }
-    .alert-success { background-color: rgba(0, 169, 224, 0.2); color: #FCFAF1; border: 1px solid #00A9E0; }
-    .form-check-input:checked { background-color: #00A9E0; border-color: #00A9E0; }
-    .badge-meta { background-color: #f7a831; }
-    .badge-og { background-color: #4267B2; }
-    .badge-twitter { background-color: #1DA1F2; }
-    .badge-schema { background-color: #28a745; }
-    .badge-sitemap { background-color: #6f42c1; }
-    .field-group { background: rgba(0, 169, 224, 0.05); border: 1px solid rgba(0, 169, 224, 0.2); border-radius: 8px; padding: 15px; margin-bottom: 20px; }
-    .field-group h6 { color: #00A9E0; margin-bottom: 15px; }
-    .form-text { color: rgba(252, 250, 241, 0.7) !important; }
-    .char-counter { font-size: 0.8rem; color: #f7a831; }
+    :root {
+        --primary-blue: #007BFF;
+        --primary-dark: #0056b3;
+        --dark-text: #2c3e50;
+        --light-gray: #f8f9fa;
+        --white: #ffffff;
+        --gradient-blue: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        --shadow-soft: 0 10px 30px rgba(0, 123, 255, 0.1);
+        --shadow-hover: 0 20px 40px rgba(0, 123, 255, 0.15);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .main-content {
+        background: var(--white);
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(0, 123, 255, 0.1) 100%);
+        border-radius: 15px;
+        border: 2px solid rgba(0, 123, 255, 0.1);
+    }
+
+    .page-title {
+        color: var(--dark-text);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .section-card {
+        background: var(--white);
+        border: 2px solid rgba(0, 123, 255, 0.1);
+        border-radius: 15px;
+        margin-bottom: 2rem;
+        box-shadow: var(--shadow-soft);
+    }
+
+    .section-header {
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(0, 123, 255, 0.1) 100%);
+        padding: 1.5rem;
+        border-bottom: 2px solid rgba(0, 123, 255, 0.1);
+        border-radius: 15px 15px 0 0;
+    }
+
+    .section-body {
+        padding: 2rem;
+    }
+
+    .form-control, .form-select {
+        background: var(--white);
+        border: 2px solid #e9ecef;
+        color: var(--dark-text);
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        transition: var(--transition);
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-blue);
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        outline: none;
+    }
+
+    .btn-success {
+        background: var(--gradient-blue);
+        border: none;
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 50px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6c757d;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: var(--shadow-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        border: none;
+    }
+
+    .btn-secondary:hover {
+        background: #5a6268;
+        transform: translateY(-2px);
+        color: white;
+        text-decoration: none;
+    }
+
+    h2, h4 {
+        color: var(--dark-text) !important;
+        font-weight: 700;
+    }
+
+    .alert-success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #155724;
+        border: 2px solid #28a745;
+        border-radius: 10px;
+        padding: 1rem 1.5rem;
+        font-weight: 500;
+    }
+
+    .form-check-input:checked {
+        background-color: var(--primary-blue);
+        border-color: var(--primary-blue);
+    }
+
+    .badge-meta {
+        background-color: var(--primary-blue);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-og {
+        background-color: #4267B2;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-twitter {
+        background-color: #1DA1F2;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-schema {
+        background-color: #28a745;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-sitemap {
+        background-color: #6f42c1;
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .field-group {
+        background: rgba(0, 123, 255, 0.02);
+        border: 2px solid rgba(0, 123, 255, 0.1);
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid var(--primary-blue);
+    }
+
+    .field-group h6 {
+        color: var(--dark-text);
+        margin-bottom: 1rem;
+        font-weight: 700;
+        font-size: 1rem;
+    }
+
+    .form-text {
+        color: #6c757d !important;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .char-counter {
+        font-size: 0.8rem;
+        color: var(--primary-blue);
+        font-weight: 600;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .main-content {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .section-body {
+            padding: 1.5rem;
+        }
+    }
 </style>
 
 <div class="main-content">
     <div class="container py-4">
         <!-- Header -->
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="page-header">
             <div>
-                <h2 class="mb-1"><i class="fas fa-search"></i> SEO: {{ ucfirst(str_replace('-', ' ', $page->slug)) }}</h2>
-                <p class="text-light mb-0">Configura meta tags, Open Graph y Schema.org para mejorar el posicionamiento</p>
+                <h2 class="page-title"><i class="fas fa-search"></i> SEO: {{ ucfirst(str_replace('-', ' ', $page->slug)) }}</h2>
+                <p class="mb-0" style="color: #6c757d;">Configura meta tags, Open Graph y Schema.org para mejorar el posicionamiento</p>
             </div>
             <a href="{{ route('admin.pages.index') }}" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Volver
@@ -45,7 +254,7 @@
             </div>
         @endif
 
-        <form action="{{ route('admin.seo.update', $page->id) }}" method="POST">
+        <form action="{{ route('admin.seo.update', $page) }}" method="POST">
             @csrf @method('PUT')
 
             {{-- META TAGS BÁSICOS --}}

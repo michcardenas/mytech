@@ -257,13 +257,36 @@
                     <div>
                         <h3 class="page-card-title">{{ $page->title }}</h3>
                         <p class="page-slug">{{ $page->slug }}</p>
+                        
+                        <!-- Indicador de estado SEO -->
+                        @if($page->seo)
+                            <span class="seo-status seo-configured" title="SEO configurado">
+                                <i class="fas fa-search"></i>
+                                SEO Configurado
+                            </span>
+                        @else
+                            <span class="seo-status seo-missing" title="SEO no configurado">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                SEO Pendiente
+                            </span>
+                        @endif
                     </div>
+                    
                     <div class="page-actions">
+                        <!-- Botón Editar -->
                         <a href="{{ route('admin.pages.edit', $page) }}" class="btn-sm btn-warning" title="Editar página">
                             <i class="fas fa-edit"></i>
                             Editar
                         </a>
-                        @if($page->sections->count() > 0)
+                        
+                        <!-- Botón SEO -->
+                        <a href="{{ route('admin.seo.edit', $page) }}" class="btn-sm btn-info" title="Configurar SEO">
+                            <i class="fas fa-search"></i>
+                            SEO
+                        </a>
+                        
+                        <!-- Botón Secciones (si existen) -->
+                        @if($page->sections && $page->sections->count() > 0)
                         <a href="{{ route('admin.pages.sections', $page) }}" class="btn-sm btn-success" title="Gestionar secciones">
                             <i class="fas fa-puzzle-piece"></i>
                             Secciones
@@ -298,11 +321,19 @@
                 <div class="sections-info">
                     <p class="sections-count">
                         <i class="fas fa-puzzle-piece me-1"></i>
-                        {{ $page->sections->count() }} sección{{ $page->sections->count() != 1 ? 'es' : '' }}
-                        @if($page->sections->where('is_active', true)->count() > 0)
+                        {{ $page->sections ? $page->sections->count() : 0 }} sección{{ ($page->sections ? $page->sections->count() : 0) != 1 ? 'es' : '' }}
+                        @if($page->sections && $page->sections->where('is_active', true)->count() > 0)
                             ({{ $page->sections->where('is_active', true)->count() }} activa{{ $page->sections->where('is_active', true)->count() != 1 ? 's' : '' }})
                         @endif
                     </p>
+                    
+                    <!-- Información adicional de SEO -->
+                    @if($page->seo)
+                        <p class="seo-info">
+                            <i class="fas fa-check-circle text-success me-1"></i>
+                            <small>Meta título: {{ $page->seo->meta_title ? 'Configurado' : 'Sin configurar' }}</small>
+                        </p>
+                    @endif
                 </div>
             </div>
         @empty

@@ -1,21 +1,153 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
+<meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@yield('title', 'MY Tech Solutions')</title>
+    
+    {{-- TITLE - SEO o fallback --}}
+    <title>
+        @if(isset($seo) && $seo && $seo->meta_title)
+            {{ $seo->meta_title }}
+        @else
+            @yield('title', 'MY Tech Solutions')
+        @endif
+    </title>
+    
+    {{-- META DESCRIPTION --}}
+    @if(isset($seo) && $seo && $seo->meta_description)
+        <meta name="description" content="{{ $seo->meta_description }}">
+    @endif
+    
+    {{-- META KEYWORDS --}}
+    @if(isset($seo) && $seo && $seo->meta_keywords)
+        <meta name="keywords" content="{{ $seo->meta_keywords }}">
+    @endif
+    
+    {{-- ROBOTS --}}
+    @if(isset($seo) && $seo && $seo->robots)
+        <meta name="robots" content="{{ $seo->robots }}">
+    @else
+        <meta name="robots" content="index, follow">
+    @endif
+    
+    {{-- CANONICAL URL --}}
+    @if(isset($seo) && $seo && $seo->canonical_url)
+        <link rel="canonical" href="{{ $seo->canonical_url }}">
+    @endif
+    
+    {{-- FOCUS KEYWORD (para análisis interno) --}}
+    @if(isset($seo) && $seo && $seo->focus_keyword)
+        <meta name="focus-keyword" content="{{ $seo->focus_keyword }}">
+    @endif
 
-    <!-- Favicon -->
+    {{-- OPEN GRAPH (FACEBOOK/LINKEDIN) --}}
+    @if(isset($seo) && $seo)
+        {{-- OG Title --}}
+        <meta property="og:title" content="{{ $seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions') }}">
+        
+        {{-- OG Description --}}
+        <meta property="og:description" content="{{ $seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales') }}">
+        
+        {{-- OG Type --}}
+        <meta property="og:type" content="{{ $seo->og_type ?: 'website' }}">
+        
+        {{-- OG URL --}}
+        @if($seo->og_url)
+            <meta property="og:url" content="{{ $seo->og_url }}">
+        @elseif($seo->canonical_url)
+            <meta property="og:url" content="{{ $seo->canonical_url }}">
+        @else
+            <meta property="og:url" content="{{ request()->url() }}">
+        @endif
+        
+        {{-- OG Image --}}
+        @if($seo->og_image)
+            <meta property="og:image" content="{{ $seo->og_image }}">
+            <meta property="og:image:alt" content="{{ $seo->og_title ?: $seo->meta_title ?: 'MY Tech Solutions' }}">
+        @endif
+        
+        {{-- OG Site Name --}}
+        <meta property="og:site_name" content="{{ $seo->og_site_name ?: 'MY Tech Solutions' }}">
+    @else
+        {{-- Fallback Open Graph si no hay SEO --}}
+        <meta property="og:title" content="@yield('title', 'MY Tech Solutions')">
+        <meta property="og:type" content="website">
+        <meta property="og:url" content="{{ request()->url() }}">
+        <meta property="og:site_name" content="MY Tech Solutions">
+    @endif
+
+    {{-- TWITTER CARDS --}}
+    @if(isset($seo) && $seo)
+        {{-- Twitter Card Type --}}
+        <meta name="twitter:card" content="{{ $seo->twitter_card ?: 'summary_large_image' }}">
+        
+        {{-- Twitter Title --}}
+        <meta name="twitter:title" content="{{ $seo->twitter_title ?: ($seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions')) }}">
+        
+        {{-- Twitter Description --}}
+        <meta name="twitter:description" content="{{ $seo->twitter_description ?: ($seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales')) }}">
+        
+        {{-- Twitter Image --}}
+        @if($seo->twitter_image)
+            <meta name="twitter:image" content="{{ $seo->twitter_image }}">
+        @elseif($seo->og_image)
+            <meta name="twitter:image" content="{{ $seo->og_image }}">
+        @endif
+        
+        {{-- Twitter Site --}}
+        @if($seo->twitter_site)
+            <meta name="twitter:site" content="{{ $seo->twitter_site }}">
+        @endif
+        
+        {{-- Twitter Creator --}}
+        @if($seo->twitter_creator)
+            <meta name="twitter:creator" content="{{ $seo->twitter_creator }}">
+        @endif
+    @else
+        {{-- Fallback Twitter si no hay SEO --}}
+        <meta name="twitter:card" content="summary_large_image">
+        <meta name="twitter:title" content="@yield('title', 'MY Tech Solutions')">
+    @endif
+
+    {{-- STRUCTURED DATA / SCHEMA.ORG --}}
+    @if(isset($seo) && $seo && $seo->schema_markup)
+        <script type="application/ld+json">
+            {!! is_string($seo->schema_markup) ? $seo->schema_markup : json_encode($seo->schema_markup) !!}
+        </script>
+    @else
+        {{-- Schema básico por defecto --}}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "name": "MY Tech Solutions",
+            "url": "{{ request()->root() }}",
+            "description": "Soluciones tecnológicas profesionales"
+        }
+        </script>
+    @endif
+
+    {{-- FAVICON --}}
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
 
-    <!-- Bootstrap CSS -->
+    {{-- BOOTSTRAP CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Font Awesome -->
+    
+    {{-- FONT AWESOME --}}
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <!-- Google Fonts -->
+    
+    {{-- GOOGLE FONTS --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    {{-- SITEMAP HINT (para crawlers) --}}
+    @if(isset($seo) && $seo && $seo->sitemap_include)
+        <link rel="sitemap" type="application/xml" title="Sitemap" href="{{ url('/sitemap.xml') }}">
+    @endif
+
+    {{-- ESTILOS ADICIONALES DE PÁGINAS ESPECÍFICAS --}}
+    @stack('styles')
 
     <style>
         :root {

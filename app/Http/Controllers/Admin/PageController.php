@@ -8,6 +8,21 @@ use App\Models\Page;
 use Illuminate\Http\Request;
 use App\Models\Section;
 use Illuminate\Support\Facades\Log; 
+use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Intervention\Image\Facades\Image;
+use Exception;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\URL;
+//seo
+use App\Models\Seo;
 
 class PageController extends Controller
 {
@@ -22,13 +37,13 @@ class PageController extends Controller
     // Página de INICIO
     public function editInicio()
     {
-        $page = Page::where('slug', 'inicio')->firstOrFail();
-        return view('admin.pages.edit-inicio', compact('page'));
+        $page = Page::where('slug', 'inicio')->with('seo')->firstOrFail();
+        return view('admin.pages.edit-home', compact('page'));
     }
 
     public function updateInicio(Request $request)
     {
-        $page = Page::where('slug', 'inicio')->firstOrFail();
+        $page = Page::where('slug', 'inicio')->with('seo')->firstOrFail();
         return $this->updatePage($request, $page, 'admin.pages.edit-inicio');
     }
 
@@ -44,7 +59,19 @@ class PageController extends Controller
             'content' => 'nullable|string',
             'section' => 'nullable|string|max:255',
             'images.*' => 'nullable|image|max:2048',
-            'video_urls' => 'nullable|string'
+            'video_urls' => 'nullable|string',
+            // Validaciones SEO
+            'meta_title' => 'nullable|string|max:255',
+            'meta_description' => 'nullable|string|max:500',
+            'meta_keywords' => 'nullable|string|max:255',
+            'focus_keyword' => 'nullable|string|max:100',
+            'og_title' => 'nullable|string|max:255',
+            'og_description' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:255',
+            'sitemap_priority' => 'nullable|numeric|between:0,1',
+            'sitemap_changefreq' => 'nullable|in:daily,weekly,monthly,yearly',
+            'sitemap_include' => 'nullable|boolean',
+            'is_active' => 'nullable|boolean'
         ]);
 
         // Actualizar datos básicos
@@ -54,14 +81,14 @@ class PageController extends Controller
 
         // Manejar imágenes nuevas
         $currentImages = $page->getImagesArray();
-        
+
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('pages', 'public');
                 $currentImages[] = $path;
             }
         }
-        
+
         $page->setImagesArray($currentImages);
 
         // Manejar videos
@@ -79,6 +106,9 @@ class PageController extends Controller
 
         $page->save();
 
+        // Manejar datos SEO
+        $this->updatePageSeo($request, $page);
+
         return redirect()->route($redirectRoute)
             ->with('success', 'Página actualizada correctamente');
     }
@@ -91,10 +121,10 @@ class PageController extends Controller
 
         if (isset($images[$imageIndex])) {
             \Storage::disk('public')->delete($images[$imageIndex]);
-            
+
             unset($images[$imageIndex]);
             $images = array_values($images);
-            
+
             $page->setImagesArray($images);
             $page->save();
 
@@ -103,6 +133,70 @@ class PageController extends Controller
 
         return response()->json(['success' => false], 404);
     }
+
+    // === MÉTODO PARA MANEJAR DATOS SEO ===
+   // === MÉTODO PARA MANEJAR DATOS SEO - CORREGIDO ===
+private function updatePageSeo(Request $request, Page $page)
+{
+    // Campos SEO que vamos a verificar (excluyendo booleanos para la detección)
+    $seoTextFields = [
+        'meta_title', 'meta_description', 'meta_keywords', 'focus_keyword',
+        'og_title', 'og_description', 'canonical_url', 'sitemap_priority',
+        'sitemap_changefreq'
+    ];
+
+    // Verificar si hay al menos un campo SEO con contenido
+    $hasSeoData = false;
+    foreach ($seoTextFields as $field) {
+        if ($request->filled($field)) {
+            $hasSeoData = true;
+            break;
+        }
+    }
+
+    // Si no hay datos de texto SEO, pero hay campos booleanos, también consideramos que hay datos SEO
+    if (!$hasSeoData && ($request->has('sitemap_include') || $request->has('is_active'))) {
+        $hasSeoData = true;
+    }
+
+    // Si definitivamente no hay datos SEO, salir
+    if (!$hasSeoData) {
+        return;
+    }
+
+    // Buscar o crear registro SEO
+    $seo = $page->seo;
+    if (!$seo) {
+        $seo = new \App\Models\Seo();
+        $seo->page_id = $page->id;
+    }
+
+    // Actualizar campos de texto SEO
+    $seo->meta_title = $request->input('meta_title');
+    $seo->meta_description = $request->input('meta_description');
+    $seo->meta_keywords = $request->input('meta_keywords');
+    $seo->focus_keyword = $request->input('focus_keyword');
+    $seo->og_title = $request->input('og_title');
+    $seo->og_description = $request->input('og_description');
+    $seo->canonical_url = $request->input('canonical_url');
+    
+    // Manejar campos numéricos con valores por defecto
+    $seo->sitemap_priority = $request->input('sitemap_priority', 0.5);
+    $seo->sitemap_changefreq = $request->input('sitemap_changefreq', 'monthly');
+    
+    // Manejar campos booleanos correctamente
+    // Los checkboxes no marcados no se envían en el request, por eso usamos has() para detectar si están presentes
+    $seo->sitemap_include = $request->has('sitemap_include') ? true : false;
+    $seo->is_active = $request->has('is_active') ? true : false;
+
+    $seo->save();
+
+    \Log::info('SEO data updated for page: ' . $page->slug, [
+        'page_id' => $page->id,
+        'seo_id' => $seo->id,
+        'updated_fields' => array_keys($seo->getDirty())
+    ]);
+}
 
     
 

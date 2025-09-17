@@ -428,6 +428,137 @@
                 </div>
             </div>
 
+            <!-- Sección SEO -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-search"></i>
+                    Configuración SEO
+                </h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="meta_title" class="form-label">Meta Título</label>
+                        <input type="text" class="form-control" id="meta_title" name="meta_title"
+                               value="{{ old('meta_title', $page->seo->meta_title ?? '') }}"
+                               placeholder="Título SEO para la página">
+                        <small class="form-text">Recomendado: 50-60 caracteres</small>
+                        @error('meta_title')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="focus_keyword" class="form-label">Palabra Clave Principal</label>
+                        <input type="text" class="form-control" id="focus_keyword" name="focus_keyword"
+                               value="{{ old('focus_keyword', $page->seo->focus_keyword ?? '') }}"
+                               placeholder="Palabra clave principal">
+                        @error('focus_keyword')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="meta_description" class="form-label">Meta Descripción</label>
+                    <textarea class="form-control" id="meta_description" name="meta_description"
+                              placeholder="Descripción que aparece en los resultados de búsqueda">{{ old('meta_description', $page->seo->meta_description ?? '') }}</textarea>
+                    <small class="form-text">Recomendado: 150-160 caracteres</small>
+                    @error('meta_description')
+                        <div class="form-text text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-group">
+                    <label for="meta_keywords" class="form-label">Palabras Clave</label>
+                    <input type="text" class="form-control" id="meta_keywords" name="meta_keywords"
+                           value="{{ old('meta_keywords', $page->seo->meta_keywords ?? '') }}"
+                           placeholder="palabra1, palabra2, palabra3">
+                    <small class="form-text">Separa las palabras clave con comas</small>
+                    @error('meta_keywords')
+                        <div class="form-text text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="og_title" class="form-label">Título para Redes Sociales</label>
+                        <input type="text" class="form-control" id="og_title" name="og_title"
+                               value="{{ old('og_title', $page->seo->og_title ?? '') }}"
+                               placeholder="Título que aparece al compartir en redes sociales">
+                        @error('og_title')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="canonical_url" class="form-label">URL Canónica</label>
+                        <input type="url" class="form-control" id="canonical_url" name="canonical_url"
+                               value="{{ old('canonical_url', $page->seo->canonical_url ?? '') }}"
+                               placeholder="https://example.com/pagina">
+                        @error('canonical_url')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="og_description" class="form-label">Descripción para Redes Sociales</label>
+                    <textarea class="form-control" id="og_description" name="og_description"
+                              placeholder="Descripción que aparece al compartir en redes sociales">{{ old('og_description', $page->seo->og_description ?? '') }}</textarea>
+                    @error('og_description')
+                        <div class="form-text text-danger">{{ $message }}</div>
+                    @enderror
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sitemap_priority" class="form-label">Prioridad en Sitemap</label>
+                        <select class="form-control" id="sitemap_priority" name="sitemap_priority">
+                            <option value="1.0" {{ old('sitemap_priority', $page->seo->sitemap_priority ?? '') == '1.0' ? 'selected' : '' }}>1.0 - Muy Alta</option>
+                            <option value="0.8" {{ old('sitemap_priority', $page->seo->sitemap_priority ?? '') == '0.8' ? 'selected' : '' }}>0.8 - Alta</option>
+                            <option value="0.5" {{ old('sitemap_priority', $page->seo->sitemap_priority ?? '') == '0.5' ? 'selected' : '' }}>0.5 - Media</option>
+                            <option value="0.3" {{ old('sitemap_priority', $page->seo->sitemap_priority ?? '') == '0.3' ? 'selected' : '' }}>0.3 - Baja</option>
+                        </select>
+                        @error('sitemap_priority')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label for="sitemap_changefreq" class="form-label">Frecuencia de Cambios</label>
+                        <select class="form-control" id="sitemap_changefreq" name="sitemap_changefreq">
+                            <option value="daily" {{ old('sitemap_changefreq', $page->seo->sitemap_changefreq ?? '') == 'daily' ? 'selected' : '' }}>Diario</option>
+                            <option value="weekly" {{ old('sitemap_changefreq', $page->seo->sitemap_changefreq ?? '') == 'weekly' ? 'selected' : '' }}>Semanal</option>
+                            <option value="monthly" {{ old('sitemap_changefreq', $page->seo->sitemap_changefreq ?? '') == 'monthly' ? 'selected' : '' }}>Mensual</option>
+                            <option value="yearly" {{ old('sitemap_changefreq', $page->seo->sitemap_changefreq ?? '') == 'yearly' ? 'selected' : '' }}>Anual</option>
+                        </select>
+                        @error('sitemap_changefreq')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" name="sitemap_include" value="1"
+                                   {{ old('sitemap_include', $page->seo->sitemap_include ?? true) ? 'checked' : '' }}
+                                   style="margin-right: 0.5rem;">
+                            Incluir en Sitemap
+                        </label>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">
+                            <input type="checkbox" name="is_active" value="1"
+                                   {{ old('is_active', $page->seo->is_active ?? true) ? 'checked' : '' }}
+                                   style="margin-right: 0.5rem;">
+                            SEO Activo
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <!-- Vista Previa -->
             <div class="preview-section">
                 <h4><i class="fas fa-eye me-2"></i>Vista Previa</h4>
