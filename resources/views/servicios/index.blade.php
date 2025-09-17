@@ -464,10 +464,9 @@
             <!-- Contenido de texto -->
             <div class="col-lg-6">
                 <div class="hero-content-text">
-                    <h1>Nuestros Servicios</h1>
+                    <h1>{{ $data['hero_title'] ?? 'Nuestros Servicios' }}</h1>
                     <p class="lead">
-                        Creamos soluciones digitales a la medida que impulsan el crecimiento de tu empresa. 
-                        No usamos plantillas, cada proyecto es único y está diseñado específicamente para tus necesidades.
+                        {{ $data['hero_description'] ?? 'Creamos soluciones digitales a la medida que impulsan el crecimiento de tu empresa. No usamos plantillas, cada proyecto es único y está diseñado específicamente para tus necesidades.' }}
                     </p>
                 </div>
             </div>
@@ -477,7 +476,7 @@
                 <div class="video-container">
                     <div class="video-wrapper">
                         <video autoplay muted loop playsinline class="hero-video">
-                            <source src="{{ asset('videos/hero-video.mp4') }}" type="video/mp4">
+                            <source src="{{ asset($data['hero_video_url'] ?? 'videos/hero-video.mp4') }}" type="video/mp4">
                             Tu navegador no soporta videos HTML5.
                         </video>
                         <div class="video-overlay-effect"></div>
@@ -494,106 +493,112 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--dark-text); margin-bottom: 1rem;">
-                ¿Qué Desarrollamos Para Ti?
+                {{ $data['servicios_title'] ?? '¿Qué Desarrollamos Para Ti?' }}
             </h2>
             <p style="font-size: 1.2rem; color: #6c757d; max-width: 600px; margin: 0 auto;">
-                Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.
+                {{ $data['servicios_description'] ?? 'Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.' }}
             </p>
         </div>
 
         <div class="row g-4">
+            <!-- Servicio 1 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-store"></i>
+                        <i class="{{ $data['servicio_1_icon'] ?? 'fas fa-store' }}"></i>
                     </div>
-                    <h3>Marketplaces Personalizados</h3>
-                    <p>Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.</p>
+                    <h3>{{ $data['servicio_1_title'] ?? 'Marketplaces Personalizados' }}</h3>
+                    <p>{{ $data['servicio_1_description'] ?? 'Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.' }}</p>
                     <ul class="servicio-features">
-                        <li>Sistema de vendedores múltiples</li>
-                        <li>Pagos integrados y seguros</li>
-                        <li>Panel administrativo completo</li>
-                        <li>App móvil nativa opcional</li>
+                        <li>{{ $data['servicio_1_feature_1'] ?? 'Sistema de vendedores múltiples' }}</li>
+                        <li>{{ $data['servicio_1_feature_2'] ?? 'Pagos integrados y seguros' }}</li>
+                        <li>{{ $data['servicio_1_feature_3'] ?? 'Panel administrativo completo' }}</li>
+                        <li>{{ $data['servicio_1_feature_4'] ?? 'App móvil nativa opcional' }}</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Servicio 2 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-calendar-check"></i>
+                        <i class="{{ $data['servicio_2_icon'] ?? 'fas fa-calendar-check' }}"></i>
                     </div>
-                    <h3>Apps de Reservas y Citas</h3>
-                    <p>Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.</p>
+                    <h3>{{ $data['servicio_2_title'] ?? 'Apps de Reservas y Citas' }}</h3>
+                    <p>{{ $data['servicio_2_description'] ?? 'Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.' }}</p>
                     <ul class="servicio-features">
-                        <li>Reservas en tiempo real</li>
-                        <li>Recordatorios automáticos</li>
-                        <li>Gestión de disponibilidad</li>
-                        <li>Integración con calendarios</li>
+                        <li>{{ $data['servicio_2_feature_1'] ?? 'Reservas en tiempo real' }}</li>
+                        <li>{{ $data['servicio_2_feature_2'] ?? 'Recordatorios automáticos' }}</li>
+                        <li>{{ $data['servicio_2_feature_3'] ?? 'Gestión de disponibilidad' }}</li>
+                        <li>{{ $data['servicio_2_feature_4'] ?? 'Integración con calendarios' }}</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Servicio 3 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-utensils"></i>
+                        <i class="{{ $data['servicio_3_icon'] ?? 'fas fa-utensils' }}"></i>
                     </div>
-                    <h3>Plataformas de Restaurantes</h3>
-                    <p>Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.</p>
+                    <h3>{{ $data['servicio_3_title'] ?? 'Plataformas de Restaurantes' }}</h3>
+                    <p>{{ $data['servicio_3_description'] ?? 'Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.' }}</p>
                     <ul class="servicio-features">
-                        <li>Menú digital con QR</li>
-                        <li>Pedidos online y delivery</li>
-                        <li>Gestión de inventario</li>
-                        <li>Reportes de ventas</li>
+                        <li>{{ $data['servicio_3_feature_1'] ?? 'Menú digital con QR' }}</li>
+                        <li>{{ $data['servicio_3_feature_2'] ?? 'Pedidos online y delivery' }}</li>
+                        <li>{{ $data['servicio_3_feature_3'] ?? 'Gestión de inventario' }}</li>
+                        <li>{{ $data['servicio_3_feature_4'] ?? 'Reportes de ventas' }}</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Servicio 4 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-building"></i>
+                        <i class="{{ $data['servicio_4_icon'] ?? 'fas fa-building' }}"></i>
                     </div>
-                    <h3>Sistemas Administrativos</h3>
-                    <p>Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.</p>
+                    <h3>{{ $data['servicio_4_title'] ?? 'Sistemas Administrativos' }}</h3>
+                    <p>{{ $data['servicio_4_description'] ?? 'Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.' }}</p>
                     <ul class="servicio-features">
-                        <li>Gestión de clientes/residentes</li>
-                        <li>Control de pagos y facturación</li>
-                        <li>Reportes automatizados</li>
-                        <li>Comunicación interna</li>
+                        <li>{{ $data['servicio_4_feature_1'] ?? 'Gestión de clientes/residentes' }}</li>
+                        <li>{{ $data['servicio_4_feature_2'] ?? 'Control de pagos y facturación' }}</li>
+                        <li>{{ $data['servicio_4_feature_3'] ?? 'Reportes automatizados' }}</li>
+                        <li>{{ $data['servicio_4_feature_4'] ?? 'Comunicación interna' }}</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Servicio 5 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-globe"></i>
+                        <i class="{{ $data['servicio_5_icon'] ?? 'fas fa-globe' }}"></i>
                     </div>
-                    <h3>Páginas Web Profesionales</h3>
-                    <p>Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.</p>
+                    <h3>{{ $data['servicio_5_title'] ?? 'Páginas Web Profesionales' }}</h3>
+                    <p>{{ $data['servicio_5_description'] ?? 'Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.' }}</p>
                     <ul class="servicio-features">
-                        <li>Diseño responsive y moderno</li>
-                        <li>SEO optimizado para Google</li>
-                        <li>Panel de administración</li>
-                        <li>Velocidad de carga optimizada</li>
+                        <li>{{ $data['servicio_5_feature_1'] ?? 'Diseño responsive y moderno' }}</li>
+                        <li>{{ $data['servicio_5_feature_2'] ?? 'SEO optimizado para Google' }}</li>
+                        <li>{{ $data['servicio_5_feature_3'] ?? 'Panel de administración' }}</li>
+                        <li>{{ $data['servicio_5_feature_4'] ?? 'Velocidad de carga optimizada' }}</li>
                     </ul>
                 </div>
             </div>
 
+            <!-- Servicio 6 -->
             <div class="col-lg-4 col-md-6">
                 <div class="servicio-card">
                     <div class="servicio-icon">
-                        <i class="fas fa-cogs"></i>
+                        <i class="{{ $data['servicio_6_icon'] ?? 'fas fa-cogs' }}"></i>
                     </div>
-                    <h3>Aplicaciones Web Personalizadas</h3>
-                    <p>Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.</p>
+                    <h3>{{ $data['servicio_6_title'] ?? 'Aplicaciones Web Personalizadas' }}</h3>
+                    <p>{{ $data['servicio_6_description'] ?? 'Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.' }}</p>
                     <ul class="servicio-features">
-                        <li>CRM y ERP personalizados</li>
-                        <li>Plataformas de e-learning</li>
-                        <li>Sistemas de inventario</li>
-                        <li>Dashboards y analytics</li>
+                        <li>{{ $data['servicio_6_feature_1'] ?? 'CRM y ERP personalizados' }}</li>
+                        <li>{{ $data['servicio_6_feature_2'] ?? 'Plataformas de e-learning' }}</li>
+                        <li>{{ $data['servicio_6_feature_3'] ?? 'Sistemas de inventario' }}</li>
+                        <li>{{ $data['servicio_6_feature_4'] ?? 'Dashboards y analytics' }}</li>
                     </ul>
                 </div>
             </div>
@@ -606,45 +611,45 @@
     <div class="container">
         <div class="text-center">
             <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--dark-text); margin-bottom: 1rem;">
-                Tecnologías Modernas y Seguras
+                {{ $data['tecnologias_title'] ?? 'Tecnologías Modernas y Seguras' }}
             </h2>
             <p style="font-size: 1.2rem; color: #6c757d; max-width: 700px; margin: 0 auto;">
-                Utilizamos las herramientas más avanzadas del mercado para garantizar que tu plataforma sea rápida, confiable, escalable y esté lista para crecer.
+                {{ $data['tecnologias_description'] ?? 'Utilizamos las herramientas más avanzadas del mercado para garantizar que tu plataforma sea rápida, confiable, escalable y esté lista para crecer.' }}
             </p>
         </div>
 
         <div class="tech-grid">
             <div class="tech-item">
-                <i class="fab fa-laravel"></i>
-                <h5>Laravel 12</h5>
+                <i class="{{ $data['tech_1_icon'] ?? 'fab fa-laravel' }}"></i>
+                <h5>{{ $data['tech_1_name'] ?? 'Laravel 12' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fab fa-js-square"></i>
-                <h5>JavaScript</h5>
+                <i class="{{ $data['tech_2_icon'] ?? 'fab fa-js-square' }}"></i>
+                <h5>{{ $data['tech_2_name'] ?? 'JavaScript' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fab fa-react"></i>
-                <h5>React</h5>
+                <i class="{{ $data['tech_3_icon'] ?? 'fab fa-react' }}"></i>
+                <h5>{{ $data['tech_3_name'] ?? 'React' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fab fa-bootstrap"></i>
-                <h5>Bootstrap</h5>
+                <i class="{{ $data['tech_4_icon'] ?? 'fab fa-bootstrap' }}"></i>
+                <h5>{{ $data['tech_4_name'] ?? 'Bootstrap' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fas fa-database"></i>
-                <h5>MySQL</h5>
+                <i class="{{ $data['tech_5_icon'] ?? 'fas fa-database' }}"></i>
+                <h5>{{ $data['tech_5_name'] ?? 'MySQL' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fab fa-aws"></i>
-                <h5>AWS Cloud</h5>
+                <i class="{{ $data['tech_6_icon'] ?? 'fab fa-aws' }}"></i>
+                <h5>{{ $data['tech_6_name'] ?? 'AWS Cloud' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fab fa-docker"></i>
-                <h5>Docker</h5>
+                <i class="{{ $data['tech_7_icon'] ?? 'fab fa-docker' }}"></i>
+                <h5>{{ $data['tech_7_name'] ?? 'Docker' }}</h5>
             </div>
             <div class="tech-item">
-                <i class="fas fa-shield-alt"></i>
-                <h5>SSL Security</h5>
+                <i class="{{ $data['tech_8_icon'] ?? 'fas fa-shield-alt' }}"></i>
+                <h5>{{ $data['tech_8_name'] ?? 'SSL Security' }}</h5>
             </div>
         </div>
     </div>
@@ -655,42 +660,42 @@
     <div class="container">
         <div class="text-center mb-5">
             <h2 style="font-size: 2.5rem; font-weight: 800; color: var(--dark-text); margin-bottom: 1rem;">
-                Nuestro Proceso de Trabajo
+                {{ $data['proceso_title'] ?? 'Nuestro Proceso de Trabajo' }}
             </h2>
             <p style="font-size: 1.2rem; color: #6c757d; max-width: 600px; margin: 0 auto;">
-                Te acompañamos desde la idea inicial hasta el lanzamiento y soporte continuo de tu plataforma.
+                {{ $data['proceso_description'] ?? 'Te acompañamos desde la idea inicial hasta el lanzamiento y soporte continuo de tu plataforma.' }}
             </p>
         </div>
 
         <div class="proceso-steps">
             <div class="proceso-step">
                 <div class="step-number">1</div>
-                <h4>Análisis y Consultoría</h4>
-                <p>Escuchamos tu idea, analizamos tus necesidades y definimos la mejor estrategia para tu proyecto.</p>
+                <h4>{{ $data['proceso_step_1_title'] ?? 'Análisis y Consultoría' }}</h4>
+                <p>{{ $data['proceso_step_1_description'] ?? 'Escuchamos tu idea, analizamos tus necesidades y definimos la mejor estrategia para tu proyecto.' }}</p>
             </div>
 
             <div class="proceso-step">
                 <div class="step-number">2</div>
-                <h4>Diseño y Planificación</h4>
-                <p>Creamos prototipos, wireframes y definimos la arquitectura técnica de tu plataforma.</p>
+                <h4>{{ $data['proceso_step_2_title'] ?? 'Diseño y Planificación' }}</h4>
+                <p>{{ $data['proceso_step_2_description'] ?? 'Creamos prototipos, wireframes y definimos la arquitectura técnica de tu plataforma.' }}</p>
             </div>
 
             <div class="proceso-step">
                 <div class="step-number">3</div>
-                <h4>Desarrollo a Medida</h4>
-                <p>Programamos tu solución utilizando las mejores prácticas y tecnologías más avanzadas.</p>
+                <h4>{{ $data['proceso_step_3_title'] ?? 'Desarrollo a Medida' }}</h4>
+                <p>{{ $data['proceso_step_3_description'] ?? 'Programamos tu solución utilizando las mejores prácticas y tecnologías más avanzadas.' }}</p>
             </div>
 
             <div class="proceso-step">
                 <div class="step-number">4</div>
-                <h4>Pruebas y Lanzamiento</h4>
-                <p>Realizamos pruebas exhaustivas y te acompañamos en el lanzamiento de tu plataforma.</p>
+                <h4>{{ $data['proceso_step_4_title'] ?? 'Pruebas y Lanzamiento' }}</h4>
+                <p>{{ $data['proceso_step_4_description'] ?? 'Realizamos pruebas exhaustivas y te acompañamos en el lanzamiento de tu plataforma.' }}</p>
             </div>
 
             <div class="proceso-step">
                 <div class="step-number">5</div>
-                <h4>Soporte Continuo</h4>
-                <p>Brindamos mantenimiento, actualizaciones y soporte técnico para el crecimiento de tu negocio.</p>
+                <h4>{{ $data['proceso_step_5_title'] ?? 'Soporte Continuo' }}</h4>
+                <p>{{ $data['proceso_step_5_description'] ?? 'Brindamos mantenimiento, actualizaciones y soporte técnico para el crecimiento de tu negocio.' }}</p>
             </div>
         </div>
     </div>
@@ -700,15 +705,15 @@
 <section class="cta-section">
     <div class="container">
         <div class="cta-content">
-            <h2>¿Listo para Digitalizar tu Idea?</h2>
+            <h2>{{ $data['cta_title'] ?? '¿Listo para Digitalizar tu Idea?' }}</h2>
             <p>
-                Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.
+                {{ $data['cta_description'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.' }}
             </p>
-            <a href="https://wa.me/573123708407?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios%20de%20desarrollo%20web" 
+            <a href="https://wa.me/{{ $data['whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($data['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}" 
                target="_blank" 
                class="btn-cta">
                 <i class="fab fa-whatsapp"></i>
-                Hablemos por WhatsApp
+                {{ $data['cta_button_text'] ?? 'Hablemos por WhatsApp' }}
             </a>
         </div>
     </div>

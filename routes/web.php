@@ -23,6 +23,8 @@ Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'inde
 Route::get('/sobre-nosotros', [App\Http\Controllers\ServiciosController::class, 'indexsobreNosotros'])->name('sobre_nosotros.index');
 Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'indexcontacto'])->name('contacto.index');
 
+Route::get('admin/pages/servicios/edit', [PageController::class, 'editServicios'])->name('admin.pages.servicios.edit');
+Route::put('admin/pages/servicios/update', [PageController::class, 'updateServicios'])->name('admin.pages.servicios.update');
 // Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 // Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 // Route::view('/about',   'about')->name('about');

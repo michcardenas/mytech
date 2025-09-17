@@ -274,11 +274,18 @@
                     
                     <div class="page-actions">
                         <!-- Botón Editar -->
+                       @if($page->slug === 'servicios')
+                        <a href="{{ route('admin.pages.servicios.edit') }}" class="btn-sm btn-warning" title="Editar página">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                    @else
                         <a href="{{ route('admin.pages.edit', $page) }}" class="btn-sm btn-warning" title="Editar página">
                             <i class="fas fa-edit"></i>
                             Editar
                         </a>
-                        
+                    @endif
+                                            
                         <!-- Botón SEO -->
                         <a href="{{ route('admin.seo.edit', $page) }}" class="btn-sm btn-info" title="Configurar SEO">
                             <i class="fas fa-search"></i>

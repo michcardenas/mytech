@@ -31,6 +31,7 @@ class PageController extends Controller
         $pages = Page::orderBy('slug')->get();
         return view('admin.pages.index', compact('pages'));
     }
+    
 
     // === MÉTODOS ESPECÍFICOS PARA CADA PÁGINA ===
 
@@ -839,93 +840,6 @@ public function updateContacto(Request $request)
 }
 
 
-public function editServicios()
-{
-    $page = Page::where('slug', 'servicios')->with(['sections' => function($query) {
-        $query->orderBy('order');
-    }])->first();
-    
-    // Si no existe la página, crearla con secciones por defecto
-    if (!$page) {
-        $page = Page::create([
-            'slug' => 'servicios',
-            'title' => 'Servicios',
-            'content' => 'Página de servicios de ElectraHome'
-        ]);
-        
-        // Crear secciones por defecto para servicios
-        $sectionsData = [
-            [
-                'name' => 'hero', 
-                'title' => 'Nuestros Servicios', 
-                'content' => 'Servicios especializados en electrodomésticos y línea blanca', 
-                'order' => 1
-            ],
-            [
-                'name' => 'intro', 
-                'title' => 'Expertos en Electrodomésticos', 
-                'content' => 'Con años de experiencia en el sector, ofrecemos servicios integrales...', 
-                'order' => 2
-            ],
-            [
-                'name' => 'services_list', 
-                'title' => 'Servicios Disponibles', 
-                'content' => 'Amplia gama de servicios para tus electrodomésticos', 
-                'order' => 3
-            ],
-            [
-                'name' => 'process', 
-                'title' => 'Nuestro Proceso de Trabajo', 
-                'content' => 'Metodología probada para garantizar resultados', 
-                'order' => 4
-            ],
-            [
-                'name' => 'why_choose', 
-                'title' => 'Por Qué Elegir ElectraHome', 
-                'content' => 'Razones que nos convierten en tu mejor opción', 
-                'order' => 5
-            ],
-            [
-                'name' => 'cta', 
-                'title' => 'Solicita tu Servicio Hoy', 
-                'content' => '¿Listo para reparar tu electrodoméstico? Contáctanos ahora', 
-                'order' => 6
-            ]
-        ];
-
-        foreach ($sectionsData as $sectionData) {
-            try {
-                $section = $page->sections()->create([
-                    'name' => $sectionData['name'],
-                    'title' => $sectionData['title'],
-                    'content' => $sectionData['content'],
-                    'order' => $sectionData['order'],
-                    'is_active' => true
-                ]);
-                
-                \Log::info("Sección {$sectionData['name']} creada para servicios con ID: {$section->id}");
-            } catch (\Exception $e) {
-                \Log::error("Error creando sección {$sectionData['name']} para servicios: " . $e->getMessage());
-            }
-        }
-        
-        // Recargar la página con las secciones
-        $page = $page->fresh(['sections']);
-    }
-
-    // Obtener la página con sus secciones ordenadas
-    $page = Page::where('slug', 'servicios')->with(['sections' => function($query) {
-        $query->orderBy('order');
-    }])->first();
-
-    return view('admin.pages.edit-servicios', compact('page'));
-}
-
-public function updateServicios(Request $request)
-{
-    $page = Page::where('slug', 'servicios')->firstOrFail();
-    return $this->updatePage($request, $page, 'admin.pages.edit-servicios');
-}
 
 
 public function servicios()
@@ -1068,7 +982,88 @@ private function createDefaultServicesSection($page)
     }
 }
 
-
-
-
+public function editServicios()
+{
+    $page = Page::where('slug', 'servicios')->first();
+    
+    // Decodificar el contenido JSON si existe
+    $data = [];
+    if ($page && $page->content) {
+        $data = json_decode($page->content, true) ?? [];
+    }
+    
+    // Obtener datos de SEO
+    $seo = null;
+    if ($page) {
+        $seo = Seo::where('page_id', $page->id)->first();
+    }
+    
+    return view('admin.pages.servicios.edit', compact('page', 'data', 'seo'));
+}
+public function updateServicios(Request $request)
+{
+    $page = Page::where('slug', 'servicios')->first();
+    
+    // Obtener todos los datos del request
+    $data = $request->all();
+    
+    // Separar datos de contenido y datos de SEO
+    $seoFields = [
+        'meta_title', 'meta_description', 'meta_keywords', 'canonical_url', 
+        'robots', 'og_title', 'og_description', 'og_image', 'og_type', 
+        'og_url', 'og_site_name', 'twitter_card', 'twitter_title', 
+        'twitter_description', 'twitter_image', 'twitter_site', 'twitter_creator',
+        'schema_markup', 'focus_keyword', 'breadcrumb_title', 'sitemap_include',
+        'sitemap_priority', 'sitemap_changefreq', 'is_active', 'seo_score'
+    ];
+    
+    $seoData = [];
+    $contentData = [];
+    
+    foreach ($data as $key => $value) {
+        if (in_array($key, $seoFields)) {
+            $seoData[$key] = $value;
+        } elseif ($key !== '_token' && $key !== '_method') {
+            $contentData[$key] = $value;
+        }
+    }
+    
+    // Manejar la subida del video si existe
+    if ($request->hasFile('hero_video')) {
+        $video = $request->file('hero_video');
+        $videoName = 'hero-video-' . time() . '.' . $video->getClientOriginalExtension();
+        $video->move(public_path('videos'), $videoName);
+        $contentData['hero_video_url'] = 'videos/' . $videoName;
+    }
+    
+    // Manejar imagen OG si existe
+    if ($request->hasFile('og_image')) {
+        $image = $request->file('og_image');
+        $imageName = 'og-servicios-' . time() . '.' . $image->getClientOriginalExtension();
+        $image->move(public_path('images/seo'), $imageName);
+        $seoData['og_image'] = 'images/seo/' . $imageName;
+    }
+    
+    // Convertir los datos de contenido a JSON
+    $content = json_encode($contentData);
+    
+    // Actualizar la página
+    $page->update([
+        'content' => $content,
+        'updated_at' => now()
+    ]);
+    
+    // Actualizar o crear registro de SEO
+    if (!empty($seoData)) {
+        $seoData['page_id'] = $page->id;
+        
+        Seo::updateOrCreate(
+            ['page_id' => $page->id],
+            $seoData
+        );
+    }
+    
+    return redirect()->route('admin.pages.servicios.edit')
+                    ->with('success', 'Servicios y SEO actualizados correctamente');
+}
 }
