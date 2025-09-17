@@ -12,6 +12,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\WholesaleController;
 use App\Http\Controllers\Admin\PageController;
+use App\Http\Controllers\Admin\PagesController;
 use App\Http\Controllers\ServiciosController;
 
 
@@ -77,7 +78,7 @@ Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'index
 // })->name('terms.conditions');
 // /* ---------- Dashboard y perfil ---------- */
 // Route::middleware(['auth', 'verified'])->group(function () {
-// Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
 //     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
 //     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
@@ -106,8 +107,18 @@ Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'index
 
 //     // === RUTAS ESPECÍFICAS PARA PÁGINAS ===
     
-//     // Lista general de páginas
-//     Route::get('pages', [App\Http\Controllers\Admin\PageController::class, 'index'])->name('admin.pages.index');
+//     // Lista general de páginas - COMENTADO PARA NUEVA IMPLEMENTACIÓN
+    // Route::get('pages', [App\Http\Controllers\Admin\PageController::class, 'index'])->name('admin.pages.index');
+
+    // === NUEVAS RUTAS PARA GESTIÓN DE PÁGINAS ===
+    Route::resource('pages', PagesController::class, ['as' => 'admin']);
+
+    // Rutas adicionales para secciones
+    Route::get('pages/{page}/sections', [PagesController::class, 'sections'])->name('admin.pages.sections');
+    Route::post('pages/{page}/sections', [PagesController::class, 'storeSection'])->name('admin.pages.sections.store');
+    Route::put('pages/{page}/sections/{section}', [PagesController::class, 'updateSection'])->name('admin.pages.sections.update');
+    Route::delete('pages/{page}/sections/{section}', [PagesController::class, 'destroySection'])->name('admin.pages.sections.destroy');
+    Route::patch('pages/{page}/sections/{section}/toggle', [PagesController::class, 'toggleSection'])->name('admin.pages.sections.toggle');
     
 //     // Página INICIO
 //     Route::get('pages/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('admin.pages.edit-inicio');

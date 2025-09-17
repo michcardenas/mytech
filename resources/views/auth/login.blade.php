@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Login - Meatology')
+@section('title', 'Login - MY Tech Solutions')
 
 @section('content')
 <div class="login-page">
@@ -12,23 +12,23 @@
                         <!-- Left Column - Image/Branding -->
                         <div class="col-lg-6 login-image-section">
                             <div class="login-brand">
-                                <img src="{{ asset('images/logo.png') }}" alt="ElectraHome Logo" class="brand-logo">
+                                <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions Logo" class="brand-logo">
                                 <h2 class="brand-title">Bienvenido de Nuevo</h2>
                                 <p class="brand-subtitle">
-                                    Electrodomésticos de calidad premium Oster. Descubre equipos duraderos, eficientes y diseñados para hacer tu vida más fácil en la cocina.
+                                    Desarrollo web profesional que impulsa tu negocio. Creamos soluciones digitales innovadoras, escalables y diseñadas para hacer crecer tu empresa.
                                 </p>
                                 <div class="brand-features">
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Garantía Oficial</span>
+                                        <span>Soporte 24/7</span>
                                     </div>
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Servicio Técnico</span>
+                                        <span>Desarrollo Personalizado</span>
                                     </div>
                                     <div class="feature-item">
                                         <i class="fas fa-check-circle"></i>
-                                        <span>Calidad Certificada</span>
+                                        <span>Tecnología Moderna</span>
                                     </div>
                                 </div>
                             </div>
@@ -39,7 +39,7 @@
                             <div class="login-form-container">
                                 <div class="form-header">
                                     <h3>Iniciar Sesión</h3>
-                                    <p>Accede a tu cuenta para gestionar pedidos y preferencias</p>
+                                    <p>Accede a tu cuenta para gestionar proyectos y servicios</p>
                                 </div>
 
                                 <!-- Session Status -->

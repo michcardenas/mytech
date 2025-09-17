@@ -231,7 +231,7 @@ body, .container, .container-fluid {
 
 <div class="d-flex justify-content-between mt-4">
     <button class="btn btn-success px-4">💾 Save Product</button>
-    <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a>
+    <!-- <a href="{{ route('admin.products.index') }}" class="btn btn-secondary">Cancel</a> -->
 </div>
 
 </div>

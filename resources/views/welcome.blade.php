@@ -6,40 +6,44 @@
         <div class="row align-items-center min-vh-100">
             <div class="col-lg-6">
                 <div class="hero-content">
+                    @php
+                        $homeContent = [];
+                        if (isset($page) && $page && $page->content) {
+                            $homeContent = json_decode($page->content, true) ?? [];
+                        }
+                    @endphp
+
                     <div class="hero-badge">
-                        💻 Tu Página Web Profesional
+                        {{ $homeContent['hero_badge'] ?? '💻 Tu Página Web Profesional' }}
                     </div>
                     <h1 class="hero-title">
-                        Lleva tu <span class="text-blue">negocio</span> 
-                        al mundo digital
+                        {!! $homeContent['hero_title'] ?? 'Lleva tu <span class="text-blue">negocio</span> al mundo digital' !!}
                     </h1>
                     <p class="hero-description">
-                        Creo páginas web que te ayudan a <strong>vender más</strong>, 
-                        atraer nuevos clientes y hacer crecer tu negocio. 
-                        Sin complicaciones técnicas.
+                        {!! $homeContent['hero_description'] ?? 'Creo páginas web que te ayudan a <strong>vender más</strong>, atraer nuevos clientes y hacer crecer tu negocio. Sin complicaciones técnicas.' !!}
                     </p>
                     
                     <div class="benefits">
                         <div class="benefit">
                             <span class="benefit-icon">✅</span>
-                            <span>Más clientes te encuentran en Google</span>
+                            <span>{{ $homeContent['benefit_1'] ?? 'Más clientes te encuentran en Google' }}</span>
                         </div>
                         <div class="benefit">
                             <span class="benefit-icon">✅</span>
-                            <span>Vendes las 24 horas del día</span>
+                            <span>{{ $homeContent['benefit_2'] ?? 'Vendes las 24 horas del día' }}</span>
                         </div>
                         <div class="benefit">
                             <span class="benefit-icon">✅</span>
-                            <span>Te ves profesional ante la competencia</span>
+                            <span>{{ $homeContent['benefit_3'] ?? 'Te ves profesional ante la competencia' }}</span>
                         </div>
                     </div>
 
                     <div class="hero-actions">
                         <a href="#contacto" class="btn-primary">
-                            <span>Quiero mi página web</span>
+                            <span>{{ $homeContent['hero_button_text'] ?? 'Quiero mi página web' }}</span>
                             <span class="btn-arrow">→</span>
                         </a>
-                       
+
                     </div>
                 </div>
             </div>
@@ -75,7 +79,7 @@
                             </div>
                         </div>
                         <div class="phone-label">
-                            Así se verá en móvil
+                            {{ $homeContent['phone_label'] ?? 'Así se verá en móvil' }}
                         </div>
                     </div>
                     
@@ -111,7 +115,7 @@
                             </div>
                         </div>
                         <div class="laptop-label">
-                            Así se verá en computadora
+                            {{ $homeContent['laptop_label'] ?? 'Así se verá en computadora' }}
                         </div>
                     </div>
                     
@@ -121,21 +125,21 @@
                             <span class="badge-icon">🔍</span>
                             <div>
                                 <strong></strong>
-                                <small> Te encuentran fácil</small>
+                                <small>{{ $homeContent['success_badge_1'] ?? 'Te encuentran fácil' }}</small>
                             </div>
                         </div>
-                        
+
                         <div class="success-badge sales">
                             <span class="badge-icon">💰</span>
                             <div>
-                                <small> Más ventas 24/7 trabajando</small>
+                                <small>{{ $homeContent['success_badge_2'] ?? 'Más ventas 24/7 trabajando' }}</small>
                             </div>
                         </div>
-                        
+
                         <div class="success-badge professional">
                             <span class="badge-icon">⭐</span>
                             <div>
-                                <small>Imagen confiable</small>
+                                <small>{{ $homeContent['success_badge_3'] ?? 'Imagen confiable' }}</small>
                             </div>
                         </div>
                     </div>
@@ -148,8 +152,8 @@
 <section class="clients-logos">
     <div class="container">
         <div class="logos-header">
-            <h3>Empresas que confían en mi trabajo</h3>
-            <p>He desarrollado aplicaciones web exitosas para:</p>
+            <h3>{{ $homeContent['clients_title'] ?? 'Empresas que confían en mi trabajo' }}</h3>
+            <p>{{ $homeContent['clients_subtitle'] ?? 'He desarrollado aplicaciones web exitosas para:' }}</p>
         </div>
         
         <div class="logos-carousel">
@@ -275,9 +279,9 @@
         
         <!-- Indicador mejorado -->
         <div class="carousel-note">
-           
+
 <button class="button">
-    <span>Conoce más de nuestro trabajo</span>
+    <span>{{ $homeContent['clients_button_text'] ?? 'Conoce más de nuestro trabajo' }}</span>
 </button>        </div>
     </div>
 </section>

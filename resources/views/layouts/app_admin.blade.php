@@ -3,14 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ElectraHome</title>
+    <title>MY Tech Solutions - Admin</title>
 
-    {{-- Favicon y meta para iconos --}}
-    <link rel="icon" type="image/png" href="{{ asset('images/favicon-96x96.png') }}" sizes="96x96">
-    <link rel="icon" type="image/svg+xml" href="{{ asset('images/favicon.svg') }}">
-    <link rel="shortcut icon" href="{{ asset('images/favicon.ico') }}">
-    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('images/apple-touch-icon.png') }}">
-    <link rel="manifest" href="{{ asset('images/site.webmanifest') }}">
+    {{-- Favicon --}}
+    <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     {{-- CSS y JS --}}
@@ -20,106 +16,163 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
     <style>
-        /* Navigation Responsive Styles - VERSIÓN PROFESIONAL */
-        nav {
-            background: linear-gradient(135deg, #101820 0%, #1a252f 100%);
-            padding: 12px 20px;
-            border-bottom: 3px solid #00A9E0;
-            position: relative;
-            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        :root {
+            --primary-blue: #007BFF;
+            --primary-dark: #0056b3;
+            --dark-text: #2c3e50;
+            --light-gray: #f8f9fa;
+            --white: #ffffff;
+            --gradient-blue: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+            --shadow-soft: 0 10px 30px rgba(0, 123, 255, 0.1);
+            --shadow-hover: 0 20px 40px rgba(0, 123, 255, 0.15);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --navbar-height: 80px;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-text);
+            background: var(--white);
+        }
+
+        /* Navigation Responsive Styles - MY TECH SOLUTIONS */
+        .navbar-custom {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 2px 20px rgba(0, 123, 255, 0.1);
+            padding: 1rem 0;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            transition: var(--transition);
+            height: var(--navbar-height);
         }
 
         .navbar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1rem;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            width: 100%;
-            position: relative;
+            height: 100%;
         }
 
-        .logo {
+        .navbar-brand {
             display: flex;
             align-items: center;
-            gap: 12px;
-            z-index: 1000;
+            text-decoration: none;
+            z-index: 1001;
         }
 
-        .logo img {
+        .logo-img {
             height: 50px;
-            filter: brightness(0) invert(1);
+            width: auto;
+            max-width: 200px;
+            object-fit: contain;
         }
 
         /* Desktop Navigation */
-        .nav-links {
+        .nav-menu {
             display: flex;
             align-items: center;
-            gap: 30px;
-            margin: 0;
-            padding: 0;
+            gap: 2rem;
             list-style: none;
+            margin: 0;
         }
 
-        .nav-links a {
-            color: #00A9E0;
-            text-decoration: none;
-            font-size: 0.95rem;
-            font-weight: 500;
+        .nav-menu li {
             position: relative;
-            transition: all 0.3s ease;
         }
 
-        .nav-links a:hover,
-        .nav-links a.active {
-            color: #00CFB4;
-            transform: translateY(-1px);
+        .nav-link {
+            color: var(--dark-text);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: var(--transition);
+            padding: 0.5rem 0;
+            white-space: nowrap;
         }
 
-        .nav-links a::after {
+        .nav-link:hover {
+            color: var(--primary-blue);
+        }
+
+        .nav-link.active {
+            color: var(--primary-blue);
+        }
+
+        .nav-link::after {
             content: '';
             position: absolute;
-            bottom: -5px;
+            bottom: 0;
             left: 0;
             width: 0;
             height: 2px;
-            background: #00A9E0;
+            background: var(--gradient-blue);
             transition: width 0.3s ease;
         }
 
-        .nav-links a:hover::after,
-        .nav-links a.active::after {
+        .nav-link:hover::after,
+        .nav-link.active::after {
             width: 100%;
         }
 
+        .btn-contact {
+            background: var(--gradient-blue);
+            border: none;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .btn-contact:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+            color: white;
+        }
+
         .nav-icons {
-            
             display: flex;
             align-items: center;
-            gap: 18px;
+            gap: 1.5rem;
         }
 
         .nav-icons i {
-            
-            color: #00A9E0;
+            color: var(--dark-text);
             font-size: 1.1rem;
             cursor: pointer;
-            transition: all 0.3s ease;
+            transition: var(--transition);
         }
 
         .nav-icons i:hover {
-            color: #00CFB4;
+            color: var(--primary-blue);
             transform: scale(1.1);
         }
 
         .nav-icons a {
-            color: #00A9E0;
+            color: var(--dark-text);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: var(--transition);
             position: relative;
         }
 
         .nav-icons a:hover {
-            color: #00CFB4;
-            transform: translateY(-1px);
+            color: var(--primary-blue);
+            transform: translateY(-2px);
         }
 
         /* Mobile Menu Toggle */
@@ -127,17 +180,18 @@
             display: none;
             background: none;
             border: none;
-            color: #FCFAF1;
+            color: var(--dark-text);
             font-size: 1.5rem;
             cursor: pointer;
-            padding: 5px;
+            padding: 0.5rem;
+            border-radius: 8px;
+            transition: var(--transition);
             z-index: 1001;
-            transition: all 0.3s ease;
         }
 
         .mobile-menu-toggle:hover {
-            color: #00CFB4;
-            transform: scale(1.1);
+            background: rgba(0, 123, 255, 0.1);
+            color: var(--primary-blue);
         }
 
         /* Dropdown Styles */
@@ -152,128 +206,110 @@
         }
 
         .dropdown-menu {
-            background: #FCFAF1;
-            border: 2px solid #00A9E0;
+            background: var(--white);
+            border: 2px solid rgba(0, 123, 255, 0.1);
             border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+            box-shadow: var(--shadow-soft);
             min-width: 200px;
-            padding: 15px 0;
-            margin-top: 10px;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
         }
 
         .dropdown-item {
-            padding: 12px 25px;
+            padding: 0.75rem 1.5rem;
             font-size: 0.9rem;
-            color: #101820;
+            color: var(--dark-text);
             font-weight: 500;
-            transition: all 0.3s ease;
-            border-left: 3px solid transparent;
+            transition: var(--transition);
+            border: none;
+            display: flex;
+            align-items: center;
         }
 
         .dropdown-item:hover {
-            background: linear-gradient(90deg, #00A9E0, #00CFB4);
-            color: #FCFAF1;
-            border-left-color: #101820;
+            background: rgba(0, 123, 255, 0.05);
+            color: var(--primary-blue);
             transform: translateX(5px);
         }
 
         .dropdown-divider {
-            margin: 10px 0;
-            border-color: rgba(0, 169, 224, 0.2);
+            margin: 0.5rem 0;
+            border-color: rgba(0, 123, 255, 0.1);
         }
 
-        /* Badge del carrito */
-        .badge {
-            background: linear-gradient(135deg, #00A9E0, #00CFB4) !important;
-            color: #FCFAF1 !important;
-            border: 1px solid rgba(252, 250, 241, 0.3);
+        /* Admin Dropdown Específico */
+        .nav-menu .dropdown .dropdown-toggle {
+            color: var(--white) !important;
+            background: var(--gradient-blue);
+            padding: 0.75rem 1.5rem;
+            border-radius: 50px;
             font-weight: 600;
-            border-radius: 12px;
-            padding: 4px 8px;
-            font-size: 0.75rem;
-            min-width: 20px;
-            text-align: center;
+            text-decoration: none;
+            transition: var(--transition);
+            box-shadow: var(--shadow-soft);
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
         }
-        /* Admin Dropdown Fix - Agregar esto a tu CSS */
 
-/* Dropdown del Admin específico */
-.nav-links .dropdown .dropdown-toggle {
-    color: #FCFAF1 !important;
-    text-decoration: none;
-    font-size: 0.95rem;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid rgba(0, 169, 224, 0.3);
-    background: rgba(0, 169, 224, 0.1);
-}
+        .nav-menu .dropdown .dropdown-toggle:hover {
+            color: var(--white) !important;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-hover);
+        }
 
-.nav-links .dropdown .dropdown-toggle:hover {
-    color: #101820 !important;
-    background: #00A9E0;
-    border-color: #00A9E0;
-    transform: translateY(-1px);
-}
-
-/* Asegurar que los iconos del admin también sean visibles */
-.nav-links .dropdown .dropdown-toggle::before {
-    margin-right: 5px;
-}
-
-/* Efectos adicionales para el dropdown del admin */
-.nav-links .dropdown:hover .dropdown-toggle {
-    background: rgba(0, 169, 224, 0.2);
-    border-color: rgba(0, 169, 224, 0.5);
-}
-
-/* Para dispositivos móviles también */
-@media (max-width: 768px) {
-    .nav-links .dropdown .dropdown-toggle {
-        display: inline-block;
-        margin: 5px 0;
-        padding: 10px 15px;
-        font-size: 0.9rem;
-    }
-}
+        /* Main Content */
+        .main-content {
+            margin-top: var(--navbar-height);
+            min-height: calc(100vh - var(--navbar-height));
+        }
         /* Responsive */
         @media (max-width: 768px) {
-            .nav-links {
+            :root {
+                --navbar-height: 70px;
+            }
+
+            .nav-menu {
                 display: none;
             }
-            
+
             .mobile-menu-toggle {
                 display: block;
             }
-            
-            .nav-icons {
-                gap: 12px;
+
+            .navbar-container {
+                padding: 0 1rem;
             }
-            
-            .nav-icons a {
-                font-size: 1rem;
-            }
-            
-            .logo img {
+
+            .logo-img {
                 height: 40px;
+            }
+
+            .nav-icons {
+                gap: 1rem;
+            }
+
+            .main-content {
+                margin-top: var(--navbar-height);
             }
         }
 
-        @media (max-width: 576px) {
-            nav {
-                padding: 8px 15px;
+        @media (max-width: 480px) {
+            :root {
+                --navbar-height: 65px;
             }
-            
-            .logo img {
+
+            .navbar-container {
+                padding: 0 0.8rem;
+            }
+
+            .logo-img {
                 height: 35px;
             }
-            
+
             .nav-icons {
-                gap: 8px;
-            }
-            
-            .nav-icons a {
-                font-size: 0.9rem;
+                gap: 0.8rem;
             }
         }
     </style>
@@ -281,45 +317,34 @@
     @vite(['resources/js/app.js'])
 </head>
 <body>
-    <nav>
+    <nav class="navbar-custom" id="navbar">
         <div class="navbar-container">
-            <div class="logo">
-                 <a href="{{ route('home') }}" class="d-inline-block" aria-label="Ir al inicio">
-                        <img src="{{ asset('images/logo.png') }}" alt="ElectraHome Logo" style="height: 70px;">
-                    </a>
-            </div>
+            <!-- Logo -->
+            <a href="{{ route('home') }}" class="navbar-brand">
+                <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions" class="logo-img">
+            </a>
 
             <!-- Desktop Navigation -->
-            <div class="nav-links">
-                <a href="{{ route('home') }}" class="{{ request()->routeIs('home') ? 'active' : '' }}">Inicio</a>
-                <a href="{{ route('shop.index') }}">Productos</a>
-                <a href="{{ route('about') }}">Quiénes Somos</a>
-                <a href="{{ route('insiders') }}">Miembros</a>
-                <a href="{{ route('chefs') }}">Contacto</a>
-                <a href="{{ route('wholesale') }}">Servicios</a>
+            <ul class="nav-menu">
+                <li><a href="{{ route('home') }}" class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}">Inicio</a></li>
+                <li><a href="{{ route('servicios.index') }}" class="nav-link">Servicios</a></li>
+                <li><a href="{{ route('proyectos.index') }}" class="nav-link">Proyectos</a></li>
+                <li><a href="{{ route('sobre_nosotros.index') }}" class="nav-link">Sobre Nosotros</a></li>
+                <li><a href="{{ route('contacto.index') }}" class="nav-link">Contacto</a></li>
 
                 @role('admin')
-                <div class="dropdown admin-dropdown">
-                    <a class="dropdown-toggle admin-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fas fa-tools me-2"></i>Panel Admin <i class="fas fa-chevron-down ms-1"></i>
+                <li class="dropdown">
+                    <a class="dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-cog me-2"></i>Gestión
                     </a>
-                    <ul class="dropdown-menu admin-menu">
-                        <li><a class="dropdown-item" href="{{ route('admin.products.index') }}">
-                            <i class="fas fa-box me-2"></i>Admin Productos
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('categories.index') }}">
-                            <i class="fas fa-folder me-2"></i>Admin Categorías
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('admin.countries.index') }}">
-                            <i class="fas fa-globe me-2"></i>Gestionar Paises
-                        </a></li>
-                        <li><a class="dropdown-item" href="{{ route('admin.cities.index') }}">
-                            <i class="fas fa-city me-2"></i>Gestionar Ciudades
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('admin.pages.index') }}">
+                            <i class="fas fa-file-alt me-2"></i>Gestión de Páginas
                         </a></li>
                     </ul>
-                </div>
+                </li>
                 @endrole
-            </div>
+            </ul>
 
             <!-- Desktop Icons -->
             <div class="nav-icons">
@@ -354,14 +379,15 @@
 
             </div>
 
-            <!-- Mobile Menu Toggle -->
-            <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">
-                <i class="fas fa-bars" id="menuIcon"></i>
+            <!-- Mobile Menu Button -->
+            <button class="mobile-menu-toggle" id="mobileMenuBtn" aria-label="Abrir menú de navegación">
+                <i class="fas fa-bars"></i>
             </button>
         </div>
     </nav>
 
-    <main class="py-4">
+    <!-- Main Content Area -->
+    <main class="main-content">
         @yield('content')
     </main>
 
@@ -371,74 +397,15 @@
             console.log('Mobile menu toggle');
         }
 
-        function deleteImageAjax(imageId) {
-            if (confirm('⚠️ ¿Estás seguro de que quieres eliminar esta imagen? Esta acción no se puede deshacer.')) {
-                // Mostrar indicador de carga
-                const button = event.target.closest('button');
-                const originalText = button.innerHTML;
-                button.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span> Eliminando...';
-                button.disabled = true;
-
-                // Realizar petición AJAX
-                fetch(`/admin/products/images/${imageId}`, {
-                    method: 'DELETE',
-                    headers: {
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Eliminar el elemento del DOM con animación
-                        const imageElement = document.getElementById(`image-${imageId}`);
-                        imageElement.style.transition = 'opacity 0.3s ease';
-                        imageElement.style.opacity = '0';
-                        
-                        setTimeout(() => {
-                            imageElement.remove();
-                            // Actualizar contador de imágenes
-                            updateImageCounter();
-                        }, 300);
-                        
-                        // Mostrar mensaje de éxito
-                        showToast('Imagen eliminada exitosamente', 'success');
-                    } else {
-                        throw new Error(data.message || 'Error eliminando imagen');
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    // Restaurar botón en caso de error
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                    showToast('Error eliminando imagen', 'error');
-                });
-            }
-        }
-
-        function updateImageCounter() {
-            const container = document.getElementById('images-container');
-            const imageCount = container.children.length;
-            const counterElement = container.parentElement.querySelector('small');
-            
-            if (imageCount === 0) {
-                counterElement.style.display = 'none';
-            } else {
-                counterElement.textContent = `Actualmente tiene ${imageCount} imagen${imageCount > 1 ? 'es' : ''}`;
-            }
-        }
-
+        // Funciones para gestión de páginas
         function showToast(message, type) {
-            // Crear toast simple
             const toast = document.createElement('div');
             toast.className = `alert alert-${type === 'success' ? 'success' : 'danger'} position-fixed`;
             toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
             toast.textContent = message;
-            
+
             document.body.appendChild(toast);
-            
+
             setTimeout(() => {
                 toast.remove();
             }, 3000);

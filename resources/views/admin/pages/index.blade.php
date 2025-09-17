@@ -1,109 +1,323 @@
-{{-- resources/views/admin/pages/index.blade.php --}}
 @extends('layouts.app_admin')
 
 @section('content')
 <style>
-    body, .container { background: #101820 !important; color: #FCFAF1; }
-    .main-content { background: #1a252f; padding: 20px; border-radius: 8px; border: 1px solid #00A9E0; }
-    .table { background-color: #101820; border-color: #00A9E0; }
-    .table th, .table td { color: #FCFAF1 !important; border-color: rgba(0, 169, 224, 0.3) !important; }
-    .table-light th { background-color: #1a252f !important; color: #00A9E0 !important; }
-    .btn-warning { background-color: #f7a831; border-color: #f7a831; color: #101820; }
-    .btn-info { background-color: #00A9E0; border-color: #00A9E0; color: #101820; }
-    h2 { color: #00A9E0 !important; }
-    .alert-success { background-color: rgba(0, 169, 224, 0.2); color: #FCFAF1; border: 1px solid #00A9E0; }
+    :root {
+        --primary-blue: #007BFF;
+        --primary-dark: #0056b3;
+        --dark-text: #2c3e50;
+        --light-gray: #f8f9fa;
+        --white: #ffffff;
+        --gradient-blue: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+        --shadow-soft: 0 10px 30px rgba(0, 123, 255, 0.1);
+        --shadow-hover: 0 20px 40px rgba(0, 123, 255, 0.15);
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .pages-container {
+        background: var(--white);
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(0, 123, 255, 0.1) 100%);
+        border-radius: 15px;
+        border: 2px solid rgba(0, 123, 255, 0.1);
+    }
+
+    .page-title {
+        color: var(--dark-text);
+        font-size: 2rem;
+        font-weight: 800;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .btn-primary {
+        background: var(--gradient-blue);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        text-decoration: none;
+        transition: var(--transition);
+        box-shadow: var(--shadow-soft);
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+        color: white;
+        text-decoration: none;
+    }
+
+    .pages-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .page-card {
+        background: var(--white);
+        border: 2px solid rgba(0, 123, 255, 0.1);
+        border-radius: 15px;
+        padding: 1.5rem;
+        transition: var(--transition);
+        box-shadow: var(--shadow-soft);
+    }
+
+    .page-card:hover {
+        border-color: var(--primary-blue);
+        transform: translateY(-2px);
+        box-shadow: var(--shadow-hover);
+    }
+
+    .page-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .page-card-title {
+        color: var(--dark-text);
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .page-slug {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0.25rem 0;
+    }
+
+    .page-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+        border-radius: 25px;
+        border: none;
+        font-weight: 500;
+        transition: var(--transition);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+    }
+
+    .btn-info {
+        background: #17a2b8;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background: #138496;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-warning {
+        background: #ffc107;
+        color: #212529;
+    }
+
+    .btn-warning:hover {
+        background: #e0a800;
+        color: #212529;
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: #28a745;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #218838;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-danger {
+        background: #dc3545;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #c82333;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .sections-info {
+        margin-top: 1rem;
+        padding: 1rem;
+        background: rgba(0, 123, 255, 0.05);
+        border-radius: 10px;
+        border-left: 4px solid var(--primary-blue);
+    }
+
+    .sections-count {
+        color: var(--dark-text);
+        font-weight: 600;
+        margin: 0;
+        font-size: 0.9rem;
+    }
+
+    .alert {
+        padding: 1rem 1.5rem;
+        border-radius: 10px;
+        margin-bottom: 1.5rem;
+        border: none;
+        font-weight: 500;
+    }
+
+    .alert-success {
+        background: rgba(40, 167, 69, 0.1);
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .pagination-wrapper {
+        margin-top: 2rem;
+        display: flex;
+        justify-content: center;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .pages-container {
+            padding: 1rem;
+        }
+
+        .page-header {
+            flex-direction: column;
+            gap: 1rem;
+            text-align: center;
+        }
+
+        .page-title {
+            font-size: 1.5rem;
+        }
+
+        .page-card-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .page-actions {
+            flex-wrap: wrap;
+        }
+    }
 </style>
 
-<div class="main-content">
-    <div class="container py-4">
-        <h2 class="mb-4">📄 Gestionar Páginas</h2>
-
-        @if (session('success'))
-            <div class="alert alert-success">{{ session('success') }}</div>
-        @endif
-
-        <table class="table table-bordered">
-            <thead class="table-light">
-                <tr>
-                    <th>Página</th>
-                    <th>Sección</th>
-                    <th>Imágenes</th>
-                    <th>Videos</th>
-                    <th>Acciones</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($pages as $page)
-                    <tr>
-                        <td>
-                            <strong>{{ ucfirst(str_replace('-', ' ', $page->slug)) }}</strong>
-                            <br>
-                            <small style="color: rgba(252, 250, 241, 0.6);">{{ $page->slug }}</small>
-                        </td>
-                        <td>{{ $page->section ?: '—' }}</td>
-                        <td class="text-center">
-                            {{ count($page->getImagesArray()) }}
-                        </td>
-                        <td class="text-center">
-                            {{ count($page->getVideosArray()) }}
-                        </td>
-                        <td>
-                            @switch($page->slug)
-                                @case('inicio')
-                                    <a href="{{ route('admin.pages.edit-inicio') }}" 
-                                       class="btn btn-sm btn-warning me-1">
-                                        <i class="fas fa-edit"></i> Editar Inicio
-                                    </a>
-                                    @break
-                                
-                                @case('quienes-somos')
-                                    <a href="{{ route('admin.pages.edit-quienes-somos') }}" 
-                                       class="btn btn-sm btn-warning me-1">
-                                        <i class="fas fa-edit"></i> Editar Quiénes Somos
-                                    </a>
-                                    @break
-                                
-                                @case('servicios')
-                                    <a href="{{ route('admin.pages.edit-servicios') }}" 
-                                       class="btn btn-sm btn-warning me-1">
-                                        <i class="fas fa-edit"></i> Editar Servicios
-                                    </a>
-                                    @break
-                                
-                                @case('contacto')
-                                    <a href="{{ route('admin.pages.edit-contacto') }}" 
-                                       class="btn btn-sm btn-warning me-1">
-                                        <i class="fas fa-edit"></i> Editar Contacto
-                                    </a>
-                                    @break
-                                
-                                @default
-                                    <span class="text-muted">No disponible</span>
-                            @endswitch
-                            
-                            <a href="{{ route('admin.seo.edit', $page->id) }}" 
-                               class="btn btn-sm btn-info">
-                                <i class="fas fa-search"></i> SEO
-                            </a>
-                        </td>
-                    </tr>
-                @empty
-                    <tr>
-                        <td colspan="6" class="text-center">No hay páginas</td>
-                    </tr>
-                @endforelse
-            </tbody>
-        </table>
-
-        <div class="mt-4 p-3" style="background: rgba(0, 169, 224, 0.1); border-radius: 8px; border: 1px solid rgba(0, 169, 224, 0.3);">
-            <h5 style="color: #00A9E0; margin-bottom: 10px;">💡 Información</h5>
-            <ul class="mb-0" style="font-size: 0.9rem;">
-                <li><strong>Página:</strong> Identificador único (slug)</li>
-                <li><strong>Sección:</strong> Campo opcional para identificar secciones específicas</li>
-                <li><strong>Cada página tiene su propia vista de edición personalizada</strong></li>
-                <li><strong>SEO:</strong> Configura meta tags, Open Graph y Schema.org para cada página</li>
-            </ul>
+<div class="pages-container">
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="fas fa-file-alt"></i>
+            Gestión de Páginas
+        </h1>
+        <div class="page-info">
+            <p style="color: #666; margin: 0; font-size: 1rem;">
+                <i class="fas fa-info-circle me-2"></i>
+                Edita el contenido de las páginas de tu sitio web
+            </p>
         </div>
     </div>
+
+    @if(session('success'))
+        <div class="alert alert-success">
+            <i class="fas fa-check-circle me-2"></i>
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <div class="pages-grid">
+        @forelse($pages as $page)
+            <div class="page-card">
+                <div class="page-card-header">
+                    <div>
+                        <h3 class="page-card-title">{{ $page->title }}</h3>
+                        <p class="page-slug">{{ $page->slug }}</p>
+                    </div>
+                    <div class="page-actions">
+                        <a href="{{ route('admin.pages.edit', $page) }}" class="btn-sm btn-warning" title="Editar página">
+                            <i class="fas fa-edit"></i>
+                            Editar
+                        </a>
+                        @if($page->sections->count() > 0)
+                        <a href="{{ route('admin.pages.sections', $page) }}" class="btn-sm btn-success" title="Gestionar secciones">
+                            <i class="fas fa-puzzle-piece"></i>
+                            Secciones
+                        </a>
+                        @endif
+                    </div>
+                </div>
+
+                @if($page->content)
+                    <div class="page-content">
+                        @php
+                            $content = $page->content;
+                            // If content is JSON, try to extract meaningful text
+                            if (str_starts_with(trim($content), '{') && str_ends_with(trim($content), '}')) {
+                                $decoded = json_decode($content, true);
+                                if ($decoded) {
+                                    $displayText = '';
+                                    // Extract common fields that might contain readable content
+                                    foreach (['hero_title', 'title', 'hero_description', 'description', 'text', 'content'] as $field) {
+                                        if (isset($decoded[$field]) && !empty($decoded[$field])) {
+                                            $displayText .= $decoded[$field] . ' ';
+                                        }
+                                    }
+                                    $content = trim($displayText) ?: 'Contenido en formato JSON';
+                                }
+                            }
+                        @endphp
+                        <p>{{ Str::limit(strip_tags($content), 150) }}</p>
+                    </div>
+                @endif
+
+                <div class="sections-info">
+                    <p class="sections-count">
+                        <i class="fas fa-puzzle-piece me-1"></i>
+                        {{ $page->sections->count() }} sección{{ $page->sections->count() != 1 ? 'es' : '' }}
+                        @if($page->sections->where('is_active', true)->count() > 0)
+                            ({{ $page->sections->where('is_active', true)->count() }} activa{{ $page->sections->where('is_active', true)->count() != 1 ? 's' : '' }})
+                        @endif
+                    </p>
+                </div>
+            </div>
+        @empty
+            <div class="page-card" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-file-alt" style="font-size: 3rem; color: #ccc; margin-bottom: 1rem;"></i>
+                <h3 style="color: #666; margin-bottom: 1rem;">No hay páginas en la base de datos</h3>
+                <p style="color: #999; margin-bottom: 2rem;">Las páginas se crearán automáticamente cuando visites el sitio web.</p>
+            </div>
+        @endforelse
+    </div>
+
+    @if($pages->hasPages())
+        <div class="pagination-wrapper">
+            {{ $pages->links() }}
+        </div>
+    @endif
 </div>
 @endsection
