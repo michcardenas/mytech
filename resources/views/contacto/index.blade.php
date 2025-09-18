@@ -1286,24 +1286,23 @@
         <div class="hero-content">
             <div class="contact-badge">
                 <i class="fas fa-rocket"></i>
-                <span>Tu Próximo Proyecto Comienza Aquí</span>
+                <span>{{ $data['hero_badge'] ?? 'Tu Próximo Proyecto Comienza Aquí' }}</span>
             </div>
-            <h1>¿Listo para Transformar tu Idea en Realidad?</h1>
+            <h1>{{ $data['hero_title'] ?? '¿Listo para Transformar tu Idea en Realidad?' }}</h1>
             <p class="lead">
-                No esperes más para digitalizar tu negocio. Conversemos sobre tu proyecto y descubre cómo podemos crear la 
-                <strong>solución digital perfecta</strong> que impulse el crecimiento de tu empresa.
+                {!! $data['hero_description'] ?? 'No esperes más para digitalizar tu negocio. Conversemos sobre tu proyecto y descubre cómo podemos crear la <strong>solución digital perfecta</strong> que impulse el crecimiento de tu empresa.' !!}
             </p>
             
             <div class="cta-buttons-hero">
-                <a href="https://wa.me/573123708407?text=Hola,%20quiero%20digitalizar%20mi%20negocio%20y%20me%20interesa%20una%20consultoría%20gratuita" 
+                <a href="https://wa.me/{{ $data['hero_whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($data['hero_whatsapp_message'] ?? 'Hola, quiero digitalizar mi negocio y me interesa una consultoría gratuita') }}" 
                    target="_blank" 
                    class="hero-cta whatsapp-hero">
                     <i class="fab fa-whatsapp"></i>
-                    Consultoría Gratuita
+                    {{ $data['hero_whatsapp_text'] ?? 'Consultoría Gratuita' }}
                 </a>
                 <a href="#form" class="hero-cta">
                     <i class="fas fa-edit"></i>
-                    Enviar mi Proyecto
+                    {{ $data['hero_form_text'] ?? 'Enviar mi Proyecto' }}
                 </a>
             </div>
         </div>
@@ -1314,57 +1313,57 @@
 <section class="contact-methods">
     <div class="container">
         <div class="section-header">
-            <h2>Múltiples Formas de Contactarnos</h2>
-            <p>Elige la opción que más te convenga para comenzar tu proyecto</p>
+            <h2>{{ $data['methods_title'] ?? 'Múltiples Formas de Contactarnos' }}</h2>
+            <p>{{ $data['methods_description'] ?? 'Elige la opción que más te convenga para comenzar tu proyecto' }}</p>
         </div>
         
         <div class="contact-options">
+            <!-- WhatsApp Method -->
             <div class="contact-card">
                 <div class="contact-icon">
-                    <i class="fab fa-whatsapp"></i>
+                    <i class="{{ $data['method_1_icon'] ?? 'fab fa-whatsapp' }}"></i>
                 </div>
-                <h3>WhatsApp Directo</h3>
+                <h3>{{ $data['method_1_title'] ?? 'WhatsApp Directo' }}</h3>
                 <p>
-                    La forma más rápida de contactarnos. Te respondemos en menos de 30 minutos 
-                    durante horario laboral. Perfecto para consultas rápidas y coordinación de reuniones.
+                    {{ $data['method_1_description'] ?? 'La forma más rápida de contactarnos. Te respondemos en menos de 30 minutos durante horario laboral. Perfecto para consultas rápidas y coordinación de reuniones.' }}
                 </p>
-                <a href="https://wa.me/573123708407?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios%20de%20desarrollo%20web" 
+                <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}" 
                    target="_blank" 
                    class="contact-btn">
                     <i class="fab fa-whatsapp"></i>
-                    +57 312 370 8407
+                    {{ $data['method_1_number'] ?? '+57 312 370 8407' }}
                 </a>
             </div>
             
+            <!-- Video Call Method -->
             <div class="contact-card">
                 <div class="contact-icon">
-                    <i class="fas fa-video"></i>
+                    <i class="{{ $data['method_2_icon'] ?? 'fas fa-video' }}"></i>
                 </div>
-                <h3>Videollamada de Consultoría</h3>
+                <h3>{{ $data['method_2_title'] ?? 'Videollamada de Consultoría' }}</h3>
                 <p>
-                    Agenda una videollamada gratuita de 30 minutos para analizar tu proyecto en detalle. 
-                    Revisamos tus necesidades y te damos una propuesta inicial sin compromiso.
+                    {{ $data['method_2_description'] ?? 'Agenda una videollamada gratuita de 30 minutos para analizar tu proyecto en detalle. Revisamos tus necesidades y te damos una propuesta inicial sin compromiso.' }}
                 </p>
-                <a href="https://wa.me/573123708407?text=Hola,%20me%20gustaría%20agendar%20una%20videollamada%20de%20consultoría%20gratuita" 
+                <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}" 
                    target="_blank" 
                    class="contact-btn">
                     <i class="fas fa-calendar"></i>
-                    Agendar Consultoría
+                    {{ $data['method_2_button'] ?? 'Agendar Consultoría' }}
                 </a>
             </div>
             
+            <!-- Email Method -->
             <div class="contact-card">
                 <div class="contact-icon">
-                    <i class="fas fa-envelope"></i>
+                    <i class="{{ $data['method_3_icon'] ?? 'fas fa-envelope' }}"></i>
                 </div>
-                <h3>Email Profesional</h3>
+                <h3>{{ $data['method_3_title'] ?? 'Email Profesional' }}</h3>
                 <p>
-                    Para consultas detalladas, envío de documentos o comunicación formal. 
-                    Te respondemos en máximo 24 horas con una propuesta personalizada.
+                    {{ $data['method_3_description'] ?? 'Para consultas detalladas, envío de documentos o comunicación formal. Te respondemos en máximo 24 horas con una propuesta personalizada.' }}
                 </p>
-                <a href="mailto:contacto@mytechsolutions.com" class="contact-btn">
+                <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutions.com' }}" class="contact-btn">
                     <i class="fas fa-envelope"></i>
-                    contacto@mytechsolutions.com
+                    {{ $data['method_3_email'] ?? 'contacto@mytechsolutions.com' }}
                 </a>
             </div>
         </div>
@@ -1383,8 +1382,8 @@
     
     <div class="container">
         <div class="section-header">
-            <h2>Cuéntanos sobre tu Proyecto</h2>
-            <p>Completa el formulario y te contactaremos en menos de 24 horas con una propuesta personalizada</p>
+            <h2>{{ $data['form_title'] ?? 'Cuéntanos sobre tu Proyecto' }}</h2>
+            <p>{{ $data['form_description'] ?? 'Completa el formulario y te contactaremos en menos de 24 horas con una propuesta personalizada' }}</p>
         </div>
         
         <div class="form-container">
@@ -1392,30 +1391,30 @@
                 @csrf
                 
                 <div class="form-header">
-                    <h3>Formulario de Proyecto</h3>
-                    <p>Todos los campos son importantes para crear la mejor propuesta para ti</p>
+                    <h3>{{ $data['form_header_title'] ?? 'Formulario de Proyecto' }}</h3>
+                    <p>{{ $data['form_header_description'] ?? 'Todos los campos son importantes para crear la mejor propuesta para ti' }}</p>
                 </div>
                 
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Nombre Completo</label>
-                        <input type="text" class="form-control" placeholder="Escribe tu nombre completo" required>
+                        <input type="text" name="nombre" class="form-control" placeholder="Escribe tu nombre completo" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Profesional</label>
-                        <input type="email" class="form-control" placeholder="tu@empresa.com" required>
+                        <input type="email" name="email" class="form-control" placeholder="tu@empresa.com" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">WhatsApp</label>
-                        <input type="tel" class="form-control" placeholder="+57 312 345 6789" required>
+                        <input type="tel" name="whatsapp" class="form-control" placeholder="+57 312 345 6789" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Empresa/Organización</label>
-                        <input type="text" class="form-control" placeholder="Nombre de tu empresa o proyecto" required>
+                        <input type="text" name="empresa" class="form-control" placeholder="Nombre de tu empresa o proyecto" required>
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Tipo de Proyecto</label>
-                        <select class="form-control" required>
+                        <select name="tipo_proyecto" class="form-control" required>
                             <option value="">¿Qué tipo de proyecto necesitas?</option>
                             <option value="web">Página Web Profesional</option>
                             <option value="ecommerce">Tienda Online / E-commerce</option>
@@ -1430,7 +1429,7 @@
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Presupuesto Disponible</label>
-                        <select class="form-control" required>
+                        <select name="presupuesto" class="form-control" required>
                             <option value="">Selecciona tu rango de presupuesto</option>
                             <option value="1-3">$1,000 - $3,000 USD</option>
                             <option value="3-5">$3,000 - $5,000 USD</option>
@@ -1442,13 +1441,13 @@
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Descripción Detallada del Proyecto</label>
-                        <textarea class="form-control" placeholder="Describe tu proyecto: ¿Qué problema resuelve? ¿Quién es tu audiencia? ¿Qué funcionalidades específicas necesitas? ¿Cuándo te gustaría lanzarlo? Mientras más detalles nos proporciones, mejor será nuestra propuesta." required></textarea>
+                        <textarea name="descripcion" class="form-control" placeholder="Describe tu proyecto: ¿Qué problema resuelve? ¿Quién es tu audiencia? ¿Qué funcionalidades específicas necesitas? ¿Cuándo te gustaría lanzarlo? Mientras más detalles nos proporciones, mejor será nuestra propuesta." required></textarea>
                     </div>
                 </div>
                 
                 <button type="submit" class="submit-btn">
                     <i class="fas fa-rocket"></i>
-                    Enviar Proyecto y Recibir Propuesta
+                    {{ $data['form_submit_text'] ?? 'Enviar Proyecto y Recibir Propuesta' }}
                 </button>
                 
                 <div class="form-features">
@@ -1483,51 +1482,49 @@
     <div class="container">
         <div class="map-content">
             <div class="map-info">
-                <h3>Nuestra Oficina en Bogotá</h3>
+                <h3>{{ $data['map_title'] ?? 'Nuestra Oficina en Bogotá' }}</h3>
                 <p>
-                    Trabajamos desde el corazón de Bogotá, Colombia, pero nuestro alcance es global. 
-                    Desarrollamos proyectos para clientes en múltiples países, combinando la calidez 
-                    del servicio colombiano con estándares internacionales.
+                    {{ $data['map_description'] ?? 'Trabajamos desde el corazón de Bogotá, Colombia, pero nuestro alcance es global. Desarrollamos proyectos para clientes en múltiples países, combinando la calidez del servicio colombiano con estándares internacionales.' }}
                 </p>
                 
                 <div class="info-grid">
                     <div class="info-item">
                         <div class="info-icon">
-                            <i class="fas fa-map-marker-alt"></i>
+                            <i class="{{ $data['info_1_icon'] ?? 'fas fa-map-marker-alt' }}"></i>
                         </div>
                         <div class="info-text">
-                            <h4>Ubicación</h4>
-                            <p>Bogotá, Colombia</p>
+                            <h4>{{ $data['info_1_title'] ?? 'Ubicación' }}</h4>
+                            <p>{{ $data['info_1_text'] ?? 'Bogotá, Colombia' }}</p>
                         </div>
                     </div>
                     
                     <div class="info-item">
                         <div class="info-icon">
-                            <i class="fas fa-clock"></i>
+                            <i class="{{ $data['info_2_icon'] ?? 'fas fa-clock' }}"></i>
                         </div>
                         <div class="info-text">
-                            <h4>Horario de Atención</h4>
-                            <p>Lunes a Viernes: 8:00 AM - 6:00 PM (COT)</p>
+                            <h4>{{ $data['info_2_title'] ?? 'Horario de Atención' }}</h4>
+                            <p>{{ $data['info_2_text'] ?? 'Lunes a Viernes: 8:00 AM - 6:00 PM (COT)' }}</p>
                         </div>
                     </div>
                     
                     <div class="info-item">
                         <div class="info-icon">
-                            <i class="fas fa-globe"></i>
+                            <i class="{{ $data['info_3_icon'] ?? 'fas fa-globe' }}"></i>
                         </div>
                         <div class="info-text">
-                            <h4>Alcance</h4>
-                            <p>Proyectos en América y Europa</p>
+                            <h4>{{ $data['info_3_title'] ?? 'Alcance' }}</h4>
+                            <p>{{ $data['info_3_text'] ?? 'Proyectos en América y Europa' }}</p>
                         </div>
                     </div>
                     
                     <div class="info-item">
                         <div class="info-icon">
-                            <i class="fas fa-headset"></i>
+                            <i class="{{ $data['info_4_icon'] ?? 'fas fa-headset' }}"></i>
                         </div>
                         <div class="info-text">
-                            <h4>Soporte</h4>
-                            <p>Disponible 24/7 para proyectos activos</p>
+                            <h4>{{ $data['info_4_title'] ?? 'Soporte' }}</h4>
+                            <p>{{ $data['info_4_text'] ?? 'Disponible 24/7 para proyectos activos' }}</p>
                         </div>
                     </div>
                 </div>
@@ -1538,7 +1535,7 @@
                     <h5>MY Tech Solutions</h5>
                     <p>Desarrollo Web Profesional</p>
                 </div>
-                <iframe src="https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3249.012195470509!2d-74.13449935362908!3d4.600360674860746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1757988380012!5m2!1ses-419!2sco" 
+                <iframe src="{{ $data['map_url'] ?? 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3249.012195470509!2d-74.13449935362908!3d4.600360674860746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1757988380012!5m2!1ses-419!2sco' }}" 
                         allowfullscreen="" 
                         loading="lazy" 
                         referrerpolicy="no-referrer-when-downgrade">

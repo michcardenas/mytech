@@ -772,72 +772,6 @@ public function updateQuienesSomos(Request $request)
 
 //Contacto
 
-public function editContacto()
-{
-    $page = Page::where('slug', 'contacto')->with(['sections' => function($query) {
-        $query->orderBy('order');
-    }])->first();
-    
-    // Si no existe la página, crearla con secciones por defecto
-    if (!$page) {
-        $page = Page::create([
-            'slug' => 'contacto',
-            'title' => 'Contacto',
-            'content' => 'Página de contacto de ElectraHome'
-        ]);
-        
-        // Crear secciones por defecto para contacto
-        $sectionsData = [
-            [
-                'name' => 'hero', 
-                'title' => 'Contáctanos', 
-                'content' => 'Servicio técnico especializado en línea blanca y electrodomésticos en Quito', 
-                'order' => 1
-            ],
-            [
-                'name' => 'info', 
-                'title' => '¿Necesitas ayuda con tus electrodomésticos?', 
-                'content' => 'En ElectraHome somos especialistas en reparación, mantenimiento e instalación de línea blanca...', 
-                'order' => 2
-            ],
-            [
-                'name' => 'services', 
-                'title' => 'Nuestros Servicios', 
-                'content' => 'Servicios especializados para tu hogar', 
-                'order' => 3
-            ],
-            [
-                'name' => 'contact_info', 
-                'title' => 'Información de Contacto', 
-                'content' => 'Datos de contacto y horarios', 
-                'order' => 4
-            ],
-            [
-                'name' => 'form_config', 
-                'title' => 'Configuración del Formulario', 
-                'content' => 'Configuración del formulario de contacto', 
-                'order' => 5
-            ]
-        ];
-        
-        foreach ($sectionsData as $sectionData) {
-            $page->sections()->create([
-                'name' => $sectionData['name'],
-                'title' => $sectionData['title'],
-                'content' => $sectionData['content'],
-                'order' => $sectionData['order'],
-                'is_active' => true
-            ]);
-        }
-    }
-    
-    return view('admin.pages.edit-contacto', compact('page'));
-}
-public function updateContacto(Request $request)
-{
-    $page = Page::where('slug', 'contacto')->firstOrFail();
-    return $this->updatePage($request, $page, 'admin.pages.edit-contacto');
-}
 
 
 
@@ -1129,5 +1063,104 @@ public function updateProyectos(Request $request)
     $page->save();
     
     return redirect()->back()->with('success', 'Página de proyectos actualizada correctamente');
+}
+
+public function editContacto()
+{
+    $page = Page::where('slug', 'contacto')->first();
+    
+    // Decodificar el contenido JSON si existe
+    $data = [];
+    if ($page && $page->content) {
+        $data = json_decode($page->content, true) ?? [];
+    }
+    
+    // Obtener datos de SEO
+    $seo = null;
+    if ($page) {
+        $seo = Seo::where('page_id', $page->id)->first();
+    }
+    
+    return view('admin.pages.edit-contacto', compact('page', 'data', 'seo'));
+}
+
+public function updateContacto(Request $request)
+{
+    $page = Page::where('slug', 'contacto')->first();
+    
+    if (!$page) {
+        $page = new Page();
+        $page->slug = 'contacto';
+        $page->title = 'Contacto';
+    }
+    
+    // Preparar todos los datos del formulario para contacto
+    $data = [
+        // Hero Section
+        'hero_badge' => $request->hero_badge,
+        'hero_title' => $request->hero_title,
+        'hero_description' => $request->hero_description,
+        'hero_whatsapp_text' => $request->hero_whatsapp_text,
+        'hero_whatsapp_number' => $request->hero_whatsapp_number,
+        'hero_whatsapp_message' => $request->hero_whatsapp_message,
+        'hero_form_text' => $request->hero_form_text,
+        
+        // Contact Methods Section
+        'methods_title' => $request->methods_title,
+        'methods_description' => $request->methods_description,
+        
+        // Method 1 - WhatsApp
+        'method_1_icon' => $request->method_1_icon,
+        'method_1_title' => $request->method_1_title,
+        'method_1_description' => $request->method_1_description,
+        'method_1_number' => $request->method_1_number,
+        'method_1_message' => $request->method_1_message,
+        
+        // Method 2 - Video Call
+        'method_2_icon' => $request->method_2_icon,
+        'method_2_title' => $request->method_2_title,
+        'method_2_description' => $request->method_2_description,
+        'method_2_button' => $request->method_2_button,
+        'method_2_message' => $request->method_2_message,
+        
+        // Method 3 - Email
+        'method_3_icon' => $request->method_3_icon,
+        'method_3_title' => $request->method_3_title,
+        'method_3_description' => $request->method_3_description,
+        'method_3_email' => $request->method_3_email,
+        
+        // Form Section
+        'form_title' => $request->form_title,
+        'form_description' => $request->form_description,
+        'form_header_title' => $request->form_header_title,
+        'form_header_description' => $request->form_header_description,
+        'form_submit_text' => $request->form_submit_text,
+        'form_email_to' => $request->form_email_to,
+        
+        // Map Section
+        'map_title' => $request->map_title,
+        'map_description' => $request->map_description,
+        'map_url' => $request->map_url,
+        
+        // Info Items
+        'info_1_icon' => $request->info_1_icon,
+        'info_1_title' => $request->info_1_title,
+        'info_1_text' => $request->info_1_text,
+        'info_2_icon' => $request->info_2_icon,
+        'info_2_title' => $request->info_2_title,
+        'info_2_text' => $request->info_2_text,
+        'info_3_icon' => $request->info_3_icon,
+        'info_3_title' => $request->info_3_title,
+        'info_3_text' => $request->info_3_text,
+        'info_4_icon' => $request->info_4_icon,
+        'info_4_title' => $request->info_4_title,
+        'info_4_text' => $request->info_4_text,
+    ];
+    
+    // Guardar como JSON
+    $page->content = json_encode($data);
+    $page->save();
+    
+    return redirect()->back()->with('success', 'Página de contacto actualizada correctamente');
 }
 }

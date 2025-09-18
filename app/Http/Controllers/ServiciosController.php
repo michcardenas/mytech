@@ -47,10 +47,22 @@ public function index()
         
         return view('sobre_nosotros.index');
     }
-    public function indexcontacto()
-    {
-      
-        
-        return view('contacto.index');
+  public function indexContacto()
+{
+    $page = Page::where('slug', 'contacto')->first();
+    
+    // Decodificar el contenido JSON si existe
+    $data = [];
+    if ($page && $page->content) {
+        $data = json_decode($page->content, true) ?? [];
     }
+    
+    // Obtener datos de SEO si existen
+    $seo = null;
+    if ($page) {
+        $seo = Seo::where('page_id', $page->id)->first();
+    }
+    
+    return view('contacto.index', compact('data', 'seo'));
+}
 }

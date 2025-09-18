@@ -27,6 +27,8 @@ Route::get('admin/pages/servicios/edit', [PageController::class, 'editServicios'
 Route::put('admin/pages/servicios/update', [PageController::class, 'updateServicios'])->name('admin.pages.servicios.update');
 Route::get('/pages/proyectos/edit', [PageController::class, 'editProyectos'])->name('admin.pages.proyectos.edit');
 Route::put('/pages/proyectos/update', [PageController::class, 'updateProyectos'])->name('admin.pages.proyectos.update');
+Route::get('/pages/contacto/edit', [PageController::class, 'editContacto'])->name('admin.pages.contacto.edit');
+Route::put('/pages/contacto/update', [PageController::class, 'updateContacto'])->name('admin.pages.contacto.update');
 // Route::get('/products', [ProductController::class, 'index'])->name('products.index');
 // Route::get('/product/{product}', [ProductController::class, 'show'])->name('product.show');
 // Route::view('/about',   'about')->name('about');
