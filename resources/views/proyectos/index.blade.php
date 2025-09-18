@@ -794,36 +794,37 @@
 @endpush
 
 @section('content')
+@extends('layouts.app')
+
+@section('content')
 <!-- Hero Section -->
 <section class="hero-proyectos">
     <div class="container">
         <div class="hero-content">
             <div class="hero-badge">
                 <i class="fas fa-star"></i>
-                <span>Proyectos Destacados</span>
+                <span>{{ $data['hero_badge'] ?? 'Proyectos Destacados' }}</span>
             </div>
-            <h1>Transformando Ideas en Realidad Digital</h1>
+            <h1>{{ $data['hero_title'] ?? 'Transformando Ideas en Realidad Digital' }}</h1>
             <p class="lead" style="font-size: 1.4rem; opacity: 0.95; max-width: 800px; margin: 0 auto 3rem;">
-                Cada proyecto que desarrollo está diseñado para <strong>impulsar el crecimiento</strong> de tu negocio. 
-                Desde plataformas de viajes hasta sistemas administrativos, mis soluciones están 
-                <strong>operando exitosamente</strong> en múltiples países.
+                {!! $data['hero_description'] ?? 'Cada proyecto que desarrollo está diseñado para <strong>impulsar el crecimiento</strong> de tu negocio. Desde plataformas de viajes hasta sistemas administrativos, mis soluciones están <strong>operando exitosamente</strong> en múltiples países.' !!}
             </p>
             
             <div class="hero-features">
                 <div class="feature-item">
-                    <div class="feature-icon">🌎</div>
-                    <h4>Alcance Internacional</h4>
-                    <p>Proyectos exitosos en América y Europa</p>
+                    <div class="feature-icon">{{ $data['hero_feature_1_icon'] ?? '🌎' }}</div>
+                    <h4>{{ $data['hero_feature_1_title'] ?? 'Alcance Internacional' }}</h4>
+                    <p>{{ $data['hero_feature_1_description'] ?? 'Proyectos exitosos en América y Europa' }}</p>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon">🚀</div>
-                    <h4>Tecnología Avanzada</h4>
-                    <p>Laravel, Vue.js, React y las últimas tendencias</p>
+                    <div class="feature-icon">{{ $data['hero_feature_2_icon'] ?? '🚀' }}</div>
+                    <h4>{{ $data['hero_feature_2_title'] ?? 'Tecnología Avanzada' }}</h4>
+                    <p>{{ $data['hero_feature_2_description'] ?? 'Laravel, Vue.js, React y las últimas tendencias' }}</p>
                 </div>
                 <div class="feature-item">
-                    <div class="feature-icon">💎</div>
-                    <h4>Calidad Premium</h4>
-                    <p>Cada proyecto único y a la medida</p>
+                    <div class="feature-icon">{{ $data['hero_feature_3_icon'] ?? '💎' }}</div>
+                    <h4>{{ $data['hero_feature_3_title'] ?? 'Calidad Premium' }}</h4>
+                    <p>{{ $data['hero_feature_3_description'] ?? 'Cada proyecto único y a la medida' }}</p>
                 </div>
             </div>
         </div>
@@ -834,11 +835,11 @@
 <section class="showcase-intro">
     <div class="container">
         <div class="showcase-header">
-            <h2>Portfolio de Proyectos Exitosos</h2>
-            <p>Cada proyecto cuenta una historia de transformación digital y crecimiento empresarial</p>
+            <h2>{{ $data['showcase_title'] ?? 'Portfolio de Proyectos Exitosos' }}</h2>
+            <p>{{ $data['showcase_description'] ?? 'Cada proyecto cuenta una historia de transformación digital y crecimiento empresarial' }}</p>
             <div class="scroll-indicator">
                 <i class="fas fa-mouse"></i>
-                <span>Descubre mis proyectos</span>
+                <span>{{ $data['scroll_indicator_text'] ?? 'Descubre mis proyectos' }}</span>
             </div>
         </div>
     </div>

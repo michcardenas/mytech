@@ -998,7 +998,7 @@ public function editServicios()
         $seo = Seo::where('page_id', $page->id)->first();
     }
     
-    return view('admin.pages.servicios.edit', compact('page', 'data', 'seo'));
+    return view('admin.pages.edit-servicios', compact('page', 'data', 'seo'));
 }
 public function updateServicios(Request $request)
 {
@@ -1065,5 +1065,69 @@ public function updateServicios(Request $request)
     
     return redirect()->route('admin.pages.servicios.edit')
                     ->with('success', 'Servicios y SEO actualizados correctamente');
+}
+
+
+
+public function editProyectos()
+{
+    $page = Page::where('slug', 'proyectos')->first();
+    
+    // Decodificar el contenido JSON si existe
+    $data = [];
+    if ($page && $page->content) {
+        $data = json_decode($page->content, true) ?? [];
+    }
+    
+    // Obtener datos de SEO
+    $seo = null;
+    if ($page) {
+        $seo = Seo::where('page_id', $page->id)->first();
+    }
+    
+    return view('admin.pages.edit-proyectos', compact('page', 'data', 'seo'));
+}
+
+public function updateProyectos(Request $request)
+{
+    $page = Page::where('slug', 'proyectos')->first();
+    
+    if (!$page) {
+        $page = new Page();
+        $page->slug = 'proyectos';
+        $page->title = 'Proyectos';
+    }
+    
+    // Preparar todos los datos del formulario - solo campos del banner
+    $data = [
+        // Hero Section
+        'hero_badge' => $request->hero_badge,
+        'hero_title' => $request->hero_title,
+        'hero_description' => $request->hero_description,
+        
+        // Hero Features
+        'hero_feature_1_icon' => $request->hero_feature_1_icon,
+        'hero_feature_1_title' => $request->hero_feature_1_title,
+        'hero_feature_1_description' => $request->hero_feature_1_description,
+        
+        'hero_feature_2_icon' => $request->hero_feature_2_icon,
+        'hero_feature_2_title' => $request->hero_feature_2_title,
+        'hero_feature_2_description' => $request->hero_feature_2_description,
+        
+        'hero_feature_3_icon' => $request->hero_feature_3_icon,
+        'hero_feature_3_title' => $request->hero_feature_3_title,
+        'hero_feature_3_description' => $request->hero_feature_3_description,
+        
+        // Showcase Section
+        'showcase_title' => $request->showcase_title,
+        'showcase_description' => $request->showcase_description,
+        'scroll_indicator_text' => $request->scroll_indicator_text,
+    ];
+    
+    // Guardar como JSON
+    $page->content = json_encode($data);
+    $page->save();
+    
+    return redirect()->back()->with('success', 'Página de proyectos actualizada correctamente');
 }
 }

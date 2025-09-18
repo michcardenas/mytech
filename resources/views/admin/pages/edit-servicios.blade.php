@@ -278,12 +278,12 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Título Principal</label>
-                                <input type="text" class="form-control" name="hero_title" value="Nuestros Servicios" required>
+                                <input type="text" class="form-control" name="hero_title" value="{{ $data['hero_title'] ?? 'Nuestros Servicios' }}" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Descripción</label>
-                                <textarea class="form-control" name="hero_description" rows="4" required>Creamos soluciones digitales a la medida que impulsan el crecimiento de tu empresa. No usamos plantillas, cada proyecto es único y está diseñado específicamente para tus necesidades.</textarea>
+                                <textarea class="form-control" name="hero_description" rows="4" required>{{ $data['hero_description'] ?? 'Creamos soluciones digitales a la medida que impulsan el crecimiento de tu empresa. No usamos plantillas, cada proyecto es único y está diseñado específicamente para tus necesidades.' }}</textarea>
                             </div>
                         </div>
 
@@ -299,7 +299,7 @@
                                 
                                 <div class="mt-3">
                                     <label class="form-label">URL del Video Actual</label>
-                                    <input type="text" class="form-control" name="hero_video_url" value="videos/hero-video.mp4" placeholder="Ruta del video actual">
+                                    <input type="text" class="form-control" name="hero_video_url" value="{{ $data['hero_video_url'] ?? 'videos/hero-video.mp4' }}" placeholder="Ruta del video actual">
                                 </div>
                             </div>
                         </div>
@@ -319,40 +319,40 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Título de la Sección</label>
-                                <input type="text" class="form-control" name="servicios_title" value="¿Qué Desarrollamos Para Ti?" required>
+                                <input type="text" class="form-control" name="servicios_title" value="{{ $data['servicios_title'] ?? '¿Qué Desarrollamos Para Ti?' }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Descripción de la Sección</label>
-                                <textarea class="form-control" name="servicios_description" rows="3" required>Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.</textarea>
+                                <textarea class="form-control" name="servicios_description" rows="3" required>{{ $data['servicios_description'] ?? 'Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.' }}</textarea>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 1 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-store"></i> Servicio 1</h5>
+                        <h5><i class="{{ $data['servicio_1_icon'] ?? 'fas fa-store' }}"></i> Servicio 1</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-store"></i>
+                                            <i class="{{ $data['servicio_1_icon'] ?? 'fas fa-store' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_1_icon" value="fas fa-store" placeholder="ej: fas fa-store">
+                                        <input type="text" class="form-control" name="servicio_1_icon" value="{{ $data['servicio_1_icon'] ?? 'fas fa-store' }}" placeholder="ej: fas fa-store">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_1_title" value="Marketplaces Personalizados" required>
+                                    <input type="text" class="form-control" name="servicio_1_title" value="{{ $data['servicio_1_title'] ?? 'Marketplaces Personalizados' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_1_description" rows="3" required>Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.</textarea>
+                                    <textarea class="form-control" name="servicio_1_description" rows="3" required>{{ $data['servicio_1_description'] ?? 'Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -360,43 +360,43 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_1_feature_1" value="Sistema de vendedores múltiples" required>
+                                <input type="text" class="form-control" name="servicio_1_feature_1" value="{{ $data['servicio_1_feature_1'] ?? 'Sistema de vendedores múltiples' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_1_feature_2" value="Pagos integrados y seguros" required>
+                                <input type="text" class="form-control" name="servicio_1_feature_2" value="{{ $data['servicio_1_feature_2'] ?? 'Pagos integrados y seguros' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_1_feature_3" value="Panel administrativo completo" required>
+                                <input type="text" class="form-control" name="servicio_1_feature_3" value="{{ $data['servicio_1_feature_3'] ?? 'Panel administrativo completo' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_1_feature_4" value="App móvil nativa opcional" required>
+                                <input type="text" class="form-control" name="servicio_1_feature_4" value="{{ $data['servicio_1_feature_4'] ?? 'App móvil nativa opcional' }}" required>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 2 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-calendar-check"></i> Servicio 2</h5>
+                        <h5><i class="{{ $data['servicio_2_icon'] ?? 'fas fa-calendar-check' }}"></i> Servicio 2</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-calendar-check"></i>
+                                            <i class="{{ $data['servicio_2_icon'] ?? 'fas fa-calendar-check' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_2_icon" value="fas fa-calendar-check" placeholder="ej: fas fa-calendar-check">
+                                        <input type="text" class="form-control" name="servicio_2_icon" value="{{ $data['servicio_2_icon'] ?? 'fas fa-calendar-check' }}" placeholder="ej: fas fa-calendar-check">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_2_title" value="Apps de Reservas y Citas" required>
+                                    <input type="text" class="form-control" name="servicio_2_title" value="{{ $data['servicio_2_title'] ?? 'Apps de Reservas y Citas' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_2_description" rows="3" required>Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.</textarea>
+                                    <textarea class="form-control" name="servicio_2_description" rows="3" required>{{ $data['servicio_2_description'] ?? 'Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -404,43 +404,43 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_2_feature_1" value="Reservas en tiempo real" required>
+                                <input type="text" class="form-control" name="servicio_2_feature_1" value="{{ $data['servicio_2_feature_1'] ?? 'Reservas en tiempo real' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_2_feature_2" value="Recordatorios automáticos" required>
+                                <input type="text" class="form-control" name="servicio_2_feature_2" value="{{ $data['servicio_2_feature_2'] ?? 'Recordatorios automáticos' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_2_feature_3" value="Gestión de disponibilidad" required>
+                                <input type="text" class="form-control" name="servicio_2_feature_3" value="{{ $data['servicio_2_feature_3'] ?? 'Gestión de disponibilidad' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_2_feature_4" value="Integración con calendarios" required>
+                                <input type="text" class="form-control" name="servicio_2_feature_4" value="{{ $data['servicio_2_feature_4'] ?? 'Integración con calendarios' }}" required>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 3 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-utensils"></i> Servicio 3</h5>
+                        <h5><i class="{{ $data['servicio_3_icon'] ?? 'fas fa-utensils' }}"></i> Servicio 3</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-utensils"></i>
+                                            <i class="{{ $data['servicio_3_icon'] ?? 'fas fa-utensils' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_3_icon" value="fas fa-utensils" placeholder="ej: fas fa-utensils">
+                                        <input type="text" class="form-control" name="servicio_3_icon" value="{{ $data['servicio_3_icon'] ?? 'fas fa-utensils' }}" placeholder="ej: fas fa-utensils">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_3_title" value="Plataformas de Restaurantes" required>
+                                    <input type="text" class="form-control" name="servicio_3_title" value="{{ $data['servicio_3_title'] ?? 'Plataformas de Restaurantes' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_3_description" rows="3" required>Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.</textarea>
+                                    <textarea class="form-control" name="servicio_3_description" rows="3" required>{{ $data['servicio_3_description'] ?? 'Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -448,43 +448,43 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_3_feature_1" value="Menú digital con QR" required>
+                                <input type="text" class="form-control" name="servicio_3_feature_1" value="{{ $data['servicio_3_feature_1'] ?? 'Menú digital con QR' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_3_feature_2" value="Pedidos online y delivery" required>
+                                <input type="text" class="form-control" name="servicio_3_feature_2" value="{{ $data['servicio_3_feature_2'] ?? 'Pedidos online y delivery' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_3_feature_3" value="Gestión de inventario" required>
+                                <input type="text" class="form-control" name="servicio_3_feature_3" value="{{ $data['servicio_3_feature_3'] ?? 'Gestión de inventario' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_3_feature_4" value="Reportes de ventas" required>
+                                <input type="text" class="form-control" name="servicio_3_feature_4" value="{{ $data['servicio_3_feature_4'] ?? 'Reportes de ventas' }}" required>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 4 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-building"></i> Servicio 4</h5>
+                        <h5><i class="{{ $data['servicio_4_icon'] ?? 'fas fa-building' }}"></i> Servicio 4</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-building"></i>
+                                            <i class="{{ $data['servicio_4_icon'] ?? 'fas fa-building' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_4_icon" value="fas fa-building" placeholder="ej: fas fa-building">
+                                        <input type="text" class="form-control" name="servicio_4_icon" value="{{ $data['servicio_4_icon'] ?? 'fas fa-building' }}" placeholder="ej: fas fa-building">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_4_title" value="Sistemas Administrativos" required>
+                                    <input type="text" class="form-control" name="servicio_4_title" value="{{ $data['servicio_4_title'] ?? 'Sistemas Administrativos' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_4_description" rows="3" required>Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.</textarea>
+                                    <textarea class="form-control" name="servicio_4_description" rows="3" required>{{ $data['servicio_4_description'] ?? 'Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -492,43 +492,43 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_4_feature_1" value="Gestión de clientes/residentes" required>
+                                <input type="text" class="form-control" name="servicio_4_feature_1" value="{{ $data['servicio_4_feature_1'] ?? 'Gestión de clientes/residentes' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_4_feature_2" value="Control de pagos y facturación" required>
+                                <input type="text" class="form-control" name="servicio_4_feature_2" value="{{ $data['servicio_4_feature_2'] ?? 'Control de pagos y facturación' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_4_feature_3" value="Reportes automatizados" required>
+                                <input type="text" class="form-control" name="servicio_4_feature_3" value="{{ $data['servicio_4_feature_3'] ?? 'Reportes automatizados' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_4_feature_4" value="Comunicación interna" required>
+                                <input type="text" class="form-control" name="servicio_4_feature_4" value="{{ $data['servicio_4_feature_4'] ?? 'Comunicación interna' }}" required>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 5 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-globe"></i> Servicio 5</h5>
+                        <h5><i class="{{ $data['servicio_5_icon'] ?? 'fas fa-globe' }}"></i> Servicio 5</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-globe"></i>
+                                            <i class="{{ $data['servicio_5_icon'] ?? 'fas fa-globe' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_5_icon" value="fas fa-globe" placeholder="ej: fas fa-globe">
+                                        <input type="text" class="form-control" name="servicio_5_icon" value="{{ $data['servicio_5_icon'] ?? 'fas fa-globe' }}" placeholder="ej: fas fa-globe">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_5_title" value="Páginas Web Profesionales" required>
+                                    <input type="text" class="form-control" name="servicio_5_title" value="{{ $data['servicio_5_title'] ?? 'Páginas Web Profesionales' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_5_description" rows="3" required>Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.</textarea>
+                                    <textarea class="form-control" name="servicio_5_description" rows="3" required>{{ $data['servicio_5_description'] ?? 'Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -536,43 +536,43 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_5_feature_1" value="Diseño responsive y moderno" required>
+                                <input type="text" class="form-control" name="servicio_5_feature_1" value="{{ $data['servicio_5_feature_1'] ?? 'Diseño responsive y moderno' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_5_feature_2" value="SEO optimizado para Google" required>
+                                <input type="text" class="form-control" name="servicio_5_feature_2" value="{{ $data['servicio_5_feature_2'] ?? 'SEO optimizado para Google' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_5_feature_3" value="Panel de administración" required>
+                                <input type="text" class="form-control" name="servicio_5_feature_3" value="{{ $data['servicio_5_feature_3'] ?? 'Panel de administración' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_5_feature_4" value="Velocidad de carga optimizada" required>
+                                <input type="text" class="form-control" name="servicio_5_feature_4" value="{{ $data['servicio_5_feature_4'] ?? 'Velocidad de carga optimizada' }}" required>
                             </div>
                         </div>
                     </div>
 
                     <!-- Servicio 6 -->
                     <div class="service-item">
-                        <h5><i class="fas fa-cogs"></i> Servicio 6</h5>
+                        <h5><i class="{{ $data['servicio_6_icon'] ?? 'fas fa-cogs' }}"></i> Servicio 6</h5>
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
                                     <div class="d-flex align-items-center">
                                         <div class="icon-preview">
-                                            <i class="fas fa-cogs"></i>
+                                            <i class="{{ $data['servicio_6_icon'] ?? 'fas fa-cogs' }}"></i>
                                         </div>
-                                        <input type="text" class="form-control" name="servicio_6_icon" value="fas fa-cogs" placeholder="ej: fas fa-cogs">
+                                        <input type="text" class="form-control" name="servicio_6_icon" value="{{ $data['servicio_6_icon'] ?? 'fas fa-cogs' }}" placeholder="ej: fas fa-cogs">
                                     </div>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Título</label>
-                                    <input type="text" class="form-control" name="servicio_6_title" value="Aplicaciones Web Personalizadas" required>
+                                    <input type="text" class="form-control" name="servicio_6_title" value="{{ $data['servicio_6_title'] ?? 'Aplicaciones Web Personalizadas' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
                                     <label class="form-label">Descripción</label>
-                                    <textarea class="form-control" name="servicio_6_description" rows="3" required>Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.</textarea>
+                                    <textarea class="form-control" name="servicio_6_description" rows="3" required>{{ $data['servicio_6_description'] ?? 'Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.' }}</textarea>
                                 </div>
                             </div>
                         </div>
@@ -580,16 +580,16 @@
                         <div class="feature-list">
                             <label class="form-label">Características:</label>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_6_feature_1" value="CRM y ERP personalizados" required>
+                                <input type="text" class="form-control" name="servicio_6_feature_1" value="{{ $data['servicio_6_feature_1'] ?? 'CRM y ERP personalizados' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_6_feature_2" value="Plataformas de e-learning" required>
+                                <input type="text" class="form-control" name="servicio_6_feature_2" value="{{ $data['servicio_6_feature_2'] ?? 'Plataformas de e-learning' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_6_feature_3" value="Sistemas de inventario" required>
+                                <input type="text" class="form-control" name="servicio_6_feature_3" value="{{ $data['servicio_6_feature_3'] ?? 'Sistemas de inventario' }}" required>
                             </div>
                             <div class="feature-item">
-                                <input type="text" class="form-control" name="servicio_6_feature_4" value="Dashboards y analytics" required>
+                                <input type="text" class="form-control" name="servicio_6_feature_4" value="{{ $data['servicio_6_feature_4'] ?? 'Dashboards y analytics' }}" required>
                             </div>
                         </div>
                     </div>
@@ -608,13 +608,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Título de la Sección</label>
-                                <input type="text" class="form-control" name="tecnologias_title" value="Tecnologías Modernas y Seguras" required>
+                                <input type="text" class="form-control" name="tecnologias_title" value="{{ $data['tecnologias_title'] ?? 'Tecnologías Modernas y Seguras' }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Descripción de la Sección</label>
-                                <textarea class="form-control" name="tecnologias_description" rows="3" required>Utilizamos las herramientas más avanzadas del mercado para garantizar que tu plataforma sea rápida, confiable, escalable y esté lista para crecer.</textarea>
+                                <textarea class="form-control" name="tecnologias_description" rows="3" required>{{ $data['tecnologias_description'] ?? 'Utilizamos las herramientas más avanzadas del mercado para garantizar que tu plataforma sea rápida, confiable, escalable y esté lista para crecer.' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -622,100 +622,100 @@
                     <div class="row">
                         <div class="col-md-6">
                             <div class="tech-item">
-                                <h5><i class="fab fa-laravel"></i> Tecnología 1</h5>
+                                <h5><i class="{{ $data['tech_1_icon'] ?? 'fab fa-laravel' }}"></i> Tecnología 1</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_1_icon" value="fab fa-laravel" required>
+                                    <input type="text" class="form-control" name="tech_1_icon" value="{{ $data['tech_1_icon'] ?? 'fab fa-laravel' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_1_name" value="Laravel 12" required>
+                                    <input type="text" class="form-control" name="tech_1_name" value="{{ $data['tech_1_name'] ?? 'Laravel 12' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fab fa-js-square"></i> Tecnología 2</h5>
+                                <h5><i class="{{ $data['tech_2_icon'] ?? 'fab fa-js-square' }}"></i> Tecnología 2</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_2_icon" value="fab fa-js-square" required>
+                                    <input type="text" class="form-control" name="tech_2_icon" value="{{ $data['tech_2_icon'] ?? 'fab fa-js-square' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_2_name" value="JavaScript" required>
+                                    <input type="text" class="form-control" name="tech_2_name" value="{{ $data['tech_2_name'] ?? 'JavaScript' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fab fa-react"></i> Tecnología 3</h5>
+                                <h5><i class="{{ $data['tech_3_icon'] ?? 'fab fa-react' }}"></i> Tecnología 3</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_3_icon" value="fab fa-react" required>
+                                    <input type="text" class="form-control" name="tech_3_icon" value="{{ $data['tech_3_icon'] ?? 'fab fa-react' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_3_name" value="React" required>
+                                    <input type="text" class="form-control" name="tech_3_name" value="{{ $data['tech_3_name'] ?? 'React' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fab fa-bootstrap"></i> Tecnología 4</h5>
+                                <h5><i class="{{ $data['tech_4_icon'] ?? 'fab fa-bootstrap' }}"></i> Tecnología 4</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_4_icon" value="fab fa-bootstrap" required>
+                                    <input type="text" class="form-control" name="tech_4_icon" value="{{ $data['tech_4_icon'] ?? 'fab fa-bootstrap' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_4_name" value="Bootstrap" required>
+                                    <input type="text" class="form-control" name="tech_4_name" value="{{ $data['tech_4_name'] ?? 'Bootstrap' }}" required>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="tech-item">
-                                <h5><i class="fas fa-database"></i> Tecnología 5</h5>
+                                <h5><i class="{{ $data['tech_5_icon'] ?? 'fas fa-database' }}"></i> Tecnología 5</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_5_icon" value="fas fa-database" required>
+                                    <input type="text" class="form-control" name="tech_5_icon" value="{{ $data['tech_5_icon'] ?? 'fas fa-database' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_5_name" value="MySQL" required>
+                                    <input type="text" class="form-control" name="tech_5_name" value="{{ $data['tech_5_name'] ?? 'MySQL' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fab fa-aws"></i> Tecnología 6</h5>
+                                <h5><i class="{{ $data['tech_6_icon'] ?? 'fab fa-aws' }}"></i> Tecnología 6</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_6_icon" value="fab fa-aws" required>
+                                    <input type="text" class="form-control" name="tech_6_icon" value="{{ $data['tech_6_icon'] ?? 'fab fa-aws' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_6_name" value="AWS Cloud" required>
+                                    <input type="text" class="form-control" name="tech_6_name" value="{{ $data['tech_6_name'] ?? 'AWS Cloud' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fab fa-docker"></i> Tecnología 7</h5>
+                                <h5><i class="{{ $data['tech_7_icon'] ?? 'fab fa-docker' }}"></i> Tecnología 7</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_7_icon" value="fab fa-docker" required>
+                                    <input type="text" class="form-control" name="tech_7_icon" value="{{ $data['tech_7_icon'] ?? 'fab fa-docker' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_7_name" value="Docker" required>
+                                    <input type="text" class="form-control" name="tech_7_name" value="{{ $data['tech_7_name'] ?? 'Docker' }}" required>
                                 </div>
                             </div>
 
                             <div class="tech-item">
-                                <h5><i class="fas fa-shield-alt"></i> Tecnología 8</h5>
+                                <h5><i class="{{ $data['tech_8_icon'] ?? 'fas fa-shield-alt' }}"></i> Tecnología 8</h5>
                                 <div class="form-group">
                                     <label class="form-label">Ícono (clase FontAwesome)</label>
-                                    <input type="text" class="form-control" name="tech_8_icon" value="fas fa-shield-alt" required>
+                                    <input type="text" class="form-control" name="tech_8_icon" value="{{ $data['tech_8_icon'] ?? 'fas fa-shield-alt' }}" required>
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Nombre</label>
-                                    <input type="text" class="form-control" name="tech_8_name" value="SSL Security" required>
+                                    <input type="text" class="form-control" name="tech_8_name" value="{{ $data['tech_8_name'] ?? 'SSL Security' }}" required>
                                 </div>
                             </div>
                         </div>
@@ -735,13 +735,13 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Título de la Sección</label>
-                                <input type="text" class="form-control" name="proceso_title" value="Nuestro Proceso de Trabajo" required>
+                                <input type="text" class="form-control" name="proceso_title" value="{{ $data['proceso_title'] ?? 'Nuestro Proceso de Trabajo' }}" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Descripción de la Sección</label>
-                                <textarea class="form-control" name="proceso_description" rows="3" required>Te acompañamos desde la idea inicial hasta el lanzamiento y soporte continuo de tu plataforma.</textarea>
+                                <textarea class="form-control" name="proceso_description" rows="3" required>{{ $data['proceso_description'] ?? 'Te acompañamos desde la idea inicial hasta el lanzamiento y soporte continuo de tu plataforma.' }}</textarea>
                             </div>
                         </div>
                     </div>
@@ -751,11 +751,11 @@
                         <h5><span class="badge bg-primary">1</span> Paso 1</h5>
                         <div class="form-group">
                             <label class="form-label">Título del Paso</label>
-                            <input type="text" class="form-control" name="proceso_step_1_title" value="Análisis y Consultoría" required>
+                            <input type="text" class="form-control" name="proceso_step_1_title" value="{{ $data['proceso_step_1_title'] ?? 'Análisis y Consultoría' }}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="proceso_step_1_description" rows="2" required>Escuchamos tu idea, analizamos tus necesidades y definimos la mejor estrategia para tu proyecto.</textarea>
+                            <textarea class="form-control" name="proceso_step_1_description" rows="2" required>{{ $data['proceso_step_1_description'] ?? 'Escuchamos tu idea, analizamos tus necesidades y definimos la mejor estrategia para tu proyecto.' }}</textarea>
                         </div>
                     </div>
 
@@ -764,11 +764,11 @@
                         <h5><span class="badge bg-primary">2</span> Paso 2</h5>
                         <div class="form-group">
                             <label class="form-label">Título del Paso</label>
-                            <input type="text" class="form-control" name="proceso_step_2_title" value="Diseño y Planificación" required>
+                            <input type="text" class="form-control" name="proceso_step_2_title" value="{{ $data['proceso_step_2_title'] ?? 'Diseño y Planificación' }}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="proceso_step_2_description" rows="2" required>Creamos prototipos, wireframes y definimos la arquitectura técnica de tu plataforma.</textarea>
+                            <textarea class="form-control" name="proceso_step_2_description" rows="2" required>{{ $data['proceso_step_2_description'] ?? 'Creamos prototipos, wireframes y definimos la arquitectura técnica de tu plataforma.' }}</textarea>
                         </div>
                     </div>
 
@@ -777,11 +777,11 @@
                         <h5><span class="badge bg-primary">3</span> Paso 3</h5>
                         <div class="form-group">
                             <label class="form-label">Título del Paso</label>
-                            <input type="text" class="form-control" name="proceso_step_3_title" value="Desarrollo a Medida" required>
+                            <input type="text" class="form-control" name="proceso_step_3_title" value="{{ $data['proceso_step_3_title'] ?? 'Desarrollo a Medida' }}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="proceso_step_3_description" rows="2" required>Programamos tu solución utilizando las mejores prácticas y tecnologías más avanzadas.</textarea>
+                            <textarea class="form-control" name="proceso_step_3_description" rows="2" required>{{ $data['proceso_step_3_description'] ?? 'Programamos tu solución utilizando las mejores prácticas y tecnologías más avanzadas.' }}</textarea>
                         </div>
                     </div>
 
@@ -790,11 +790,11 @@
                         <h5><span class="badge bg-primary">4</span> Paso 4</h5>
                         <div class="form-group">
                             <label class="form-label">Título del Paso</label>
-                            <input type="text" class="form-control" name="proceso_step_4_title" value="Pruebas y Lanzamiento" required>
+                            <input type="text" class="form-control" name="proceso_step_4_title" value="{{ $data['proceso_step_4_title'] ?? 'Pruebas y Lanzamiento' }}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="proceso_step_4_description" rows="2" required>Realizamos pruebas exhaustivas y te acompañamos en el lanzamiento de tu plataforma.</textarea>
+                            <textarea class="form-control" name="proceso_step_4_description" rows="2" required>{{ $data['proceso_step_4_description'] ?? 'Realizamos pruebas exhaustivas y te acompañamos en el lanzamiento de tu plataforma.' }}</textarea>
                         </div>
                     </div>
 
@@ -803,11 +803,11 @@
                         <h5><span class="badge bg-primary">5</span> Paso 5</h5>
                         <div class="form-group">
                             <label class="form-label">Título del Paso</label>
-                            <input type="text" class="form-control" name="proceso_step_5_title" value="Soporte Continuo" required>
+                            <input type="text" class="form-control" name="proceso_step_5_title" value="{{ $data['proceso_step_5_title'] ?? 'Soporte Continuo' }}" required>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Descripción</label>
-                            <textarea class="form-control" name="proceso_step_5_description" rows="2" required>Brindamos mantenimiento, actualizaciones y soporte técnico para el crecimiento de tu negocio.</textarea>
+                            <textarea class="form-control" name="proceso_step_5_description" rows="2" required>{{ $data['proceso_step_5_description'] ?? 'Brindamos mantenimiento, actualizaciones y soporte técnico para el crecimiento de tu negocio.' }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -825,29 +825,29 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Título del CTA</label>
-                                <input type="text" class="form-control" name="cta_title" value="¿Listo para Digitalizar tu Idea?" required>
+                                <input type="text" class="form-control" name="cta_title" value="{{ $data['cta_title'] ?? '¿Listo para Digitalizar tu Idea?' }}" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Descripción del CTA</label>
-                                <textarea class="form-control" name="cta_description" rows="3" required>Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.</textarea>
+                                <textarea class="form-control" name="cta_description" rows="3" required>{{ $data['cta_description'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.' }}</textarea>
                             </div>
                         </div>
 
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Texto del Botón</label>
-                                <input type="text" class="form-control" name="cta_button_text" value="Hablemos por WhatsApp" required>
+                                <input type="text" class="form-control" name="cta_button_text" value="{{ $data['cta_button_text'] ?? 'Hablemos por WhatsApp' }}" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Número de WhatsApp</label>
-                                <input type="text" class="form-control" name="whatsapp_number" value="573123708407" required>
+                                <input type="text" class="form-control" name="whatsapp_number" value="{{ $data['whatsapp_number'] ?? '573123708407' }}" required>
                             </div>
 
                             <div class="form-group">
                                 <label class="form-label">Mensaje de WhatsApp</label>
-                                <textarea class="form-control" name="whatsapp_message" rows="2" required>Hola, me interesa conocer más sobre sus servicios de desarrollo web</textarea>
+                                <textarea class="form-control" name="whatsapp_message" rows="2" required>{{ $data['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web' }}</textarea>
                             </div>
                         </div>
                     </div>
