@@ -1,0 +1,45 @@
+# Laravel
+/vendor
+/node_modules
+/public/storage
+/storage/*.key
+.env
+.env.backup
+.phpunit.result.cache
+
+# Laravel 5 & 6 specific
+Homestead.yaml
+Homestead.json
+
+# Laravel 7+ specific
+.env.testing
+
+# Composer
+composer.lock
+
+# NPM / Yarn
+package-lock.json
+yarn.lock
+
+# IDEs & Editors
+.idea
+.vscode
+*.swp
+*.swo
+*.swn
+*.swo
+*.bak
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+/storage/logs/*.log
+/storage/framework/cache/*
+/storage/framework/sessions/*
+/storage/framework/views/*
+/storage/framework/testing/*
+
+# Cache & compiled
+bootstrap/cache/*
