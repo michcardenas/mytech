@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="google-site-verification" content="Yk8ILwU3yKtRTW0Zspxa9tKAFR3mRyI3idT0SpNvSIo" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     {{-- TITLE - SEO o fallback --}}
