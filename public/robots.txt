@@ -1,2 +1,26 @@
 User-agent: *
-Disallow:
+Allow: /
+
+# Permitir acceso a recursos públicos
+Allow: /css/
+Allow: /js/
+Allow: /images/
+Allow: /fonts/
+
+# Bloquear rutas administrativas
+Disallow: /admin/
+Disallow: /dashboard/
+Disallow: /login/
+Disallow: /register/
+
+# Bloquear archivos del sistema
+Disallow: /vendor/
+Disallow: /storage/
+Disallow: /.env
+Disallow: /config/
+
+# Sitemap principal
+Sitemap: https://mytechsolutionsco.com/sitemap.xml
+
+# Información adicional
+# Crawl-delay: 1
