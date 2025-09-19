@@ -16,20 +16,24 @@ class GenerateSitemap extends Command
         $sitemap = Sitemap::create()
             ->add(Url::create('/')
                 ->setLastModificationDate(now())
-                ->setChangeFrequency('weekly')
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
                 ->setPriority(1.0))
             ->add(Url::create('/servicios')
-                ->setChangeFrequency('monthly')
-                ->setPriority(0.9))
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8))
             ->add(Url::create('/proyectos')
-                ->setChangeFrequency('weekly')
-                ->setPriority(0.9))
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                ->setPriority(0.8))
             ->add(Url::create('/sobre-nosotros')
-                ->setChangeFrequency('yearly')
-                ->setPriority(0.7))
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.6))
             ->add(Url::create('/contacto')
-                ->setChangeFrequency('monthly')
-                ->setPriority(0.7));
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                ->setPriority(0.6));
 
         $sitemap->writeToFile(public_path('sitemap.xml'));
 
