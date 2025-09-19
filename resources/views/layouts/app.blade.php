@@ -2,6 +2,7 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8">
+<meta name="msvalidate.01" content="808CD1DC4ADF1CDC768B784CFB343FAD" />
 <meta name="google-site-verification" content="Yk8ILwU3yKtRTW0Zspxa9tKAFR3mRyI3idT0SpNvSIo" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
