@@ -130,6 +130,11 @@
     @endif
 
     {{-- FAVICON --}}
+<link rel="icon" href="/favicon.ico" type="image/x-icon">
+<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/icon.png') }}">
+<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/icon.png') }}">
+<link rel="apple-touch-icon" href="{{ asset('images/icon.png') }}">
+
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
 
     {{-- BOOTSTRAP CSS --}}
