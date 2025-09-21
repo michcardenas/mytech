@@ -130,20 +130,19 @@
     @endif
 
     {{-- FAVICON --}}
-<link rel="icon" href="{{ asset('images/icon.png') }}" type="image/x-icon">
-<link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/icon.png') }}">
-<link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/icon.png') }}">
-<link rel="apple-touch-icon" href="{{ asset('images/icon.png') }}">
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Organization",
-  "url": "https://mytechsolutionsco.com",
-  "logo": "https://mytechsolutionsco.com/images/icon.png"
-}
-</script>
-s
-    <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
+    <link rel="icon" href="{{ asset('images/icon.png') }}" type="image/png">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('images/icon.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/icon.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('images/icon.png') }}">
+    <link rel="shortcut icon" href="{{ asset('images/icon.png') }}" type="image/png">
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "Organization",
+      "url": "https://mytechsolutionsco.com",
+      "logo": "https://mytechsolutionsco.com/images/icon.png"
+    }
+    </script>
 
     {{-- BOOTSTRAP CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
