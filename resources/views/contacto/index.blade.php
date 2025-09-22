@@ -350,13 +350,17 @@
         background: rgba(255, 255, 255, 0.9);
         backdrop-filter: blur(20px);
         border-radius: 25px;
-        padding: 3rem 2rem;
+        padding: 2.5rem 1.8rem;
         text-align: center;
         box-shadow: 0 20px 60px rgba(0, 123, 255, 0.1);
         border: 1px solid rgba(0, 123, 255, 0.1);
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
         overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 350px;
     }
 
     .contact-card::before {
@@ -399,8 +403,15 @@
         transform: scale(1.1) rotate(5deg);
     }
 
+    .contact-card-content {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
     .contact-card h3 {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
         font-weight: 700;
         margin-bottom: 1rem;
         color: var(--dark-text);
@@ -408,28 +419,60 @@
 
     .contact-card p {
         color: #6c757d;
-        line-height: 1.7;
-        margin-bottom: 2rem;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        flex: 1;
+    }
+
+    .contact-card-action {
+        margin-top: auto;
+        padding-top: 1rem;
     }
 
     .contact-btn {
         background: var(--gradient-primary);
         color: white;
-        padding: 1rem 2rem;
+        padding: 1rem 1.5rem;
         border-radius: 25px;
         text-decoration: none;
         font-weight: 600;
         display: inline-flex;
         align-items: center;
+        justify-content: center;
         gap: 0.5rem;
         transition: all 0.3s ease;
         box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
+        text-align: center;
+        min-height: 50px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+        word-break: break-all;
+        font-size: 0.9rem;
     }
 
     .contact-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 15px 35px rgba(0, 123, 255, 0.4);
         color: white;
+    }
+
+    .contact-btn.email-btn {
+        font-size: 0.8rem;
+        padding: 0.8rem 1rem;
+        line-height: 1.2;
+        white-space: normal;
+        word-break: break-all;
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.3rem;
+    }
+
+    .contact-btn.email-btn i {
+        margin-bottom: 0.2rem;
     }
 
     /* Contact Form Section con Parallax */
@@ -598,9 +641,9 @@
     .contact-form {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(25px);
-        border-radius: 35px;
-        padding: 4rem 3rem;
-        box-shadow: 
+        border-radius: 25px;
+        padding: 3rem 2.5rem;
+        box-shadow:
             0 40px 100px rgba(0, 123, 255, 0.15),
             0 20px 60px rgba(0, 0, 0, 0.05),
             inset 0 1px 0 rgba(255, 255, 255, 0.8);
@@ -608,6 +651,8 @@
         position: relative;
         overflow: hidden;
         animation: form-slide-up 1.5s ease-out;
+        max-width: 800px;
+        margin: 0 auto;
     }
 
     @keyframes form-slide-up {
@@ -662,9 +707,16 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
         margin-bottom: 2rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
     }
 
     .form-group {
@@ -689,30 +741,31 @@
 
     .form-control {
         width: 100%;
-        padding: 1.5rem 2rem;
-        border: 3px solid transparent;
-        border-radius: 20px;
-        font-size: 1.05rem;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        background: 
+        padding: 1.2rem 1.5rem;
+        border: 2px solid transparent;
+        border-radius: 15px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        background:
             linear-gradient(white, white) padding-box,
-            linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.1)) border-box;
-        box-shadow: 
-            0 5px 15px rgba(0, 123, 255, 0.08),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(0, 212, 255, 0.2)) border-box;
+        box-shadow:
+            0 4px 12px rgba(0, 123, 255, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.9);
         position: relative;
+        font-family: inherit;
     }
 
     .form-control:focus {
         outline: none;
-        background: 
+        background:
             linear-gradient(white, white) padding-box,
             linear-gradient(135deg, var(--primary-blue), #00d4ff) border-box;
-        box-shadow: 
-            0 15px 35px rgba(0, 123, 255, 0.2),
-            0 0 0 4px rgba(0, 123, 255, 0.1),
+        box-shadow:
+            0 8px 25px rgba(0, 123, 255, 0.2),
+            0 0 0 3px rgba(0, 123, 255, 0.1),
             inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        transform: translateY(-3px);
+        transform: translateY(-2px);
     }
 
     .form-control::placeholder {
@@ -728,16 +781,16 @@
 
     .form-label {
         position: absolute;
-        top: -12px;
-        left: 20px;
+        top: -10px;
+        left: 15px;
         background: linear-gradient(135deg, var(--primary-blue), #00d4ff);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        padding: 0 15px;
-        font-size: 0.95rem;
+        padding: 0 12px;
+        font-size: 0.9rem;
         font-weight: 700;
-        border-radius: 15px;
+        border-radius: 12px;
         background-color: white;
         z-index: 2;
     }
@@ -745,42 +798,62 @@
     select.form-control {
         cursor: pointer;
         appearance: none;
-        background-image: 
-            linear-gradient(white, white),
-            linear-gradient(135deg, var(--primary-blue), #00d4ff),
-            url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23007bff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background:
+            linear-gradient(white, white) padding-box,
+            linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.1)) border-box;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23007bff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
         background-position: right 20px center;
         background-repeat: no-repeat;
-        background-size: 20px;
-        padding-right: 60px;
+        background-size: 18px;
+        padding-right: 55px;
+        font-weight: 500;
+    }
+
+    select.form-control:focus {
+        background:
+            linear-gradient(white, white) padding-box,
+            linear-gradient(135deg, var(--primary-blue), #00d4ff) border-box;
+        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+        background-position: right 20px center;
+        background-repeat: no-repeat;
+        background-size: 18px;
+    }
+
+    select.form-control option {
+        background: white;
+        color: #333;
+        padding: 12px;
+        font-weight: 500;
     }
 
     textarea.form-control {
-        min-height: 140px;
+        min-height: 120px;
         resize: vertical;
         font-family: inherit;
-        line-height: 1.6;
+        line-height: 1.5;
+        padding: 1.2rem 1.5rem;
     }
 
     .submit-btn {
         background: linear-gradient(135deg, var(--primary-blue) 0%, #00d4ff 100%);
         color: white;
-        padding: 1.8rem 4rem;
+        padding: 1.5rem 3rem;
         border: none;
-        border-radius: 30px;
-        font-size: 1.2rem;
-        font-weight: 800;
+        border-radius: 25px;
+        font-size: 1.1rem;
+        font-weight: 700;
         cursor: pointer;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        box-shadow: 
-            0 20px 40px rgba(0, 123, 255, 0.3),
-            0 10px 20px rgba(0, 0, 0, 0.1),
+        transition: all 0.3s ease;
+        box-shadow:
+            0 15px 30px rgba(0, 123, 255, 0.3),
+            0 8px 15px rgba(0, 0, 0, 0.1),
             inset 0 1px 0 rgba(255, 255, 255, 0.2);
         width: 100%;
         position: relative;
         overflow: hidden;
-        letter-spacing: 0.5px;
+        letter-spacing: 0.3px;
         text-transform: uppercase;
+        margin-top: 1rem;
     }
 
     .submit-btn::before {
@@ -1065,20 +1138,34 @@
             font-size: 1.8rem;
         }
 
+        .contact-form {
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
+        }
+
         .form-grid {
             grid-template-columns: 1fr;
-            gap: 1.2rem;
+            gap: 1.5rem;
         }
 
         .form-control {
-            padding: 1.2rem 1.5rem;
-            font-size: 1rem;
-            border-radius: 15px;
+            padding: 1.1rem 1.3rem;
+            font-size: 0.95rem;
+            border-radius: 12px;
         }
 
         .form-label {
-            left: 15px;
+            left: 12px;
+            font-size: 0.8rem;
+            padding: 0 10px;
+        }
+
+        .contact-btn {
             font-size: 0.85rem;
+            padding: 0.9rem 1.2rem;
+            word-break: break-word;
+            white-space: normal;
+            line-height: 1.3;
         }
 
         .submit-btn {
@@ -1206,6 +1293,7 @@
         select.form-control {
             background-size: 16px;
             padding-right: 45px;
+            font-size: 0.9rem;
         }
 
         textarea.form-control {
@@ -1390,16 +1478,20 @@
                 <div class="contact-icon">
                     <i class="{{ $data['method_1_icon'] ?? 'fab fa-whatsapp' }}"></i>
                 </div>
-                <h3>{{ $data['method_1_title'] ?? 'WhatsApp Directo' }}</h3>
-                <p>
-                    {{ $data['method_1_description'] ?? 'La forma más rápida de contactarnos. Te respondemos en menos de 30 minutos durante horario laboral. Perfecto para consultas rápidas y coordinación de reuniones.' }}
-                </p>
-                <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}" 
-                   target="_blank" 
-                   class="contact-btn">
-                    <i class="fab fa-whatsapp"></i>
-                    {{ $data['method_1_number'] ?? '+57 312 370 8407' }}
-                </a>
+                <div class="contact-card-content">
+                    <h3>{{ $data['method_1_title'] ?? 'WhatsApp Directo' }}</h3>
+                    <p>
+                        {{ $data['method_1_description'] ?? 'La forma más rápida de contactarnos. Te respondemos en menos de 30 minutos durante horario laboral. Perfecto para consultas rápidas y coordinación de reuniones.' }}
+                    </p>
+                </div>
+                <div class="contact-card-action">
+                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
+                       target="_blank"
+                       class="contact-btn">
+                        <i class="fab fa-whatsapp"></i>
+                        {{ $data['method_1_number'] ?? '+57 312 370 8407' }}
+                    </a>
+                </div>
             </div>
             
             <!-- Video Call Method -->
@@ -1407,16 +1499,20 @@
                 <div class="contact-icon">
                     <i class="{{ $data['method_2_icon'] ?? 'fas fa-video' }}"></i>
                 </div>
-                <h3>{{ $data['method_2_title'] ?? 'Videollamada de Consultoría' }}</h3>
-                <p>
-                    {{ $data['method_2_description'] ?? 'Agenda una videollamada gratuita de 30 minutos para analizar tu proyecto en detalle. Revisamos tus necesidades y te damos una propuesta inicial sin compromiso.' }}
-                </p>
-                <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}" 
-                   target="_blank" 
-                   class="contact-btn">
-                    <i class="fas fa-calendar"></i>
-                    {{ $data['method_2_button'] ?? 'Agendar Consultoría' }}
-                </a>
+                <div class="contact-card-content">
+                    <h3>{{ $data['method_2_title'] ?? 'Videollamada de Consultoría' }}</h3>
+                    <p>
+                        {{ $data['method_2_description'] ?? 'Agenda una videollamada gratuita de 30 minutos para analizar tu proyecto en detalle. Revisamos tus necesidades y te damos una propuesta inicial sin compromiso.' }}
+                    </p>
+                </div>
+                <div class="contact-card-action">
+                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}"
+                       target="_blank"
+                       class="contact-btn">
+                        <i class="fas fa-calendar"></i>
+                        {{ $data['method_2_button'] ?? 'Agendar Consultoría' }}
+                    </a>
+                </div>
             </div>
             
             <!-- Email Method -->
@@ -1424,14 +1520,18 @@
                 <div class="contact-icon">
                     <i class="{{ $data['method_3_icon'] ?? 'fas fa-envelope' }}"></i>
                 </div>
-                <h3>{{ $data['method_3_title'] ?? 'Email Profesional' }}</h3>
-                <p>
-                    {{ $data['method_3_description'] ?? 'Para consultas detalladas, envío de documentos o comunicación formal. Te respondemos en máximo 24 horas con una propuesta personalizada.' }}
-                </p>
-                <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}" class="contact-btn">
-                    <i class="fas fa-envelope"></i>
-                    {{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}
-                </a>
+                <div class="contact-card-content">
+                    <h3>{{ $data['method_3_title'] ?? 'Email Profesional' }}</h3>
+                    <p>
+                        {{ $data['method_3_description'] ?? 'Para consultas detalladas, envío de documentos o comunicación formal. Te respondemos en máximo 24 horas con una propuesta personalizada.' }}
+                    </p>
+                </div>
+                <div class="contact-card-action">
+                    <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}" class="contact-btn email-btn">
+                        <i class="fas fa-envelope"></i>
+                        <span>{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}</span>
+                    </a>
+                </div>
             </div>
         </div>
     </div>
