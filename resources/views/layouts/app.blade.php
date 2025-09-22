@@ -35,6 +35,8 @@
     {{-- CANONICAL URL --}}
     @if(isset($seo) && $seo && $seo->canonical_url)
         <link rel="canonical" href="{{ $seo->canonical_url }}">
+    @else
+        <link rel="canonical" href="{{ request()->url() }}">
     @endif
     
     {{-- FOCUS KEYWORD (para análisis interno) --}}
