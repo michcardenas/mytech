@@ -544,6 +544,57 @@
         z-index: 2;
     }
 
+    .alert {
+        padding: 1.2rem 1.5rem;
+        margin-bottom: 2rem;
+        border-radius: 15px;
+        border: none;
+        font-weight: 500;
+        display: flex;
+        align-items: flex-start;
+        gap: 0.8rem;
+        animation: alert-slide-in 0.6s ease-out;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    @keyframes alert-slide-in {
+        0% {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        100% {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+        color: #155724;
+        border-left: 4px solid #28a745;
+    }
+
+    .alert-danger {
+        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+        color: #721c24;
+        border-left: 4px solid #dc3545;
+    }
+
+    .alert i {
+        font-size: 1.2rem;
+        margin-top: 0.1rem;
+        flex-shrink: 0;
+    }
+
+    .alert ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.2rem;
+    }
+
+    .alert li {
+        margin-bottom: 0.3rem;
+    }
+
     .contact-form {
         background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(25px);
@@ -611,8 +662,8 @@
 
     .form-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 2rem;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
         margin-bottom: 2rem;
     }
 
@@ -938,30 +989,30 @@
             padding: 80px 0 60px;
             min-height: 80vh;
         }
-        
+
         .hero-contact h1 {
             font-size: 2.8rem;
             line-height: 1.2;
             margin-bottom: 1.5rem;
         }
-        
+
         .hero-contact .lead {
             font-size: 1.3rem;
             margin-bottom: 2.5rem;
         }
-        
+
         .contact-badge {
             padding: 1rem 2rem;
             font-size: 1rem;
             margin-bottom: 1.5rem;
         }
-        
+
         .cta-buttons-hero {
             flex-direction: column;
             align-items: center;
             gap: 1rem;
         }
-        
+
         .hero-cta {
             width: 100%;
             max-width: 320px;
@@ -969,105 +1020,107 @@
             padding: 1.2rem 2rem;
             font-size: 1rem;
         }
-        
+
         /* Simplificar animaciones en móvil */
         .parallax-bg {
             animation: none;
             opacity: 0.6;
         }
-        
+
         .floating-shapes .shape {
             animation-duration: 30s; /* Más lento para mejor performance */
         }
-        
+
         .contact-options {
             grid-template-columns: 1fr;
             gap: 1.5rem;
         }
-        
+
         .contact-card {
             padding: 2rem 1.5rem;
         }
-        
+
         .form-section {
-            padding: 80px 0;
+            padding: 60px 0;
         }
-        
+
         .section-header h2 {
             font-size: 2.2rem;
         }
-        
+
         .section-header p {
             font-size: 1.1rem;
         }
-        
+
         .form-container {
-            margin: 0 1rem;
+            margin: 0 0.5rem;
         }
-        
+
         .contact-form {
-            padding: 2.5rem 2rem;
-            border-radius: 25px;
+            padding: 2rem 1.5rem;
+            border-radius: 20px;
         }
-        
+
         .form-header h3 {
-            font-size: 2rem;
+            font-size: 1.8rem;
         }
-        
+
         .form-grid {
             grid-template-columns: 1fr;
-            gap: 1.5rem;
+            gap: 1.2rem;
         }
-        
+
         .form-control {
-            padding: 1.3rem 1.8rem;
+            padding: 1.2rem 1.5rem;
             font-size: 1rem;
+            border-radius: 15px;
         }
-        
+
         .form-label {
-            left: 18px;
-            font-size: 0.9rem;
+            left: 15px;
+            font-size: 0.85rem;
         }
-        
+
         .submit-btn {
-            padding: 1.5rem 3rem;
-            font-size: 1.1rem;
+            padding: 1.4rem 2.5rem;
+            font-size: 1rem;
+            border-radius: 20px;
         }
-        
+
         .form-features {
             grid-template-columns: repeat(2, 1fr);
             gap: 1rem;
         }
-        
+
         .feature-item {
             padding: 1rem;
         }
-        
+
         .feature-item i {
             font-size: 1.5rem;
         }
-        
+
         .feature-item h4 {
             font-size: 0.9rem;
         }
-        
+
         .feature-item p {
             font-size: 0.8rem;
         }
-        
+
         .map-content {
             grid-template-columns: 1fr;
             gap: 2rem;
         }
-        
+
         .map-info {
             order: 1;
         }
-        
+
         .map-container {
             order: -1;
         }
-        
+
         .map-container iframe {
             height: 300px;
         }
@@ -1075,126 +1128,140 @@
 
     @media (max-width: 480px) {
         .hero-contact {
-            padding: 60px 0 40px;
+            padding: 50px 0 30px;
             min-height: 70vh;
         }
-        
+
         .hero-contact h1 {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
-        }
-        
-        .hero-contact .lead {
-            font-size: 1.2rem;
-            margin-bottom: 2rem;
-        }
-        
-        .contact-badge {
-            padding: 0.9rem 1.8rem;
-            font-size: 0.95rem;
-            margin-bottom: 1rem;
-        }
-        
-        .hero-cta {
-            max-width: 280px;
-            padding: 1.1rem 1.8rem;
-            font-size: 0.95rem;
-        }
-        
-        .form-section {
-            padding: 60px 0;
-        }
-        
-        .section-header h2 {
             font-size: 2rem;
+            margin-bottom: 1rem;
         }
-        
-        .section-header p {
-            font-size: 1rem;
+
+        .hero-contact .lead {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
         }
-        
-        .form-container {
-            margin: 0 0.5rem;
+
+        .contact-badge {
+            padding: 0.8rem 1.5rem;
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
         }
-        
-        .contact-form {
-            padding: 2rem 1.5rem;
-            border-radius: 20px;
+
+        .hero-cta {
+            max-width: 100%;
+            padding: 1rem 1.5rem;
+            font-size: 0.9rem;
         }
-        
-        .form-header {
-            margin-bottom: 2rem;
+
+        .form-section {
+            padding: 40px 0;
         }
-        
-        .form-header h3 {
+
+        .section-header h2 {
             font-size: 1.8rem;
         }
-        
-        .form-header p {
-            font-size: 1rem;
+
+        .section-header p {
+            font-size: 0.95rem;
         }
-        
+
+        .form-container {
+            margin: 0 0.75rem;
+        }
+
+        .contact-form {
+            padding: 1.5rem 1rem;
+            border-radius: 15px;
+        }
+
+        .form-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-header h3 {
+            font-size: 1.5rem;
+        }
+
+        .form-header p {
+            font-size: 0.9rem;
+        }
+
+        .form-grid {
+            gap: 1rem;
+        }
+
         .form-control {
-            padding: 1.2rem 1.5rem;
+            padding: 1rem 1.2rem;
+            font-size: 0.9rem;
+            border-radius: 12px;
+        }
+
+        .form-label {
+            left: 12px;
+            font-size: 0.8rem;
+            padding: 0 8px;
+        }
+
+        select.form-control {
+            background-size: 16px;
+            padding-right: 45px;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+        }
+
+        .submit-btn {
+            padding: 1.2rem 2rem;
             font-size: 0.95rem;
             border-radius: 15px;
         }
-        
-        .form-label {
-            left: 15px;
-            font-size: 0.85rem;
-            padding: 0 10px;
-        }
-        
-        select.form-control {
-            background-size: 18px;
-            padding-right: 50px;
-        }
-        
-        textarea.form-control {
-            min-height: 120px;
-        }
-        
-        .submit-btn {
-            padding: 1.4rem 2.5rem;
-            font-size: 1rem;
-            border-radius: 25px;
-        }
-        
+
         .form-features {
             grid-template-columns: 1fr;
-            gap: 1rem;
-            margin-top: 2rem;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
         }
-        
+
         .feature-item {
-            padding: 1rem 0.8rem;
+            padding: 0.8rem;
             text-align: left;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.8rem;
         }
-        
+
         .feature-item i {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             margin-bottom: 0;
             flex-shrink: 0;
         }
-        
-        .contact-card {
-            padding: 1.5rem;
+
+        .feature-item h4 {
+            font-size: 0.85rem;
+            margin-bottom: 0.2rem;
         }
-        
+
+        .feature-item p {
+            font-size: 0.75rem;
+            margin: 0;
+        }
+
+        .contact-card {
+            padding: 1.5rem 1rem;
+        }
+
         .contact-icon {
             width: 60px;
             height: 60px;
             font-size: 1.5rem;
         }
-        
+
         .map-container iframe {
             height: 250px;
         }
-        
+
         .map-overlay {
             top: 15px;
             left: 15px;
@@ -1361,9 +1428,9 @@
                 <p>
                     {{ $data['method_3_description'] ?? 'Para consultas detalladas, envío de documentos o comunicación formal. Te respondemos en máximo 24 horas con una propuesta personalizada.' }}
                 </p>
-                <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutions.com' }}" class="contact-btn">
+                <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}" class="contact-btn">
                     <i class="fas fa-envelope"></i>
-                    {{ $data['method_3_email'] ?? 'contacto@mytechsolutions.com' }}
+                    {{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}
                 </a>
             </div>
         </div>
@@ -1387,7 +1454,33 @@
         </div>
         
         <div class="form-container">
-            <form class="contact-form" action="#" method="POST">
+            @if(session('success'))
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle"></i>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle"></i>
+                    {{ session('error') }}
+                </div>
+            @endif
+
+            @if($errors->any())
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>Por favor, corrige los siguientes errores:</strong>
+                    <ul>
+                        @foreach($errors->all() as $error)
+                            <li>{{ $error }}</li>
+                        @endforeach
+                    </ul>
+                </div>
+            @endif
+
+            <form class="contact-form" action="{{ route('contacto.store') }}" method="POST">
                 @csrf
                 
                 <div class="form-header">
@@ -1398,50 +1491,50 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label class="form-label">Nombre Completo</label>
-                        <input type="text" name="nombre" class="form-control" placeholder="Escribe tu nombre completo" required>
+                        <input type="text" name="nombre" class="form-control" placeholder="Escribe tu nombre completo" value="{{ old('nombre') }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Email Profesional</label>
-                        <input type="email" name="email" class="form-control" placeholder="tu@empresa.com" required>
+                        <input type="email" name="email" class="form-control" placeholder="tu@empresa.com" value="{{ old('email') }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">WhatsApp</label>
-                        <input type="tel" name="whatsapp" class="form-control" placeholder="+57 312 345 6789" required>
+                        <input type="tel" name="whatsapp" class="form-control" placeholder="+57 312 345 6789" value="{{ old('whatsapp') }}" required>
                     </div>
                     <div class="form-group">
                         <label class="form-label">Empresa/Organización</label>
-                        <input type="text" name="empresa" class="form-control" placeholder="Nombre de tu empresa o proyecto" required>
+                        <input type="text" name="empresa" class="form-control" placeholder="Nombre de tu empresa o proyecto" value="{{ old('empresa') }}" required>
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Tipo de Proyecto</label>
                         <select name="tipo_proyecto" class="form-control" required>
                             <option value="">¿Qué tipo de proyecto necesitas?</option>
-                            <option value="web">Página Web Profesional</option>
-                            <option value="ecommerce">Tienda Online / E-commerce</option>
-                            <option value="marketplace">Marketplace como MercadoLibre</option>
-                            <option value="app">Aplicación Web Personalizada</option>
-                            <option value="booking">Sistema de Reservas/Citas</option>
-                            <option value="restaurant">Plataforma para Restaurante (QR, Pedidos)</option>
-                            <option value="admin">Sistema Administrativo/CRM</option>
-                            <option value="saas">Plataforma SaaS</option>
-                            <option value="otros">Otro (especificar en descripción)</option>
+                            <option value="web" {{ old('tipo_proyecto') == 'web' ? 'selected' : '' }}>Página Web Profesional</option>
+                            <option value="ecommerce" {{ old('tipo_proyecto') == 'ecommerce' ? 'selected' : '' }}>Tienda Online / E-commerce</option>
+                            <option value="marketplace" {{ old('tipo_proyecto') == 'marketplace' ? 'selected' : '' }}>Marketplace como MercadoLibre</option>
+                            <option value="app" {{ old('tipo_proyecto') == 'app' ? 'selected' : '' }}>Aplicación Web Personalizada</option>
+                            <option value="booking" {{ old('tipo_proyecto') == 'booking' ? 'selected' : '' }}>Sistema de Reservas/Citas</option>
+                            <option value="restaurant" {{ old('tipo_proyecto') == 'restaurant' ? 'selected' : '' }}>Plataforma para Restaurante (QR, Pedidos)</option>
+                            <option value="admin" {{ old('tipo_proyecto') == 'admin' ? 'selected' : '' }}>Sistema Administrativo/CRM</option>
+                            <option value="saas" {{ old('tipo_proyecto') == 'saas' ? 'selected' : '' }}>Plataforma SaaS</option>
+                            <option value="otros" {{ old('tipo_proyecto') == 'otros' ? 'selected' : '' }}>Otro (especificar en descripción)</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Presupuesto Disponible</label>
                         <select name="presupuesto" class="form-control" required>
                             <option value="">Selecciona tu rango de presupuesto</option>
-                            <option value="1-3">$1,000 - $3,000 USD</option>
-                            <option value="3-5">$3,000 - $5,000 USD</option>
-                            <option value="5-10">$5,000 - $10,000 USD</option>
-                            <option value="10-20">$10,000 - $20,000 USD</option>
-                            <option value="20+">Más de $20,000 USD</option>
-                            <option value="consultar">Prefiero consultarlo en la reunión</option>
+                            <option value="1-3" {{ old('presupuesto') == '1-3' ? 'selected' : '' }}>$1,000 - $3,000 USD</option>
+                            <option value="3-5" {{ old('presupuesto') == '3-5' ? 'selected' : '' }}>$3,000 - $5,000 USD</option>
+                            <option value="5-10" {{ old('presupuesto') == '5-10' ? 'selected' : '' }}>$5,000 - $10,000 USD</option>
+                            <option value="10-20" {{ old('presupuesto') == '10-20' ? 'selected' : '' }}>$10,000 - $20,000 USD</option>
+                            <option value="20+" {{ old('presupuesto') == '20+' ? 'selected' : '' }}>Más de $20,000 USD</option>
+                            <option value="consultar" {{ old('presupuesto') == 'consultar' ? 'selected' : '' }}>Prefiero consultarlo en la reunión</option>
                         </select>
                     </div>
                     <div class="form-group full-width">
                         <label class="form-label">Descripción Detallada del Proyecto</label>
-                        <textarea name="descripcion" class="form-control" placeholder="Describe tu proyecto: ¿Qué problema resuelve? ¿Quién es tu audiencia? ¿Qué funcionalidades específicas necesitas? ¿Cuándo te gustaría lanzarlo? Mientras más detalles nos proporciones, mejor será nuestra propuesta." required></textarea>
+                        <textarea name="descripcion" class="form-control" placeholder="Describe tu proyecto: ¿Qué problema resuelve? ¿Quién es tu audiencia? ¿Qué funcionalidades específicas necesitas? ¿Cuándo te gustaría lanzarlo? Mientras más detalles nos proporciones, mejor será nuestra propuesta." required>{{ old('descripcion') }}</textarea>
                     </div>
                 </div>
                 

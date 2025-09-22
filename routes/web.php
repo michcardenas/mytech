@@ -22,6 +22,7 @@ Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios
 Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'indexproyectos'])->name('proyectos.index');
 Route::get('/sobre-nosotros', [App\Http\Controllers\ServiciosController::class, 'indexsobreNosotros'])->name('sobre_nosotros.index');
 Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'indexcontacto'])->name('contacto.index');
+Route::post('/contacto', [App\Http\Controllers\ServiciosController::class, 'storeContacto'])->name('contacto.store');
 
 Route::get('admin/pages/servicios/edit', [PageController::class, 'editServicios'])->name('admin.pages.servicios.edit');
 Route::put('admin/pages/servicios/update', [PageController::class, 'updateServicios'])->name('admin.pages.servicios.update');
