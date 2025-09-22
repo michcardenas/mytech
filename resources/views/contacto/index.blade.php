@@ -1524,11 +1524,11 @@
                         <label class="form-label">Presupuesto Disponible</label>
                         <select name="presupuesto" class="form-control" required>
                             <option value="">Selecciona tu rango de presupuesto</option>
-                            <option value="1-3" {{ old('presupuesto') == '1-3' ? 'selected' : '' }}>$1,000 - $3,000 USD</option>
-                            <option value="3-5" {{ old('presupuesto') == '3-5' ? 'selected' : '' }}>$3,000 - $5,000 USD</option>
-                            <option value="5-10" {{ old('presupuesto') == '5-10' ? 'selected' : '' }}>$5,000 - $10,000 USD</option>
-                            <option value="10-20" {{ old('presupuesto') == '10-20' ? 'selected' : '' }}>$10,000 - $20,000 USD</option>
-                            <option value="20+" {{ old('presupuesto') == '20+' ? 'selected' : '' }}>Más de $20,000 USD</option>
+                            <option value="1-3" {{ old('presupuesto') == '1-3' ? 'selected' : '' }}>$0 - $2,00 USD</option>
+                            <option value="3-5" {{ old('presupuesto') == '3-5' ? 'selected' : '' }}>$300 - $500 USD</option>
+                            <option value="5-10" {{ old('presupuesto') == '5-10' ? 'selected' : '' }}>$500 - $1,000 USD</option>
+                            <option value="10-20" {{ old('presupuesto') == '10-20' ? 'selected' : '' }}>$1,000 - $2,000 USD</option>
+                            <option value="20+" {{ old('presupuesto') == '20+' ? 'selected' : '' }}>Más de $2,000 USD</option>
                             <option value="consultar" {{ old('presupuesto') == 'consultar' ? 'selected' : '' }}>Prefiero consultarlo en la reunión</option>
                         </select>
                     </div>
