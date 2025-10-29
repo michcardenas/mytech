@@ -97,9 +97,14 @@ public function storeContacto(Request $request)
                     ->replyTo($data['email'], $data['nombre']);
         });
 
-        return redirect()->route('contacto.index')->with('success', '¡Gracias! Tu mensaje ha sido enviado correctamente. Te contactaremos pronto.');
+        return redirect()->route('contacto.gracias');
     } catch (\Exception $e) {
         return redirect()->route('contacto.index')->with('error', 'Hubo un error al enviar tu mensaje. Por favor, intenta nuevamente o contáctanos por WhatsApp.');
     }
 }
+public function gracias()
+{
+    return view('contacto.gracias');
+}
+
 }
