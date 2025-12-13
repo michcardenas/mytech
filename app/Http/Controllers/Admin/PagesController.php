@@ -152,8 +152,8 @@ class PagesController extends Controller
      */
     public function sections(Page $page)
     {
-        $page->load('sections');
-        return view('admin.pages.sections', compact('page'));
+        $sections = $page->sections()->orderBy('order')->get();
+        return view('admin.pages.sections', compact('page', 'sections'));
     }
 
     /**
