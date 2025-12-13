@@ -15,12 +15,13 @@
 
     /* Hero Section */
     .hero-proyectos {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
-        padding: 80px 0 60px;
+        background: linear-gradient(135deg, #1a2a6c 0%, #007bff 50%, #00d4ff 100%);
+        padding: 100px 0 80px;
         color: white;
         position: relative;
         overflow: hidden;
-        min-height: 60vh;
+        min-height: 65vh;
+        box-shadow: 0 10px 40px rgba(0, 123, 255, 0.2);
     }
 
     .hero-proyectos::before {
@@ -72,14 +73,16 @@
     }
 
     .hero-proyectos h1 {
-        font-size: 4rem;
+        font-size: 4.5rem;
         font-weight: 900;
-        margin-bottom: 1.5rem;
-        background: linear-gradient(45deg, #ffffff 30%, #e3f2fd 70%, #00d4ff 100%);
+        margin-bottom: 2rem;
+        background: linear-gradient(45deg, #ffffff 0%, #e3f2fd 50%, #00d4ff 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
         animation: glow 3s ease-in-out infinite alternate;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
     }
 
     @keyframes glow {
@@ -125,14 +128,15 @@
 
     .feature-item {
         text-align: center;
-        background: var(--glass-bg);
-        backdrop-filter: blur(15px);
-        border: 1px solid var(--glass-border);
-        border-radius: 25px;
-        padding: 2.5rem 2rem;
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        border-radius: 30px;
+        padding: 3rem 2.5rem;
         transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
         overflow: hidden;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
     }
 
     .feature-item::before {
@@ -178,9 +182,12 @@
 
     /* Filtros */
     .filters-section {
-        padding: 60px 0 40px;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
+        padding: 80px 0 60px;
+        background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 50%, #f0f8ff 100%);
         position: relative;
+        box-shadow:
+            inset 0 10px 30px rgba(0, 123, 255, 0.05),
+            0 5px 20px rgba(0, 0, 0, 0.03);
     }
 
     .filters-section::before {
@@ -295,16 +302,17 @@
     }
 
     .proyecto-card {
-        background: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.95);
         backdrop-filter: blur(20px);
-        border-radius: 30px;
+        border-radius: 35px;
         overflow: hidden;
-        box-shadow: 
-            0 20px 60px rgba(0, 123, 255, 0.1),
-            0 0 0 1px rgba(255, 255, 255, 0.5);
+        box-shadow:
+            0 25px 70px rgba(0, 123, 255, 0.08),
+            0 0 0 1px rgba(0, 123, 255, 0.05),
+            0 5px 15px rgba(0, 0, 0, 0.03);
         transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
-        border: 1px solid rgba(0, 123, 255, 0.1);
+        border: 1px solid rgba(0, 123, 255, 0.08);
         transform-style: preserve-3d;
     }
 
@@ -326,10 +334,12 @@
     }
 
     .proyecto-card:hover {
-        transform: translateY(-20px) rotateX(5deg) rotateY(-2deg);
-        box-shadow: 
-            0 40px 80px rgba(0, 123, 255, 0.2),
-            0 0 0 1px rgba(0, 212, 255, 0.3);
+        transform: translateY(-25px) rotateX(3deg) rotateY(-1deg);
+        box-shadow:
+            0 45px 90px rgba(0, 123, 255, 0.15),
+            0 0 0 1px rgba(0, 212, 255, 0.2),
+            0 10px 30px rgba(0, 0, 0, 0.05);
+        border-color: rgba(0, 212, 255, 0.3);
     }
 
     .proyecto-card.featured {
@@ -461,14 +471,15 @@
     }
 
     .proyecto-title {
-        font-size: 1.5rem;
+        font-size: 1.75rem;
         font-weight: 800;
-        margin-bottom: 1.2rem;
-        color: var(--dark-text);
+        margin-bottom: 1.5rem;
+        color: #1a2a6c;
         display: flex;
         align-items: center;
         gap: 0.8rem;
         line-height: 1.3;
+        letter-spacing: -0.01em;
     }
 
     .country-flag {
@@ -477,11 +488,12 @@
     }
 
     .proyecto-description {
-        color: #6c757d;
-        line-height: 1.7;
+        color: #495057;
+        line-height: 1.8;
         margin-bottom: 2rem;
-        font-size: 1rem;
-        opacity: 0.9;
+        font-size: 1.05rem;
+        opacity: 0.85;
+        font-weight: 400;
     }
 
     .proyecto-tech {
@@ -492,16 +504,17 @@
     }
 
     .tech-tag {
-        background: linear-gradient(135deg, var(--primary-blue), #00d4ff);
+        background: linear-gradient(135deg, #007bff, #00d4ff);
         color: white;
-        padding: 0.5rem 1rem;
-        border-radius: 25px;
-        font-size: 0.85rem;
+        padding: 0.6rem 1.2rem;
+        border-radius: 30px;
+        font-size: 0.875rem;
         font-weight: 600;
         transition: all 0.3s ease;
-        box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
         position: relative;
         overflow: hidden;
+        letter-spacing: 0.02em;
     }
 
     .tech-tag::before {
@@ -550,17 +563,19 @@
     }
 
     .visit-btn {
-        background: var(--gradient-primary);
+        background: linear-gradient(135deg, #007bff, #1a5cff);
         color: white;
-        padding: 0.8rem 1.5rem;
-        border-radius: 25px;
+        padding: 0.9rem 1.8rem;
+        border-radius: 30px;
         text-decoration: none;
         font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 0.5rem;
+        gap: 0.6rem;
         transition: all 0.3s ease;
-        box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
+        letter-spacing: 0.02em;
+        font-size: 0.95rem;
     }
 
     .visit-btn:hover {
@@ -794,9 +809,6 @@
 @endpush
 
 @section('content')
-@extends('layouts.app')
-
-@section('content')
 <!-- Hero Section -->
 <section class="hero-proyectos">
     <div class="container">
@@ -831,19 +843,62 @@
     </div>
 </section>
 
-<!-- Filtros -->
-<section class="showcase-intro">
+<!-- Filtros y Showcase -->
+<section class="filters-section">
     <div class="container">
-        <div class="showcase-header">
-            <h2>{{ $data['showcase_title'] ?? 'Portfolio de Proyectos Exitosos' }}</h2>
-            <p>{{ $data['showcase_description'] ?? 'Cada proyecto cuenta una historia de transformación digital y crecimiento empresarial' }}</p>
-            <div class="scroll-indicator">
-                <i class="fas fa-mouse"></i>
-                <span>{{ $data['scroll_indicator_text'] ?? 'Descubre mis proyectos' }}</span>
+        <div class="showcase-header text-center mb-5">
+            <h2 style="font-size: 3rem; font-weight: 800; color: var(--primary-dark); margin-bottom: 1rem; background: linear-gradient(135deg, #1a2a6c, #007bff, #00d4ff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+                {{ $data['showcase_title'] ?? 'Portfolio de Proyectos Exitosos' }}
+            </h2>
+            <p style="font-size: 1.2rem; color: #6c757d; max-width: 700px; margin: 0 auto 2rem;">
+                {{ $data['showcase_description'] ?? 'Cada proyecto cuenta una historia de transformación digital y crecimiento empresarial' }}
+            </p>
+            <div class="scroll-indicator" style="cursor: pointer; display: inline-flex; flex-direction: column; align-items: center; gap: 0.5rem; padding: 1rem; background: rgba(0, 123, 255, 0.05); border-radius: 15px; transition: all 0.3s ease;">
+                <i class="fas fa-chevron-down" style="font-size: 1.5rem; color: var(--primary-blue); animation: bounce 2s infinite;"></i>
+                <span style="font-size: 0.9rem; font-weight: 600; color: var(--primary-blue);">{{ $data['scroll_indicator_text'] ?? 'Descubre mis proyectos' }}</span>
             </div>
+        </div>
+
+        <div class="filter-buttons">
+            <button class="filter-btn active" data-category="all">
+                <span>✨ Todos los Proyectos</span>
+            </button>
+            <button class="filter-btn" data-category="travel">
+                <span>🌍 Viajes & Movilidad</span>
+            </button>
+            <button class="filter-btn" data-category="booking">
+                <span>🏨 Reservas & Booking</span>
+            </button>
+            <button class="filter-btn" data-category="restaurant">
+                <span>🍽️ Gastronomía</span>
+            </button>
+            <button class="filter-btn" data-category="admin">
+                <span>⚙️ Gestión & Admin</span>
+            </button>
+            <button class="filter-btn" data-category="legal">
+                <span>⚖️ Legal & Corporativo</span>
+            </button>
         </div>
     </div>
 </section>
+
+<style>
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-10px); }
+    60% { transform: translateY(-5px); }
+}
+
+.scroll-indicator:hover {
+    background: rgba(0, 123, 255, 0.1) !important;
+    transform: translateY(5px);
+}
+
+.showcase-header {
+    position: relative;
+    z-index: 2;
+}
+</style>
 
 <!-- Proyectos Grid -->
 <section class="proyectos-section">
@@ -1220,7 +1275,45 @@
 document.addEventListener('DOMContentLoaded', function() {
     const proyectoCards = document.querySelectorAll('.proyecto-card');
     const scrollIndicator = document.querySelector('.scroll-indicator');
+    const filterButtons = document.querySelectorAll('.filter-btn');
     const isMobile = window.innerWidth <= 768;
+
+    // Funcionalidad de filtros
+    filterButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Remover clase active de todos los botones
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+            // Añadir clase active al botón clickeado
+            this.classList.add('active');
+
+            const category = this.getAttribute('data-category');
+
+            proyectoCards.forEach(card => {
+                if (category === 'all') {
+                    card.style.display = 'block';
+                    setTimeout(() => {
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+                    }, 50);
+                } else {
+                    const cardCategory = card.classList.contains('cat-' + category);
+                    if (cardCategory) {
+                        card.style.display = 'block';
+                        setTimeout(() => {
+                            card.style.opacity = '1';
+                            card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
+                        }, 50);
+                    } else {
+                        card.style.opacity = '0';
+                        card.style.transform = isMobile ? 'translateY(30px)' : 'translateY(50px) rotateX(10deg)';
+                        setTimeout(() => {
+                            card.style.display = 'none';
+                        }, 300);
+                    }
+                }
+            });
+        });
+    });
     
     // Smooth scroll cuando se hace click en el indicador
     if (scrollIndicator) {
