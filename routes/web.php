@@ -20,6 +20,7 @@ use App\Http\Controllers\ServiciosController;
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios.index');
 Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'indexproyectos'])->name('proyectos.index');
+Route::get('/proyectos/{slug}', [App\Http\Controllers\ProyectoPublicController::class, 'show'])->name('proyectos.show');
 Route::get('/sobre-nosotros', [App\Http\Controllers\ServiciosController::class, 'indexsobreNosotros'])->name('sobre_nosotros.index');
 Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'indexcontacto'])->name('contacto.index');
 Route::post('/contacto', [App\Http\Controllers\ServiciosController::class, 'storeContacto'])->name('contacto.store');
@@ -128,7 +129,21 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::put('pages/{page}/sections/{section}', [PagesController::class, 'updateSection'])->name('admin.pages.sections.update');
     Route::delete('pages/{page}/sections/{section}', [PagesController::class, 'destroySection'])->name('admin.pages.sections.destroy');
     Route::patch('pages/{page}/sections/{section}/toggle', [PagesController::class, 'toggleSection'])->name('admin.pages.sections.toggle');
-    
+
+    // === RUTAS PARA GESTIÓN DE PROYECTOS ===
+    Route::resource('admin-proyectos', App\Http\Controllers\Admin\ProyectosController::class)
+        ->parameters(['admin-proyectos' => 'proyecto'])
+        ->names([
+            'index' => 'admin.proyectos.index',
+            'create' => 'admin.proyectos.create',
+            'store' => 'admin.proyectos.store',
+            'show' => 'admin.proyectos.show',
+            'edit' => 'admin.proyectos.edit',
+            'update' => 'admin.proyectos.update',
+            'destroy' => 'admin.proyectos.destroy',
+        ]);
+    Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\ProyectosController::class, 'toggleActivo'])->name('admin.proyectos.toggle');
+
 //     // Página INICIO
 //     Route::get('pages/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('admin.pages.edit-inicio');
 //     Route::put('pages/inicio', [App\Http\Controllers\Admin\PageController::class, 'updateInicio'])->name('admin.pages.update-inicio');

@@ -314,6 +314,7 @@
         position: relative;
         border: 1px solid rgba(0, 123, 255, 0.08);
         transform-style: preserve-3d;
+        cursor: pointer;
     }
 
     .proyecto-card::before {
@@ -466,7 +467,7 @@
     }
 
     .proyecto-content {
-        padding: 2.5rem;
+        padding: 2.5rem 2.5rem 0 2.5rem;
         position: relative;
     }
 
@@ -591,6 +592,7 @@
     .cat-restaurant .proyecto-header { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
     .cat-legal .proyecto-header { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
     .cat-tech .proyecto-header { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
+    .cat-ecommerce .proyecto-header { background: linear-gradient(135deg, #f77062 0%, #fe5196 100%); }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -878,6 +880,9 @@
             <button class="filter-btn" data-category="legal">
                 <span>⚖️ Legal & Corporativo</span>
             </button>
+            <button class="filter-btn" data-category="ecommerce">
+                <span>🛒 E-commerce</span>
+            </button>
         </div>
     </div>
 </section>
@@ -904,368 +909,79 @@
 <section class="proyectos-section">
     <div class="container">
         <div class="proyectos-grid" id="proyectosGrid">
-            <!-- VoyConVos - Featured -->
-            <div class="proyecto-card featured cat-travel">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/voyconvos.png') }}" alt="VoyConVos Logo">
+            @forelse($proyectos as $proyecto)
+            <div class="proyecto-card {{ $proyecto->destacado ? 'featured' : '' }} {{ $proyecto->categoria_class }}" data-category="{{ $proyecto->categoria }}">
+                <a href="{{ route('proyectos.show', $proyecto->slug) }}" style="text-decoration: none; color: inherit; display: block;">
+                    <div class="proyecto-header">
+                        <div class="proyecto-logo">
+                            @if($proyecto->logo)
+                                <img src="{{ asset('storage/' . $proyecto->logo) }}" alt="{{ $proyecto->nombre }} Logo">
+                            @else
+                                @php
+                                    $categoryIcons = [
+                                        'travel' => ['icon' => '✈️', 'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'],
+                                        'booking' => ['icon' => '🏨', 'gradient' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'],
+                                        'restaurant' => ['icon' => '🍽️', 'gradient' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'],
+                                        'admin' => ['icon' => '⚙️', 'gradient' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'],
+                                        'legal' => ['icon' => '⚖️', 'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'],
+                                        'tech' => ['icon' => '💻', 'gradient' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'],
+                                        'ecommerce' => ['icon' => '🛒', 'gradient' => 'linear-gradient(135deg, #f77062 0%, #fe5196 100%)'],
+                                    ];
+                                    $defaultIcon = ['icon' => '🚀', 'gradient' => 'linear-gradient(135deg, #007bff, #00d4ff)'];
+                                    $categoryData = $categoryIcons[$proyecto->categoria] ?? $defaultIcon;
+                                @endphp
+                                <div style="background: {{ $categoryData['gradient'] }}; border-radius: 15px; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; box-shadow: inset 0 2px 10px rgba(255,255,255,0.3), inset 0 -2px 10px rgba(0,0,0,0.2);">
+                                    <div style="font-size: 2.5rem; margin-bottom: 0.3rem; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));">
+                                        {{ $categoryData['icon'] }}
+                                    </div>
+                                    <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
+                                        {{ strtoupper(substr($proyecto->nombre, 0, 3)) }}
+                                    </div>
+                                </div>
+                            @endif
+                        </div>
+                        <div class="proyecto-badge">{{ $proyecto->badge_text }}</div>
                     </div>
-                    <div class="proyecto-badge">Viajes & Movilidad</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        VoyConVos <span class="country-flag">🇦🇷</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Plataforma de viajes compartidos con reservas, geolocalización, chat entre pasajeros y conductores. 
-                        Integración completa con Google Maps, Search Console y SEO técnico avanzado.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Google Maps API</span>
-                        <span class="tech-tag">WebSockets</span>
-                        <span class="tech-tag">SEO</span>
+                    <div class="proyecto-content">
+                        <h3 class="proyecto-title">
+                            {{ $proyecto->nombre }} <span class="country-flag">{{ $proyecto->bandera_emoji }}</span>
+                        </h3>
+                        <p class="proyecto-description">
+                            {{ $proyecto->descripcion }}
+                        </p>
+                        <div class="proyecto-tech">
+                            @foreach($proyecto->tecnologias as $tecnologia)
+                                <span class="tech-tag">{{ $tecnologia }}</span>
+                            @endforeach
+                        </div>
                     </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://voyconvos.com/" target="_blank" class="visit-btn">
+                </a>
+                <div class="proyecto-footer" style="padding: 0 2.5rem 2.5rem 2.5rem;">
+                    <span class="proyecto-status status-{{ $proyecto->estado == 'en_vivo' ? 'live' : 'development' }}">
+                        @if($proyecto->estado == 'en_vivo')
+                            🟢 En Vivo
+                        @elseif($proyecto->estado == 'en_desarrollo')
+                            🟡 En Desarrollo
+                        @else
+                            ⚪ Pausado
+                        @endif
+                    </span>
+                    @if($proyecto->url)
+                        <a href="{{ $proyecto->url }}" target="_blank" class="visit-btn" onclick="event.stopPropagation();">
                             <i class="fas fa-external-link-alt"></i>
                             Visitar Proyecto
                         </a>
-                    </div>
+                    @endif
                 </div>
             </div>
 
-            <!-- Hostella -->
-            <div class="proyecto-card cat-booking">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/hostella.png') }}" alt="Hostella Logo">
-                    </div>
-                    <div class="proyecto-badge">Reservas & Booking</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Hostella <span class="country-flag">🇨🇴</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        App tipo Booking para hostales con panel de administración completo, 
-                        integración con GESTY para gestión hotelera y pagos seguros vía Stripe.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">React</span>
-                        <span class="tech-tag">Stripe</span>
-                        <span class="tech-tag">GESTY API</span>
-                        <span class="tech-tag">MySQL</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://hostella.co/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
+            @empty
+            <div class="col-12 text-center py-5" style="grid-column: 1 / -1;">
+                <i class="fas fa-folder-open fa-3x mb-3" style="color: #ccc;"></i>
+                <h4>No hay proyectos disponibles</h4>
+                <p style="color: #999;">Los proyectos aparecerán aquí cuando sean creados desde el panel de administración</p>
             </div>
-
-            <!-- FlexFood -->
-            <div class="proyecto-card cat-restaurant">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/flexfood.png') }}" alt="FlexFood Logo">
-                    </div>
-                    <div class="proyecto-badge">Restaurantes & QR</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        FlexFood <span class="country-flag">🇪🇸</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Sistema para restaurantes completo y dinámico. QR por zona (bar, terraza, salón), 
-                        menús en tiempo real, comandas inteligentes y gestión de roles ultra rápida.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">QR Generator</span>
-                        <span class="tech-tag">Real-time</span>
-                        <span class="tech-tag">PWA</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://flexfood.es/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TuMesa -->
-            <div class="proyecto-card cat-restaurant">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/tumesa.png') }}" alt="TuMesa Logo">
-                    </div>
-                    <div class="proyecto-badge">Gastronomía & Chefs</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        TuMesa <span class="country-flag">🇦🇷</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Plataforma para conectar comensales con chefs artesanales. Reservas, 
-                        pagos vía Mercado Pago, autenticación Google y Maps integrado.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Mercado Pago</span>
-                        <span class="tech-tag">Google Auth</span>
-                        <span class="tech-tag">Maps API</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://tumesa.ar/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- IPvestment -->
-            <div class="proyecto-card cat-admin">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/ipvestment.png') }}" alt="IPvestment Logo">
-                    </div>
-                    <div class="proyecto-badge">Gestión Inmobiliaria</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        IPvestment <span class="country-flag">🇩🇴</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Plataforma para gestión de condominios y apartamentos en República Dominicana. 
-                        Control de residentes, gastos comunes y comunicación interna.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Bootstrap</span>
-                        <span class="tech-tag">MySQL</span>
-                        <span class="tech-tag">PDF Reports</span>
-                        <span class="tech-tag">Notifications</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://ipinvestmentsrd.com/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Jufman Kitchen -->
-            <div class="proyecto-card cat-booking">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/jufman.png') }}" alt="Jufman Kitchen Logo">
-                    </div>
-                    <div class="proyecto-badge">Diseño & Hogar</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Jufman Kitchen <span class="country-flag">🇺🇸</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Página para diseño y mantenimiento de cocinas en Minnesota, USA. 
-                        Asesorías personalizadas y sistema de agendamiento de mantenimientos.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">JavaScript</span>
-                        <span class="tech-tag">Calendar</span>
-                        <span class="tech-tag">Contact Forms</span>
-                        <span class="tech-tag">SEO</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://jufmankitchendesigns.com/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Calendarix -->
-            <div class="proyecto-card cat-booking">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/calendarix.png') }}" alt="Calendarix Logo">
-                    </div>
-                    <div class="proyecto-badge">SaaS & Productividad</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Calendarix <span class="country-flag">🇺🇾</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Plataforma por planes para emprendedores. Agenda citas, gestiona colaboradores, 
-                        servicios, productos, stock y métricas desde un panel moderno.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Calendar</span>
-                        <span class="tech-tag">Analytics</span>
-                        <span class="tech-tag">SaaS</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://calendarix.uy/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Montano&Co -->
-            <div class="proyecto-card cat-legal">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <img src="{{ asset('images/logos/montano.png') }}" alt="Montano&Co Logo">
-                    </div>
-                    <div class="proyecto-badge">Legal & Corporativo</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Montano&Co <span class="country-flag">🇨🇴</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Página institucional para consultora legal. Panel Laravel con edición total, 
-                        SEO editable, roles y estética 100% administrable por el cliente.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Bootstrap</span>
-                        <span class="tech-tag">CMS</span>
-                        <span class="tech-tag">SEO</span>
-                        <span class="tech-tag">Admin Panel</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://montanoandco.net/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Electralhome -->
-            <div class="proyecto-card cat-legal">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <div style="background: linear-gradient(135deg, #007bff, #00d4ff); border-radius: 15px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.8rem; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">EH</div>
-                    </div>
-                    <div class="proyecto-badge">Servicios Técnicos</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Electralhome <span class="country-flag">🇨🇴</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Landing institucional de servicio técnico en Laravel. 
-                        Optimizada para posicionamiento local, editable y ligera.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Bootstrap</span>
-                        <span class="tech-tag">SEO Local</span>
-                        <span class="tech-tag">Contact Forms</span>
-                        <span class="tech-tag">MySQL</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://serviciotecnicoelectralhome.com/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Offiesco LATAM -->
-            <div class="proyecto-card cat-admin">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <div style="background: linear-gradient(135deg, #667eea, #764ba2); border-radius: 15px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.8rem; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">OL</div>
-                    </div>
-                    <div class="proyecto-badge">E-commerce & Gestión</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        Offiesco LATAM <span class="country-flag">🇨🇴</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Vitrina digital para la empresa T&T, con gestión de clientes, vendedores, productos, 
-                        ingresos y egresos. Exportación de informes en Excel/PDF.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Excel Export</span>
-                        <span class="tech-tag">PDF Reports</span>
-                        <span class="tech-tag">Analytics</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://offiescolatam.com/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- OnlyEscorts -->
-            <div class="proyecto-card cat-admin">
-                <div class="proyecto-header">
-                    <div class="proyecto-logo">
-                        <div style="background: linear-gradient(135deg, #f093fb, #f5576c); border-radius: 15px; width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800; font-size: 1.8rem; text-shadow: 0 2px 8px rgba(0,0,0,0.3);">OE</div>
-                    </div>
-                    <div class="proyecto-badge">Plataforma Especializada</div>
-                </div>
-                <div class="proyecto-content">
-                    <h3 class="proyecto-title">
-                        OnlyEscorts <span class="country-flag">🇨🇱</span>
-                    </h3>
-                    <p class="proyecto-description">
-                        Plataforma para agencias de escorts en Chile, con gestión avanzada de perfiles, 
-                        disponibilidad, fotos y visibilidad segmentada.
-                    </p>
-                    <div class="proyecto-tech">
-                        <span class="tech-tag">Laravel</span>
-                        <span class="tech-tag">Vue.js</span>
-                        <span class="tech-tag">Image Management</span>
-                        <span class="tech-tag">Authentication</span>
-                        <span class="tech-tag">MySQL</span>
-                    </div>
-                    <div class="proyecto-footer">
-                        <span class="proyecto-status status-live">🟢 En Vivo</span>
-                        <a href="https://onlyescorts.cl/" target="_blank" class="visit-btn">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
-                        </a>
-                    </div>
-                </div>
-            </div>
+            @endforelse
         </div>
     </div>
 </section>
@@ -1296,8 +1012,8 @@ document.addEventListener('DOMContentLoaded', function() {
                         card.style.transform = 'translateY(0) rotateX(0) rotateY(0)';
                     }, 50);
                 } else {
-                    const cardCategory = card.classList.contains('cat-' + category);
-                    if (cardCategory) {
+                    const cardCategory = card.getAttribute('data-category') || card.classList.contains('cat-' + category);
+                    if (cardCategory === category || cardCategory) {
                         card.style.display = 'block';
                         setTimeout(() => {
                             card.style.opacity = '1';

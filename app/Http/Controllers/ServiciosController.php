@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Page;
 use App\Models\Seo;
+use App\Models\Proyecto;
 use Illuminate\Support\Facades\Mail;
 
 class ServiciosController extends Controller
@@ -27,20 +28,23 @@ public function index()
    public function indexproyectos()
 {
     $page = Page::where('slug', 'proyectos')->first();
-    
+
     // Decodificar el contenido JSON si existe
     $data = [];
     if ($page && $page->content) {
         $data = json_decode($page->content, true) ?? [];
     }
-    
+
     // Obtener datos de SEO si existen
     $seo = null;
     if ($page) {
         $seo = Seo::where('page_id', $page->id)->first();
     }
-    
-    return view('proyectos.index', compact('data', 'seo'));
+
+    // Obtener proyectos activos ordenados
+    $proyectos = Proyecto::activos()->orderBy('orden')->orderBy('created_at', 'desc')->get();
+
+    return view('proyectos.index', compact('data', 'seo', 'proyectos'));
 }
     public function indexsobreNosotros()
     {

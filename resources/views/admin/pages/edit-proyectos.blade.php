@@ -177,6 +177,40 @@
         color: #055160;
         border-left: 4px solid #0dcaf0;
     }
+
+    .btn-success {
+        background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+        border: none;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.2);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(40, 167, 69, 0.3);
+        color: white;
+    }
+
+    .btn-outline-secondary {
+        border: 2px solid #6c757d;
+        color: #6c757d;
+        padding: 0.75rem 1.5rem;
+        border-radius: 50px;
+        font-weight: 600;
+        transition: var(--transition);
+        background: transparent;
+    }
+
+    .btn-outline-secondary:hover {
+        background: #6c757d;
+        color: white;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 117, 125, 0.2);
+    }
 </style>
 
 <div class="edit-container">
@@ -185,7 +219,11 @@
             <i class="fas fa-edit"></i>
             Editar Página de Proyectos
         </h1>
-        <div>
+        <div class="d-flex gap-2">
+            <a href="{{ route('admin.proyectos.create') }}" class="btn btn-success">
+                <i class="fas fa-plus me-2"></i>
+                Crear Proyecto
+            </a>
             <a href="{{ route('admin.pages.index') }}" class="btn btn-outline-secondary">
                 <i class="fas fa-arrow-left me-2"></i>
                 Volver
