@@ -55,19 +55,19 @@
                                 <div class="website-demo">
                                     <!-- Header del sitio -->
                                     <div class="demo-header">
-                                        <div class="demo-logo">TU LOGO</div>
+                                        <div class="demo-logo">MYTECH</div>
                                         <div class="demo-menu">
                                             <span></span>
                                             <span></span>
                                             <span></span>
                                         </div>
                                     </div>
-                                    
+
                                     <!-- Contenido principal -->
                                     <div class="demo-content">
-                                        <div class="demo-title">Tu Negocio</div>
-                                        <div class="demo-subtitle">Aquí va tu mensaje</div>
-                                        <div class="demo-button">Contactar</div>
+                                        <div class="demo-title">Soluciones Web</div>
+                                        <div class="demo-subtitle">Software a tu medida</div>
+                                        <div class="demo-button">Cotizar</div>
                                         
                                         <div class="demo-gallery">
                                             <div class="demo-image"></div>
@@ -91,11 +91,11 @@
                                     <span></span>
                                     <span></span>
                                 </div>
-                                <div class="laptop-url">tuempresa.com</div>
+                                <div class="laptop-url">mytechsolutionsco.com</div>
                             </div>
                             <div class="laptop-content">
                                 <div class="laptop-nav">
-                                    <div class="nav-logo">TU EMPRESA</div>
+                                    <div class="nav-logo">MYTECH SOLUTIONS</div>
                                     <div class="nav-links">
                                         <span>Inicio</span>
                                         <span>Servicios</span>
@@ -104,12 +104,12 @@
                                 </div>
                                 <div class="laptop-hero">
                                     <div class="laptop-text">
-                                        <div class="text-big">Bienvenido a tu empresa</div>
-                                        <div class="text-small">Descripción de lo que haces</div>
-                                        <div class="cta-button">Solicitar información</div>
+                                        <div class="text-big">Software a tu medida</div>
+                                        <div class="text-small">Desarrollo web profesional</div>
+                                        <div class="cta-button">Comenzar proyecto</div>
                                     </div>
                                     <div class="laptop-image-placeholder">
-                                        <span>Tu foto o logo</span>
+                                        <span>💻</span>
                                     </div>
                                 </div>
                             </div>
@@ -287,113 +287,6 @@
 </section>
 
 <style>
-/* Sección de Logos de Clientes */
-.clients-logos {
-    background: white;
-    padding: 4rem 0;
-    border-top: 1px solid #e2e8f0;
-    overflow: hidden;
-}
-
-.logos-header {
-    text-align: center;
-    margin-bottom: 3rem;
-}
-
-.logos-header h3 {
-    font-size: 1.8rem;
-    font-weight: 700;
-    color: #1e293b;
-    margin-bottom: 0.5rem;
-}
-
-.logos-header p {
-    color: #64748b;
-    font-size: 1rem;
-    margin: 0;
-}
-
-.logos-carousel {
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 2rem;
-}
-
-.logos-track {
-    display: flex;
-    animation: logoScroll 30s linear infinite;
-    gap: 3rem;
-    align-items: center;
-}
-
-.logo-item {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 1rem;
-    transition: all 0.3s ease;
-    min-width: 120px;
-}
-
-.logo-item:hover {
-    transform: translateY(-5px);
-}
-
-.client-logo {
-    height: 60px;
-    width: auto;
-    max-width: 120px;
-    object-fit: contain;
-    filter: grayscale(100%) opacity(0.7);
-    transition: all 0.3s ease;
-}
-
-.logo-item:hover .client-logo {
-    filter: grayscale(0%) opacity(1);
-    transform: scale(1.05);
-}
-
-.logo-label {
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #64748b;
-    text-align: center;
-    transition: color 0.3s ease;
-}
-
-.logo-item:hover .logo-label {
-    color: #007BFF;
-}
-
-.carousel-note {
-    text-align: center;
-}
-
-.carousel-note small {
-    color: #10b981;
-    font-weight: 600;
-    background: rgba(16, 185, 129, 0.1);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-}
-
-/* Animación del carrusel */
-@keyframes logoScroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
-
-/* Pausa animación al hover */
-.logos-carousel:hover .logos-track {
-    animation-play-state: paused;
-}
 /* Sección de Logos de Clientes Mejorada */
 .clients-logos {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
@@ -771,70 +664,6 @@
 
 .logo-item:focus-visible {
     box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.3);
-}
-/* Responsive para logos */
-@media (max-width: 768px) {
-    .clients-logos {
-        padding: 3rem 0;
-    }
-    
-    .logos-header h3 {
-        font-size: 1.5rem;
-    }
-    
-    .logos-header p {
-        font-size: 0.9rem;
-    }
-    
-    .logos-track {
-        gap: 2rem;
-    }
-    
-    .logo-item {
-        min-width: 100px;
-        padding: 0.8rem;
-    }
-    
-    .client-logo {
-        height: 50px;
-        max-width: 100px;
-    }
-    
-    .logo-label {
-        font-size: 0.75rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .clients-logos {
-        padding: 2rem 0;
-    }
-    
-    .logos-header {
-        margin-bottom: 2rem;
-    }
-    
-    .logos-header h3 {
-        font-size: 1.3rem;
-    }
-    
-    .logos-track {
-        gap: 1.5rem;
-    }
-    
-    .logo-item {
-        min-width: 80px;
-        padding: 0.6rem;
-    }
-    
-    .client-logo {
-        height: 40px;
-        max-width: 80px;
-    }
-    
-    .logo-label {
-        font-size: 0.7rem;
-    }
 }
 
 .hero-simple {

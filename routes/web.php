@@ -16,6 +16,10 @@ use App\Http\Controllers\Admin\PagesController;
 use App\Http\Controllers\ServiciosController;
 
 
+/* ---------- SEO Routes ---------- */
+Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
+Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
+
 /* ---------- Landing y páginas públicas ---------- */
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios.index');

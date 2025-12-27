@@ -272,539 +272,335 @@
         color: white;
     }
 
-    /* Proyectos Grid - Masonry Style */
+    /* Proyectos Grid - Minimal & Elegant */
     .proyectos-section {
-        padding: 60px 0 120px;
-        background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 50%, #f0f8ff 100%);
+        padding: 80px 0 120px;
+        background: #fafbfc;
         position: relative;
-    }
-
-    .proyectos-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 15% 25%, rgba(0, 123, 255, 0.03) 0%, transparent 50%),
-            radial-gradient(circle at 85% 75%, rgba(0, 212, 255, 0.03) 0%, transparent 50%);
-        pointer-events: none;
     }
 
     .proyectos-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
-        gap: 2.5rem;
-        margin-top: 2rem;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 2rem;
+        margin-top: 3rem;
         position: relative;
         z-index: 2;
     }
 
+    /* Minimal Card Design */
     .proyecto-card {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(20px);
-        border-radius: 35px;
-        overflow: hidden;
-        box-shadow:
-            0 25px 70px rgba(0, 123, 255, 0.08),
-            0 0 0 1px rgba(0, 123, 255, 0.05),
-            0 5px 15px rgba(0, 0, 0, 0.03);
-        transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         position: relative;
-        border: 1px solid rgba(0, 123, 255, 0.08);
-        transform-style: preserve-3d;
+        background: white;
+        border-radius: 16px;
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        transition: all 0.3s ease;
         cursor: pointer;
-    }
-
-    .proyecto-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: linear-gradient(135deg, transparent 0%, rgba(0, 123, 255, 0.05) 100%);
-        opacity: 0;
-        transition: opacity 0.3s ease;
-        pointer-events: none;
-    }
-
-    .proyecto-card:hover::before {
-        opacity: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .proyecto-card:hover {
-        transform: translateY(-25px) rotateX(3deg) rotateY(-1deg);
-        box-shadow:
-            0 45px 90px rgba(0, 123, 255, 0.15),
-            0 0 0 1px rgba(0, 212, 255, 0.2),
-            0 10px 30px rgba(0, 0, 0, 0.05);
-        border-color: rgba(0, 212, 255, 0.3);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.08);
+        border-color: #007bff;
     }
 
     .proyecto-card.featured {
-        grid-column: span 2;
-        background: linear-gradient(135deg, rgba(0, 123, 255, 0.95) 0%, rgba(25, 35, 85, 0.95) 100%);
-        backdrop-filter: blur(20px);
-        color: white;
-        transform: scale(1.02);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 2px solid #007bff;
+        background: linear-gradient(135deg, #f0f7ff 0%, #ffffff 100%);
     }
 
-    .proyecto-card.featured .proyecto-title {
-        color: white;
-    }
-
-    .proyecto-card.featured .proyecto-description {
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .proyecto-card.featured .proyecto-badge {
-        background: rgba(255, 255, 255, 0.9);
-        color: var(--primary-blue);
-    }
-
-    .proyecto-card.featured:hover .proyecto-badge {
-        background: white;
-        color: var(--primary-blue);
-    }
-
-    .proyecto-card.featured:hover {
-        transform: translateY(-25px) rotateX(3deg) rotateY(-1deg) scale(1.02);
-        box-shadow: 
-            0 40px 80px rgba(0, 123, 255, 0.3),
-            0 0 0 1px rgba(255, 255, 255, 0.4);
-    }
-
-    .proyecto-header {
-        position: relative;
-        height: 220px;
-        background: var(--gradient-primary);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-    }
-
-    .proyecto-header::before {
-        content: '';
+    /* Destacado Tag */
+    .banner-tag {
         position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.2) 0%, transparent 70%),
-            radial-gradient(circle at 70% 70%, rgba(255, 255, 255, 0.1) 0%, transparent 70%),
-            url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="15" height="15" patternUnits="userSpaceOnUse"><path d="M 15 0 L 0 0 0 15" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        animation: bg-shift 10s ease-in-out infinite alternate;
+        top: 16px;
+        right: 16px;
+        z-index: 10;
     }
 
-    @keyframes bg-shift {
-        0% { transform: scale(1) rotate(0deg); }
-        100% { transform: scale(1.05) rotate(2deg); }
+    .banner-tag span {
+        background: #007bff;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    /* Header Section */
+    .proyecto-header {
+        padding: 2rem 1.5rem 1.5rem;
+        text-align: center;
+        border-bottom: 1px solid #f3f4f6;
     }
 
     .proyecto-logo {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 120px;
-        height: 120px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        border-radius: 25px;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto 1rem;
+        background: #f9fafb;
+        border-radius: 12px;
         display: flex;
         align-items: center;
         justify-content: center;
-        padding: 15px;
-        box-shadow: 
-            0 20px 60px rgba(0, 0, 0, 0.15),
-            0 0 0 1px rgba(255, 255, 255, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        z-index: 3;
+        border: 1px solid #e5e7eb;
     }
 
     .proyecto-logo img {
         width: 100%;
         height: 100%;
         object-fit: contain;
-        border-radius: 15px;
-        filter: drop-shadow(0 5px 15px rgba(0, 0, 0, 0.1));
+        padding: 8px;
     }
 
-    .proyecto-card:hover .proyecto-logo {
-        transform: translate(-50%, -50%) scale(1.1) rotate(-3deg);
-        box-shadow: 
-            0 30px 80px rgba(0, 0, 0, 0.25),
-            0 0 0 1px rgba(255, 255, 255, 0.4);
-    }
-
-    .proyecto-badge {
-        position: absolute;
-        bottom: 20px;
-        left: 20px;
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 8px 16px;
-        font-size: 0.85rem;
+    .proyecto-name {
+        font-size: 1.25rem;
         font-weight: 600;
-        color: var(--primary-blue);
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        transition: all 0.3s ease;
-        z-index: 3;
-    }
-
-    .proyecto-card:hover .proyecto-badge {
-        transform: translateY(-5px);
-        background: var(--primary-blue);
-        color: white;
-    }
-
-    .proyecto-content {
-        padding: 2.5rem 2.5rem 0 2.5rem;
-        position: relative;
-    }
-
-    .proyecto-title {
-        font-size: 1.75rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        color: #1a2a6c;
+        color: #111827;
+        margin-bottom: 0.5rem;
         display: flex;
         align-items: center;
-        gap: 0.8rem;
-        line-height: 1.3;
-        letter-spacing: -0.01em;
+        justify-content: center;
+        gap: 0.5rem;
     }
 
     .country-flag {
-        font-size: 1.3rem;
-        filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+        font-size: 1.1rem;
+    }
+
+    .category-badge {
+        display: inline-block;
+        background: #f3f4f6;
+        color: #6b7280;
+        padding: 4px 12px;
+        border-radius: 12px;
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin-top: 0.5rem;
+    }
+
+    /* Content Section */
+    .proyecto-content {
+        padding: 1.5rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
     }
 
     .proyecto-description {
-        color: #495057;
-        line-height: 1.8;
-        margin-bottom: 2rem;
-        font-size: 1.05rem;
-        opacity: 0.85;
-        font-weight: 400;
+        color: #6b7280;
+        font-size: 0.9rem;
+        line-height: 1.6;
+        margin-bottom: 1.25rem;
+        flex-grow: 1;
     }
 
-    .proyecto-tech {
+    /* Tech Stack - Minimal Pills */
+    .tech-lists {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.7rem;
-        margin-bottom: 2rem;
+        gap: 0.5rem;
+        margin-bottom: 1.25rem;
     }
 
-    .tech-tag {
-        background: linear-gradient(135deg, #007bff, #00d4ff);
-        color: white;
-        padding: 0.6rem 1.2rem;
-        border-radius: 30px;
-        font-size: 0.875rem;
-        font-weight: 600;
-        transition: all 0.3s ease;
-        box-shadow: 0 4px 15px rgba(0, 123, 255, 0.25);
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.02em;
-    }
-
-    .tech-tag::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.5s ease;
-    }
-
-    .tech-tag:hover::before {
-        left: 100%;
-    }
-
-    .tech-tag:hover {
-        transform: translateY(-3px) scale(1.05);
-        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4);
-    }
-
-    .proyecto-footer {
+    .tech-item {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.75rem;
+        color: #374151;
+        font-weight: 500;
         display: flex;
-        justify-content: space-between;
         align-items: center;
-        padding-top: 1rem;
-        border-top: 1px solid #eee;
+        gap: 4px;
     }
 
-    .proyecto-status {
-        padding: 0.4rem 1rem;
+    .tech-item svg {
+        display: none;
+    }
+
+    /* Footer Section */
+    .proyecto-footer {
+        padding: 1.25rem 1.5rem;
+        border-top: 1px solid #f3f4f6;
+        background: #fafbfc;
+        margin-top: auto;
+    }
+
+    .status-container {
+        margin-bottom: 1rem;
+        text-align: center;
+    }
+
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
         border-radius: 20px;
         font-size: 0.8rem;
         font-weight: 600;
     }
 
     .status-live {
-        background: var(--gradient-success);
-        color: white;
+        background: #d1fae5;
+        color: #065f46;
     }
 
     .status-development {
-        background: linear-gradient(135deg, #ffc107, #ff8c00);
-        color: white;
+        background: #fef3c7;
+        color: #92400e;
     }
 
+    /* Button - Clean & Simple */
     .visit-btn {
-        background: linear-gradient(135deg, #007bff, #1a5cff);
-        color: white;
-        padding: 0.9rem 1.8rem;
-        border-radius: 30px;
-        text-decoration: none;
-        font-weight: 600;
         display: flex;
         align-items: center;
-        gap: 0.6rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 6px 20px rgba(0, 123, 255, 0.3);
-        letter-spacing: 0.02em;
-        font-size: 0.95rem;
+        justify-content: center;
+        gap: 8px;
+        width: 100%;
+        padding: 12px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        transition: all 0.2s ease;
     }
 
     .visit-btn:hover {
+        background: #0056b3;
         transform: translateY(-2px);
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.4);
+        box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
         color: white;
     }
 
-    /* Categorías especiales */
-    .cat-travel .proyecto-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
-    .cat-booking .proyecto-header { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); }
-    .cat-admin .proyecto-header { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); }
-    .cat-restaurant .proyecto-header { background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%); }
-    .cat-legal .proyecto-header { background: linear-gradient(135deg, #fa709a 0%, #fee140 100%); }
-    .cat-tech .proyecto-header { background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%); }
-    .cat-ecommerce .proyecto-header { background: linear-gradient(135deg, #f77062 0%, #fe5196 100%); }
+    .visit-btn i {
+        font-size: 0.85rem;
+    }
+
 
     /* Responsive */
     @media (max-width: 768px) {
-        .hero-proyectos { 
+        .hero-proyectos {
             padding: 60px 0 40px;
             min-height: 50vh;
         }
-        
-        .hero-proyectos h1 { 
-            font-size: 2.5rem; 
+
+        .hero-proyectos h1 {
+            font-size: 2.5rem;
             line-height: 1.2;
             margin-bottom: 1rem;
         }
-        
-        .hero-features { 
+
+        .hero-features {
             grid-template-columns: 1fr;
-            gap: 1.5rem; 
+            gap: 1.5rem;
             margin-top: 2rem;
         }
-        
-        .feature-item { 
+
+        .feature-item {
             padding: 2rem 1.5rem;
             border-radius: 20px;
         }
-        
-        .feature-icon {
-            font-size: 2.5rem;
-            margin-bottom: 1rem;
-        }
-        
-        .feature-item h4 {
-            font-size: 1.1rem;
-        }
-        
-        .showcase-intro {
-            padding: 40px 0 30px;
-            margin-top: -15px;
-        }
-        
-        .showcase-header h2 { 
-            font-size: 2rem; 
-            line-height: 1.3;
-        }
-        
-        .showcase-header p { 
-            font-size: 1rem; 
-            margin-bottom: 2rem;
-        }
-        
-        .scroll-indicator {
-            margin-top: 1rem;
-        }
-        
-        .scroll-indicator i {
-            font-size: 1.5rem;
-        }
-        
-        .scroll-indicator span {
-            font-size: 0.8rem;
-        }
-        
+
         .proyectos-section {
             padding: 40px 0 80px;
         }
-        
-        .proyectos-grid { 
-            grid-template-columns: 1fr; 
+
+        .proyectos-grid {
+            grid-template-columns: 1fr;
             gap: 1.5rem;
-            margin-top: 1.5rem;
+            margin-top: 2rem;
         }
-        
-        .proyecto-card.featured { 
-            grid-column: span 1; 
+
+        .proyecto-card.featured {
+            grid-column: span 1;
         }
-        
-        .proyecto-content { 
-            padding: 1.5rem;
-        }
-        
+
         .proyecto-header {
-            height: 160px;
+            padding: 1.5rem 1rem 1rem;
         }
-        
+
         .proyecto-logo {
-            width: 80px;
-            height: 80px;
-            padding: 10px;
-            border-radius: 18px;
+            width: 70px;
+            height: 70px;
         }
-        
-        .proyecto-logo img {
-            border-radius: 12px;
+
+        .proyecto-name {
+            font-size: 1.1rem;
         }
-        
-        .proyecto-badge {
-            font-size: 0.75rem;
-            padding: 6px 12px;
-            border-radius: 12px;
-            bottom: 15px;
-            left: 15px;
-        }
-        
-        .proyecto-title {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
-            line-height: 1.3;
-        }
-        
+
         .country-flag {
             font-size: 1rem;
         }
-        
+
+        .proyecto-content {
+            padding: 1.25rem;
+        }
+
         .proyecto-description {
-            font-size: 0.9rem;
-            line-height: 1.5;
-            margin-bottom: 1.5rem;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
         }
-        
-        .proyecto-tech {
-            gap: 0.5rem;
-            margin-bottom: 1.5rem;
+
+        .tech-lists {
+            gap: 0.4rem;
         }
-        
-        .tech-tag {
-            padding: 0.4rem 0.8rem;
-            font-size: 0.75rem;
-            border-radius: 20px;
+
+        .tech-item {
+            font-size: 0.7rem;
+            padding: 3px 8px;
         }
-        
+
         .proyecto-footer {
-            flex-direction: column;
-            gap: 1rem;
-            align-items: stretch;
+            padding: 1rem 1.25rem;
         }
-        
-        .proyecto-status {
-            text-align: center;
-            padding: 0.5rem 1rem;
-        }
-        
+
         .visit-btn {
-            padding: 0.8rem 1.5rem;
-            border-radius: 20px;
-            justify-content: center;
-            font-size: 0.9rem;
+            padding: 10px;
+            font-size: 0.85rem;
         }
     }
 
     /* Responsive para tablets */
     @media (min-width: 769px) and (max-width: 1024px) {
-        .hero-proyectos {
-            padding: 80px 0 60px;
-        }
-        
         .proyectos-grid {
             grid-template-columns: repeat(2, 1fr);
-            gap: 2rem;
+            gap: 1.5rem;
         }
-        
+
         .proyecto-card.featured {
             grid-column: span 2;
-        }
-        
-        .proyecto-logo {
-            width: 100px;
-            height: 100px;
-            padding: 12px;
         }
     }
 
     /* Responsive para pantallas muy pequeñas */
     @media (max-width: 480px) {
-        .hero-proyectos {
-            padding: 40px 0 30px;
-        }
-        
         .hero-proyectos h1 {
             font-size: 2rem;
         }
-        
-        .hero-features {
-            margin-top: 1.5rem;
-        }
-        
-        .feature-item {
-            padding: 1.5rem 1rem;
-        }
-        
-        .showcase-intro {
-            padding: 30px 0 20px;
-        }
-        
-        .showcase-header h2 {
-            font-size: 1.8rem;
-        }
-        
+
         .proyectos-section {
             padding: 30px 0 60px;
         }
-        
-        .proyecto-content {
-            padding: 1.2rem;
-        }
-        
-        .proyecto-header {
-            height: 140px;
-        }
-        
+
         .proyecto-logo {
-            width: 70px;
-            height: 70px;
-            padding: 8px;
+            width: 60px;
+            height: 60px;
+        }
+
+        .proyecto-name {
+            font-size: 1rem;
+        }
+
+        .proyecto-content {
+            padding: 1rem;
         }
     }
 </style>
@@ -910,66 +706,87 @@
     <div class="container">
         <div class="proyectos-grid" id="proyectosGrid">
             @forelse($proyectos as $proyecto)
-            <div class="proyecto-card {{ $proyecto->destacado ? 'featured' : '' }} {{ $proyecto->categoria_class }}" data-category="{{ $proyecto->categoria }}">
-                <a href="{{ route('proyectos.show', $proyecto->slug) }}" style="text-decoration: none; color: inherit; display: block;">
+            <div class="proyecto-card {{ $proyecto->destacado ? 'featured' : '' }}" data-category="{{ $proyecto->categoria }}">
+                <!-- Destacado Badge -->
+                @if($proyecto->destacado)
+                <div class="banner-tag">
+                    <span>★ DESTACADO</span>
+                </div>
+                @endif
+
+                <a href="{{ route('proyectos.show', $proyecto->slug) }}" style="text-decoration: none; color: inherit; display: contents;">
+                    <!-- Header -->
                     <div class="proyecto-header">
                         <div class="proyecto-logo">
                             @if($proyecto->logo)
-                                <img src="{{ asset('storage/' . $proyecto->logo) }}" alt="{{ $proyecto->nombre }} Logo">
+                                <img src="{{ asset('storage/' . $proyecto->logo) }}" alt="{{ $proyecto->nombre }}">
                             @else
                                 @php
                                     $categoryIcons = [
-                                        'travel' => ['icon' => '✈️', 'gradient' => 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'],
-                                        'booking' => ['icon' => '🏨', 'gradient' => 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)'],
-                                        'restaurant' => ['icon' => '🍽️', 'gradient' => 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)'],
-                                        'admin' => ['icon' => '⚙️', 'gradient' => 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'],
-                                        'legal' => ['icon' => '⚖️', 'gradient' => 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)'],
-                                        'tech' => ['icon' => '💻', 'gradient' => 'linear-gradient(135deg, #a8edea 0%, #fed6e3 100%)'],
-                                        'ecommerce' => ['icon' => '🛒', 'gradient' => 'linear-gradient(135deg, #f77062 0%, #fe5196 100%)'],
+                                        'travel' => '✈️',
+                                        'booking' => '🏨',
+                                        'restaurant' => '🍽️',
+                                        'admin' => '⚙️',
+                                        'legal' => '⚖️',
+                                        'tech' => '💻',
+                                        'ecommerce' => '🛒',
                                     ];
-                                    $defaultIcon = ['icon' => '🚀', 'gradient' => 'linear-gradient(135deg, #007bff, #00d4ff)'];
-                                    $categoryData = $categoryIcons[$proyecto->categoria] ?? $defaultIcon;
+                                    $icon = $categoryIcons[$proyecto->categoria] ?? '🚀';
                                 @endphp
-                                <div style="background: {{ $categoryData['gradient'] }}; border-radius: 15px; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; color: white; box-shadow: inset 0 2px 10px rgba(255,255,255,0.3), inset 0 -2px 10px rgba(0,0,0,0.2);">
-                                    <div style="font-size: 2.5rem; margin-bottom: 0.3rem; filter: drop-shadow(0 3px 6px rgba(0,0,0,0.3));">
-                                        {{ $categoryData['icon'] }}
-                                    </div>
-                                    <div style="font-size: 0.75rem; font-weight: 700; letter-spacing: 0.5px; opacity: 0.95; text-transform: uppercase; text-shadow: 0 1px 3px rgba(0,0,0,0.3);">
-                                        {{ strtoupper(substr($proyecto->nombre, 0, 3)) }}
-                                    </div>
-                                </div>
+                                <div style="font-size: 2.5rem;">{{ $icon }}</div>
                             @endif
                         </div>
-                        <div class="proyecto-badge">{{ $proyecto->badge_text }}</div>
-                    </div>
-                    <div class="proyecto-content">
-                        <h3 class="proyecto-title">
+
+                        <div class="proyecto-name">
                             {{ $proyecto->nombre }} <span class="country-flag">{{ $proyecto->bandera_emoji }}</span>
-                        </h3>
+                        </div>
+
+                        <span class="category-badge">{{ $proyecto->badge_text }}</span>
+                    </div>
+
+                    <!-- Content -->
+                    <div class="proyecto-content">
                         <p class="proyecto-description">
-                            {{ $proyecto->descripcion }}
+                            {!! strip_tags($proyecto->descripcion, '<strong><em><b><i>') !!}
                         </p>
-                        <div class="proyecto-tech">
-                            @foreach($proyecto->tecnologias as $tecnologia)
-                                <span class="tech-tag">{{ $tecnologia }}</span>
+
+                        <!-- Tech Stack Pills -->
+                        <div class="tech-lists">
+                            @foreach(collect($proyecto->tecnologias)->take(4) as $tecnologia)
+                            <div class="tech-item">
+                                <span>{{ $tecnologia }}</span>
+                            </div>
                             @endforeach
+                            @if(count($proyecto->tecnologias) > 4)
+                            <div class="tech-item" style="background: #e5e7eb; color: #6b7280;">
+                                <span>+{{ count($proyecto->tecnologias) - 4 }}</span>
+                            </div>
+                            @endif
                         </div>
                     </div>
                 </a>
-                <div class="proyecto-footer" style="padding: 0 2.5rem 2.5rem 2.5rem;">
-                    <span class="proyecto-status status-{{ $proyecto->estado == 'en_vivo' ? 'live' : 'development' }}">
-                        @if($proyecto->estado == 'en_vivo')
-                            🟢 En Vivo
-                        @elseif($proyecto->estado == 'en_desarrollo')
-                            🟡 En Desarrollo
-                        @else
-                            ⚪ Pausado
-                        @endif
-                    </span>
+
+                <!-- Footer -->
+                <div class="proyecto-footer">
+                    <div class="status-container">
+                        <span class="status-badge status-{{ $proyecto->estado == 'en_vivo' ? 'live' : 'development' }}">
+                            @if($proyecto->estado == 'en_vivo')
+                                ● En Vivo
+                            @elseif($proyecto->estado == 'en_desarrollo')
+                                ● En Desarrollo
+                            @else
+                                ● Pausado
+                            @endif
+                        </span>
+                    </div>
+
                     @if($proyecto->url)
                         <a href="{{ $proyecto->url }}" target="_blank" class="visit-btn" onclick="event.stopPropagation();">
-                            <i class="fas fa-external-link-alt"></i>
-                            Visitar Proyecto
+                            Ver Proyecto <i class="fas fa-arrow-right"></i>
+                        </a>
+                    @else
+                        <a href="{{ route('proyectos.show', $proyecto->slug) }}" class="visit-btn">
+                            Ver Detalles <i class="fas fa-arrow-right"></i>
                         </a>
                     @endif
                 </div>

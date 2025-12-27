@@ -32,12 +32,15 @@
         <meta name="robots" content="index, follow">
     @endif
     
-    {{-- CANONICAL URL --}}
-    @if(isset($seo) && $seo && $seo->canonical_url)
-        <link rel="canonical" href="{{ $seo->canonical_url }}">
-    @else
-        <link rel="canonical" href="{{ request()->url() }}">
-    @endif
+    {{-- CANONICAL URL - Always non-www --}}
+    @php
+        $canonicalUrl = isset($seo) && $seo && $seo->canonical_url
+            ? $seo->canonical_url
+            : request()->url();
+        // Remove www from canonical URL
+        $canonicalUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $canonicalUrl);
+    @endphp
+    <link rel="canonical" href="{{ $canonicalUrl }}">
     
     {{-- FOCUS KEYWORD (para análisis interno) --}}
     @if(isset($seo) && $seo && $seo->focus_keyword)
@@ -55,14 +58,13 @@
         {{-- OG Type --}}
         <meta property="og:type" content="{{ $seo->og_type ?: 'website' }}">
         
-        {{-- OG URL --}}
-        @if($seo->og_url)
-            <meta property="og:url" content="{{ $seo->og_url }}">
-        @elseif($seo->canonical_url)
-            <meta property="og:url" content="{{ $seo->canonical_url }}">
-        @else
-            <meta property="og:url" content="{{ request()->url() }}">
-        @endif
+        {{-- OG URL - Always non-www --}}
+        @php
+            $ogUrl = $seo->og_url ?: ($seo->canonical_url ?: request()->url());
+            // Remove www from OG URL
+            $ogUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $ogUrl);
+        @endphp
+        <meta property="og:url" content="{{ $ogUrl }}">
         
         {{-- OG Image --}}
         @if($seo->og_image)
@@ -74,9 +76,12 @@
         <meta property="og:site_name" content="{{ $seo->og_site_name ?: 'MY Tech Solutions' }}">
     @else
         {{-- Fallback Open Graph si no hay SEO --}}
+        @php
+            $fallbackOgUrl = preg_replace('/^(https?:\/\/)www\./', '$1', request()->url());
+        @endphp
         <meta property="og:title" content="@yield('title', 'MY Tech Solutions')">
         <meta property="og:type" content="website">
-        <meta property="og:url" content="{{ request()->url() }}">
+        <meta property="og:url" content="{{ $fallbackOgUrl }}">
         <meta property="og:site_name" content="MY Tech Solutions">
     @endif
 

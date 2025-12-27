@@ -48,9 +48,21 @@ public function index()
 }
     public function indexsobreNosotros()
     {
-      
-        
-        return view('sobre_nosotros.index');
+        $page = Page::where('slug', 'sobre-nosotros')->first();
+
+        // Decodificar el contenido JSON si existe
+        $data = [];
+        if ($page && $page->content) {
+            $data = json_decode($page->content, true) ?? [];
+        }
+
+        // Obtener datos de SEO si existen
+        $seo = null;
+        if ($page) {
+            $seo = Seo::where('page_id', $page->id)->first();
+        }
+
+        return view('sobre_nosotros.index', compact('data', 'seo'));
     }
   public function indexContacto()
 {

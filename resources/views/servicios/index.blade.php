@@ -4,51 +4,6 @@
 
 @push('styles')
 <style>
-    /* Hero Section */
-    .hero-servicios {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
-        padding: 120px 0 80px;
-        color: white;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-servicios::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="0.5"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
-        opacity: 0.3;
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 2;
-        text-align: center;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    .hero-servicios h1 {
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        background: linear-gradient(45deg, #ffffff 30%, #e3f2fd 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .hero-servicios .lead {
-        font-size: 1.3rem;
-        margin-bottom: 2rem;
-        opacity: 0.95;
-        line-height: 1.6;
-    }
-
     /* Servicios Grid */
     .servicios-section {
         padding: 100px 0;
@@ -286,39 +241,7 @@
         color: var(--primary-blue);
     }
 
-    /* Responsive */
-    @media (max-width: 768px) {
-        .hero-servicios h1 {
-            font-size: 2.5rem;
-        }
-
-        .hero-servicios .lead {
-            font-size: 1.1rem;
-        }
-
-        .servicio-card {
-            padding: 2rem 1.5rem;
-        }
-
-        .servicios-section,
-        .tecnologias-section,
-        .proceso-section {
-            padding: 60px 0;
-        }
-
-        .proceso-step::before {
-            display: none;
-        }
-
-        .tech-grid {
-            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
-            gap: 1rem;
-        }
-
-        .cta-content h2 {
-            font-size: 2rem;
-        }
-    }
+    /* Hero Section */
     .hero-servicios {
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
     padding: 120px 0 80px;
@@ -428,29 +351,53 @@
     100% { opacity: 0.5; filter: blur(25px); }
 }
 
+/* Responsive Consolidado */
 @media (max-width: 768px) {
     .hero-content-text h1 {
         font-size: 2.5rem;
         text-align: center;
     }
-    
+
     .hero-content-text .lead {
         font-size: 1.1rem;
         text-align: center;
     }
-    
+
     .hero-content-text {
         text-align: center;
         margin-bottom: 3rem;
     }
-    
+
     .video-wrapper {
         transform: none;
         max-width: 100%;
     }
-    
+
     .video-wrapper:hover {
         transform: scale(1.02);
+    }
+
+    .servicio-card {
+        padding: 2rem 1.5rem;
+    }
+
+    .servicios-section,
+    .tecnologias-section,
+    .proceso-section {
+        padding: 60px 0;
+    }
+
+    .proceso-step::before {
+        display: none;
+    }
+
+    .tech-grid {
+        grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+        gap: 1rem;
+    }
+
+    .cta-content h2 {
+        font-size: 2rem;
     }
 }
 </style>
