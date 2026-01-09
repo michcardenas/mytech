@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Proyectos - MY Tech Solutions')
+{{-- El título SEO se toma automáticamente de la base de datos via $seo --}}
 
 @push('styles')
 <style>
