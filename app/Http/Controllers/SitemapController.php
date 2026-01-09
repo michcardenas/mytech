@@ -2,99 +2,84 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Page;
-use App\Models\Proyecto;
-use App\Models\Seo;
-use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Cache;
 
 class SitemapController extends Controller
 {
+    /**
+     * Servir el sitemap.xml
+     *
+     * Este método intenta servir el sitemap existente.
+     * Si no existe o está desactualizado, lo regenera automáticamente.
+     */
     public function index()
     {
-        // Obtener URL base sin www
-        $baseUrl = preg_replace('/^(https?:\/\/)www\./', '$1', config('app.url'));
+        $sitemapPath = public_path('sitemap.xml');
 
-        // URLs estáticas principales
-        $staticUrls = [
-            [
-                'loc' => $baseUrl,
-                'lastmod' => now()->toIso8601String(),
-                'changefreq' => 'weekly',
-                'priority' => '1.0'
-            ],
-            [
-                'loc' => $baseUrl . '/servicios',
-                'lastmod' => now()->toIso8601String(),
-                'changefreq' => 'weekly',
-                'priority' => '0.9'
-            ],
-            [
-                'loc' => $baseUrl . '/proyectos',
-                'lastmod' => now()->toIso8601String(),
-                'changefreq' => 'weekly',
-                'priority' => '0.9'
-            ],
-            [
-                'loc' => $baseUrl . '/sobre-nosotros',
-                'lastmod' => now()->toIso8601String(),
-                'changefreq' => 'monthly',
-                'priority' => '0.8'
-            ],
-            [
-                'loc' => $baseUrl . '/contacto',
-                'lastmod' => now()->toIso8601String(),
-                'changefreq' => 'monthly',
-                'priority' => '0.8'
-            ]
-        ];
-
-        // URLs dinámicas de proyectos
-        $proyectos = Proyecto::activos()->get();
-        $projectUrls = [];
-
-        foreach ($proyectos as $proyecto) {
-            $projectUrls[] = [
-                'loc' => $baseUrl . '/proyectos/' . $proyecto->slug,
-                'lastmod' => $proyecto->updated_at->toIso8601String(),
-                'changefreq' => 'monthly',
-                'priority' => '0.7'
-            ];
+        // Si el sitemap no existe o tiene más de 1 día, regenerarlo
+        if (!File::exists($sitemapPath) || File::lastModified($sitemapPath) < now()->subDay()->timestamp) {
+            Artisan::call('sitemap:generate');
         }
 
-        // Combinar todas las URLs
-        $urls = array_merge($staticUrls, $projectUrls);
-
-        // Generar XML
-        $xml = '<?xml version="1.0" encoding="UTF-8"?>';
-        $xml .= '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">';
-
-        foreach ($urls as $url) {
-            $xml .= '<url>';
-            $xml .= '<loc>' . htmlspecialchars($url['loc']) . '</loc>';
-            $xml .= '<lastmod>' . $url['lastmod'] . '</lastmod>';
-            $xml .= '<changefreq>' . $url['changefreq'] . '</changefreq>';
-            $xml .= '<priority>' . $url['priority'] . '</priority>';
-            $xml .= '</url>';
+        // Verificar si el sitemap existe después de intentar generarlo
+        if (!File::exists($sitemapPath)) {
+            abort(404, 'Sitemap no disponible');
         }
 
-        $xml .= '</urlset>';
+        // Servir el archivo XML
+        $content = File::get($sitemapPath);
 
-        return response($xml, 200)->header('Content-Type', 'text/xml');
+        return response($content, 200)
+            ->header('Content-Type', 'text/xml; charset=utf-8')
+            ->header('Cache-Control', 'public, max-age=3600'); // Cache de 1 hora
     }
 
+    /**
+     * Generar el archivo robots.txt dinámicamente
+     */
     public function robots()
     {
         $baseUrl = preg_replace('/^(https?:\/\/)www\./', '$1', config('app.url'));
 
-        $content = "User-agent: *\n";
-        $content .= "Allow: /\n";
-        $content .= "Disallow: /admin\n";
-        $content .= "Disallow: /dashboard\n";
-        $content .= "Disallow: /login\n";
-        $content .= "Disallow: /register\n";
-        $content .= "\n";
-        $content .= "Sitemap: {$baseUrl}/sitemap.xml\n";
+        // Usar cache para evitar generar el robots.txt en cada request
+        $content = Cache::remember('robots_txt', now()->addDay(), function () use ($baseUrl) {
+            $robotsTxt = "# Robots.txt generado automáticamente\n";
+            $robotsTxt .= "# Fecha: " . now()->toDateString() . "\n\n";
 
-        return response($content, 200)->header('Content-Type', 'text/plain');
+            $robotsTxt .= "User-agent: *\n";
+            $robotsTxt .= "Allow: /\n\n";
+
+            // Bloquear rutas administrativas y de autenticación
+            $robotsTxt .= "# Áreas administrativas\n";
+            $robotsTxt .= "Disallow: /admin/\n";
+            $robotsTxt .= "Disallow: /admin\n";
+            $robotsTxt .= "Disallow: /dashboard/\n";
+            $robotsTxt .= "Disallow: /dashboard\n\n";
+
+            // Bloquear rutas de autenticación
+            $robotsTxt .= "# Autenticación\n";
+            $robotsTxt .= "Disallow: /login\n";
+            $robotsTxt .= "Disallow: /register\n";
+            $robotsTxt .= "Disallow: /password/\n";
+            $robotsTxt .= "Disallow: /logout\n\n";
+
+            // Bloquear archivos y carpetas comunes
+            $robotsTxt .= "# Archivos del sistema\n";
+            $robotsTxt .= "Disallow: /storage/\n";
+            $robotsTxt .= "Disallow: /.env\n";
+            $robotsTxt .= "Disallow: /vendor/\n\n";
+
+            // Agregar sitemap
+            $robotsTxt .= "# Sitemap\n";
+            $robotsTxt .= "Sitemap: {$baseUrl}/sitemap.xml\n";
+
+            return $robotsTxt;
+        });
+
+        return response($content, 200)
+            ->header('Content-Type', 'text/plain; charset=utf-8')
+            ->header('Cache-Control', 'public, max-age=86400'); // Cache de 24 horas
     }
 }

@@ -6,11 +6,13 @@ $vendorDir = dirname(__DIR__);
 $baseDir = dirname($vendorDir);
 
 return array(
+    'App\\Console\\Commands\\GenerateSitemap' => $baseDir . '/app/Console/Commands/GenerateSitemap.php',
     'App\\Http\\Controllers\\Admin\\LocationController' => $baseDir . '/app/Http/Controllers/Admin/LocationController.php',
     'App\\Http\\Controllers\\Admin\\PageController' => $baseDir . '/app/Http/Controllers/Admin/PageController.php',
     'App\\Http\\Controllers\\Admin\\PagesController' => $baseDir . '/app/Http/Controllers/Admin/PagesController.php',
     'App\\Http\\Controllers\\Admin\\ProductController' => $baseDir . '/app/Http/Controllers/Admin/ProductController.php',
     'App\\Http\\Controllers\\Admin\\ProductImageController' => $baseDir . '/app/Http/Controllers/Admin/ProductImageController.php',
+    'App\\Http\\Controllers\\Admin\\ProyectosController' => $baseDir . '/app/Http/Controllers/Admin/ProyectosController.php',
     'App\\Http\\Controllers\\Admin\\SeoController' => $baseDir . '/app/Http/Controllers/Admin/SeoController.php',
     'App\\Http\\Controllers\\Auth\\AuthenticatedSessionController' => $baseDir . '/app/Http/Controllers/Auth/AuthenticatedSessionController.php',
     'App\\Http\\Controllers\\Auth\\ConfirmablePasswordController' => $baseDir . '/app/Http/Controllers/Auth/ConfirmablePasswordController.php',
@@ -28,8 +30,10 @@ return array(
     'App\\Http\\Controllers\\HomeController' => $baseDir . '/app/Http/Controllers/HomeController.php',
     'App\\Http\\Controllers\\ProductController' => $baseDir . '/app/Http/Controllers/ProductController.php',
     'App\\Http\\Controllers\\ProfileController' => $baseDir . '/app/Http/Controllers/ProfileController.php',
+    'App\\Http\\Controllers\\ProyectoPublicController' => $baseDir . '/app/Http/Controllers/ProyectoPublicController.php',
     'App\\Http\\Controllers\\ServiciosController' => $baseDir . '/app/Http/Controllers/ServiciosController.php',
     'App\\Http\\Controllers\\ShopController' => $baseDir . '/app/Http/Controllers/ShopController.php',
+    'App\\Http\\Controllers\\SitemapController' => $baseDir . '/app/Http/Controllers/SitemapController.php',
     'App\\Http\\Requests\\Auth\\LoginRequest' => $baseDir . '/app/Http/Requests/Auth/LoginRequest.php',
     'App\\Http\\Requests\\ProfileUpdateRequest' => $baseDir . '/app/Http/Requests/ProfileUpdateRequest.php',
     'App\\Models\\Category' => $baseDir . '/app/Models/Category.php',
@@ -41,6 +45,7 @@ return array(
     'App\\Models\\Price' => $baseDir . '/app/Models/Price.php',
     'App\\Models\\Product' => $baseDir . '/app/Models/Product.php',
     'App\\Models\\ProductImage' => $baseDir . '/app/Models/ProductImage.php',
+    'App\\Models\\Proyecto' => $baseDir . '/app/Models/Proyecto.php',
     'App\\Models\\Section' => $baseDir . '/app/Models/Section.php',
     'App\\Models\\Seo' => $baseDir . '/app/Models/Seo.php',
     'App\\Models\\User' => $baseDir . '/app/Models/User.php',
