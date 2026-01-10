@@ -291,7 +291,7 @@
 .clients-logos {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 5rem 0;
-    border-top: 1px solid #e2e8f0;
+    
     overflow: hidden;
     position: relative;
 }
@@ -687,6 +687,7 @@
     font-size: 1rem;
     font-weight: 600;
     margin-bottom: 2rem;
+    margin-top: 2rem;
     box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
 }
 
@@ -735,6 +736,7 @@
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    margin-bottom: 3rem;
 }
 
 .btn-primary {
