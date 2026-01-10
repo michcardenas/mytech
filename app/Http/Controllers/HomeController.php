@@ -12,7 +12,7 @@ use App\Models\Section;
 
 class HomeController extends Controller
 {
-public function index() 
+public function index()
 {
     // Obtener la página de inicio y TODAS sus secciones (activas e inactivas) + SEO
     $page = Page::where('slug', 'inicio')->with([
@@ -21,12 +21,12 @@ public function index()
         },
         'seo' // AGREGAR ESTA LÍNEA - Cargar datos SEO
     ])->first();
- 
+
     // Si no existe la página, crear datos por defecto
     if (!$page) {
         $sectionsData = [
             'hero' => null,
-            'featured' => null, 
+            'featured' => null,
             'cta' => null,
             'categories' => null
         ];
@@ -39,17 +39,24 @@ public function index()
         }
         $seo = $page->seo; // Obtener SEO de la página
     }
- 
+
+    // Obtener datos de servicios desde la página de servicios
+    $serviciosPage = Page::where('slug', 'servicios')->first();
+    $serviciosData = [];
+    if ($serviciosPage && $serviciosPage->content) {
+        $serviciosData = json_decode($serviciosPage->content, true) ?? [];
+    }
+
     // Obtener productos destacados
     $featuredProducts = Product::with(['category', 'images'])
         ->where('stock', '>', 0)
         ->limit(8)
         ->get();
-                  
+
     // Obtener categorías para navegación
     $categories = Category::with('products')->get();
- 
-    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo'));
+
+    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData'));
 }
 
     public function about()

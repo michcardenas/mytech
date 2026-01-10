@@ -286,6 +286,140 @@
     </div>
 </section>
 
+<!-- Sección de Servicios -->
+<section class="servicios-section-welcome">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="servicios-title-welcome">
+                {{ $serviciosData['servicios_title'] ?? '¿Qué Desarrollamos Para Ti?' }}
+            </h2>
+            <p class="servicios-subtitle-welcome">
+                {{ $serviciosData['servicios_description'] ?? 'Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.' }}
+            </p>
+        </div>
+
+        <div class="row g-4 mb-5">
+            <!-- Servicio 1 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_1_icon'] ?? 'fas fa-store' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_1_title'] ?? 'Marketplaces Personalizados' }}</h3>
+                    <p>{{ $serviciosData['servicio_1_description'] ?? 'Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_1_feature_1'] ?? 'Sistema de vendedores múltiples' }}</li>
+                        <li>{{ $serviciosData['servicio_1_feature_2'] ?? 'Pagos integrados y seguros' }}</li>
+                        <li>{{ $serviciosData['servicio_1_feature_3'] ?? 'Panel administrativo completo' }}</li>
+                        <li>{{ $serviciosData['servicio_1_feature_4'] ?? 'App móvil nativa opcional' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Servicio 2 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_2_icon'] ?? 'fas fa-calendar-check' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_2_title'] ?? 'Apps de Reservas y Citas' }}</h3>
+                    <p>{{ $serviciosData['servicio_2_description'] ?? 'Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_2_feature_1'] ?? 'Reservas en tiempo real' }}</li>
+                        <li>{{ $serviciosData['servicio_2_feature_2'] ?? 'Recordatorios automáticos' }}</li>
+                        <li>{{ $serviciosData['servicio_2_feature_3'] ?? 'Gestión de disponibilidad' }}</li>
+                        <li>{{ $serviciosData['servicio_2_feature_4'] ?? 'Integración con calendarios' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Servicio 3 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_3_icon'] ?? 'fas fa-utensils' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_3_title'] ?? 'Plataformas de Restaurantes' }}</h3>
+                    <p>{{ $serviciosData['servicio_3_description'] ?? 'Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_3_feature_1'] ?? 'Menú digital con QR' }}</li>
+                        <li>{{ $serviciosData['servicio_3_feature_2'] ?? 'Pedidos online y delivery' }}</li>
+                        <li>{{ $serviciosData['servicio_3_feature_3'] ?? 'Gestión de inventario' }}</li>
+                        <li>{{ $serviciosData['servicio_3_feature_4'] ?? 'Reportes de ventas' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Servicio 4 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_4_icon'] ?? 'fas fa-building' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_4_title'] ?? 'Sistemas Administrativos' }}</h3>
+                    <p>{{ $serviciosData['servicio_4_description'] ?? 'Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_4_feature_1'] ?? 'Gestión de clientes/residentes' }}</li>
+                        <li>{{ $serviciosData['servicio_4_feature_2'] ?? 'Control de pagos y facturación' }}</li>
+                        <li>{{ $serviciosData['servicio_4_feature_3'] ?? 'Reportes automatizados' }}</li>
+                        <li>{{ $serviciosData['servicio_4_feature_4'] ?? 'Comunicación interna' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Servicio 5 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_5_icon'] ?? 'fas fa-globe' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_5_title'] ?? 'Páginas Web Profesionales' }}</h3>
+                    <p>{{ $serviciosData['servicio_5_description'] ?? 'Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_5_feature_1'] ?? 'Diseño responsive y moderno' }}</li>
+                        <li>{{ $serviciosData['servicio_5_feature_2'] ?? 'SEO optimizado para Google' }}</li>
+                        <li>{{ $serviciosData['servicio_5_feature_3'] ?? 'Panel de administración' }}</li>
+                        <li>{{ $serviciosData['servicio_5_feature_4'] ?? 'Velocidad de carga optimizada' }}</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Servicio 6 -->
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome">
+                    <div class="servicio-icon-welcome">
+                        <i class="{{ $serviciosData['servicio_6_icon'] ?? 'fas fa-cogs' }}"></i>
+                    </div>
+                    <h3>{{ $serviciosData['servicio_6_title'] ?? 'Aplicaciones Web Personalizadas' }}</h3>
+                    <p>{{ $serviciosData['servicio_6_description'] ?? 'Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.' }}</p>
+                    <ul class="servicio-features-welcome">
+                        <li>{{ $serviciosData['servicio_6_feature_1'] ?? 'CRM y ERP personalizados' }}</li>
+                        <li>{{ $serviciosData['servicio_6_feature_2'] ?? 'Plataformas de e-learning' }}</li>
+                        <li>{{ $serviciosData['servicio_6_feature_3'] ?? 'Sistemas de inventario' }}</li>
+                        <li>{{ $serviciosData['servicio_6_feature_4'] ?? 'Dashboards y analytics' }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA al final de servicios -->
+        <div class="services-cta-welcome text-center">
+            <h3 class="services-cta-title-welcome">
+                {{ $serviciosData['cta_title'] ?? '¿Listo para Digitalizar tu Idea?' }}
+            </h3>
+            <p class="services-cta-text-welcome">
+                {{ $serviciosData['cta_description'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.' }}
+            </p>
+            <a href="https://wa.me/{{ $serviciosData['whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($serviciosData['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
+               target="_blank"
+               class="btn-whatsapp-welcome">
+                <i class="fab fa-whatsapp"></i>
+                <span>{{ $serviciosData['cta_button_text'] ?? 'Hablemos por WhatsApp' }}</span>
+            </a>
+        </div>
+    </div>
+</section>
+
 <style>
 /* Sección de Logos de Clientes Mejorada */
 .clients-logos {
@@ -1287,6 +1421,296 @@
 
 .button:hover {
     transform: translateY(-2px);
+}
+
+/* Estilos de la Sección de Servicios en Welcome */
+.servicios-section-welcome {
+    padding: 6rem 0;
+    background: white;
+    position: relative;
+}
+
+.servicios-section-welcome::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #007BFF 50%, transparent 100%);
+}
+
+.servicios-title-welcome {
+    font-size: 2.5rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.servicios-subtitle-welcome {
+    font-size: 1.2rem;
+    color: #6c757d;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.servicio-card-welcome {
+    background: white;
+    border-radius: 20px;
+    padding: 2.5rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.06);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    height: 100%;
+    border: 1px solid rgba(0, 123, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.servicio-card-welcome::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+    transform: scaleX(0);
+    transition: transform 0.4s ease;
+}
+
+.servicio-card-welcome:hover::before {
+    transform: scaleX(1);
+}
+
+.servicio-card-welcome:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 60px rgba(0, 123, 255, 0.15);
+    border-color: rgba(0, 123, 255, 0.3);
+}
+
+.servicio-icon-welcome {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    font-size: 2rem;
+    color: white;
+    transition: all 0.4s ease;
+    box-shadow: 0 10px 30px rgba(0, 123, 255, 0.3);
+}
+
+.servicio-card-welcome:hover .servicio-icon-welcome {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.4);
+}
+
+.servicio-card-welcome h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: #1e293b;
+    text-align: center;
+}
+
+.servicio-card-welcome p {
+    color: #6c757d;
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.servicio-features-welcome {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.servicio-features-welcome li {
+    padding: 0.5rem 0;
+    color: #475569;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.servicio-features-welcome li::before {
+    content: '✓';
+    color: #007BFF;
+    font-weight: bold;
+    width: 20px;
+    text-align: center;
+}
+
+.services-cta-welcome {
+    background: linear-gradient(135deg, #f8fafc 0%, #e1e8ed 100%);
+    border-radius: 25px;
+    padding: 3rem 2rem;
+    border: 2px solid rgba(0, 123, 255, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.services-cta-welcome::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(0, 123, 255, 0.05) 0%, transparent 70%);
+    animation: ctaPulse 8s ease-in-out infinite;
+}
+
+@keyframes ctaPulse {
+    0%, 100% { transform: translate(0, 0); }
+    50% { transform: translate(10%, 10%); }
+}
+
+.services-cta-title-welcome {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #1e293b;
+    margin-bottom: 1rem;
+    position: relative;
+}
+
+.services-cta-text-welcome {
+    font-size: 1.1rem;
+    color: #6c757d;
+    margin-bottom: 2rem;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+    position: relative;
+}
+
+.btn-whatsapp-welcome {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.8rem;
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+    color: white;
+    padding: 1.2rem 2.5rem;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+    position: relative;
+}
+
+.btn-whatsapp-welcome i {
+    font-size: 1.5rem;
+}
+
+.btn-whatsapp-welcome:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(37, 211, 102, 0.4);
+    color: white;
+}
+
+/* Responsive para servicios */
+@media (max-width: 768px) {
+    .servicios-section-welcome {
+        padding: 4rem 0;
+    }
+
+    .servicios-title-welcome {
+        font-size: 2rem;
+    }
+
+    .servicios-subtitle-welcome {
+        font-size: 1rem;
+    }
+
+    .servicio-card-welcome {
+        padding: 2rem;
+    }
+
+    .servicio-icon-welcome {
+        width: 70px;
+        height: 70px;
+        font-size: 1.8rem;
+    }
+
+    .servicio-card-welcome h3 {
+        font-size: 1.3rem;
+    }
+
+    .services-cta-welcome {
+        padding: 2.5rem 1.5rem;
+    }
+
+    .services-cta-title-welcome {
+        font-size: 1.7rem;
+    }
+
+    .services-cta-text-welcome {
+        font-size: 1rem;
+    }
+
+    .btn-whatsapp-welcome {
+        padding: 1rem 2rem;
+        font-size: 1rem;
+    }
+}
+
+@media (max-width: 576px) {
+    .servicios-section-welcome {
+        padding: 3rem 0;
+    }
+
+    .servicios-title-welcome {
+        font-size: 1.7rem;
+    }
+
+    .servicios-subtitle-welcome {
+        font-size: 0.95rem;
+    }
+
+    .servicio-card-welcome {
+        padding: 1.5rem;
+    }
+
+    .servicio-icon-welcome {
+        width: 60px;
+        height: 60px;
+        font-size: 1.5rem;
+    }
+
+    .servicio-card-welcome h3 {
+        font-size: 1.2rem;
+    }
+
+    .servicio-card-welcome p {
+        font-size: 0.95rem;
+    }
+
+    .servicio-features-welcome li {
+        font-size: 0.9rem;
+    }
+
+    .services-cta-welcome {
+        padding: 2rem 1rem;
+    }
+
+    .services-cta-title-welcome {
+        font-size: 1.5rem;
+    }
+
+    .services-cta-text-welcome {
+        font-size: 0.95rem;
+    }
+
+    .btn-whatsapp-welcome {
+        padding: 0.9rem 1.8rem;
+        font-size: 0.95rem;
+    }
 }
 </style>
 @endsection
