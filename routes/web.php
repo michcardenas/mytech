@@ -14,11 +14,15 @@ use App\Http\Controllers\WholesaleController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PagesController;
 use App\Http\Controllers\ServiciosController;
+use App\Http\Controllers\LandingController;
 
 
 /* ---------- SEO Routes ---------- */
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
+
+/* ---------- Landing Pages (debe ir ANTES de otras rutas dinámicas) ---------- */
+Route::get('/landings', [LandingController::class, 'index'])->name('landings.index'); // Opcional: índice de landings
 
 /* ---------- Landing y páginas públicas ---------- */
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -224,6 +228,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 //         ->name('pages.contacto.update');
 // });
 
-
-
 require __DIR__.'/auth.php';
+
+/* ---------- Ruta catch-all para Landing Pages (DEBE IR AL FINAL ABSOLUTO) ---------- */
+// Esta ruta captura cualquier slug que no haya coincidido con las rutas anteriores
+// Debe estar DESPUÉS de auth.php para no interferir con login/register/etc
+Route::get('/{slug}', [LandingController::class, 'show'])
+    ->where('slug', '[a-z0-9\-]+')
+    ->name('landing.show');

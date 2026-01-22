@@ -166,6 +166,34 @@
         transform: translateY(-1px);
     }
 
+    .page-type-badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        margin-left: 0.5rem;
+        vertical-align: middle;
+    }
+
+    .badge-page {
+        background: rgba(108, 117, 125, 0.1);
+        color: #6c757d;
+        border: 1px solid #6c757d;
+    }
+
+    .badge-landing {
+        background: rgba(40, 167, 69, 0.1);
+        color: #28a745;
+        border: 1px solid #28a745;
+    }
+
+    .badge-blog {
+        background: rgba(111, 66, 193, 0.1);
+        color: #6f42c1;
+        border: 1px solid #6f42c1;
+    }
+
     .sections-info {
         margin-top: 1rem;
         padding: 1rem;
@@ -231,15 +259,21 @@
 
 <div class="pages-container">
     <div class="page-header">
-        <h1 class="page-title">
-            <i class="fas fa-file-alt"></i>
-            Gestión de Páginas
-        </h1>
-        <div class="page-info">
+        <div>
+            <h1 class="page-title">
+                <i class="fas fa-file-alt"></i>
+                Gestión de Páginas
+            </h1>
             <p style="color: #666; margin: 0; font-size: 1rem;">
                 <i class="fas fa-info-circle me-2"></i>
                 Edita el contenido de las páginas de tu sitio web
             </p>
+        </div>
+        <div>
+            <a href="{{ route('admin.pages.create') }}" class="btn-primary">
+                <i class="fas fa-plus-circle"></i>
+                Crear Nueva Página
+            </a>
         </div>
     </div>
 
@@ -255,7 +289,22 @@
             <div class="page-card">
                 <div class="page-card-header">
                     <div>
-                        <h3 class="page-card-title">{{ $page->title }}</h3>
+                        <h3 class="page-card-title">
+                            {{ $page->title }}
+                            @if($page->type === 'landing')
+                                <span class="page-type-badge badge-landing">
+                                    <i class="fas fa-rocket"></i> Landing
+                                </span>
+                            @elseif($page->type === 'blog')
+                                <span class="page-type-badge badge-blog">
+                                    <i class="fas fa-blog"></i> Blog
+                                </span>
+                            @else
+                                <span class="page-type-badge badge-page">
+                                    <i class="fas fa-file-alt"></i> Página
+                                </span>
+                            @endif
+                        </h3>
                         <p class="page-slug">{{ $page->slug }}</p>
                         
                         <!-- Indicador de estado SEO -->
@@ -302,11 +351,19 @@
                             SEO
                         </a>
 
-                        <!-- Botón Secciones (si existen) -->
-                        @if($page->sections && $page->sections->count() > 0)
+                        <!-- Botón Secciones (si existen o si es landing/blog) -->
+                        @if($page->sections && $page->sections->count() > 0 || in_array($page->type, ['landing', 'blog']))
                             <a href="{{ route('admin.pages.sections', $page) }}" class="btn-sm btn-success" title="Gestionar secciones">
                                 <i class="fas fa-puzzle-piece"></i>
                                 Secciones
+                            </a>
+                        @endif
+
+                        <!-- Botón Ver en Frontend (solo para landings activas) -->
+                        @if($page->type === 'landing' && $page->is_active)
+                            <a href="/{{ $page->slug }}" target="_blank" class="btn-sm btn-info" title="Ver página pública">
+                                <i class="fas fa-eye"></i>
+                                Ver
                             </a>
                         @endif
                     </div>

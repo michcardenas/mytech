@@ -56,7 +56,14 @@ public function index()
     // Obtener categorías para navegación
     $categories = Category::with('products')->get();
 
-    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData'));
+    // Obtener landing pages activas para mostrar en las tarjetas
+    $landings = Page::where('type', 'landing')
+        ->where('is_active', true)
+        ->with('seo')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData', 'landings'));
 }
 
     public function about()

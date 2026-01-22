@@ -25,9 +25,7 @@ class PagesController extends Controller
      */
     public function create()
     {
-        // Redirect to index since we don't allow creating new pages
-        return redirect()->route('admin.pages.index')
-            ->with('info', 'Solo puedes editar páginas existentes.');
+        return view('admin.pages.create');
     }
 
     /**
@@ -35,9 +33,24 @@ class PagesController extends Controller
      */
     public function store(Request $request)
     {
-        // Redirect to index since we don't allow creating new pages
-        return redirect()->route('admin.pages.index')
-            ->with('info', 'Solo puedes editar páginas existentes.');
+        $request->validate([
+            'title' => 'required|string|max:255',
+            'slug' => 'required|string|max:255|unique:pages,slug',
+            'type' => 'required|in:page,landing,blog',
+            'content' => 'nullable|string',
+            'is_active' => 'boolean',
+        ]);
+
+        $page = Page::create([
+            'title' => $request->title,
+            'slug' => Str::slug($request->slug),
+            'type' => $request->type,
+            'content' => $request->content,
+            'is_active' => $request->boolean('is_active', true),
+        ]);
+
+        return redirect()->route('admin.pages.sections', $page)
+            ->with('success', 'Página creada exitosamente. Ahora puedes agregar secciones.');
     }
 
     /**
@@ -191,9 +204,13 @@ class PagesController extends Controller
             'title' => 'nullable|string|max:255',
             'content' => 'nullable|string',
             'order' => 'nullable|integer',
-            'is_active' => 'boolean',
+            'is_active' => 'sometimes|in:0,1,true,false',
+            'images.*' => 'nullable|image|max:10240', // Max 10MB por imagen
+            'video_urls' => 'nullable|string',
+            'custom_data' => 'nullable|array', // Validar custom_data como array
         ]);
 
+        // Actualizar campos básicos
         $section->update([
             'name' => $request->name,
             'title' => $request->title,
@@ -201,6 +218,43 @@ class PagesController extends Controller
             'order' => $request->order,
             'is_active' => $request->boolean('is_active'),
         ]);
+
+        // Manejar custom_data (datos específicos de cada tipo de sección)
+        if ($request->has('custom_data')) {
+            $customData = $request->custom_data;
+
+            // Limpiar arrays vacíos y valores nulos
+            $customData = array_filter($customData, function($value) {
+                if (is_array($value)) {
+                    return !empty(array_filter($value));
+                }
+                return !is_null($value) && $value !== '';
+            });
+
+            $section->custom_data = $customData;
+            $section->save();
+        }
+
+        // Manejar subida de nuevas imágenes
+        if ($request->hasFile('images')) {
+            $existingImages = $section->getImagesArray();
+
+            foreach ($request->file('images') as $image) {
+                $path = $image->store('sections/images', 'public');
+                $existingImages[] = $path;
+            }
+
+            $section->setImagesArray($existingImages);
+            $section->save();
+        }
+
+        // Manejar URLs de videos
+        if ($request->has('video_urls')) {
+            $videoUrls = array_filter(explode("\n", $request->video_urls));
+            $videoUrls = array_map('trim', $videoUrls);
+            $section->setVideosArray($videoUrls);
+            $section->save();
+        }
 
         return redirect()->route('admin.pages.sections', $page)
             ->with('success', 'Sección actualizada exitosamente.');

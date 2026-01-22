@@ -286,18 +286,46 @@
     </div>
 </section>
 
-<!-- Sección de Servicios -->
+<!-- Sección de Landing Pages -->
 <section class="servicios-section-welcome">
     <div class="container">
         <div class="text-center mb-5">
             <h2 class="servicios-title-welcome">
-                {{ $serviciosData['servicios_title'] ?? '¿Qué Desarrollamos Para Ti?' }}
+                {{ $serviciosData['servicios_title'] ?? 'Nuestras Soluciones' }}
             </h2>
             <p class="servicios-subtitle-welcome">
-                {{ $serviciosData['servicios_description'] ?? 'Cada proyecto que creamos está diseñado para ayudar a tu empresa a vender más, organizarse mejor y ofrecer un servicio excepcional.' }}
+                {{ $serviciosData['servicios_description'] ?? 'Descubre cómo podemos ayudarte a alcanzar tus objetivos digitales' }}
             </p>
         </div>
 
+        @if($landings && $landings->count() > 0)
+        <div class="row g-4 mb-5">
+            @foreach($landings as $landing)
+            <div class="col-lg-4 col-md-6">
+                <div class="servicio-card-welcome landing-card">
+                    <div class="servicio-icon-welcome">
+                        <i class="fas fa-rocket"></i>
+                    </div>
+                    <h3>{{ $landing->title }}</h3>
+
+                    @if($landing->seo && $landing->seo->meta_description)
+                        <p>{{ Str::limit($landing->seo->meta_description, 120) }}</p>
+                    @else
+                        <p>{{ Str::limit(strip_tags($landing->content ?? 'Descubre más sobre esta solución'), 120) }}</p>
+                    @endif
+
+                    <div class="landing-card-footer">
+                        <a href="{{ route('landing.show', $landing->slug) }}"
+                           class="btn-landing-ver">
+                            Ver Más
+                            <i class="fas fa-arrow-right ml-2"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            @endforeach
+        </div>
+        @else
         <div class="row g-4 mb-5">
             <!-- Servicio 1 -->
             <div class="col-lg-4 col-md-6">
@@ -401,6 +429,7 @@
                 </div>
             </div>
         </div>
+        @endif
 
         <!-- CTA al final de servicios -->
         <div class="services-cta-welcome text-center">
@@ -1543,6 +1572,51 @@
     font-weight: bold;
     width: 20px;
     text-align: center;
+}
+
+/* Estilos para Landing Cards */
+.landing-card {
+    display: flex;
+    flex-direction: column;
+}
+
+.landing-card p {
+    flex: 1;
+    margin-bottom: 1.5rem;
+}
+
+.landing-card-footer {
+    margin-top: auto;
+    text-align: center;
+}
+
+.btn-landing-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+    color: white;
+    padding: 0.8rem 1.5rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
+}
+
+.btn-landing-ver:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 123, 255, 0.4);
+    color: white;
+}
+
+.btn-landing-ver i {
+    transition: transform 0.3s ease;
+}
+
+.btn-landing-ver:hover i {
+    transform: translateX(3px);
 }
 
 .services-cta-welcome {

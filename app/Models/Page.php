@@ -9,11 +9,17 @@ class Page extends Model
 {
     protected $fillable = [
         'slug',
-        'title', 
+        'type',
+        'title',
         'section',
         'content',
         'images',
-        'videos'
+        'videos',
+        'is_active'
+    ];
+
+    protected $casts = [
+        'is_active' => 'boolean',
     ];
 
     // Relación con Sections
@@ -67,5 +73,64 @@ class Page extends Model
     public function setVideosArray($videos)
     {
         $this->videos = empty($videos) ? null : implode(',', $videos);
+    }
+
+    // Scopes para filtrar por tipo
+    public function scopeLandings($query)
+    {
+        return $query->where('type', 'landing');
+    }
+
+    public function scopeBlogs($query)
+    {
+        return $query->where('type', 'blog');
+    }
+
+    public function scopeActive($query)
+    {
+        return $query->where('is_active', true);
+    }
+
+    // Verificar si es una landing page
+    public function isLanding()
+    {
+        return $this->type === 'landing';
+    }
+
+    // Verificar si es un blog
+    public function isBlog()
+    {
+        return $this->type === 'blog';
+    }
+
+    // Obtener sección específica con custom_data
+    public function getSectionData($sectionName, $key = null, $default = null)
+    {
+        $section = $this->sections()->where('name', $sectionName)->first();
+
+        if (!$section) {
+            return $default;
+        }
+
+        if (is_null($key)) {
+            return $section->custom_data ?? $default;
+        }
+
+        return $section->custom_data[$key] ?? $default;
+    }
+
+    // Obtener proyectos destacados de una landing
+    public function featuredProyectos()
+    {
+        $proyectoIds = $this->getSectionData('proyectos_destacados', 'proyecto_ids', []);
+
+        if (empty($proyectoIds)) {
+            return collect([]);
+        }
+
+        return \App\Models\Proyecto::whereIn('id', $proyectoIds)
+            ->where('activo', true)
+            ->orderByRaw('FIELD(id, ' . implode(',', $proyectoIds) . ')')
+            ->get();
     }
 }
