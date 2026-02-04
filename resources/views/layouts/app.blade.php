@@ -18,11 +18,15 @@
     {{-- META DESCRIPTION --}}
     @if(isset($seo) && $seo && $seo->meta_description)
         <meta name="description" content="{{ $seo->meta_description }}">
+    @elseif(View::hasSection('meta_description'))
+        <meta name="description" content="@yield('meta_description')">
     @endif
-    
+
     {{-- META KEYWORDS --}}
     @if(isset($seo) && $seo && $seo->meta_keywords)
         <meta name="keywords" content="{{ $seo->meta_keywords }}">
+    @elseif(View::hasSection('meta_keywords'))
+        <meta name="keywords" content="@yield('meta_keywords')">
     @endif
     
     {{-- ROBOTS --}}
@@ -32,109 +36,107 @@
         <meta name="robots" content="index, follow">
     @endif
     
-    {{-- CANONICAL URL - Always non-www --}}
-    @php
-        $canonicalUrl = isset($seo) && $seo && $seo->canonical_url
-            ? $seo->canonical_url
-            : request()->url();
-        // Remove www from canonical URL
-        $canonicalUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $canonicalUrl);
-    @endphp
-    <link rel="canonical" href="{{ $canonicalUrl }}">
+    {{-- CANONICAL URL - Solo si no hay SEO personalizado del blog --}}
+    @unless(View::hasSection('custom_seo'))
+        @php
+            $canonicalUrl = isset($seo) && $seo && $seo->canonical_url
+                ? $seo->canonical_url
+                : request()->url();
+            // Remove www from canonical URL
+            $canonicalUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $canonicalUrl);
+        @endphp
+        <link rel="canonical" href="{{ $canonicalUrl }}">
+    @endunless
     
     {{-- FOCUS KEYWORD (para análisis interno) --}}
     @if(isset($seo) && $seo && $seo->focus_keyword)
         <meta name="focus-keyword" content="{{ $seo->focus_keyword }}">
     @endif
 
-    {{-- OPEN GRAPH (FACEBOOK/LINKEDIN) --}}
-    @if(isset($seo) && $seo)
-        {{-- OG Title --}}
-        <meta property="og:title" content="{{ $seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions') }}">
-        
-        {{-- OG Description --}}
-        <meta property="og:description" content="{{ $seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales') }}">
-        
-        {{-- OG Type --}}
-        <meta property="og:type" content="{{ $seo->og_type ?: 'website' }}">
-        
-        {{-- OG URL - Always non-www --}}
-        @php
-            $ogUrl = $seo->og_url ?: ($seo->canonical_url ?: request()->url());
-            // Remove www from OG URL
-            $ogUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $ogUrl);
-        @endphp
-        <meta property="og:url" content="{{ $ogUrl }}">
-        
-        {{-- OG Image --}}
-        @if($seo->og_image)
-            <meta property="og:image" content="{{ $seo->og_image }}">
-            <meta property="og:image:alt" content="{{ $seo->og_title ?: $seo->meta_title ?: 'MY Tech Solutions' }}">
-        @endif
-        
-        {{-- OG Site Name --}}
-        <meta property="og:site_name" content="{{ $seo->og_site_name ?: 'MY Tech Solutions' }}">
-    @else
-        {{-- Fallback Open Graph si no hay SEO --}}
-        @php
-            $fallbackOgUrl = preg_replace('/^(https?:\/\/)www\./', '$1', request()->url());
-        @endphp
-        <meta property="og:title" content="@yield('title', 'MY Tech Solutions')">
-        <meta property="og:type" content="website">
-        <meta property="og:url" content="{{ $fallbackOgUrl }}">
-        <meta property="og:site_name" content="MY Tech Solutions">
-    @endif
+    {{-- OPEN GRAPH (FACEBOOK/LINKEDIN) - Solo si no hay SEO personalizado del blog --}}
+    @unless(View::hasSection('custom_seo'))
+        @if(isset($seo) && $seo)
+            {{-- OG Title --}}
+            <meta property="og:title" content="{{ $seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions') }}">
 
-    {{-- TWITTER CARDS --}}
-    @if(isset($seo) && $seo)
-        {{-- Twitter Card Type --}}
-        <meta name="twitter:card" content="{{ $seo->twitter_card ?: 'summary_large_image' }}">
-        
-        {{-- Twitter Title --}}
-        <meta name="twitter:title" content="{{ $seo->twitter_title ?: ($seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions')) }}">
-        
-        {{-- Twitter Description --}}
-        <meta name="twitter:description" content="{{ $seo->twitter_description ?: ($seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales')) }}">
-        
-        {{-- Twitter Image --}}
-        @if($seo->twitter_image)
-            <meta name="twitter:image" content="{{ $seo->twitter_image }}">
-        @elseif($seo->og_image)
-            <meta name="twitter:image" content="{{ $seo->og_image }}">
-        @endif
-        
-        {{-- Twitter Site --}}
-        @if($seo->twitter_site)
-            <meta name="twitter:site" content="{{ $seo->twitter_site }}">
-        @endif
-        
-        {{-- Twitter Creator --}}
-        @if($seo->twitter_creator)
-            <meta name="twitter:creator" content="{{ $seo->twitter_creator }}">
-        @endif
-    @else
-        {{-- Fallback Twitter si no hay SEO --}}
-        <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="@yield('title', 'MY Tech Solutions')">
-    @endif
+            {{-- OG Description --}}
+            <meta property="og:description" content="{{ $seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales') }}">
 
-    {{-- STRUCTURED DATA / SCHEMA.ORG --}}
+            {{-- OG Type --}}
+            <meta property="og:type" content="{{ $seo->og_type ?: 'website' }}">
+
+            {{-- OG URL - Always non-www --}}
+            @php
+                $ogUrl = $seo->og_url ?: ($seo->canonical_url ?: request()->url());
+                // Remove www from OG URL
+                $ogUrl = preg_replace('/^(https?:\/\/)www\./', '$1', $ogUrl);
+            @endphp
+            <meta property="og:url" content="{{ $ogUrl }}">
+
+            {{-- OG Image --}}
+            @if($seo->og_image)
+                <meta property="og:image" content="{{ $seo->og_image }}">
+                <meta property="og:image:alt" content="{{ $seo->og_title ?: $seo->meta_title ?: 'MY Tech Solutions' }}">
+            @endif
+
+            {{-- OG Site Name --}}
+            <meta property="og:site_name" content="{{ $seo->og_site_name ?: 'MY Tech Solutions' }}">
+        @else
+            {{-- Fallback Open Graph si no hay SEO --}}
+            @php
+                $fallbackOgUrl = preg_replace('/^(https?:\/\/)www\./', '$1', request()->url());
+            @endphp
+            <meta property="og:title" content="@yield('title', 'MY Tech Solutions')">
+            <meta property="og:type" content="website">
+            <meta property="og:url" content="{{ $fallbackOgUrl }}">
+            <meta property="og:site_name" content="MY Tech Solutions">
+        @endif
+    @endunless
+
+    {{-- TWITTER CARDS - Solo si no hay SEO personalizado del blog --}}
+    @unless(View::hasSection('custom_seo'))
+        @if(isset($seo) && $seo)
+            {{-- Twitter Card Type --}}
+            <meta name="twitter:card" content="{{ $seo->twitter_card ?: 'summary_large_image' }}">
+
+            {{-- Twitter Title --}}
+            <meta name="twitter:title" content="{{ $seo->twitter_title ?: ($seo->og_title ?: ($seo->meta_title ?: 'MY Tech Solutions')) }}">
+
+            {{-- Twitter Description --}}
+            <meta name="twitter:description" content="{{ $seo->twitter_description ?: ($seo->og_description ?: ($seo->meta_description ?: 'Soluciones tecnológicas profesionales')) }}">
+
+            {{-- Twitter Image --}}
+            @if($seo->twitter_image)
+                <meta name="twitter:image" content="{{ $seo->twitter_image }}">
+            @elseif($seo->og_image)
+                <meta name="twitter:image" content="{{ $seo->og_image }}">
+            @endif
+
+            {{-- Twitter Site --}}
+            @if($seo->twitter_site)
+                <meta name="twitter:site" content="{{ $seo->twitter_site }}">
+            @endif
+
+            {{-- Twitter Creator --}}
+            @if($seo->twitter_creator)
+                <meta name="twitter:creator" content="{{ $seo->twitter_creator }}">
+            @endif
+        @else
+            {{-- Fallback Twitter si no hay SEO --}}
+            <meta name="twitter:card" content="summary_large_image">
+            <meta name="twitter:title" content="@yield('title', 'MY Tech Solutions')">
+        @endif
+    @endunless
+
+    {{-- STRUCTURED DATA / SCHEMA.ORG personalizado desde admin --}}
     @if(isset($seo) && $seo && $seo->schema_markup)
         <script type="application/ld+json">
             {!! is_string($seo->schema_markup) ? $seo->schema_markup : json_encode($seo->schema_markup) !!}
         </script>
-    @else
-        {{-- Schema básico por defecto --}}
-        <script type="application/ld+json">
-        {
-            "@context": "https://schema.org",
-            "@type": "Organization",
-            "name": "MY Tech Solutions",
-            "url": "{{ request()->root() }}",
-            "description": "Soluciones tecnológicas profesionales"
-        }
-        </script>
     @endif
+
+    {{-- Meta tags específicos de la página (Blog, etc.) --}}
+    @stack('meta')
 
     {{-- FAVICON --}}
     <link rel="icon" href="{{ asset('images/icon.png') }}" type="image/png">
@@ -142,14 +144,26 @@
     <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('images/icon.png') }}">
     <link rel="apple-touch-icon" href="{{ asset('images/icon.png') }}">
     <link rel="shortcut icon" href="{{ asset('images/icon.png') }}" type="image/png">
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Organization",
-      "url": "https://mytechsolutionsco.com",
-      "logo": "https://mytechsolutionsco.com/images/icon.png"
-    }
-    </script>
+
+    {{-- Schema Organization con Logo - Solo si no hay SEO personalizado --}}
+    @unless(View::hasSection('custom_seo'))
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            "url": "https://mytechsolutionsco.com",
+            "logo": "https://mytechsolutionsco.com/images/icon.png",
+            "name": "MY Tech Solutions",
+            "description": "Desarrollo de software a medida, aplicaciones web y soluciones tecnológicas en Bogotá",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Bogotá",
+                "addressCountry": "CO"
+            },
+            "sameAs": []
+        }
+        </script>
+    @endunless
 
     {{-- BOOTSTRAP CSS --}}
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
@@ -819,6 +833,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
                 <li><a href="{{ route('home') }}" class="nav-link">Inicio</a></li>
                 <li><a href="{{ route('servicios.index') }}" class="nav-link">Servicios</a></li>
                 <li><a href="{{ route('proyectos.index') }}" class="nav-link">Proyectos</a></li>
+                <li><a href="{{ route('blog.index') }}" class="nav-link">Blog</a></li>
                 <li><a href="{{ route('sobre_nosotros.index') }}" class="nav-link">Sobre Nosotros</a></li>
                 <li>
                     <a href="{{ route('contacto.index') }}" class="btn-contact">
@@ -844,6 +859,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <li><a href="{{ route('home') }}" class="nav-link">Inicio</a></li>
             <li><a href="{{ route('servicios.index') }}" class="nav-link">Servicios</a></li>
             <li><a href="{{ route('proyectos.index') }}" class="nav-link">Proyectos</a></li>
+            <li><a href="{{ route('blog.index') }}" class="nav-link">Blog</a></li>
             <li><a href="{{ route('sobre_nosotros.index') }}" class="nav-link">Sobre Nosotros</a></li>
         </ul>
         <a href="{{ route('contacto.index') }}" class="mobile-contact">

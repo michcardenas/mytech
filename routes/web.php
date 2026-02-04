@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PagesController;
 use App\Http\Controllers\ServiciosController;
 use App\Http\Controllers\LandingController;
+use App\Http\Controllers\BlogController;
 
 
 /* ---------- SEO Routes ---------- */
@@ -34,6 +35,11 @@ Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'index
 Route::post('/contacto', [App\Http\Controllers\ServiciosController::class, 'storeContacto'])->name('contacto.store');
 Route::get('/gracias', [ServiciosController::class, 'gracias'])->name('contacto.gracias');
 
+/* ---------- Blog Routes ---------- */
+Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+Route::get('/blog/categoria/{category}', [BlogController::class, 'category'])->name('blog.category');
+Route::get('/blog/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
+Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
 
 Route::get('admin/pages/servicios/edit', [PageController::class, 'editServicios'])->name('admin.pages.servicios.edit');
 Route::put('admin/pages/servicios/update', [PageController::class, 'updateServicios'])->name('admin.pages.servicios.update');

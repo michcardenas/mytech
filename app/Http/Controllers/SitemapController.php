@@ -59,6 +59,8 @@ class SitemapController extends Controller
             $robotsTxt .= "Allow: /servicios\n";
             $robotsTxt .= "Allow: /sobre-nosotros\n";
             $robotsTxt .= "Allow: /contacto\n";
+            $robotsTxt .= "Allow: /blog/\n";
+            $robotsTxt .= "Allow: /blog\n";
             $robotsTxt .= "Disallow: /admin/\n";
             $robotsTxt .= "Disallow: /dashboard/\n";
             $robotsTxt .= "Disallow: /login\n";

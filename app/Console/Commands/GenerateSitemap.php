@@ -8,6 +8,7 @@ use Spatie\Sitemap\Tags\Url;
 use App\Models\Proyecto;
 use App\Models\Product;
 use App\Models\Category;
+use App\Models\Page;
 
 class GenerateSitemap extends Command
 {
@@ -26,6 +27,9 @@ class GenerateSitemap extends Command
 
         // Agregar proyectos dinámicos
         $this->addProyectos($sitemap);
+
+        // Agregar blogs
+        $this->addBlogs($sitemap);
 
         // Agregar productos y categorías si existen
         $this->addProducts($sitemap);
@@ -81,6 +85,52 @@ class GenerateSitemap extends Command
         }
 
         $this->info('✓ ' . $proyectos->count() . ' proyectos agregados');
+    }
+
+    /**
+     * Agregar blogs publicados al sitemap
+     */
+    protected function addBlogs(Sitemap $sitemap): void
+    {
+        // Agregar página principal del blog
+        $sitemap->add(
+            Url::create('/blog')
+                ->setLastModificationDate(now())
+                ->setChangeFrequency(Url::CHANGE_FREQUENCY_DAILY)
+                ->setPriority(0.8)
+        );
+
+        // Agregar cada artículo de blog publicado
+        $blogs = Page::published()
+            ->orderBy('published_at', 'desc')
+            ->get();
+
+        foreach ($blogs as $blog) {
+            $sitemap->add(
+                Url::create('/blog/' . $blog->slug)
+                    ->setLastModificationDate($blog->updated_at)
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.7)
+            );
+        }
+
+        // Agregar páginas de categorías que tengan blogs
+        $categoriesWithBlogs = Page::published()
+            ->whereNotNull('category')
+            ->distinct()
+            ->pluck('category');
+
+        foreach ($categoriesWithBlogs as $category) {
+            $sitemap->add(
+                Url::create('/blog/categoria/' . $category)
+                    ->setLastModificationDate(now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
+                    ->setPriority(0.6)
+            );
+        }
+
+        $this->info('✓ ' . $blogs->count() . ' blogs agregados');
+        $this->info('✓ ' . $categoriesWithBlogs->count() . ' categorías de blog agregadas');
     }
 
     /**

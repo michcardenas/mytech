@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Page;
 use App\Models\Section;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 
 class PagesController extends Controller
@@ -47,7 +48,14 @@ class PagesController extends Controller
             'type' => $request->type,
             'content' => $request->content,
             'is_active' => $request->boolean('is_active', true),
+            'author' => $request->type === 'blog' ? (auth()->user()->name ?? 'Admin') : null,
         ]);
+
+        // For blogs, redirect to edit page to add content
+        if ($page->type === 'blog') {
+            return redirect()->route('admin.pages.edit', $page)
+                ->with('success', 'Blog creado exitosamente. Ahora puedes agregar el contenido.');
+        }
 
         return redirect()->route('admin.pages.sections', $page)
             ->with('success', 'Página creada exitosamente. Ahora puedes agregar secciones.');
@@ -72,6 +80,11 @@ class PagesController extends Controller
         // Special handling for home page (Inicio)
         if ($page->slug === 'inicio' || $page->slug === 'home') {
             return view('admin.pages.edit-home', compact('page'));
+        }
+
+        // Special handling for blog posts
+        if ($page->type === 'blog') {
+            return view('admin.pages.edit-blog', compact('page'));
         }
 
         return view('admin.pages.edit', compact('page'));
@@ -126,6 +139,56 @@ class PagesController extends Controller
                 'slug' => $page->slug, // Don't change slug for home page
                 'content' => json_encode($homeContent),
             ]);
+        } elseif ($page->type === 'blog') {
+            // Blog post validation and update
+            $request->validate([
+                'title' => 'required|string|max:255',
+                'slug' => 'required|string|max:255|unique:pages,slug,' . $page->id,
+                'content' => 'nullable|string',
+                'excerpt' => 'nullable|string|max:500',
+                'featured_image' => 'nullable|image|max:2048',
+                'category' => 'nullable|string|max:100',
+                'tags' => 'nullable|string|max:500',
+                'author' => 'nullable|string|max:255',
+                'published_at' => 'nullable|date',
+                'reading_time' => 'nullable|integer|min:1',
+                'is_active' => 'sometimes|in:0,1,true,false,on',
+            ]);
+
+            $updateData = [
+                'title' => $request->title,
+                'slug' => Str::slug($request->slug),
+                'content' => $request->content,
+                'excerpt' => $request->excerpt,
+                'category' => $request->category,
+                'tags' => $request->tags,
+                'author' => $request->author,
+                'published_at' => $request->published_at,
+                'reading_time' => $request->reading_time,
+                'is_active' => $request->boolean('is_active'),
+            ];
+
+            // Handle featured image upload
+            if ($request->hasFile('featured_image')) {
+                // Delete old image if exists
+                if ($page->featured_image) {
+                    Storage::disk('public')->delete($page->featured_image);
+                }
+                $updateData['featured_image'] = $request->file('featured_image')->store('blog/featured', 'public');
+            }
+
+            // Handle featured image removal
+            if ($request->input('remove_featured_image') == '1') {
+                if ($page->featured_image) {
+                    Storage::disk('public')->delete($page->featured_image);
+                }
+                $updateData['featured_image'] = null;
+            }
+
+            $page->update($updateData);
+
+            return redirect()->route('admin.pages.edit', $page)
+                ->with('success', 'Artículo actualizado exitosamente.');
         } else {
             // Regular page validation and update
             $request->validate([

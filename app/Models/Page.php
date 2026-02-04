@@ -13,6 +13,13 @@ class Page extends Model
         'title',
         'section',
         'content',
+        'excerpt',
+        'featured_image',
+        'category',
+        'tags',
+        'author',
+        'published_at',
+        'reading_time',
         'images',
         'videos',
         'is_active'
@@ -20,7 +27,86 @@ class Page extends Model
 
     protected $casts = [
         'is_active' => 'boolean',
+        'published_at' => 'datetime',
     ];
+
+    /**
+     * Categorías predefinidas para blogs
+     */
+    public static $blogCategories = [
+        'tecnologia' => 'Tecnología',
+        'desarrollo' => 'Desarrollo de Software',
+        'diseno' => 'Diseño Web',
+        'marketing' => 'Marketing Digital',
+        'negocios' => 'Negocios',
+        'tutoriales' => 'Tutoriales',
+        'noticias' => 'Noticias',
+        'casos-exito' => 'Casos de Éxito',
+    ];
+
+    /**
+     * Obtener tags como array
+     */
+    public function getTagsArray()
+    {
+        if (empty($this->tags)) return [];
+        return array_map('trim', explode(',', $this->tags));
+    }
+
+    /**
+     * Establecer tags desde array
+     */
+    public function setTagsArray($tags)
+    {
+        $this->tags = empty($tags) ? null : implode(',', array_map('trim', $tags));
+    }
+
+    /**
+     * Calcular tiempo de lectura basado en el contenido
+     */
+    public function calculateReadingTime()
+    {
+        $wordCount = str_word_count(strip_tags($this->content ?? ''));
+        $readingTime = max(1, ceil($wordCount / 200)); // 200 palabras por minuto
+        return $readingTime;
+    }
+
+    /**
+     * Scope para blogs publicados (fecha <= ahora)
+     */
+    public function scopePublished($query)
+    {
+        return $query->where('type', 'blog')
+                     ->where('is_active', true)
+                     ->where(function($q) {
+                         $q->whereNull('published_at')
+                           ->orWhere('published_at', '<=', now());
+                     });
+    }
+
+    /**
+     * Scope para filtrar por categoría
+     */
+    public function scopeByCategory($query, $category)
+    {
+        return $query->where('category', $category);
+    }
+
+    /**
+     * Obtener nombre de categoría legible
+     */
+    public function getCategoryNameAttribute()
+    {
+        return self::$blogCategories[$this->category] ?? $this->category;
+    }
+
+    /**
+     * Verificar si el blog está programado (fecha futura)
+     */
+    public function isScheduled()
+    {
+        return $this->published_at && $this->published_at->isFuture();
+    }
 
     // Relación con Sections
     public function sections()
