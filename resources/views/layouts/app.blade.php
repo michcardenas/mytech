@@ -889,7 +889,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
             <a href="https://www.instagram.com/mytech_solutions?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank" class="social-link" title="Instagram" aria-label="Visitar Instagram">                                      
                 <i class="fab fa-instagram"></i>                              
             </a>                             
-            <a href="https://wa.me/573123708407" target="_blank" class="social-link" title="WhatsApp" aria-label="Contactar por WhatsApp">                                      
+            <a href="https://wa.me/573337246403" target="_blank" class="social-link" title="WhatsApp" aria-label="Contactar por WhatsApp">                                      
                 <i class="fab fa-whatsapp"></i>                              
             </a>                              
             <a href="mailto:" class="social-link" title="Email" aria-label="Enviar email">                                      
@@ -903,7 +903,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     </div>      
 </footer>
 <div class="whatsapp-float" id="whatsappFloat">
-    <a href="https://wa.me/573123708407?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios%20de%20desarrollo%20web" 
+    <a href="https://wa.me/573337246403?text=Hola,%20me%20interesa%20conocer%20más%20sobre%20sus%20servicios%20de%20desarrollo%20web" 
        target="_blank" 
        class="whatsapp-btn" 
        title="Contactar por WhatsApp"

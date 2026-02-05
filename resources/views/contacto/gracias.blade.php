@@ -16,7 +16,7 @@
         </a>
 
         <div class="mt-5">
-            <a href="https://wa.me/573123708407?text=Hola%20MyTech%20Solutions,%20quiero%20más%20información%20sobre%20sus%20servicios." 
+            <a href="https://wa.me/573337246403?text=Hola%20MyTech%20Solutions,%20quiero%20más%20información%20sobre%20sus%20servicios." 
                target="_blank" 
                class="text-green-600 underline font-medium">
                📱 Escríbenos por WhatsApp

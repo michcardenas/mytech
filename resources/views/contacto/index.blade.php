@@ -1449,7 +1449,7 @@
             </p>
             
             <div class="cta-buttons-hero">
-                <a href="https://wa.me/{{ $data['hero_whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($data['hero_whatsapp_message'] ?? 'Hola, quiero digitalizar mi negocio y me interesa una consultoría gratuita') }}" 
+                <a href="https://wa.me/{{ $data['hero_whatsapp_number'] ?? '573337246403' }}?text={{ urlencode($data['hero_whatsapp_message'] ?? 'Hola, quiero digitalizar mi negocio y me interesa una consultoría gratuita') }}" 
                    target="_blank" 
                    class="hero-cta whatsapp-hero">
                     <i class="fab fa-whatsapp"></i>
@@ -1485,7 +1485,7 @@
                     </p>
                 </div>
                 <div class="contact-card-action">
-                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
+                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573337246403') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
                        target="_blank"
                        class="contact-btn">
                         <i class="fab fa-whatsapp"></i>
@@ -1506,7 +1506,7 @@
                     </p>
                 </div>
                 <div class="contact-card-action">
-                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573123708407') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}"
+                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573337246403') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}"
                        target="_blank"
                        class="contact-btn">
                         <i class="fas fa-calendar"></i>

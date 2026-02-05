@@ -842,7 +842,7 @@
 
                             <div class="form-group">
                                 <label class="form-label">Número de WhatsApp</label>
-                                <input type="text" class="form-control" name="whatsapp_number" value="{{ $data['whatsapp_number'] ?? '573123708407' }}" required>
+                                <input type="text" class="form-control" name="whatsapp_number" value="{{ $data['whatsapp_number'] ?? '573337246403' }}" required>
                             </div>
 
                             <div class="form-group">

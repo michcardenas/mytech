@@ -439,7 +439,7 @@
             <p class="services-cta-text-welcome">
                 {{ $serviciosData['cta_description'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.' }}
             </p>
-            <a href="https://wa.me/{{ $serviciosData['whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($serviciosData['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
+            <a href="https://wa.me/{{ $serviciosData['whatsapp_number'] ?? '573337246403' }}?text={{ urlencode($serviciosData['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
                target="_blank"
                class="btn-whatsapp-welcome">
                 <i class="fab fa-whatsapp"></i>

@@ -656,7 +656,7 @@
             <p>
                 {{ $data['cta_description'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.' }}
             </p>
-            <a href="https://wa.me/{{ $data['whatsapp_number'] ?? '573123708407' }}?text={{ urlencode($data['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}" 
+            <a href="https://wa.me/{{ $data['whatsapp_number'] ?? '573337246403' }}?text={{ urlencode($data['whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}" 
                target="_blank" 
                class="btn-cta">
                 <i class="fab fa-whatsapp"></i>

@@ -278,7 +278,7 @@
 
                             <div class="form-group">
                                 <label class="form-label">Número de WhatsApp</label>
-                                <input type="text" class="form-control" name="hero_whatsapp_number" value="{{ $data['hero_whatsapp_number'] ?? '573123708407' }}" required>
+                                <input type="text" class="form-control" name="hero_whatsapp_number" value="{{ $data['hero_whatsapp_number'] ?? '573337246403' }}" required>
                             </div>
 
                             <div class="form-group">
