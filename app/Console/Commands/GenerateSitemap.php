@@ -31,9 +31,9 @@ class GenerateSitemap extends Command
         // Agregar blogs
         $this->addBlogs($sitemap);
 
-        // Agregar productos y categorías si existen
-        $this->addProducts($sitemap);
-        $this->addCategories($sitemap);
+        // Agregar productos y categorías si existen (DESACTIVADO - residuos de prueba)
+        // $this->addProducts($sitemap);
+        // $this->addCategories($sitemap);
 
         // Guardar el sitemap
         $sitemap->writeToFile(public_path('sitemap.xml'));

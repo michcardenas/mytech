@@ -450,7 +450,6 @@
 </section>
 
 <style>
-/* Sección de Logos de Clientes Mejorada */
 .clients-logos {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 5rem 0;
