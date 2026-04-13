@@ -158,6 +158,14 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
         ]);
     Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\ProyectosController::class, 'toggleActivo'])->name('admin.proyectos.toggle');
 
+    // === PROYECTOS INTERNOS (GESTION INTERNA) ===
+    Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
+        ->names('admin.internal-projects');
+    Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
+    Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
+    Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
+    Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
+
 //     // Página INICIO
 //     Route::get('pages/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('admin.pages.edit-inicio');
 //     Route::put('pages/inicio', [App\Http\Controllers\Admin\PageController::class, 'updateInicio'])->name('admin.pages.update-inicio');

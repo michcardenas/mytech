@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Page;
 use App\Models\Proyecto;
+use App\Models\InternalProject;
 
 class DashboardController extends Controller
 {
@@ -29,10 +30,15 @@ class DashboardController extends Controller
             $totalBlog = Page::where('type', 'blog')->count();
             $publishedBlog = Page::published()->count();
 
+            // Estadísticas de proyectos internos
+            $totalInternal = InternalProject::count();
+            $inProgressInternal = InternalProject::where('estado', 'en_progreso')->count();
+
             return view('dashboard.admin', compact(
                 'totalPages', 'activePages', 'draftPages',
                 'totalProyectos', 'activeProyectos', 'featuredProyectos',
-                'totalBlog', 'publishedBlog'
+                'totalBlog', 'publishedBlog',
+                'totalInternal', 'inProgressInternal'
             ));
         }
 

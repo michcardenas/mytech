@@ -360,6 +360,13 @@
                 <p class="stat-label">Blog Posts</p>
             </div>
         </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);"><i class="fas fa-briefcase"></i></div>
+            <div class="stat-info">
+                <div class="stat-number">{{ $inProgressInternal }}</div>
+                <p class="stat-label">Proyectos Activos</p>
+            </div>
+        </div>
     </div>
 
     {{-- Acciones rapidas --}}
@@ -373,6 +380,9 @@
         </a>
         <a href="{{ route('admin.pages.create') }}" class="quick-action-btn">
             <i class="fas fa-pen"></i> Nuevo Blog Post
+        </a>
+        <a href="{{ route('admin.internal-projects.create') }}" class="quick-action-btn">
+            <i class="fas fa-plus"></i> Nuevo Proyecto Interno
         </a>
     </div>
 
@@ -424,6 +434,18 @@
             <div class="admin-card-badge">
                 <i class="fas fa-circle" style="font-size:0.45rem"></i>
                 Configuracion por pagina
+            </div>
+        </a>
+
+        <a href="{{ route('admin.internal-projects.index') }}" class="admin-card">
+            <div class="admin-card-header">
+                <div class="admin-card-icon" style="background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);"><i class="fas fa-briefcase"></i></div>
+                <h4>Mis Proyectos</h4>
+            </div>
+            <p>Gestion interna de proyectos, clientes, pagos parciales y archivos adjuntos.</p>
+            <div class="admin-card-badge">
+                <i class="fas fa-circle" style="font-size:0.45rem"></i>
+                {{ $inProgressInternal }} en progreso / {{ $totalInternal }} total
             </div>
         </a>
     </div>

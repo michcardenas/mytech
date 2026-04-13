@@ -338,8 +338,17 @@
                         <i class="fas fa-cog me-2"></i>Gestión
                     </a>
                     <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ route('dashboard') }}">
+                            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                        </a></li>
                         <li><a class="dropdown-item" href="{{ route('admin.pages.index') }}">
                             <i class="fas fa-file-alt me-2"></i>Gestión de Páginas
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.proyectos.index') }}">
+                            <i class="fas fa-project-diagram me-2"></i>Proyectos Portafolio
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ route('admin.internal-projects.index') }}">
+                            <i class="fas fa-briefcase me-2"></i>Mis Proyectos
                         </a></li>
                     </ul>
                 </li>
