@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use App\Models\Order;
+use App\Models\Page;
+use App\Models\Proyecto;
 
 class DashboardController extends Controller
 {
@@ -13,7 +15,25 @@ class DashboardController extends Controller
         $user = Auth::user();
 
         if ($user->hasRole('admin')) {
-            return view('dashboard.admin');
+            // Estadísticas de páginas (excluye blogs)
+            $totalPages = Page::where('type', '!=', 'blog')->count();
+            $activePages = Page::where('type', '!=', 'blog')->where('is_active', true)->count();
+            $draftPages = $totalPages - $activePages;
+
+            // Estadísticas de proyectos
+            $totalProyectos = Proyecto::count();
+            $activeProyectos = Proyecto::where('activo', true)->count();
+            $featuredProyectos = Proyecto::where('destacado', true)->count();
+
+            // Estadísticas de blog
+            $totalBlog = Page::where('type', 'blog')->count();
+            $publishedBlog = Page::published()->count();
+
+            return view('dashboard.admin', compact(
+                'totalPages', 'activePages', 'draftPages',
+                'totalProyectos', 'activeProyectos', 'featuredProyectos',
+                'totalBlog', 'publishedBlog'
+            ));
         }
 
         // Si es comprador, buscamos sus órdenes

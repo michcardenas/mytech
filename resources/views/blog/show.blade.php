@@ -81,7 +81,7 @@
 <style>
     .article-hero {
         position: relative;
-        height: 450px;
+        min-height: 450px;
         overflow: hidden;
         display: flex;
         align-items: flex-end;
@@ -89,8 +89,7 @@
 
     .article-hero-bg {
         position: absolute;
-        top: 0;
-        left: 0;
+        inset: 0;
         width: 100%;
         height: 100%;
         object-fit: cover;
@@ -98,19 +97,13 @@
 
     .article-hero-placeholder {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
 
     .article-hero-overlay {
         position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
+        inset: 0;
         background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.1) 100%);
     }
 
@@ -156,10 +149,11 @@
     @media (max-width: 768px) {
         .article-title {
             font-size: 1.6rem;
+            margin-bottom: 1rem;
         }
 
         .article-hero {
-            height: 350px;
+            min-height: auto;
         }
 
         .article-hero-content {
@@ -180,11 +174,16 @@
 
     @media (max-width: 480px) {
         .article-title {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
+            margin-bottom: 0.75rem;
         }
 
         .article-hero {
-            height: 300px;
+            min-height: auto;
+        }
+
+        .article-hero-content {
+            padding: 1.5rem 1rem;
         }
 
         .article-meta {
@@ -228,10 +227,18 @@
             grid-template-columns: 1fr;
             padding: 2rem 1rem;
             gap: 2rem;
+            overflow-x: hidden;
         }
 
         .article-sidebar {
             position: static;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .article-container {
+            padding: 1.5rem 0.75rem;
+            gap: 1.5rem;
         }
     }
 
@@ -242,6 +249,7 @@
         padding: 3rem;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
         border: 1px solid rgba(0, 0, 0, 0.05);
+        overflow: hidden;
     }
 
     @media (max-width: 768px) {
@@ -285,6 +293,8 @@
         font-size: 1.1rem;
         line-height: 1.9;
         color: #333;
+        overflow-wrap: break-word;
+        word-break: break-word;
     }
 
     .article-body h1, .article-body h2, .article-body h3, .article-body h4 {
@@ -353,6 +363,7 @@
         border-radius: 12px;
         overflow-x: auto;
         margin: 2rem 0;
+        max-width: 100%;
     }
 
     .article-body code {
@@ -870,7 +881,7 @@
                     <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ urlencode(request()->url()) }}&title={{ urlencode($post->title) }}" target="_blank" class="share-btn linkedin" title="Compartir en LinkedIn">
                         <i class="fab fa-linkedin-in"></i>
                     </a>
-                    <a href="https://wa.me/?text={{ urlencode($post->title . ' ' . request()->url()) }}" target="_blank" class="share-btn whatsapp" title="Compartir en WhatsApp">
+                    <a href="https://wa.me/573337246403?text={{ urlencode($post->title . ' ' . request()->url()) }}" target="_blank" class="share-btn whatsapp" title="Compartir en WhatsApp">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                     <button class="share-btn copy" onclick="copyLink()" title="Copiar enlace">
