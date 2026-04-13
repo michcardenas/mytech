@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         Proyecto::observe(ProyectoObserver::class);
 
         //
-    //  Paginator::useBootstrapFive();
+        Paginator::useBootstrapFive();
     //      View::composer(['layouts.app', 'layouts.app_admin'], NavbarComposer::class);
 
     //      View::share('categories', Category::orderBy('name')->get());
