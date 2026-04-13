@@ -53,6 +53,9 @@
         <meta name="focus-keyword" content="{{ $seo->focus_keyword }}">
     @endif
 
+    {{-- OG LOCALE --}}
+    <meta property="og:locale" content="es_CO">
+
     {{-- OPEN GRAPH (FACEBOOK/LINKEDIN) - Solo si no hay SEO personalizado del blog --}}
     @unless(View::hasSection('custom_seo'))
         @if(isset($seo) && $seo)
@@ -131,7 +134,31 @@
     {{-- STRUCTURED DATA / SCHEMA.ORG personalizado desde admin --}}
     @if(isset($seo) && $seo && $seo->schema_markup)
         <script type="application/ld+json">
-            {!! is_string($seo->schema_markup) ? $seo->schema_markup : json_encode($seo->schema_markup) !!}
+            {!! is_string($seo->schema_markup) ? $seo->schema_markup : json_encode($seo->schema_markup, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE) !!}
+        </script>
+    @endif
+
+    {{-- BREADCRUMB JSON-LD --}}
+    @if(isset($seo) && $seo && isset($page))
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            "itemListElement": [
+                {
+                    "@type": "ListItem",
+                    "position": 1,
+                    "name": "Inicio",
+                    "item": "https://mytechsolutionsco.com"
+                },
+                {
+                    "@type": "ListItem",
+                    "position": 2,
+                    "name": "{{ $seo->breadcrumb_title ?: $page->title }}",
+                    "item": "https://mytechsolutionsco.com/{{ $page->slug }}"
+                }
+            ]
+        }
         </script>
     @endif
 

@@ -8,6 +8,7 @@ use App\Models\Page;
 use App\Models\Seo;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class SeoController extends Controller
 {
@@ -17,13 +18,85 @@ class SeoController extends Controller
     public function edit(Page $page)
     {
         Log::info('=== EDIT SEO ===', ['page_id' => $page->id]);
-        
+
         // Obtener o crear SEO para la página
         $seo = $page->seo ?: new Seo(['page_id' => $page->id]);
-        
+
+        // Recopilar imagenes disponibles de la pagina y sus secciones
+        $pageImages = $this->collectPageImages($page);
+
         Log::info('SEO encontrado:', ['exists' => !is_null($page->seo), 'seo_id' => $seo->id ?? 'nuevo']);
-        
-        return view('admin.seo.edit', compact('page', 'seo'));
+
+        return view('admin.seo.edit', compact('page', 'seo', 'pageImages'));
+    }
+
+    /**
+     * Recopilar todas las imagenes de una pagina y sus secciones
+     */
+    private function collectPageImages(Page $page): array
+    {
+        $images = [];
+
+        // Featured image de la pagina (blogs)
+        if ($page->featured_image) {
+            $images[] = [
+                'url' => Storage::url($page->featured_image),
+                'label' => 'Imagen destacada',
+                'source' => 'Pagina',
+            ];
+        }
+
+        // Imagenes del campo images de la pagina
+        foreach ($page->getImagesArray() as $img) {
+            if (!empty(trim($img))) {
+                $images[] = [
+                    'url' => Storage::url(trim($img)),
+                    'label' => basename(trim($img)),
+                    'source' => 'Pagina',
+                ];
+            }
+        }
+
+        // Imagenes de las secciones
+        $page->loadMissing('sections');
+        foreach ($page->sections as $section) {
+            // Imagenes del campo images de la seccion
+            foreach ($section->getImagesArray() as $img) {
+                if (!empty(trim($img))) {
+                    $images[] = [
+                        'url' => Storage::url(trim($img)),
+                        'label' => $section->name,
+                        'source' => 'Seccion: ' . $section->name,
+                    ];
+                }
+            }
+
+            // Imagenes dentro de custom_data
+            if ($section->custom_data && is_array($section->custom_data)) {
+                foreach ($section->custom_data as $key => $value) {
+                    if (is_string($value) && $this->looksLikeImage($value)) {
+                        $url = str_starts_with($value, 'http') ? $value : Storage::url($value);
+                        $images[] = [
+                            'url' => $url,
+                            'label' => str_replace('_', ' ', $key),
+                            'source' => 'Seccion: ' . $section->name,
+                        ];
+                    }
+                }
+            }
+        }
+
+        return $images;
+    }
+
+    /**
+     * Verificar si un string parece ser una ruta de imagen
+     */
+    private function looksLikeImage(string $value): bool
+    {
+        $extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'avif'];
+        $ext = strtolower(pathinfo($value, PATHINFO_EXTENSION));
+        return in_array($ext, $extensions);
     }
 
     /**
@@ -70,6 +143,13 @@ class SeoController extends Controller
         }
 
         // PREPARAR DATOS EXACTAMENTE COMO EN TINKER
+        $schemaMarkup = null;
+        $schemaInput = $request->input('schema_markup');
+        if ($schemaInput && trim($schemaInput) !== '') {
+            $decoded = json_decode(trim($schemaInput), true);
+            $schemaMarkup = $decoded !== null ? $decoded : null;
+        }
+
         $dataToSave = [
             // Campos opcionales
             'meta_title' => $request->input('meta_title'),
@@ -88,14 +168,15 @@ class SeoController extends Controller
             'twitter_creator' => $request->input('twitter_creator'),
             'focus_keyword' => $request->input('focus_keyword'),
             'breadcrumb_title' => $request->input('breadcrumb_title'),
-            
+            'schema_markup' => $schemaMarkup,
+
             // Campos con defaults (igual que en tinker)
             'robots' => $request->input('robots', 'index,follow'),
             'og_type' => $request->input('og_type', 'website'),
             'twitter_card' => $request->input('twitter_card', 'summary_large_image'),
             'sitemap_priority' => $request->input('sitemap_priority', 0.8),
             'sitemap_changefreq' => $request->input('sitemap_changefreq', 'weekly'),
-            
+
             // Campos booleanos (como en tinker)
             'sitemap_include' => $request->has('sitemap_include') ? 1 : 0,
             'is_active' => $request->has('is_active') ? 1 : 0,
