@@ -22,12 +22,14 @@ class InternalProject extends Model
         'notas',
         'desarrollador_nombre',
         'desarrollador_email',
+        'es_recurrente',
     ];
 
     protected $casts = [
         'precio' => 'decimal:2',
         'fecha_inicio' => 'date',
         'fecha_entrega' => 'date',
+        'es_recurrente' => 'boolean',
     ];
 
     public function payments()

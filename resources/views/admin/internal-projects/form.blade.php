@@ -271,10 +271,23 @@
                         <input type="date" name="fecha_inicio" class="form-control"
                                value="{{ old('fecha_inicio', $project->fecha_inicio?->format('Y-m-d')) }}">
                     </div>
-                    <div class="field-group">
+                    <div class="field-group" id="fecha-entrega-group">
                         <div class="field-label"><i class="fas fa-flag-checkered"></i> Fecha Entrega</div>
-                        <input type="date" name="fecha_entrega" class="form-control"
+                        <input type="date" name="fecha_entrega" id="fecha_entrega" class="form-control"
                                value="{{ old('fecha_entrega', $project->fecha_entrega?->format('Y-m-d')) }}">
+                    </div>
+                </div>
+
+                <div class="field-row single">
+                    <div class="field-group">
+                        <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.6rem 0.9rem; background: #f8f9fa; border: 2px dashed #e9ecef; border-radius: 10px; font-size: 0.85rem; font-weight: 600; color: var(--dark-text); width: 100%;">
+                            <input type="checkbox" name="es_recurrente" id="es_recurrente" value="1"
+                                   {{ old('es_recurrente', $project->es_recurrente) ? 'checked' : '' }}
+                                   style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-blue);">
+                            <i class="fas fa-sync-alt" style="color: var(--primary-blue);"></i>
+                            Proyecto recurrente (sin fecha de finalizacion)
+                        </label>
+                        <div class="field-hint">Marca esta opcion si el proyecto es continuo (mantenimiento, mensualidad, soporte, etc.)</div>
                     </div>
                 </div>
             </div>
@@ -397,4 +410,28 @@
         </div>
     </form>
 </div>
+
+<script>
+    (function () {
+        const checkbox = document.getElementById('es_recurrente');
+        const fechaGroup = document.getElementById('fecha-entrega-group');
+        const fechaInput = document.getElementById('fecha_entrega');
+
+        function sync() {
+            if (checkbox.checked) {
+                fechaGroup.style.opacity = '0.4';
+                fechaGroup.style.pointerEvents = 'none';
+                fechaInput.value = '';
+                fechaInput.disabled = true;
+            } else {
+                fechaGroup.style.opacity = '1';
+                fechaGroup.style.pointerEvents = 'auto';
+                fechaInput.disabled = false;
+            }
+        }
+
+        checkbox.addEventListener('change', sync);
+        sync();
+    })();
+</script>
 @endsection

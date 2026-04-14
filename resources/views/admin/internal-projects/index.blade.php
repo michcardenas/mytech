@@ -394,7 +394,9 @@
                         @if($project->fecha_inicio)
                             <span class="ip-meta-item"><i class="fas fa-calendar"></i> {{ $project->fecha_inicio->format('d/m/Y') }}</span>
                         @endif
-                        @if($project->fecha_entrega)
+                        @if($project->es_recurrente)
+                            <span class="ip-meta-item" style="color:#007BFF;"><i class="fas fa-sync-alt"></i> <strong>Recurrente</strong></span>
+                        @elseif($project->fecha_entrega)
                             <span class="ip-meta-item"><i class="fas fa-flag-checkered"></i> {{ $project->fecha_entrega->format('d/m/Y') }}</span>
                         @endif
                         <span class="ip-meta-item"><i class="fas fa-file-alt"></i> {{ $project->files_count }} archivos</span>

@@ -366,7 +366,13 @@
             </div>
             <div class="info-item">
                 <span class="info-item-label">Entrega</span>
-                <span class="info-item-value">{{ $project->fecha_entrega ? $project->fecha_entrega->format('d/m/Y') : '-' }}</span>
+                <span class="info-item-value">
+                    @if($project->es_recurrente)
+                        <span style="color:#007BFF; font-weight:700;"><i class="fas fa-sync-alt"></i> Recurrente</span>
+                    @else
+                        {{ $project->fecha_entrega ? $project->fecha_entrega->format('d/m/Y') : '-' }}
+                    @endif
+                </span>
             </div>
             @if($project->cliente_contacto)
             <div class="info-item">

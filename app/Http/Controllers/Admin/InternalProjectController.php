@@ -66,12 +66,18 @@ class InternalProjectController extends Controller
             'moneda' => 'required|in:COP,USD',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
-            'fecha_entrega' => 'nullable|date',
+            'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
         ]);
+
+        $validated['es_recurrente'] = $request->boolean('es_recurrente');
+        if ($validated['es_recurrente']) {
+            $validated['fecha_entrega'] = null;
+        }
 
         $project = InternalProject::create($validated);
 
@@ -109,12 +115,18 @@ class InternalProjectController extends Controller
             'moneda' => 'required|in:COP,USD',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
-            'fecha_entrega' => 'nullable|date',
+            'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
         ]);
+
+        $validated['es_recurrente'] = $request->boolean('es_recurrente');
+        if ($validated['es_recurrente']) {
+            $validated['fecha_entrega'] = null;
+        }
 
         $internal_project->update($validated);
 
