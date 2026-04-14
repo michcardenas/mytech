@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InternalProject;
 use App\Models\ProjectPayment;
 use App\Models\DeveloperPayment;
+use App\Models\ProjectExpense;
 use App\Models\ProjectFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -93,6 +94,7 @@ class InternalProjectController extends Controller
         $internal_project->load([
             'payments' => fn($q) => $q->orderBy('fecha', 'desc'),
             'developerPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
+            'expenses' => fn($q) => $q->orderBy('fecha', 'desc'),
             'files',
         ]);
 
@@ -208,6 +210,33 @@ class InternalProjectController extends Controller
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Pago al desarrollador eliminado.');
+    }
+
+    // --- Otros Gastos ---
+
+    public function storeExpense(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'concepto' => 'required|string|max:255',
+            'descripcion' => 'nullable|string|max:1000',
+            'monto' => 'required|numeric|min:0.01',
+            'moneda' => 'required|in:COP,USD',
+            'fecha' => 'required|date',
+            'categoria' => 'nullable|string|max:100',
+        ]);
+
+        $internal_project->expenses()->create($validated);
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Gasto registrado.');
+    }
+
+    public function destroyExpense(InternalProject $internal_project, ProjectExpense $expense)
+    {
+        $expense->delete();
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Gasto eliminado.');
     }
 
     // --- Files ---

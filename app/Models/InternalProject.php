@@ -45,6 +45,16 @@ class InternalProject extends Model
         return $this->hasMany(DeveloperPayment::class);
     }
 
+    public function expenses()
+    {
+        return $this->hasMany(ProjectExpense::class);
+    }
+
+    public function getTotalGastosAttribute()
+    {
+        return $this->expenses->sum('monto');
+    }
+
     public function files()
     {
         return $this->hasMany(ProjectFile::class);
@@ -74,7 +84,7 @@ class InternalProject extends Model
 
     public function getUtilidadAttribute()
     {
-        return $this->total_recibido_cop - $this->total_pagado_dev;
+        return $this->total_recibido_cop - $this->total_pagado_dev - $this->total_gastos;
     }
 
     public function getSaldoPendienteAttribute()

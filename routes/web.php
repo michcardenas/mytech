@@ -165,6 +165,8 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
     Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
     Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
+    Route::post('internal-projects/{internal_project}/expenses', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeExpense'])->name('admin.internal-projects.expenses.store');
+    Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
     Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
     Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
 
