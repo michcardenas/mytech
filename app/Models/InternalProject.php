@@ -40,6 +40,11 @@ class InternalProject extends Model
         return $this->hasMany(ProjectPayment::class);
     }
 
+    public function developerPayments()
+    {
+        return $this->hasMany(DeveloperPayment::class);
+    }
+
     public function files()
     {
         return $this->hasMany(ProjectFile::class);
@@ -48,6 +53,28 @@ class InternalProject extends Model
     public function getTotalPagadoAttribute()
     {
         return $this->payments->sum('monto');
+    }
+
+    public function getTotalRecibidoCopAttribute()
+    {
+        return $this->payments->sum(function ($p) {
+            return $p->monto_recibido_cop ?? ($this->moneda === 'COP' ? $p->monto : 0);
+        });
+    }
+
+    public function getTotalPagadoDevAttribute()
+    {
+        return $this->developerPayments->sum('monto');
+    }
+
+    public function getSaldoPendienteDevAttribute()
+    {
+        return ($this->desarrollador_pago ?? 0) - $this->total_pagado_dev;
+    }
+
+    public function getUtilidadAttribute()
+    {
+        return $this->total_recibido_cop - $this->total_pagado_dev;
     }
 
     public function getSaldoPendienteAttribute()

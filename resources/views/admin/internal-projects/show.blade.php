@@ -398,8 +398,49 @@
                 <span class="info-item-value">{{ $project->desarrollador_email }}</span>
             </div>
             @endif
+            @if($project->desarrollador_pago)
+            <div class="info-item">
+                <span class="info-item-label">Pago Dev</span>
+                <span class="info-item-value">
+                    {{ $project->desarrollador_moneda == 'COP' ? '$' : 'US$' }}{{ number_format($project->desarrollador_pago, 0, ',', '.') }}
+                    <small style="opacity:0.7">{{ $project->desarrollador_moneda }}</small>
+                </span>
+            </div>
+            @endif
         </div>
     </div>
+
+    {{-- UTILIDAD --}}
+    @if($project->desarrollador_pago || $project->total_pagado_dev > 0 || $project->total_recibido_cop > 0)
+    @php
+        $utilidad = $project->utilidad;
+        $utilColor = $utilidad >= 0 ? '#28a745' : '#dc3545';
+    @endphp
+    <div class="show-section" style="margin-bottom: 1.25rem;">
+        <div class="show-section-header">
+            <h3><i class="fas fa-chart-line"></i> Utilidad del Proyecto</h3>
+        </div>
+        <div class="show-section-body">
+            <div class="payment-summary">
+                <div class="pay-stat">
+                    <div class="pay-stat-num" style="color:#28a745;">${{ number_format($project->total_recibido_cop, 0, ',', '.') }}</div>
+                    <div class="pay-stat-label">Recibido (COP)</div>
+                </div>
+                <div class="pay-stat">
+                    <div class="pay-stat-num" style="color:#dc3545;">${{ number_format($project->total_pagado_dev, 0, ',', '.') }}</div>
+                    <div class="pay-stat-label">Pagado al Dev</div>
+                </div>
+                <div class="pay-stat" style="flex:1; border-left: 2px dashed #eee; padding-left: 1.5rem;">
+                    <div class="pay-stat-num" style="color: {{ $utilColor }}; font-size: 1.6rem;">${{ number_format($utilidad, 0, ',', '.') }}</div>
+                    <div class="pay-stat-label">Utilidad neta</div>
+                </div>
+            </div>
+            <p style="margin: 0.75rem 0 0; font-size: 0.75rem; color: #999;">
+                <i class="fas fa-info-circle"></i> Calculado con el monto real recibido en COP (despues de impuestos/comisiones) menos lo pagado al desarrollador.
+            </p>
+        </div>
+    </div>
+    @endif
 
     <div class="show-grid">
         {{-- PAGOS --}}
@@ -443,9 +484,16 @@
                                         @if($payment->nota) &middot; {{ $payment->nota }} @endif
                                     </div>
                                 </div>
-                                <span class="item-amount">
-                                    {{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($payment->monto, 0, ',', '.') }}
-                                </span>
+                                <div style="text-align:right;">
+                                    <span class="item-amount">
+                                        {{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($payment->monto, 0, ',', '.') }}
+                                    </span>
+                                    @if($payment->monto_recibido_cop)
+                                        <div style="font-size: 0.7rem; color:#28a745; font-weight:600; margin-top:0.15rem;">
+                                            <i class="fas fa-arrow-down"></i> ${{ number_format($payment->monto_recibido_cop, 0, ',', '.') }} COP recibido
+                                        </div>
+                                    @endif
+                                </div>
                                 <form action="{{ route('admin.internal-projects.payments.destroy', [$project, $payment]) }}" method="POST" onsubmit="return confirm('Eliminar este pago?');">
                                     @csrf @method('DELETE')
                                     <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
@@ -485,8 +533,112 @@
                             </select>
                         </div>
                         <div class="add-field">
+                            <label>Recibido COP <small style="color:#aaa;">(neto)</small></label>
+                            <input type="number" name="monto_recibido_cop" class="form-control" step="0.01" min="0" placeholder="Despues de impuestos">
+                        </div>
+                        <div class="add-field">
                             <label>Referencia</label>
                             <input type="text" name="referencia" class="form-control" placeholder="# transaccion">
+                        </div>
+                        <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Agregar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        {{-- PAGOS AL DESARROLLADOR --}}
+        <div class="show-section full-width">
+            <div class="show-section-header">
+                <h3><i class="fas fa-laptop-code"></i> Pagos al Desarrollador @if($project->desarrollador_nombre)<small style="color:#999; font-weight:500;">- {{ $project->desarrollador_nombre }}</small>@endif</h3>
+            </div>
+            <div class="show-section-body">
+                @if($project->desarrollador_pago)
+                    @php
+                        $pagadoDev = $project->total_pagado_dev;
+                        $pctDev = $project->desarrollador_pago > 0 ? min(round(($pagadoDev / $project->desarrollador_pago) * 100), 100) : 0;
+                        $colorDev = $pctDev >= 100 ? '#28a745' : ($pctDev >= 50 ? '#007BFF' : '#f7a831');
+                        $saldoDev = $project->saldo_pendiente_dev;
+                    @endphp
+                    <div class="payment-summary">
+                        <div class="pay-stat">
+                            <div class="pay-stat-num" style="color: {{ $colorDev }};">{{ $pctDev }}%</div>
+                            <div class="pay-stat-label">Pagado al Dev</div>
+                        </div>
+                        <div class="pay-progress-bar">
+                            <div class="pay-progress-fill" style="width: {{ $pctDev }}%; background: {{ $colorDev }};"></div>
+                        </div>
+                        <div class="pay-stat">
+                            <div class="pay-stat-num" style="color: {{ $saldoDev > 0 ? '#dc3545' : '#28a745' }};">
+                                {{ $project->desarrollador_moneda == 'COP' ? '$' : 'US$' }}{{ number_format(abs($saldoDev), 0, ',', '.') }}
+                            </div>
+                            <div class="pay-stat-label">{{ $saldoDev > 0 ? 'Por pagar' : 'Saldado' }}</div>
+                        </div>
+                    </div>
+                @endif
+
+                @if($project->developerPayments->count() > 0)
+                    <ul class="item-list">
+                        @foreach($project->developerPayments as $devPayment)
+                            <li class="item-row">
+                                <div class="item-info">
+                                    <div class="item-primary">{{ $devPayment->fecha->format('d/m/Y') }}</div>
+                                    <div class="item-secondary">
+                                        {{ $devPayment->metodo ?: 'Sin metodo' }}
+                                        @if($devPayment->referencia) &middot; Ref: {{ $devPayment->referencia }} @endif
+                                        @if($devPayment->nota) &middot; {{ $devPayment->nota }} @endif
+                                    </div>
+                                </div>
+                                <span class="item-amount">
+                                    {{ $devPayment->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($devPayment->monto, 0, ',', '.') }}
+                                    <small style="color:#999; font-weight:500;">{{ $devPayment->moneda }}</small>
+                                </span>
+                                <form action="{{ route('admin.internal-projects.developer-payments.destroy', [$project, $devPayment]) }}" method="POST" onsubmit="return confirm('Eliminar este pago al desarrollador?');">
+                                    @csrf @method('DELETE')
+                                    <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
+                                </form>
+                            </li>
+                        @endforeach
+                    </ul>
+                @else
+                    <p class="no-data">No hay pagos al desarrollador registrados</p>
+                @endif
+            </div>
+
+            <div class="add-form">
+                <h4><i class="fas fa-plus-circle"></i> Registrar Pago al Desarrollador</h4>
+                <form action="{{ route('admin.internal-projects.developer-payments.store', $project) }}" method="POST">
+                    @csrf
+                    <div class="add-row">
+                        <div class="add-field">
+                            <label>Monto *</label>
+                            <input type="number" name="monto" class="form-control" required step="0.01" min="0.01" placeholder="0.00">
+                        </div>
+                        <div class="add-field" style="max-width: 100px;">
+                            <label>Moneda</label>
+                            <select name="moneda" class="form-control">
+                                <option value="COP" {{ ($project->desarrollador_moneda ?? 'COP') == 'COP' ? 'selected' : '' }}>COP</option>
+                                <option value="USD" {{ ($project->desarrollador_moneda ?? '') == 'USD' ? 'selected' : '' }}>USD</option>
+                            </select>
+                        </div>
+                        <div class="add-field">
+                            <label>Fecha *</label>
+                            <input type="date" name="fecha" class="form-control" required value="{{ date('Y-m-d') }}">
+                        </div>
+                        <div class="add-field">
+                            <label>Metodo</label>
+                            <select name="metodo" class="form-control">
+                                <option value="">Seleccionar</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Nequi">Nequi</option>
+                                <option value="Daviplata">Daviplata</option>
+                                <option value="Bancolombia">Bancolombia</option>
+                                <option value="PayPal">PayPal</option>
+                                <option value="Efectivo">Efectivo</option>
+                            </select>
+                        </div>
+                        <div class="add-field">
+                            <label>Nota</label>
+                            <input type="text" name="nota" class="form-control" placeholder="Opcional">
                         </div>
                         <button type="submit" class="btn-add"><i class="fas fa-plus"></i> Agregar</button>
                     </div>

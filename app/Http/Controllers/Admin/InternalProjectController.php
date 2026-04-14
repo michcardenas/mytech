@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\InternalProject;
 use App\Models\ProjectPayment;
+use App\Models\DeveloperPayment;
 use App\Models\ProjectFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -89,7 +90,11 @@ class InternalProjectController extends Controller
 
     public function show(InternalProject $internal_project)
     {
-        $internal_project->load(['payments' => fn($q) => $q->orderBy('fecha', 'desc'), 'files']);
+        $internal_project->load([
+            'payments' => fn($q) => $q->orderBy('fecha', 'desc'),
+            'developerPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
+            'files',
+        ]);
 
         return view('admin.internal-projects.show', [
             'project' => $internal_project,
@@ -157,6 +162,7 @@ class InternalProjectController extends Controller
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
+            'monto_recibido_cop' => 'nullable|numeric|min:0',
             'fecha' => 'required|date',
             'metodo' => 'nullable|string|max:100',
             'referencia' => 'nullable|string|max:255',
@@ -175,6 +181,33 @@ class InternalProjectController extends Controller
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Pago eliminado.');
+    }
+
+    // --- Developer Payments ---
+
+    public function storeDeveloperPayment(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'monto' => 'required|numeric|min:0.01',
+            'moneda' => 'required|in:COP,USD',
+            'fecha' => 'required|date',
+            'metodo' => 'nullable|string|max:100',
+            'referencia' => 'nullable|string|max:255',
+            'nota' => 'nullable|string|max:500',
+        ]);
+
+        $internal_project->developerPayments()->create($validated);
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Pago al desarrollador registrado.');
+    }
+
+    public function destroyDeveloperPayment(InternalProject $internal_project, DeveloperPayment $developerPayment)
+    {
+        $developerPayment->delete();
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Pago al desarrollador eliminado.');
     }
 
     // --- Files ---

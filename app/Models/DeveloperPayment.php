@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class ProjectPayment extends Model
+class DeveloperPayment extends Model
 {
     protected $fillable = [
         'internal_project_id',
         'monto',
-        'monto_recibido_cop',
+        'moneda',
         'fecha',
         'metodo',
         'referencia',
@@ -18,7 +18,6 @@ class ProjectPayment extends Model
 
     protected $casts = [
         'monto' => 'decimal:2',
-        'monto_recibido_cop' => 'decimal:2',
         'fecha' => 'date',
     ];
 
