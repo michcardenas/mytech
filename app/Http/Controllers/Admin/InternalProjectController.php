@@ -72,6 +72,8 @@ class InternalProjectController extends Controller
             'notas' => 'nullable|string',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
+            'desarrollador_pago' => 'nullable|numeric|min:0',
+            'desarrollador_moneda' => 'required|in:COP,USD',
         ]);
 
         $validated['es_recurrente'] = $request->boolean('es_recurrente');
@@ -121,6 +123,8 @@ class InternalProjectController extends Controller
             'notas' => 'nullable|string',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
+            'desarrollador_pago' => 'nullable|numeric|min:0',
+            'desarrollador_moneda' => 'required|in:COP,USD',
         ]);
 
         $validated['es_recurrente'] = $request->boolean('es_recurrente');

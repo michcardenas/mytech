@@ -381,6 +381,20 @@
                                value="{{ old('desarrollador_email', $project->desarrollador_email) }}" placeholder="dev@ejemplo.com">
                     </div>
                 </div>
+                <div class="field-row single">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-hand-holding-usd"></i> Pago al Desarrollador</div>
+                        <div class="price-group">
+                            <input type="number" name="desarrollador_pago" class="form-control"
+                                   value="{{ old('desarrollador_pago', $project->desarrollador_pago) }}" step="0.01" min="0" placeholder="0.00">
+                            <select name="desarrollador_moneda" class="form-select">
+                                <option value="COP" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'COP' ? 'selected' : '' }}>COP</option>
+                                <option value="USD" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'USD' ? 'selected' : '' }}>USD</option>
+                            </select>
+                        </div>
+                        <div class="field-hint">Monto que se le pagara al desarrollador por este proyecto</div>
+                    </div>
+                </div>
             </div>
         </div>
 
