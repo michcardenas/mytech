@@ -490,9 +490,14 @@
             <h1><i class="fas fa-briefcase"></i> Mis Proyectos</h1>
             <p>Gestion interna de proyectos, clientes, pagos y desarrolladores</p>
         </div>
-        <a href="{{ route('admin.internal-projects.create') }}" class="btn-new">
-            <i class="fas fa-plus-circle"></i> Nuevo Proyecto
-        </a>
+        <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <a href="{{ route('admin.internal-projects.stats') }}" class="btn-new" style="background: rgba(255,255,255,0.15);">
+                <i class="fas fa-chart-pie"></i> Estadísticas
+            </a>
+            <a href="{{ route('admin.internal-projects.create') }}" class="btn-new">
+                <i class="fas fa-plus-circle"></i> Nuevo Proyecto
+            </a>
+        </div>
     </div>
 
     @if(session('success'))

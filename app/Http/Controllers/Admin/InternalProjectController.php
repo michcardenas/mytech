@@ -194,6 +194,184 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.index', compact('projects', 'stats', 'desarrolladores', 'usdCop'));
     }
 
+    public function stats(Request $request)
+    {
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+
+        // Helper: convertir monto a COP
+        $toCop = fn ($monto, $moneda) => $moneda === 'USD' ? (float) $monto * $usdCop : (float) $monto;
+
+        // === Serie mensual: últimos 12 meses ===
+        $months = [];
+        for ($i = 11; $i >= 0; $i--) {
+            $d = now()->subMonths($i);
+            $months[] = [
+                'key' => $d->format('Y-m'),
+                'label' => $d->locale('es')->isoFormat('MMM YY'),
+                'start' => $d->copy()->startOfMonth(),
+                'end' => $d->copy()->endOfMonth(),
+            ];
+        }
+
+        $serieIngresos = [];
+        $serieGastosDev = [];
+        $serieGastosOtros = [];
+        $serieUtilidad = [];
+        $serieLabels = [];
+
+        foreach ($months as $m) {
+            $ing = ProjectPayment::with('project:id,moneda')
+                ->whereBetween('fecha', [$m['start'], $m['end']])
+                ->get()
+                ->sum(function ($p) use ($toCop) {
+                    if ($p->monto_recibido_cop) return (float) $p->monto_recibido_cop;
+                    return $toCop($p->monto, optional($p->project)->moneda ?? 'COP');
+                });
+
+            $devs = DeveloperPayment::whereBetween('fecha', [$m['start'], $m['end']])
+                ->get()
+                ->sum(fn ($p) => $toCop($p->monto, $p->moneda ?? 'COP'));
+
+            $gastos = ProjectExpense::whereBetween('fecha', [$m['start'], $m['end']])
+                ->get()
+                ->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
+
+            $serieLabels[] = $m['label'];
+            $serieIngresos[] = round($ing);
+            $serieGastosDev[] = round($devs);
+            $serieGastosOtros[] = round($gastos);
+            $serieUtilidad[] = round($ing - $devs - $gastos);
+        }
+
+        // === Totales acumulados (histórico completo) ===
+        $totalIngresos = ProjectPayment::with('project:id,moneda')
+            ->get()
+            ->sum(function ($p) use ($toCop) {
+                if ($p->monto_recibido_cop) return (float) $p->monto_recibido_cop;
+                return $toCop($p->monto, optional($p->project)->moneda ?? 'COP');
+            });
+        $totalPagosDev = DeveloperPayment::all()->sum(fn ($p) => $toCop($p->monto, $p->moneda ?? 'COP'));
+        $totalGastos = ProjectExpense::all()->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
+        $utilidadTotal = $totalIngresos - $totalPagosDev - $totalGastos;
+
+        // === Distribución por estado ===
+        $porEstado = InternalProject::selectRaw('estado, COUNT(*) as total')
+            ->groupBy('estado')
+            ->pluck('total', 'estado')
+            ->toArray();
+
+        // === Distribución por fuente ===
+        $porFuente = InternalProject::selectRaw('fuente, COUNT(*) as total')
+            ->groupBy('fuente')
+            ->pluck('total', 'fuente')
+            ->toArray();
+
+        // === Top desarrolladores ===
+        $topDevs = InternalProject::whereNotNull('desarrollador_nombre')
+            ->where('desarrollador_nombre', '!=', '')
+            ->withSum('developerPayments as dev_pagado', 'monto')
+            ->get()
+            ->groupBy('desarrollador_nombre')
+            ->map(function ($group, $nombre) use ($toCop) {
+                $totalAsignado = $group->sum(fn ($p) => $toCop($p->desarrollador_pago ?? 0, $p->desarrollador_moneda ?? 'COP'));
+                $totalPagado = $group->sum(fn ($p) => $toCop($p->dev_pagado ?? 0, $p->desarrollador_moneda ?? 'COP'));
+                return [
+                    'nombre' => $nombre,
+                    'proyectos' => $group->count(),
+                    'asignado_cop' => $totalAsignado,
+                    'pagado_cop' => $totalPagado,
+                    'pendiente_cop' => max($totalAsignado - $totalPagado, 0),
+                ];
+            })
+            ->sortByDesc('asignado_cop')
+            ->take(10)
+            ->values();
+
+        // === Top clientes ===
+        $topClientes = InternalProject::withSum('payments as total_pagado', 'monto')
+            ->get()
+            ->groupBy('cliente_nombre')
+            ->map(function ($group, $nombre) use ($toCop) {
+                $ingresos = $group->sum(fn ($p) => $toCop($p->total_pagado ?? 0, $p->moneda));
+                $contratado = $group->sum(fn ($p) => $toCop($p->precio, $p->moneda));
+                return [
+                    'nombre' => $nombre,
+                    'proyectos' => $group->count(),
+                    'contratado_cop' => $contratado,
+                    'ingresos_cop' => $ingresos,
+                    'saldo_cop' => max($contratado - $ingresos, 0),
+                ];
+            })
+            ->sortByDesc('ingresos_cop')
+            ->take(10)
+            ->values();
+
+        // === Top proyectos más rentables ===
+        $topRentables = InternalProject::with(['payments', 'developerPayments', 'expenses'])
+            ->get()
+            ->map(function ($p) use ($toCop) {
+                $ingresos = $p->payments->sum(function ($pay) use ($p, $toCop) {
+                    if ($pay->monto_recibido_cop) return (float) $pay->monto_recibido_cop;
+                    return $toCop($pay->monto, $p->moneda);
+                });
+                $pagosDev = $p->developerPayments->sum(fn ($d) => $toCop($d->monto, $d->moneda ?? 'COP'));
+                $gastos = $p->expenses->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
+                $utilidad = $ingresos - $pagosDev - $gastos;
+                return [
+                    'id' => $p->id,
+                    'nombre' => $p->nombre,
+                    'cliente' => $p->cliente_nombre,
+                    'estado' => $p->estado,
+                    'estado_label' => $p->estado_label,
+                    'estado_color' => $p->estado_color,
+                    'ingresos_cop' => $ingresos,
+                    'utilidad_cop' => $utilidad,
+                    'margen' => $ingresos > 0 ? round(($utilidad / $ingresos) * 100, 1) : 0,
+                ];
+            })
+            ->sortByDesc('utilidad_cop')
+            ->take(10)
+            ->values();
+
+        // === Cuentas por cobrar con aging ===
+        $activos = InternalProject::whereNotIn('estado', ['cancelado'])
+            ->with(['payments' => fn ($q) => $q->orderBy('fecha', 'desc')])
+            ->withSum('payments as pagado_total', 'monto')
+            ->get();
+
+        $aging = ['0-30' => 0, '31-60' => 0, '61-90' => 0, '90+' => 0];
+        $agingCount = ['0-30' => 0, '31-60' => 0, '61-90' => 0, '90+' => 0];
+
+        foreach ($activos as $p) {
+            $saldo = (float) $p->precio - (float) ($p->pagado_total ?? 0);
+            if ($saldo <= 0) continue;
+            $saldoCop = $toCop($saldo, $p->moneda);
+            $ultimoMov = $p->payments->first()?->fecha ?? $p->fecha_inicio ?? $p->created_at;
+            $dias = $ultimoMov ? now()->diffInDays($ultimoMov) : 0;
+            $bucket = $dias <= 30 ? '0-30' : ($dias <= 60 ? '31-60' : ($dias <= 90 ? '61-90' : '90+'));
+            $aging[$bucket] += $saldoCop;
+            $agingCount[$bucket]++;
+        }
+
+        // === KPIs resumen ===
+        $kpis = [
+            'total_ingresos' => $totalIngresos,
+            'total_pagos_dev' => $totalPagosDev,
+            'total_gastos' => $totalGastos,
+            'utilidad_total' => $utilidadTotal,
+            'margen_total' => $totalIngresos > 0 ? round(($utilidadTotal / $totalIngresos) * 100, 1) : 0,
+            'proyectos_totales' => InternalProject::count(),
+            'ticket_promedio' => InternalProject::count() > 0
+                ? (InternalProject::get()->sum(fn ($p) => $toCop($p->precio, $p->moneda)) / InternalProject::count())
+                : 0,
+        ];
+
+        return view('admin.internal-projects.stats', compact(
+            'kpis', 'serieLabels', 'serieIngresos', 'serieGastosDev', 'serieGastosOtros', 'serieUtilidad',
+            'porEstado', 'porFuente', 'topDevs', 'topClientes', 'topRentables', 'aging', 'agingCount', 'usdCop'
+        ));
+    }
+
     public function create()
     {
         return view('admin.internal-projects.form', [

@@ -159,6 +159,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\ProyectosController::class, 'toggleActivo'])->name('admin.proyectos.toggle');
 
     // === PROYECTOS INTERNOS (GESTION INTERNA) ===
+    Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
     Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
         ->names('admin.internal-projects');
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
