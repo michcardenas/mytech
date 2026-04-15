@@ -113,6 +113,52 @@
     .empty-mini { text-align: center; padding: 2.5rem 1rem; color: #aaa; }
     .empty-mini i { font-size: 2.25rem; color: #ddd; margin-bottom: 0.5rem; display: block; }
 
+    /* Dev selector dentro del range-wrap */
+    .dev-select-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.6rem; margin-top: 0.75rem; align-items: end; }
+    .dev-select-row label { font-size: 0.72rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 0.3rem; }
+    .dev-select-row select { padding: 0.55rem 0.8rem; border: 2px solid #e9ecef; border-radius: 10px; font-size: 0.85rem; background: var(--white); color: var(--dark-text); width: 100%; transition: var(--transition); }
+    .dev-select-row select:focus { border-color: var(--primary-blue); outline: none; }
+
+    /* Dev summary panel */
+    .dev-panel { background: var(--white); border-radius: 14px; box-shadow: var(--shadow-soft); margin-bottom: 1.25rem; overflow: hidden; }
+    .dev-panel-head { background: var(--gradient-purple); color: white; padding: 1.25rem 1.5rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.75rem; }
+    .dev-panel-head .dev-name { display: flex; align-items: center; gap: 0.75rem; font-size: 1.15rem; font-weight: 700; }
+    .dev-panel-head .dev-avatar { width: 42px; height: 42px; border-radius: 50%; background: rgba(255,255,255,0.25); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; font-weight: 800; }
+    .dev-panel-head .dev-meta { font-size: 0.78rem; opacity: 0.9; display: flex; gap: 1rem; flex-wrap: wrap; }
+    .dev-panel-head .dev-meta strong { font-weight: 700; }
+
+    .dev-kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0; }
+    .dev-kpi { padding: 1.1rem 1.25rem; border-right: 1px solid #f1f3f5; }
+    .dev-kpi:last-child { border-right: none; }
+    .dev-kpi-label { font-size: 0.68rem; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.3px; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem; }
+    .dev-kpi-value { font-size: 1.4rem; font-weight: 800; color: var(--dark-text); line-height: 1.1; }
+    .dev-kpi.asignado .dev-kpi-value { color: var(--purple); }
+    .dev-kpi.pagado .dev-kpi-value { color: #059669; }
+    .dev-kpi.pendiente .dev-kpi-value { color: var(--danger); }
+    .dev-kpi-sub { font-size: 0.72rem; color: #888; margin-top: 0.25rem; }
+
+    .dev-progress { padding: 0.75rem 1.5rem 1rem; border-top: 1px solid #f1f3f5; }
+    .dev-progress-label { display: flex; justify-content: space-between; font-size: 0.75rem; color: #666; font-weight: 600; margin-bottom: 0.35rem; }
+    .dev-progress-bar { width: 100%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; }
+    .dev-progress-fill { height: 100%; background: linear-gradient(90deg, var(--purple), #10b981); border-radius: 4px; transition: width 0.6s ease; }
+
+    .dev-projects { padding: 1rem 1.5rem 1.25rem; border-top: 1px solid #f1f3f5; }
+    .dev-projects h4 { font-size: 0.82rem; font-weight: 700; color: var(--dark-text); margin: 0 0 0.75rem 0; text-transform: uppercase; letter-spacing: 0.3px; }
+    .dev-proj-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .dev-proj-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; color: #888; font-weight: 700; padding: 0.5rem 0.75rem; border-bottom: 2px solid #f1f3f5; letter-spacing: 0.3px; }
+    .dev-proj-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #f1f3f5; color: var(--dark-text); vertical-align: middle; }
+    .dev-proj-table tr:last-child td { border-bottom: none; }
+    .dev-proj-table tr:hover td { background: #fafbfc; }
+    .dev-proj-table .mono { font-weight: 700; text-align: right; white-space: nowrap; }
+    .dev-proj-table a { color: var(--dark-text); text-decoration: none; font-weight: 600; }
+    .dev-proj-table a:hover { color: var(--primary-blue); }
+    .est-pill { padding: 0.15rem 0.5rem; border-radius: 6px; font-size: 0.65rem; font-weight: 700; text-transform: uppercase; display: inline-block; }
+
+    @media (max-width: 768px) {
+        .dev-select-row { grid-template-columns: 1fr; }
+        .dev-proj-table th:nth-child(3), .dev-proj-table td:nth-child(3) { display: none; }
+    }
+
     @media (max-width: 768px) {
         .stats-container { padding: 1rem; }
         .stats-header { flex-direction: column; text-align: center; padding: 1.5rem; }
@@ -191,6 +237,26 @@
             · {{ $rango['dias'] }} días · agrupado por {{ $granLabel }}
             @if($preset !== 'personalizado')
                 · <a href="{{ route('admin.internal-projects.stats.export', $exportQuery) }}" style="color:#059669; font-weight:600; text-decoration:none;"><i class="fas fa-file-csv"></i> Exportar CSV</a>
+            @endif
+        </div>
+
+        {{-- Selector de desarrollador --}}
+        <div class="dev-select-row">
+            <div>
+                <label for="desarrollador">Desarrollador</label>
+                <select name="desarrollador" id="desarrollador" onchange="this.form.submit()">
+                    <option value="">Todos los desarrolladores</option>
+                    @foreach($desarrolladores as $dev)
+                        <option value="{{ $dev }}" {{ $desarrolladorFilter === $dev ? 'selected' : '' }}>{{ $dev }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <button type="submit" class="btn-apply" style="margin-bottom:0;"><i class="fas fa-filter"></i> Filtrar</button>
+            @if($desarrolladorFilter)
+                <a href="{{ route('admin.internal-projects.stats', array_filter(['preset' => $preset, 'desde' => $preset === 'personalizado' ? $rango['desde'] : null, 'hasta' => $preset === 'personalizado' ? $rango['hasta'] : null])) }}"
+                   class="btn-csv" style="border-color:#ddd; color:#666; background:white;">
+                    <i class="fas fa-times"></i> Limpiar
+                </a>
             @endif
         </div>
     </form>

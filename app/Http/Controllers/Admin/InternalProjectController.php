@@ -417,6 +417,63 @@ class InternalProjectController extends Controller
 
         $movimientosVista = $includeAllMovimientos ? $movimientos : $movimientos->take(50);
 
+        // === Lista de desarrolladores para el selector ===
+        $desarrolladores = InternalProject::whereNotNull('desarrollador_nombre')
+            ->where('desarrollador_nombre', '!=', '')
+            ->distinct()
+            ->orderBy('desarrollador_nombre')
+            ->pluck('desarrollador_nombre');
+
+        // === Resumen vitalicio del desarrollador seleccionado ===
+        $devSummary = null;
+        if ($desarrolladorFilter) {
+            $devProjects = InternalProject::where('desarrollador_nombre', $desarrolladorFilter)
+                ->withSum('developerPayments as dev_pagado', 'monto')
+                ->orderBy('fecha_inicio', 'asc')
+                ->get();
+
+            $asignado = $devProjects->sum(fn ($p) => $toCop($p->desarrollador_pago ?? 0, $p->desarrollador_moneda ?? 'COP'));
+            $pagado = $devProjects->sum(fn ($p) => $toCop($p->dev_pagado ?? 0, $p->desarrollador_moneda ?? 'COP'));
+            $pendiente = max($asignado - $pagado, 0);
+
+            $primerProyecto = $devProjects->pluck('fecha_inicio')->filter()->min()
+                ?? $devProjects->pluck('created_at')->filter()->min();
+            $ultimoPago = DeveloperPayment::whereHas('project', fn ($q) => $q->where('desarrollador_nombre', $desarrolladorFilter))
+                ->max('fecha');
+
+            $devSummary = [
+                'nombre' => $desarrolladorFilter,
+                'proyectos_total' => $devProjects->count(),
+                'proyectos_activos' => $devProjects->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])->count(),
+                'asignado_cop' => $asignado,
+                'pagado_cop' => $pagado,
+                'pendiente_cop' => $pendiente,
+                'porcentaje_pagado' => $asignado > 0 ? round(($pagado / $asignado) * 100, 1) : 0,
+                'desde' => $primerProyecto ? Carbon::parse($primerProyecto) : null,
+                'ultimo_pago' => $ultimoPago ? Carbon::parse($ultimoPago) : null,
+                'proyectos' => $devProjects->map(function ($p) use ($toCop) {
+                    $devMoneda = $p->desarrollador_moneda ?? 'COP';
+                    $asignado = (float) ($p->desarrollador_pago ?? 0);
+                    $pagado = (float) ($p->dev_pagado ?? 0);
+                    return [
+                        'id' => $p->id,
+                        'nombre' => $p->nombre,
+                        'cliente' => $p->cliente_nombre,
+                        'estado_label' => $p->estado_label,
+                        'estado_color' => $p->estado_color,
+                        'asignado' => $asignado,
+                        'pagado' => $pagado,
+                        'pendiente' => max($asignado - $pagado, 0),
+                        'moneda' => $devMoneda,
+                        'asignado_cop' => $toCop($asignado, $devMoneda),
+                        'pagado_cop' => $toCop($pagado, $devMoneda),
+                        'pendiente_cop' => $toCop(max($asignado - $pagado, 0), $devMoneda),
+                        'fecha_inicio' => $p->fecha_inicio,
+                    ];
+                })->values(),
+            ];
+        }
+
         return [
             'usdCop' => $usdCop,
             'rango' => [
@@ -435,6 +492,9 @@ class InternalProjectController extends Controller
             'movimientos' => $movimientosVista,
             'movimientosTotal' => $movimientos->count(),
             'proximos' => $proximos,
+            'desarrolladores' => $desarrolladores,
+            'desarrolladorFilter' => $desarrolladorFilter,
+            'devSummary' => $devSummary,
         ];
     }
 
