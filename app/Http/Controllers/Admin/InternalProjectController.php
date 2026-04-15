@@ -8,8 +8,10 @@ use App\Models\ProjectPayment;
 use App\Models\DeveloperPayment;
 use App\Models\ProjectExpense;
 use App\Models\ProjectFile;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InternalProjectController extends Controller
 {
@@ -196,180 +198,234 @@ class InternalProjectController extends Controller
 
     public function stats(Request $request)
     {
+        $data = $this->buildStatsData($request);
+
+        return view('admin.internal-projects.stats', $data);
+    }
+
+    public function statsExport(Request $request): StreamedResponse
+    {
+        $data = $this->buildStatsData($request, includeAllMovimientos: true);
+        $movimientos = $data['movimientos'];
+        $start = $data['rango']['start'];
+        $end = $data['rango']['end'];
+
+        $filename = 'reporte_' . $start->format('Ymd') . '_' . $end->format('Ymd') . '.csv';
+
+        return response()->streamDownload(function () use ($movimientos) {
+            $out = fopen('php://output', 'w');
+            fputs($out, "\xEF\xBB\xBF");
+            fputcsv($out, ['Fecha', 'Tipo', 'Proyecto', 'Cliente', 'Concepto', 'Monto', 'Moneda', 'Monto COP']);
+            foreach ($movimientos as $m) {
+                fputcsv($out, [
+                    $m['fecha']->format('Y-m-d'),
+                    $m['tipo'],
+                    $m['proyecto'],
+                    $m['cliente'],
+                    $m['concepto'],
+                    $m['monto'],
+                    $m['moneda'],
+                    round($m['monto_cop']),
+                ]);
+            }
+            fclose($out);
+        }, $filename, ['Content-Type' => 'text/csv; charset=UTF-8']);
+    }
+
+    private function buildStatsData(Request $request, bool $includeAllMovimientos = false): array
+    {
         $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+        $toCop = fn ($monto, $moneda) => ($moneda === 'USD' ? (float) $monto * $usdCop : (float) $monto);
 
-        // Helper: convertir monto a COP
-        $toCop = fn ($monto, $moneda) => $moneda === 'USD' ? (float) $monto * $usdCop : (float) $monto;
-
-        // === Serie mensual: últimos 12 meses ===
-        $months = [];
-        for ($i = 11; $i >= 0; $i--) {
-            $d = now()->subMonths($i);
-            $months[] = [
-                'key' => $d->format('Y-m'),
-                'label' => $d->locale('es')->isoFormat('MMM YY'),
-                'start' => $d->copy()->startOfMonth(),
-                'end' => $d->copy()->endOfMonth(),
-            ];
+        // === Resolver rango ===
+        $preset = $request->get('preset', 'mes_actual');
+        $now = now();
+        [$start, $end] = match ($preset) {
+            'hoy' => [$now->copy()->startOfDay(), $now->copy()->endOfDay()],
+            'mes_anterior' => [$now->copy()->subMonth()->startOfMonth(), $now->copy()->subMonth()->endOfMonth()],
+            'este_anio' => [$now->copy()->startOfYear(), $now->copy()->endOfYear()],
+            'personalizado' => [
+                Carbon::parse($request->get('desde', $now->copy()->startOfMonth()->toDateString()))->startOfDay(),
+                Carbon::parse($request->get('hasta', $now->copy()->endOfMonth()->toDateString()))->endOfDay(),
+            ],
+            default => [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()],
+        };
+        if ($end->lt($start)) {
+            [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
         }
 
-        $serieIngresos = [];
-        $serieGastosDev = [];
-        $serieGastosOtros = [];
-        $serieUtilidad = [];
-        $serieLabels = [];
-
-        foreach ($months as $m) {
-            $ing = ProjectPayment::with('project:id,moneda')
-                ->whereBetween('fecha', [$m['start'], $m['end']])
-                ->get()
-                ->sum(function ($p) use ($toCop) {
-                    if ($p->monto_recibido_cop) return (float) $p->monto_recibido_cop;
-                    return $toCop($p->monto, optional($p->project)->moneda ?? 'COP');
-                });
-
-            $devs = DeveloperPayment::whereBetween('fecha', [$m['start'], $m['end']])
-                ->get()
-                ->sum(fn ($p) => $toCop($p->monto, $p->moneda ?? 'COP'));
-
-            $gastos = ProjectExpense::whereBetween('fecha', [$m['start'], $m['end']])
-                ->get()
-                ->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
-
-            $serieLabels[] = $m['label'];
-            $serieIngresos[] = round($ing);
-            $serieGastosDev[] = round($devs);
-            $serieGastosOtros[] = round($gastos);
-            $serieUtilidad[] = round($ing - $devs - $gastos);
-        }
-
-        // === Totales acumulados (histórico completo) ===
-        $totalIngresos = ProjectPayment::with('project:id,moneda')
-            ->get()
-            ->sum(function ($p) use ($toCop) {
-                if ($p->monto_recibido_cop) return (float) $p->monto_recibido_cop;
-                return $toCop($p->monto, optional($p->project)->moneda ?? 'COP');
-            });
-        $totalPagosDev = DeveloperPayment::all()->sum(fn ($p) => $toCop($p->monto, $p->moneda ?? 'COP'));
-        $totalGastos = ProjectExpense::all()->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
-        $utilidadTotal = $totalIngresos - $totalPagosDev - $totalGastos;
-
-        // === Distribución por estado ===
-        $porEstado = InternalProject::selectRaw('estado, COUNT(*) as total')
-            ->groupBy('estado')
-            ->pluck('total', 'estado')
-            ->toArray();
-
-        // === Distribución por fuente ===
-        $porFuente = InternalProject::selectRaw('fuente, COUNT(*) as total')
-            ->groupBy('fuente')
-            ->pluck('total', 'fuente')
-            ->toArray();
-
-        // === Top desarrolladores ===
-        $topDevs = InternalProject::whereNotNull('desarrollador_nombre')
-            ->where('desarrollador_nombre', '!=', '')
-            ->withSum('developerPayments as dev_pagado', 'monto')
-            ->get()
-            ->groupBy('desarrollador_nombre')
-            ->map(function ($group, $nombre) use ($toCop) {
-                $totalAsignado = $group->sum(fn ($p) => $toCop($p->desarrollador_pago ?? 0, $p->desarrollador_moneda ?? 'COP'));
-                $totalPagado = $group->sum(fn ($p) => $toCop($p->dev_pagado ?? 0, $p->desarrollador_moneda ?? 'COP'));
-                return [
-                    'nombre' => $nombre,
-                    'proyectos' => $group->count(),
-                    'asignado_cop' => $totalAsignado,
-                    'pagado_cop' => $totalPagado,
-                    'pendiente_cop' => max($totalAsignado - $totalPagado, 0),
-                ];
-            })
-            ->sortByDesc('asignado_cop')
-            ->take(10)
-            ->values();
-
-        // === Top clientes ===
-        $topClientes = InternalProject::withSum('payments as total_pagado', 'monto')
-            ->get()
-            ->groupBy('cliente_nombre')
-            ->map(function ($group, $nombre) use ($toCop) {
-                $ingresos = $group->sum(fn ($p) => $toCop($p->total_pagado ?? 0, $p->moneda));
-                $contratado = $group->sum(fn ($p) => $toCop($p->precio, $p->moneda));
-                return [
-                    'nombre' => $nombre,
-                    'proyectos' => $group->count(),
-                    'contratado_cop' => $contratado,
-                    'ingresos_cop' => $ingresos,
-                    'saldo_cop' => max($contratado - $ingresos, 0),
-                ];
-            })
-            ->sortByDesc('ingresos_cop')
-            ->take(10)
-            ->values();
-
-        // === Top proyectos más rentables ===
-        $topRentables = InternalProject::with(['payments', 'developerPayments', 'expenses'])
+        // === Movimientos del rango (unificados) ===
+        $pagos = ProjectPayment::with('project:id,nombre,cliente_nombre,moneda')
+            ->whereBetween('fecha', [$start, $end])
             ->get()
             ->map(function ($p) use ($toCop) {
-                $ingresos = $p->payments->sum(function ($pay) use ($p, $toCop) {
-                    if ($pay->monto_recibido_cop) return (float) $pay->monto_recibido_cop;
-                    return $toCop($pay->monto, $p->moneda);
-                });
-                $pagosDev = $p->developerPayments->sum(fn ($d) => $toCop($d->monto, $d->moneda ?? 'COP'));
-                $gastos = $p->expenses->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
-                $utilidad = $ingresos - $pagosDev - $gastos;
+                $moneda = optional($p->project)->moneda ?? 'COP';
+                $cop = $p->monto_recibido_cop ? (float) $p->monto_recibido_cop : $toCop($p->monto, $moneda);
+                return [
+                    'fecha' => $p->fecha,
+                    'tipo' => 'Ingreso',
+                    'proyecto' => optional($p->project)->nombre ?? '—',
+                    'cliente' => optional($p->project)->cliente_nombre ?? '—',
+                    'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
+                    'monto' => (float) $p->monto,
+                    'moneda' => $moneda,
+                    'monto_cop' => $cop,
+                ];
+            });
+
+        $pagosDev = DeveloperPayment::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
+            ->whereBetween('fecha', [$start, $end])
+            ->get()
+            ->map(function ($p) use ($toCop) {
+                $moneda = $p->moneda ?? 'COP';
+                return [
+                    'fecha' => $p->fecha,
+                    'tipo' => 'Pago dev',
+                    'proyecto' => optional($p->project)->nombre ?? '—',
+                    'cliente' => optional($p->project)->desarrollador_nombre ?? '—',
+                    'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
+                    'monto' => (float) $p->monto,
+                    'moneda' => $moneda,
+                    'monto_cop' => $toCop($p->monto, $moneda),
+                ];
+            });
+
+        $gastos = ProjectExpense::with('project:id,nombre,cliente_nombre')
+            ->whereBetween('fecha', [$start, $end])
+            ->get()
+            ->map(function ($e) use ($toCop) {
+                $moneda = $e->moneda ?? 'COP';
+                return [
+                    'fecha' => $e->fecha,
+                    'tipo' => 'Gasto',
+                    'proyecto' => optional($e->project)->nombre ?? '—',
+                    'cliente' => optional($e->project)->cliente_nombre ?? '—',
+                    'concepto' => $e->concepto ?? $e->categoria ?? '',
+                    'monto' => (float) $e->monto,
+                    'moneda' => $moneda,
+                    'monto_cop' => $toCop($e->monto, $moneda),
+                ];
+            });
+
+        $movimientos = $pagos->concat($pagosDev)->concat($gastos)
+            ->sortByDesc(fn ($m) => $m['fecha']->timestamp)
+            ->values();
+
+        // === KPIs ===
+        $ingresos = $pagos->sum('monto_cop');
+        $egresosDev = $pagosDev->sum('monto_cop');
+        $egresosOtros = $gastos->sum('monto_cop');
+        $utilidad = $ingresos - $egresosDev - $egresosOtros;
+
+        $kpis = [
+            'ingresos' => $ingresos,
+            'pagos_dev' => $egresosDev,
+            'gastos' => $egresosOtros,
+            'utilidad' => $utilidad,
+            'margen' => $ingresos > 0 ? round(($utilidad / $ingresos) * 100, 1) : 0,
+            'cuenta_ingresos' => $pagos->count(),
+            'cuenta_pagos_dev' => $pagosDev->count(),
+            'cuenta_gastos' => $gastos->count(),
+        ];
+
+        // === Serie temporal (agrupación según span) ===
+        $dias = $start->diffInDays($end) + 1;
+        $granularity = $dias <= 31 ? 'day' : ($dias <= 186 ? 'week' : 'month');
+
+        $buckets = [];
+        $cursor = $start->copy();
+        while ($cursor->lte($end)) {
+            if ($granularity === 'day') {
+                $key = $cursor->format('Y-m-d');
+                $label = $cursor->locale('es')->isoFormat('DD MMM');
+                $bEnd = $cursor->copy()->endOfDay();
+                $cursor = $cursor->copy()->addDay();
+            } elseif ($granularity === 'week') {
+                $key = $cursor->format('o-W');
+                $label = $cursor->locale('es')->isoFormat('DD MMM');
+                $bEnd = $cursor->copy()->endOfWeek();
+                $cursor = $cursor->copy()->addWeek()->startOfWeek();
+            } else {
+                $key = $cursor->format('Y-m');
+                $label = $cursor->locale('es')->isoFormat('MMM YY');
+                $bEnd = $cursor->copy()->endOfMonth();
+                $cursor = $cursor->copy()->addMonth()->startOfMonth();
+            }
+            $buckets[$key] = ['label' => $label, 'end' => $bEnd, 'ing' => 0, 'egr' => 0];
+        }
+
+        $assign = function ($fecha, &$buckets) use ($granularity) {
+            $key = match ($granularity) {
+                'day' => $fecha->format('Y-m-d'),
+                'week' => $fecha->format('o-W'),
+                'month' => $fecha->format('Y-m'),
+            };
+            return isset($buckets[$key]) ? $key : null;
+        };
+
+        foreach ($pagos as $p) {
+            if ($k = $assign($p['fecha'], $buckets)) $buckets[$k]['ing'] += $p['monto_cop'];
+        }
+        foreach ($pagosDev as $p) {
+            if ($k = $assign($p['fecha'], $buckets)) $buckets[$k]['egr'] += $p['monto_cop'];
+        }
+        foreach ($gastos as $g) {
+            if ($k = $assign($g['fecha'], $buckets)) $buckets[$k]['egr'] += $g['monto_cop'];
+        }
+
+        $serieLabels = array_values(array_map(fn ($b) => $b['label'], $buckets));
+        $serieIngresos = array_values(array_map(fn ($b) => round($b['ing']), $buckets));
+        $serieEgresos = array_values(array_map(fn ($b) => round($b['egr']), $buckets));
+
+        // === Próximos a vencer (30 días + vencidos) ===
+        $hoy = now()->startOfDay();
+        $limite = $hoy->copy()->addDays(30);
+        $proximos = InternalProject::whereNotIn('estado', ['completado', 'cancelado'])
+            ->where('es_recurrente', false)
+            ->whereNotNull('fecha_entrega')
+            ->where('fecha_entrega', '<=', $limite)
+            ->withSum('payments as pagado_total', 'monto')
+            ->orderBy('fecha_entrega', 'asc')
+            ->limit(15)
+            ->get()
+            ->map(function ($p) use ($toCop, $hoy) {
+                $saldo = max((float) $p->precio - (float) ($p->pagado_total ?? 0), 0);
+                $diasRest = $hoy->diffInDays($p->fecha_entrega, false);
                 return [
                     'id' => $p->id,
                     'nombre' => $p->nombre,
                     'cliente' => $p->cliente_nombre,
-                    'estado' => $p->estado,
                     'estado_label' => $p->estado_label,
                     'estado_color' => $p->estado_color,
-                    'ingresos_cop' => $ingresos,
-                    'utilidad_cop' => $utilidad,
-                    'margen' => $ingresos > 0 ? round(($utilidad / $ingresos) * 100, 1) : 0,
+                    'fecha_entrega' => $p->fecha_entrega,
+                    'dias_restantes' => (int) $diasRest,
+                    'vencido' => $diasRest < 0,
+                    'saldo_cop' => $toCop($saldo, $p->moneda),
+                    'moneda' => $p->moneda,
                 ];
-            })
-            ->sortByDesc('utilidad_cop')
-            ->take(10)
-            ->values();
+            });
 
-        // === Cuentas por cobrar con aging ===
-        $activos = InternalProject::whereNotIn('estado', ['cancelado'])
-            ->with(['payments' => fn ($q) => $q->orderBy('fecha', 'desc')])
-            ->withSum('payments as pagado_total', 'monto')
-            ->get();
+        $movimientosVista = $includeAllMovimientos ? $movimientos : $movimientos->take(50);
 
-        $aging = ['0-30' => 0, '31-60' => 0, '61-90' => 0, '90+' => 0];
-        $agingCount = ['0-30' => 0, '31-60' => 0, '61-90' => 0, '90+' => 0];
-
-        foreach ($activos as $p) {
-            $saldo = (float) $p->precio - (float) ($p->pagado_total ?? 0);
-            if ($saldo <= 0) continue;
-            $saldoCop = $toCop($saldo, $p->moneda);
-            $ultimoMov = $p->payments->first()?->fecha ?? $p->fecha_inicio ?? $p->created_at;
-            $dias = $ultimoMov ? now()->diffInDays($ultimoMov) : 0;
-            $bucket = $dias <= 30 ? '0-30' : ($dias <= 60 ? '31-60' : ($dias <= 90 ? '61-90' : '90+'));
-            $aging[$bucket] += $saldoCop;
-            $agingCount[$bucket]++;
-        }
-
-        // === KPIs resumen ===
-        $kpis = [
-            'total_ingresos' => $totalIngresos,
-            'total_pagos_dev' => $totalPagosDev,
-            'total_gastos' => $totalGastos,
-            'utilidad_total' => $utilidadTotal,
-            'margen_total' => $totalIngresos > 0 ? round(($utilidadTotal / $totalIngresos) * 100, 1) : 0,
-            'proyectos_totales' => InternalProject::count(),
-            'ticket_promedio' => InternalProject::count() > 0
-                ? (InternalProject::get()->sum(fn ($p) => $toCop($p->precio, $p->moneda)) / InternalProject::count())
-                : 0,
+        return [
+            'usdCop' => $usdCop,
+            'rango' => [
+                'preset' => $preset,
+                'start' => $start,
+                'end' => $end,
+                'desde' => $start->toDateString(),
+                'hasta' => $end->toDateString(),
+                'dias' => $dias,
+                'granularity' => $granularity,
+            ],
+            'kpis' => $kpis,
+            'serieLabels' => $serieLabels,
+            'serieIngresos' => $serieIngresos,
+            'serieEgresos' => $serieEgresos,
+            'movimientos' => $movimientosVista,
+            'movimientosTotal' => $movimientos->count(),
+            'proximos' => $proximos,
         ];
-
-        return view('admin.internal-projects.stats', compact(
-            'kpis', 'serieLabels', 'serieIngresos', 'serieGastosDev', 'serieGastosOtros', 'serieUtilidad',
-            'porEstado', 'porFuente', 'topDevs', 'topClientes', 'topRentables', 'aging', 'agingCount', 'usdCop'
-        ));
     }
 
     public function create()
