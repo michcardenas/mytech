@@ -1139,22 +1139,23 @@
     display: block;
 }
 
+/* Overlay: doble capa — una clara del lado del texto, otra con tinte azul para unificar paleta */
 .hero-bg-overlay {
     position: absolute;
     inset: 0;
     z-index: 1;
     pointer-events: none;
     background:
-        linear-gradient(100deg,
-            rgba(248, 250, 252, 0.96) 0%,
-            rgba(248, 250, 252, 0.88) 30%,
-            rgba(248, 250, 252, 0.55) 55%,
-            rgba(248, 250, 252, 0.18) 80%,
+        linear-gradient(95deg,
+            rgba(248, 250, 252, 0.98) 0%,
+            rgba(248, 250, 252, 0.94) 38%,
+            rgba(248, 250, 252, 0.68) 58%,
+            rgba(248, 250, 252, 0.22) 82%,
             rgba(248, 250, 252, 0.05) 100%),
         linear-gradient(180deg,
-            rgba(0, 123, 255, 0.05) 0%,
-            transparent 40%,
-            rgba(0, 86, 179, 0.08) 100%);
+            rgba(0, 123, 255, 0.07) 0%,
+            transparent 45%,
+            rgba(0, 86, 179, 0.10) 100%);
 }
 
 .hero-simple.has-hero-media .container {
@@ -1164,12 +1165,53 @@
 
 .hero-simple.has-hero-media .hero-content {
     animation: heroContentIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    padding: 1.25rem 1.5rem 1.25rem 0;
 }
 
-.hero-simple.has-hero-media .hero-title,
-.hero-simple.has-hero-media .hero-description,
+/* Halo sutil detrás del texto para reforzar legibilidad sin "box" visible */
+.hero-simple.has-hero-media .hero-content::before {
+    content: '';
+    position: absolute;
+    inset: -0.5rem -2rem -0.5rem -2rem;
+    background: radial-gradient(ellipse at 30% 50%,
+        rgba(255, 255, 255, 0.85) 0%,
+        rgba(255, 255, 255, 0.55) 40%,
+        rgba(255, 255, 255, 0) 75%);
+    z-index: -1;
+    pointer-events: none;
+    filter: blur(6px);
+}
+
+.hero-simple.has-hero-media .hero-badge {
+    background: rgba(0, 123, 255, 0.12);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 123, 255, 0.25);
+    box-shadow: 0 4px 14px rgba(0, 123, 255, 0.12);
+}
+
+.hero-simple.has-hero-media .hero-title {
+    color: #0f172a;
+    text-shadow:
+        0 1px 2px rgba(255, 255, 255, 0.75),
+        0 2px 18px rgba(255, 255, 255, 0.4);
+    letter-spacing: -0.01em;
+}
+
+.hero-simple.has-hero-media .hero-description {
+    color: #1e293b;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.7);
+}
+
 .hero-simple.has-hero-media .benefit {
-    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    color: #0f172a;
+    text-shadow: 0 1px 2px rgba(255, 255, 255, 0.65);
+    font-weight: 600;
+}
+
+.hero-simple.has-hero-media .btn-primary {
+    box-shadow: 0 10px 30px rgba(0, 86, 179, 0.35), 0 2px 8px rgba(0, 86, 179, 0.2);
 }
 
 .hero-simple.has-hero-media .hero-visual-col { display: none; }
@@ -1184,15 +1226,40 @@
     to { opacity: 1; transform: translateY(0); }
 }
 
+/* Tablet: overlay vertical más uniforme */
 @media (max-width: 992px) {
     .hero-simple.has-hero-media .hero-bg-overlay {
         background:
             linear-gradient(180deg,
-                rgba(248, 250, 252, 0.92) 0%,
-                rgba(248, 250, 252, 0.82) 55%,
-                rgba(248, 250, 252, 0.65) 100%);
+                rgba(248, 250, 252, 0.95) 0%,
+                rgba(248, 250, 252, 0.85) 45%,
+                rgba(248, 250, 252, 0.72) 75%,
+                rgba(248, 250, 252, 0.6) 100%),
+            linear-gradient(180deg,
+                rgba(0, 123, 255, 0.06) 0%,
+                transparent 50%,
+                rgba(0, 86, 179, 0.08) 100%);
     }
-    .hero-simple.has-hero-media .hero-visual-col { display: none; }
+    .hero-simple.has-hero-media .hero-content::before {
+        inset: -0.5rem -1rem;
+    }
+}
+
+/* Móvil: overlay más sólido para máxima legibilidad */
+@media (max-width: 576px) {
+    .hero-simple.has-hero-media .hero-bg-overlay {
+        background:
+            linear-gradient(180deg,
+                rgba(248, 250, 252, 0.97) 0%,
+                rgba(248, 250, 252, 0.9) 50%,
+                rgba(248, 250, 252, 0.78) 100%);
+    }
+    .hero-simple.has-hero-media .hero-content {
+        padding: 1rem 0;
+    }
+    .hero-simple.has-hero-media .hero-content::before {
+        display: none;
+    }
 }
 
 .laptop-nav {
