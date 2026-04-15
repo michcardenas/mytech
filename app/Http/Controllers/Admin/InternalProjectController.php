@@ -254,11 +254,17 @@ class InternalProjectController extends Controller
             [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
         }
 
+        // === Filtro opcional por desarrollador ===
+        $desarrolladorFilter = trim((string) $request->get('desarrollador', '')) ?: null;
+        $applyDevScope = fn ($query) => $desarrolladorFilter
+            ? $query->whereHas('project', fn ($q) => $q->where('desarrollador_nombre', $desarrolladorFilter))
+            : $query;
+
         // === Movimientos del rango (unificados) ===
-        $pagos = ProjectPayment::with('project:id,nombre,cliente_nombre,moneda')
-            ->whereBetween('fecha', [$start, $end])
-            ->get()
-            ->map(function ($p) use ($toCop) {
+        $pagos = $applyDevScope(
+            ProjectPayment::with('project:id,nombre,cliente_nombre,moneda,desarrollador_nombre')
+                ->whereBetween('fecha', [$start, $end])
+        )->get()->map(function ($p) use ($toCop) {
                 $moneda = optional($p->project)->moneda ?? 'COP';
                 $cop = $p->monto_recibido_cop ? (float) $p->monto_recibido_cop : $toCop($p->monto, $moneda);
                 return [
@@ -273,10 +279,10 @@ class InternalProjectController extends Controller
                 ];
             });
 
-        $pagosDev = DeveloperPayment::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
-            ->whereBetween('fecha', [$start, $end])
-            ->get()
-            ->map(function ($p) use ($toCop) {
+        $pagosDev = $applyDevScope(
+            DeveloperPayment::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
+                ->whereBetween('fecha', [$start, $end])
+        )->get()->map(function ($p) use ($toCop) {
                 $moneda = $p->moneda ?? 'COP';
                 return [
                     'fecha' => $p->fecha,
@@ -290,10 +296,10 @@ class InternalProjectController extends Controller
                 ];
             });
 
-        $gastos = ProjectExpense::with('project:id,nombre,cliente_nombre')
-            ->whereBetween('fecha', [$start, $end])
-            ->get()
-            ->map(function ($e) use ($toCop) {
+        $gastos = $applyDevScope(
+            ProjectExpense::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
+                ->whereBetween('fecha', [$start, $end])
+        )->get()->map(function ($e) use ($toCop) {
                 $moneda = $e->moneda ?? 'COP';
                 return [
                     'fecha' => $e->fecha,
@@ -380,11 +386,15 @@ class InternalProjectController extends Controller
         // === Próximos a vencer (30 días + vencidos) ===
         $hoy = now()->startOfDay();
         $limite = $hoy->copy()->addDays(30);
-        $proximos = InternalProject::whereNotIn('estado', ['completado', 'cancelado'])
+        $proximosQuery = InternalProject::whereNotIn('estado', ['completado', 'cancelado'])
             ->where('es_recurrente', false)
             ->whereNotNull('fecha_entrega')
             ->where('fecha_entrega', '<=', $limite)
-            ->withSum('payments as pagado_total', 'monto')
+            ->withSum('payments as pagado_total', 'monto');
+        if ($desarrolladorFilter) {
+            $proximosQuery->where('desarrollador_nombre', $desarrolladorFilter);
+        }
+        $proximos = $proximosQuery
             ->orderBy('fecha_entrega', 'asc')
             ->limit(15)
             ->get()
