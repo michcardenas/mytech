@@ -48,6 +48,40 @@
                 </div>
             </div>
             <div class="col-lg-6">
+                @php
+                    $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
+                    $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
+                    $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
+                @endphp
+
+                @if($heroMedia)
+                    <div class="hero-visual hero-visual-media">
+                        <div class="hero-stage">
+                            <div class="hero-stage-frame">
+                                @if($heroMediaIsVideo)
+                                    <video class="hero-stage-media" src="{{ asset('storage/' . $heroMedia) }}"
+                                           autoplay muted loop playsinline preload="metadata"></video>
+                                @else
+                                    <img class="hero-stage-media" src="{{ asset('storage/' . $heroMedia) }}"
+                                         alt="{{ strip_tags($homeContent['hero_title'] ?? 'Hero') }}">
+                                @endif
+                            </div>
+
+                            <div class="hero-float-badge badge-top">
+                                <span class="badge-icon">🔍</span>
+                                <span>{{ $homeContent['success_badge_1'] ?? 'Te encuentran fácil' }}</span>
+                            </div>
+                            <div class="hero-float-badge badge-mid">
+                                <span class="badge-icon">💰</span>
+                                <span>{{ $homeContent['success_badge_2'] ?? 'Más ventas 24/7' }}</span>
+                            </div>
+                            <div class="hero-float-badge badge-bot">
+                                <span class="badge-icon">⭐</span>
+                                <span>{{ $homeContent['success_badge_3'] ?? 'Imagen confiable' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                @else
                 <div class="hero-visual">
                     <div class="phone-mockup">
                         <div class="phone-frame">
@@ -68,7 +102,7 @@
                                         <div class="demo-title">Soluciones Web</div>
                                         <div class="demo-subtitle">Software a tu medida</div>
                                         <div class="demo-button">Cotizar</div>
-                                        
+
                                         <div class="demo-gallery">
                                             <div class="demo-image"></div>
                                             <div class="demo-image"></div>
@@ -82,7 +116,7 @@
                             {{ $homeContent['phone_label'] ?? 'Así se verá en móvil' }}
                         </div>
                     </div>
-                    
+
                     <div class="laptop-mockup">
                         <div class="laptop-screen">
                             <div class="laptop-header">
@@ -93,45 +127,32 @@
                                 </div>
                                 <div class="laptop-url">mytechsolutionsco.com</div>
                             </div>
-                            @php
-                                $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
-                                $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
-                                $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
-                            @endphp
-                            <div class="laptop-content {{ $heroMedia ? 'has-media' : '' }}">
-                                @if($heroMedia && $heroMediaIsVideo)
-                                    <video class="laptop-media" src="{{ asset('storage/' . $heroMedia) }}"
-                                           autoplay muted loop playsinline preload="metadata"></video>
-                                @elseif($heroMedia)
-                                    <img class="laptop-media" src="{{ asset('storage/' . $heroMedia) }}"
-                                         alt="{{ strip_tags($homeContent['hero_title'] ?? 'Hero') }}">
-                                @else
-                                    <div class="laptop-nav">
-                                        <div class="nav-logo">MYTECH SOLUTIONS</div>
-                                        <div class="nav-links">
-                                            <span>Inicio</span>
-                                            <span>Servicios</span>
-                                            <span>Contacto</span>
-                                        </div>
+                            <div class="laptop-content">
+                                <div class="laptop-nav">
+                                    <div class="nav-logo">MYTECH SOLUTIONS</div>
+                                    <div class="nav-links">
+                                        <span>Inicio</span>
+                                        <span>Servicios</span>
+                                        <span>Contacto</span>
                                     </div>
-                                    <div class="laptop-hero">
-                                        <div class="laptop-text">
-                                            <div class="text-big">Software a tu medida</div>
-                                            <div class="text-small">Desarrollo web profesional</div>
-                                            <div class="cta-button">Comenzar proyecto</div>
-                                        </div>
-                                        <div class="laptop-image-placeholder">
-                                            <span>💻</span>
-                                        </div>
+                                </div>
+                                <div class="laptop-hero">
+                                    <div class="laptop-text">
+                                        <div class="text-big">Software a tu medida</div>
+                                        <div class="text-small">Desarrollo web profesional</div>
+                                        <div class="cta-button">Comenzar proyecto</div>
                                     </div>
-                                @endif
+                                    <div class="laptop-image-placeholder">
+                                        <span>💻</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <div class="laptop-label">
                             {{ $homeContent['laptop_label'] ?? 'Así se verá en computadora' }}
                         </div>
                     </div>
-                    
+
                     <!-- Elementos de éxito -->
                     <div class="success-elements">
                         <div class="success-badge google">
@@ -157,6 +178,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
             </div>
         </div>
     </div>
@@ -1112,26 +1134,107 @@
 
 .laptop-content {
     height: calc(100% - 32px);
+}
+
+/* Hero stage: cuando hay imagen o video cargados, reemplaza toda la columna visual */
+.hero-visual-media {
+    height: auto;
+    min-height: 520px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem 0;
+}
+
+.hero-stage {
     position: relative;
-    background: white;
+    width: 100%;
+    max-width: 560px;
+    aspect-ratio: 16 / 10;
+    animation: heroStageIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.laptop-content.has-media {
-    padding: 0;
+.hero-stage::before {
+    content: '';
+    position: absolute;
+    inset: -28px;
+    border-radius: 32px;
+    background: radial-gradient(circle at 30% 20%, rgba(0, 123, 255, 0.25), transparent 60%),
+                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.22), transparent 60%);
+    filter: blur(40px);
+    z-index: 0;
+    animation: heroGlow 6s ease-in-out infinite alternate;
+}
+
+.hero-stage-frame {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    border-radius: 22px;
+    overflow: hidden;
     background: #0b1221;
+    box-shadow:
+        0 30px 60px -20px rgba(15, 23, 42, 0.35),
+        0 20px 40px -15px rgba(0, 123, 255, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
+    transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
+    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.laptop-media {
+.hero-stage:hover .hero-stage-frame {
+    transform: perspective(1200px) rotateY(0deg) rotateX(0deg) translateY(-4px);
+}
+
+.hero-stage-media {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
-    animation: heroFadeIn 0.6s ease-out;
 }
 
-@keyframes heroFadeIn {
-    from { opacity: 0; transform: scale(1.02); }
-    to { opacity: 1; transform: scale(1); }
+.hero-float-badge {
+    position: absolute;
+    z-index: 2;
+    background: white;
+    border-radius: 999px;
+    padding: 10px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 123, 255, 0.08);
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #1e293b;
+    white-space: nowrap;
+    animation: badgeFloat 3.5s ease-in-out infinite;
+}
+
+.hero-float-badge .badge-icon { font-size: 1rem; }
+.hero-float-badge.badge-top { top: -18px; right: 8%; animation-delay: 0s; }
+.hero-float-badge.badge-mid { top: 45%; left: -36px; animation-delay: 0.8s; }
+.hero-float-badge.badge-bot { bottom: -18px; right: 18%; animation-delay: 1.6s; }
+
+@keyframes heroStageIn {
+    from { opacity: 0; transform: translateY(20px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes heroGlow {
+    0% { opacity: 0.7; transform: scale(1); }
+    100% { opacity: 1; transform: scale(1.05); }
+}
+
+@media (max-width: 992px) {
+    .hero-visual-media { min-height: 380px; padding: 1rem 0; }
+    .hero-stage { max-width: 100%; }
+    .hero-stage-frame { transform: none; }
+    .hero-float-badge.badge-mid { left: -10px; }
+}
+
+@media (max-width: 576px) {
+    .hero-float-badge { font-size: 0.72rem; padding: 8px 12px; }
+    .hero-float-badge.badge-mid { display: none; }
 }
 
 .laptop-nav {
