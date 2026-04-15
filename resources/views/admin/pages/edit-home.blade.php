@@ -72,12 +72,67 @@
     }
 
     .form-section {
-        margin-bottom: 2rem;
+        margin-bottom: 1.5rem;
         padding: 1.5rem;
-        background: rgba(0, 123, 255, 0.02);
-        border-radius: 10px;
+        background: var(--white);
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 14px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
         border-left: 4px solid var(--primary-blue);
     }
+
+    /* Hero image uploader */
+    .hero-image-uploader {
+        display: grid;
+        grid-template-columns: 220px 1fr;
+        gap: 1.25rem;
+        align-items: start;
+    }
+    .hero-image-preview {
+        width: 100%;
+        height: 180px;
+        border-radius: 12px;
+        border: 2px dashed #cbd5e1;
+        background: #f8fafc;
+        display: flex; align-items: center; justify-content: center;
+        color: #94a3b8; font-size: 0.85rem; text-align: center; padding: 0.75rem;
+        overflow: hidden;
+    }
+    .hero-image-preview.has-image { border-style: solid; border-color: var(--primary-blue); padding: 0; }
+    .hero-image-preview img, .hero-image-preview video { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .file-drop {
+        border: 2px dashed #cbd5e1;
+        border-radius: 12px;
+        padding: 1.25rem;
+        text-align: center;
+        background: #fafbfc;
+        cursor: pointer;
+        transition: all 0.25s ease;
+        display: block;
+    }
+    .file-drop:hover { border-color: var(--primary-blue); background: #eef5ff; }
+    .file-drop i { font-size: 1.6rem; color: var(--primary-blue); display: block; margin-bottom: 0.4rem; }
+    .file-drop .file-drop-title { font-weight: 700; color: var(--dark-text); font-size: 0.92rem; }
+    .file-drop .file-drop-hint { color: #666; font-size: 0.78rem; margin-top: 0.25rem; }
+    .file-drop input[type="file"] { display: none; }
+    .file-drop .file-selected { display: none; color: #059669; font-weight: 600; font-size: 0.82rem; margin-top: 0.5rem; }
+    .file-drop.has-file .file-selected { display: block; }
+
+    .remove-image-row {
+        margin-top: 0.75rem;
+        padding: 0.6rem 0.85rem;
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #c53030;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+    .remove-image-row input { accent-color: #c53030; }
 
     .section-title {
         color: var(--dark-text);
@@ -103,10 +158,10 @@
 
     .form-control {
         width: 100%;
-        padding: 0.75rem 1rem;
+        padding: 0.65rem 0.9rem;
         border: 2px solid #e9ecef;
         border-radius: 10px;
-        font-size: 1rem;
+        font-size: 0.92rem;
         transition: var(--transition);
         background: var(--white);
     }
@@ -285,6 +340,63 @@
                     @error('hero_button_text')
                         <div class="form-text text-danger">{{ $message }}</div>
                     @enderror
+                </div>
+            </div>
+
+            <!-- Media del Hero (Imagen o Video) -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-photo-video"></i>
+                    Imagen o video del Hero
+                </h3>
+                <p class="form-text" style="margin: -0.5rem 0 1rem 0;">
+                    Se muestra en la pantalla del laptop, la primera impresión de tu página. Puedes subir una imagen (screenshot de tu web, por ejemplo) o un video corto en loop.
+                </p>
+
+                @php
+                    $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
+                    $heroExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
+                    $heroIsVideo = in_array($heroExt, ['mp4', 'webm', 'mov']);
+                @endphp
+
+                <div class="hero-image-uploader">
+                    <div class="hero-image-preview {{ $heroMedia ? 'has-image' : '' }}" id="hero-preview">
+                        @if($heroMedia && $heroIsVideo)
+                            <video id="hero-preview-video" src="{{ asset('storage/' . $heroMedia) }}" autoplay muted loop playsinline
+                                   style="width:100%; height:100%; object-fit:cover;"></video>
+                        @elseif($heroMedia)
+                            <img id="hero-preview-img" src="{{ asset('storage/' . $heroMedia) }}" alt="Hero"
+                                 style="width:100%; height:100%; object-fit:cover;">
+                        @else
+                            <span>Sin imagen ni video</span>
+                        @endif
+                    </div>
+
+                    <div>
+                        <label class="file-drop" id="hero-drop" for="hero_media">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="file-drop-title">{{ $heroMedia ? 'Cambiar archivo' : 'Subir imagen o video' }}</div>
+                            <div class="file-drop-hint">Imagen: JPG/PNG/WEBP · Video: MP4/WEBM/MOV · máx 20MB</div>
+                            <div class="file-selected" id="hero-file-name"></div>
+                            <input type="file" id="hero_media" name="hero_media" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime">
+                        </label>
+                        @error('hero_media')
+                            <div class="form-text text-danger" style="margin-top:0.5rem;">{{ $message }}</div>
+                        @enderror
+
+                        <div class="form-text" style="margin-top:0.5rem;">
+                            <i class="fas fa-lightbulb" style="color:#f59e0b;"></i>
+                            Tip: un video corto (5-10s) en loop se ve muy moderno y atrae la atención del cliente.
+                        </div>
+
+                        @if($heroMedia)
+                            <label class="remove-image-row">
+                                <input type="checkbox" name="remove_hero_media" value="1">
+                                <i class="fas fa-trash-alt"></i>
+                                Quitar archivo actual al guardar
+                            </label>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -579,4 +691,48 @@
         </div>
     </form>
 </div>
+
+<script>
+    (function () {
+        const input = document.getElementById('hero_media');
+        const drop = document.getElementById('hero-drop');
+        const preview = document.getElementById('hero-preview');
+        const fileName = document.getElementById('hero-file-name');
+        const removeCheckbox = document.querySelector('input[name="remove_hero_media"]');
+        if (!input) return;
+
+        const renderPreview = (src, isVideo) => {
+            preview.classList.add('has-image');
+            preview.innerHTML = isVideo
+                ? `<video src="${src}" autoplay muted loop playsinline style="width:100%; height:100%; object-fit:cover;"></video>`
+                : `<img src="${src}" alt="Hero" style="width:100%; height:100%; object-fit:cover;">`;
+        };
+
+        input.addEventListener('change', function () {
+            if (!input.files || !input.files[0]) return;
+            const file = input.files[0];
+            const isVideo = file.type.startsWith('video/');
+            fileName.textContent = 'Seleccionado: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+            drop.classList.add('has-file');
+            const reader = new FileReader();
+            reader.onload = e => renderPreview(e.target.result, isVideo);
+            reader.readAsDataURL(file);
+            if (removeCheckbox) removeCheckbox.checked = false;
+        });
+
+        if (removeCheckbox) {
+            removeCheckbox.addEventListener('change', function () {
+                if (this.checked) {
+                    input.value = '';
+                    fileName.textContent = '';
+                    drop.classList.remove('has-file');
+                    preview.classList.remove('has-image');
+                    preview.innerHTML = '<span>Archivo se eliminará al guardar</span>';
+                } else {
+                    preview.innerHTML = '<span>Cambios pendientes — vuelve a subir o guarda</span>';
+                }
+            });
+        }
+    })();
+</script>
 @endsection

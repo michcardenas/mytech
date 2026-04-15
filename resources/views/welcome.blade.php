@@ -93,25 +93,38 @@
                                 </div>
                                 <div class="laptop-url">mytechsolutionsco.com</div>
                             </div>
-                            <div class="laptop-content">
-                                <div class="laptop-nav">
-                                    <div class="nav-logo">MYTECH SOLUTIONS</div>
-                                    <div class="nav-links">
-                                        <span>Inicio</span>
-                                        <span>Servicios</span>
-                                        <span>Contacto</span>
+                            @php
+                                $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
+                                $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
+                                $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
+                            @endphp
+                            <div class="laptop-content {{ $heroMedia ? 'has-media' : '' }}">
+                                @if($heroMedia && $heroMediaIsVideo)
+                                    <video class="laptop-media" src="{{ asset('storage/' . $heroMedia) }}"
+                                           autoplay muted loop playsinline preload="metadata"></video>
+                                @elseif($heroMedia)
+                                    <img class="laptop-media" src="{{ asset('storage/' . $heroMedia) }}"
+                                         alt="{{ strip_tags($homeContent['hero_title'] ?? 'Hero') }}">
+                                @else
+                                    <div class="laptop-nav">
+                                        <div class="nav-logo">MYTECH SOLUTIONS</div>
+                                        <div class="nav-links">
+                                            <span>Inicio</span>
+                                            <span>Servicios</span>
+                                            <span>Contacto</span>
+                                        </div>
                                     </div>
-                                </div>
-                                <div class="laptop-hero">
-                                    <div class="laptop-text">
-                                        <div class="text-big">Software a tu medida</div>
-                                        <div class="text-small">Desarrollo web profesional</div>
-                                        <div class="cta-button">Comenzar proyecto</div>
+                                    <div class="laptop-hero">
+                                        <div class="laptop-text">
+                                            <div class="text-big">Software a tu medida</div>
+                                            <div class="text-small">Desarrollo web profesional</div>
+                                            <div class="cta-button">Comenzar proyecto</div>
+                                        </div>
+                                        <div class="laptop-image-placeholder">
+                                            <span>💻</span>
+                                        </div>
                                     </div>
-                                    <div class="laptop-image-placeholder">
-                                        <span>💻</span>
-                                    </div>
-                                </div>
+                                @endif
                             </div>
                         </div>
                         <div class="laptop-label">
@@ -1099,6 +1112,26 @@
 
 .laptop-content {
     height: calc(100% - 32px);
+    position: relative;
+    background: white;
+}
+
+.laptop-content.has-media {
+    padding: 0;
+    background: #0b1221;
+}
+
+.laptop-media {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    animation: heroFadeIn 0.6s ease-out;
+}
+
+@keyframes heroFadeIn {
+    from { opacity: 0; transform: scale(1.02); }
+    to { opacity: 1; transform: scale(1); }
 }
 
 .laptop-nav {

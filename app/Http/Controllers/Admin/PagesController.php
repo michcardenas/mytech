@@ -102,6 +102,8 @@ class PagesController extends Controller
                 'hero_title' => 'nullable|string|max:255',
                 'hero_description' => 'nullable|string',
                 'hero_button_text' => 'nullable|string|max:255',
+                'hero_media' => 'nullable|file|mimetypes:image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime|max:20480',
+                'remove_hero_media' => 'nullable|in:0,1',
                 'benefit_1' => 'nullable|string|max:255',
                 'benefit_2' => 'nullable|string|max:255',
                 'benefit_3' => 'nullable|string|max:255',
@@ -115,12 +117,28 @@ class PagesController extends Controller
                 'success_badge_3' => 'nullable|string|max:255',
             ]);
 
+            $existing = json_decode($page->content ?? '{}', true) ?: [];
+            $heroMediaPath = $existing['hero_media'] ?? ($existing['hero_image'] ?? null);
+
+            if ($request->hasFile('hero_media')) {
+                if ($heroMediaPath) {
+                    Storage::disk('public')->delete($heroMediaPath);
+                }
+                $heroMediaPath = $request->file('hero_media')->store('home/hero', 'public');
+            } elseif ($request->input('remove_hero_media') == '1') {
+                if ($heroMediaPath) {
+                    Storage::disk('public')->delete($heroMediaPath);
+                }
+                $heroMediaPath = null;
+            }
+
             // Prepare the content as JSON for home page
             $homeContent = [
                 'hero_badge' => $request->hero_badge,
                 'hero_title' => $request->hero_title,
                 'hero_description' => $request->hero_description,
                 'hero_button_text' => $request->hero_button_text,
+                'hero_media' => $heroMediaPath,
                 'benefit_1' => $request->benefit_1,
                 'benefit_2' => $request->benefit_2,
                 'benefit_3' => $request->benefit_3,
