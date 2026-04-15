@@ -183,6 +183,7 @@
         'preset' => $preset,
         'desde' => $preset === 'personalizado' ? $rango['desde'] : null,
         'hasta' => $preset === 'personalizado' ? $rango['hasta'] : null,
+        'desarrollador' => $desarrolladorFilter,
     ]);
 @endphp
 
@@ -203,7 +204,7 @@
     <form method="GET" class="range-wrap">
         <div class="range-presets">
             @foreach($presets as $key => $label)
-                <a href="{{ route('admin.internal-projects.stats', ['preset' => $key]) }}"
+                <a href="{{ route('admin.internal-projects.stats', array_filter(['preset' => $key, 'desarrollador' => $desarrolladorFilter])) }}"
                    class="range-chip {{ $preset === $key ? 'active' : '' }}">
                     {{ $label }}
                 </a>
@@ -260,6 +261,99 @@
             @endif
         </div>
     </form>
+
+    @if($devSummary)
+        @php
+            $initials = collect(explode(' ', trim($devSummary['nombre'])))
+                ->map(fn ($n) => mb_substr($n, 0, 1))
+                ->take(2)->implode('');
+            $initials = $initials ? mb_strtoupper($initials) : '·';
+        @endphp
+        <div class="dev-panel">
+            <div class="dev-panel-head">
+                <div class="dev-name">
+                    <div class="dev-avatar">{{ $initials }}</div>
+                    <div>
+                        <div>{{ $devSummary['nombre'] }}</div>
+                        <div class="dev-meta">
+                            @if($devSummary['desde'])
+                                <span><i class="fas fa-calendar-day"></i> Desde <strong>{{ $devSummary['desde']->locale('es')->isoFormat('DD MMM YYYY') }}</strong></span>
+                            @endif
+                            @if($devSummary['ultimo_pago'])
+                                <span><i class="fas fa-clock"></i> Último pago <strong>{{ $devSummary['ultimo_pago']->locale('es')->isoFormat('DD MMM YYYY') }}</strong></span>
+                            @endif
+                            <span><i class="fas fa-briefcase"></i> {{ $devSummary['proyectos_total'] }} proyectos ({{ $devSummary['proyectos_activos'] }} activos)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="dev-kpis">
+                <div class="dev-kpi asignado">
+                    <div class="dev-kpi-label"><i class="fas fa-file-signature"></i> Asignado total</div>
+                    <div class="dev-kpi-value">{{ $fmtCop($devSummary['asignado_cop']) }}</div>
+                    <div class="dev-kpi-sub">suma de lo pactado en todos sus proyectos</div>
+                </div>
+                <div class="dev-kpi pagado">
+                    <div class="dev-kpi-label"><i class="fas fa-check-circle"></i> Abonado</div>
+                    <div class="dev-kpi-value">{{ $fmtCop($devSummary['pagado_cop']) }}</div>
+                    <div class="dev-kpi-sub">{{ $devSummary['porcentaje_pagado'] }}% del total</div>
+                </div>
+                <div class="dev-kpi pendiente">
+                    <div class="dev-kpi-label"><i class="fas fa-hourglass-half"></i> Pendiente</div>
+                    <div class="dev-kpi-value">{{ $fmtCop($devSummary['pendiente_cop']) }}</div>
+                    <div class="dev-kpi-sub">saldo por pagar</div>
+                </div>
+            </div>
+
+            @if($devSummary['asignado_cop'] > 0)
+                <div class="dev-progress">
+                    <div class="dev-progress-label">
+                        <span>Progreso de pago</span>
+                        <span>{{ $devSummary['porcentaje_pagado'] }}%</span>
+                    </div>
+                    <div class="dev-progress-bar">
+                        <div class="dev-progress-fill" style="width: {{ min($devSummary['porcentaje_pagado'], 100) }}%;"></div>
+                    </div>
+                </div>
+            @endif
+
+            @if($devSummary['proyectos']->count() > 0)
+                <div class="dev-projects">
+                    <h4>Proyectos</h4>
+                    <div style="overflow-x:auto;">
+                        <table class="dev-proj-table">
+                            <thead>
+                                <tr>
+                                    <th>Proyecto</th>
+                                    <th>Cliente</th>
+                                    <th>Inicio</th>
+                                    <th style="text-align:right;">Asignado</th>
+                                    <th style="text-align:right;">Abonado</th>
+                                    <th style="text-align:right;">Pendiente</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($devSummary['proyectos'] as $proj)
+                                    <tr>
+                                        <td>
+                                            <a href="{{ route('admin.internal-projects.show', $proj['id']) }}">{{ $proj['nombre'] }}</a>
+                                            <span class="est-pill" style="background: {{ $proj['estado_color'] }}15; color: {{ $proj['estado_color'] }}; margin-left:0.35rem;">{{ $proj['estado_label'] }}</span>
+                                        </td>
+                                        <td style="color:#666;">{{ $proj['cliente'] }}</td>
+                                        <td style="color:#888; font-size:0.8rem;">{{ $proj['fecha_inicio'] ? $proj['fecha_inicio']->format('d/m/Y') : '—' }}</td>
+                                        <td class="mono" style="color: var(--purple);">{{ $fmtMoneda($proj['asignado'], $proj['moneda']) }}</td>
+                                        <td class="mono" style="color: #059669;">{{ $fmtMoneda($proj['pagado'], $proj['moneda']) }}</td>
+                                        <td class="mono" style="color: {{ $proj['pendiente'] > 0 ? 'var(--danger)' : '#aaa' }};">{{ $fmtMoneda($proj['pendiente'], $proj['moneda']) }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            @endif
+        </div>
+    @endif
 
     {{-- KPIs --}}
     <div class="kpi-grid">
