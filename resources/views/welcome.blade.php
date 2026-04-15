@@ -1,17 +1,30 @@
 @extends('layouts.app')
 
 @section('content')
-<section class="hero-simple">
+@php
+    $homeContent = [];
+    if (isset($page) && $page && $page->content) {
+        $homeContent = json_decode($page->content, true) ?? [];
+    }
+    $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
+    $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
+    $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
+@endphp
+<section class="hero-simple {{ $heroMedia ? 'has-hero-media' : '' }}">
+    @if($heroMedia)
+        <div class="hero-bg-media" aria-hidden="true">
+            @if($heroMediaIsVideo)
+                <video src="{{ asset('storage/' . $heroMedia) }}" autoplay muted loop playsinline preload="metadata"></video>
+            @else
+                <img src="{{ asset('storage/' . $heroMedia) }}" alt="">
+            @endif
+        </div>
+        <div class="hero-bg-overlay" aria-hidden="true"></div>
+    @endif
     <div class="container">
         <div class="row align-items-center min-vh-100">
             <div class="col-lg-6">
                 <div class="hero-content">
-                    @php
-                        $homeContent = [];
-                        if (isset($page) && $page && $page->content) {
-                            $homeContent = json_decode($page->content, true) ?? [];
-                        }
-                    @endphp
 
                     <div class="hero-badge">
                         {{ $homeContent['hero_badge'] ?? '💻 Tu Página Web Profesional' }}
@@ -47,41 +60,8 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-6">
-                @php
-                    $heroMedia = $homeContent['hero_media'] ?? ($homeContent['hero_image'] ?? null);
-                    $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
-                    $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
-                @endphp
-
-                @if($heroMedia)
-                    <div class="hero-visual hero-visual-media">
-                        <div class="hero-stage">
-                            <div class="hero-stage-frame">
-                                @if($heroMediaIsVideo)
-                                    <video class="hero-stage-media" src="{{ asset('storage/' . $heroMedia) }}"
-                                           autoplay muted loop playsinline preload="metadata"></video>
-                                @else
-                                    <img class="hero-stage-media" src="{{ asset('storage/' . $heroMedia) }}"
-                                         alt="{{ strip_tags($homeContent['hero_title'] ?? 'Hero') }}">
-                                @endif
-                            </div>
-
-                            <div class="hero-float-badge badge-top">
-                                <span class="badge-icon">🔍</span>
-                                <span>{{ $homeContent['success_badge_1'] ?? 'Te encuentran fácil' }}</span>
-                            </div>
-                            <div class="hero-float-badge badge-mid">
-                                <span class="badge-icon">💰</span>
-                                <span>{{ $homeContent['success_badge_2'] ?? 'Más ventas 24/7' }}</span>
-                            </div>
-                            <div class="hero-float-badge badge-bot">
-                                <span class="badge-icon">⭐</span>
-                                <span>{{ $homeContent['success_badge_3'] ?? 'Imagen confiable' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                @else
+            <div class="col-lg-6 hero-visual-col">
+                @if(!$heroMedia)
                 <div class="hero-visual">
                     <div class="phone-mockup">
                         <div class="phone-frame">
@@ -1136,105 +1116,83 @@
     height: calc(100% - 32px);
 }
 
-/* Hero stage: cuando hay imagen o video cargados, reemplaza toda la columna visual */
-.hero-visual-media {
-    height: auto;
-    min-height: 520px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem 0;
-}
-
-.hero-stage {
-    position: relative;
-    width: 100%;
-    max-width: 560px;
-    aspect-ratio: 16 / 10;
-    animation: heroStageIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.hero-stage::before {
-    content: '';
-    position: absolute;
-    inset: -28px;
-    border-radius: 32px;
-    background: radial-gradient(circle at 30% 20%, rgba(0, 123, 255, 0.25), transparent 60%),
-                radial-gradient(circle at 80% 80%, rgba(124, 58, 237, 0.22), transparent 60%);
-    filter: blur(40px);
-    z-index: 0;
-    animation: heroGlow 6s ease-in-out infinite alternate;
-}
-
-.hero-stage-frame {
-    position: relative;
-    z-index: 1;
-    width: 100%;
-    height: 100%;
-    border-radius: 22px;
-    overflow: hidden;
+/* Hero con media de fondo (fullscreen) */
+.hero-simple.has-hero-media {
     background: #0b1221;
-    box-shadow:
-        0 30px 60px -20px rgba(15, 23, 42, 0.35),
-        0 20px 40px -15px rgba(0, 123, 255, 0.25),
-        0 0 0 1px rgba(255, 255, 255, 0.08) inset;
-    transform: perspective(1200px) rotateY(-4deg) rotateX(2deg);
-    transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+    overflow: hidden;
+    position: relative;
 }
 
-.hero-stage:hover .hero-stage-frame {
-    transform: perspective(1200px) rotateY(0deg) rotateX(0deg) translateY(-4px);
+.hero-bg-media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    animation: heroBgFade 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.hero-stage-media {
+.hero-bg-media img,
+.hero-bg-media video {
     width: 100%;
     height: 100%;
     object-fit: cover;
     display: block;
 }
 
-.hero-float-badge {
+.hero-bg-overlay {
     position: absolute;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background:
+        linear-gradient(100deg,
+            rgba(248, 250, 252, 0.96) 0%,
+            rgba(248, 250, 252, 0.88) 30%,
+            rgba(248, 250, 252, 0.55) 55%,
+            rgba(248, 250, 252, 0.18) 80%,
+            rgba(248, 250, 252, 0.05) 100%),
+        linear-gradient(180deg,
+            rgba(0, 123, 255, 0.05) 0%,
+            transparent 40%,
+            rgba(0, 86, 179, 0.08) 100%);
+}
+
+.hero-simple.has-hero-media .container {
+    position: relative;
     z-index: 2;
-    background: white;
-    border-radius: 999px;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12), 0 0 0 1px rgba(0, 123, 255, 0.08);
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #1e293b;
-    white-space: nowrap;
-    animation: badgeFloat 3.5s ease-in-out infinite;
 }
 
-.hero-float-badge .badge-icon { font-size: 1rem; }
-.hero-float-badge.badge-top { top: -18px; right: 8%; animation-delay: 0s; }
-.hero-float-badge.badge-mid { top: 45%; left: -36px; animation-delay: 0.8s; }
-.hero-float-badge.badge-bot { bottom: -18px; right: 18%; animation-delay: 1.6s; }
-
-@keyframes heroStageIn {
-    from { opacity: 0; transform: translateY(20px) scale(0.97); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
+.hero-simple.has-hero-media .hero-content {
+    animation: heroContentIn 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-@keyframes heroGlow {
-    0% { opacity: 0.7; transform: scale(1); }
-    100% { opacity: 1; transform: scale(1.05); }
+.hero-simple.has-hero-media .hero-title,
+.hero-simple.has-hero-media .hero-description,
+.hero-simple.has-hero-media .benefit {
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.hero-simple.has-hero-media .hero-visual-col { display: none; }
+
+@keyframes heroBgFade {
+    from { opacity: 0; transform: scale(1.04); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes heroContentIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @media (max-width: 992px) {
-    .hero-visual-media { min-height: 380px; padding: 1rem 0; }
-    .hero-stage { max-width: 100%; }
-    .hero-stage-frame { transform: none; }
-    .hero-float-badge.badge-mid { left: -10px; }
-}
-
-@media (max-width: 576px) {
-    .hero-float-badge { font-size: 0.72rem; padding: 8px 12px; }
-    .hero-float-badge.badge-mid { display: none; }
+    .hero-simple.has-hero-media .hero-bg-overlay {
+        background:
+            linear-gradient(180deg,
+                rgba(248, 250, 252, 0.92) 0%,
+                rgba(248, 250, 252, 0.82) 55%,
+                rgba(248, 250, 252, 0.65) 100%);
+    }
+    .hero-simple.has-hero-media .hero-visual-col { display: none; }
 }
 
 .laptop-nav {
