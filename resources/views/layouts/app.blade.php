@@ -258,9 +258,38 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
             height: var(--navbar-height);
         }
 
+        /* Variante: nav transparente sobre el hero (media) */
+        .navbar-custom.over-hero {
+            background: transparent;
+            backdrop-filter: none;
+            -webkit-backdrop-filter: none;
+            box-shadow: none;
+        }
+
+        .navbar-custom.over-hero .nav-link,
+        .navbar-custom.over-hero .mobile-menu-btn {
+            color: #0f172a;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.55);
+        }
+
         .navbar-custom.scrolled {
             padding: 0.5rem 0;
+            background: rgba(255, 255, 255, 0.96);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             box-shadow: 0 2px 30px rgba(0, 123, 255, 0.15);
+        }
+
+        /* Al hacer scroll, el nav vuelve a estado sólido aunque esté sobre el hero */
+        .navbar-custom.over-hero.scrolled .nav-link,
+        .navbar-custom.over-hero.scrolled .mobile-menu-btn {
+            color: var(--dark-text);
+            text-shadow: none;
+        }
+
+        /* Hero edge-to-edge: el main-content no empuja hacia abajo cuando hay media */
+        body.has-hero-media-page .main-content {
+            margin-top: 0;
         }
 
         .navbar-container {
@@ -842,13 +871,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   gtag('config', 'G-FDPVS72L91');
 </script>
 </head>
-<body>
+<body class="@yield('body_class')">
     <!-- Google Tag Manager (noscript) -->
 <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDMLQKMM"
 height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <!-- End Google Tag Manager (noscript) -->
     <!-- Navigation -->
-    <nav class="navbar-custom" id="navbar">
+    <nav class="navbar-custom @yield('navbar_class')" id="navbar">
         <div class="navbar-container">
             <!-- Logo -->
             <a href="{{ route('home') }}" class="navbar-brand">

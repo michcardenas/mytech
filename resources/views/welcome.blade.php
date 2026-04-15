@@ -1,6 +1,5 @@
 @extends('layouts.app')
 
-@section('content')
 @php
     $homeContent = [];
     if (isset($page) && $page && $page->content) {
@@ -10,11 +9,19 @@
     $heroMediaExt = $heroMedia ? strtolower(pathinfo($heroMedia, PATHINFO_EXTENSION)) : null;
     $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
 @endphp
+
+@if($heroMedia)
+    @section('body_class', 'has-hero-media-page')
+    @section('navbar_class', 'over-hero')
+@endif
+
+@section('content')
 <section class="hero-simple {{ $heroMedia ? 'has-hero-media' : '' }}">
     @if($heroMedia)
         <div class="hero-bg-media" aria-hidden="true">
             @if($heroMediaIsVideo)
-                <video src="{{ asset('storage/' . $heroMedia) }}" autoplay muted loop playsinline preload="metadata"></video>
+                <video id="heroVideo" src="{{ asset('storage/' . $heroMedia) }}"
+                       autoplay muted loop playsinline preload="auto"></video>
             @else
                 <img src="{{ asset('storage/' . $heroMedia) }}" alt="">
             @endif
@@ -1118,9 +1125,15 @@
 
 /* Hero con media de fondo (fullscreen) */
 .hero-simple.has-hero-media {
-    background: #0b1221;
     overflow: hidden;
     position: relative;
+    padding: 0;
+    min-height: 100vh;
+    /* Fallback: si el video no carga o no autoplay, se ve este gradiente de paleta */
+    background:
+        radial-gradient(ellipse at 30% 30%, rgba(0, 123, 255, 0.35), transparent 55%),
+        radial-gradient(ellipse at 75% 70%, rgba(124, 58, 237, 0.30), transparent 55%),
+        linear-gradient(135deg, #0b1221 0%, #0f172a 60%, #1e293b 100%);
 }
 
 .hero-bg-media {
@@ -1137,6 +1150,28 @@
     height: 100%;
     object-fit: cover;
     display: block;
+}
+
+/* Padding superior para que el texto no quede pegado al nav transparente */
+.hero-simple.has-hero-media .container {
+    padding-top: var(--navbar-height, 80px);
+    padding-bottom: 2rem;
+}
+
+/* Respeto a usuarios con movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+    .hero-simple.has-hero-media .hero-bg-media video {
+        display: none;
+    }
+    .hero-simple.has-hero-media .hero-bg-media::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background:
+            radial-gradient(ellipse at 30% 30%, rgba(0, 123, 255, 0.4), transparent 60%),
+            radial-gradient(ellipse at 75% 70%, rgba(124, 58, 237, 0.35), transparent 60%),
+            linear-gradient(135deg, #0b1221 0%, #1e293b 100%);
+    }
 }
 
 /* Overlay: doble capa — una clara del lado del texto, otra con tinte azul para unificar paleta */
@@ -1947,4 +1982,20 @@
     }
 }
 </style>
+
+<script>
+    (function () {
+        const v = document.getElementById('heroVideo');
+        if (!v) return;
+        let played = false;
+        v.addEventListener('playing', () => { played = true; });
+        const tryPlay = v.play();
+        if (tryPlay && typeof tryPlay.catch === 'function') {
+            tryPlay.catch(() => { v.style.display = 'none'; });
+        }
+        setTimeout(() => {
+            if (!played && v.readyState < 2) { v.style.display = 'none'; }
+        }, 2500);
+    })();
+</script>
 @endsection
