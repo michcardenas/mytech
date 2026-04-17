@@ -113,6 +113,36 @@
     .empty-mini { text-align: center; padding: 2.5rem 1rem; color: #aaa; }
     .empty-mini i { font-size: 2.25rem; color: #ddd; margin-bottom: 0.5rem; display: block; }
 
+    /* Report tables (pagos clientes / pagos devs) */
+    .rep-head { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; }
+    .rep-total { font-size: 1.1rem; font-weight: 800; }
+    .rep-total.ing { color: #059669; }
+    .rep-total.dev { color: var(--purple); }
+    .rep-subcount { font-size: 0.78rem; color: #888; font-weight: 500; }
+
+    .rep-table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+    .rep-table th { text-align: left; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.3px; color: #888; font-weight: 700; padding: 0.55rem 0.75rem; border-bottom: 2px solid #f1f3f5; white-space: nowrap; }
+    .rep-table td { padding: 0.65rem 0.75rem; border-bottom: 1px solid #f1f3f5; color: var(--dark-text); vertical-align: middle; }
+    .rep-table tr:last-child td { border-bottom: none; }
+    .rep-table tr:hover td { background: #fafbfc; }
+    .rep-table .rep-proj { font-weight: 600; }
+    .rep-table .rep-proj a { color: var(--dark-text); text-decoration: none; }
+    .rep-table .rep-proj a:hover { color: var(--primary-blue); }
+    .rep-table .rep-sub { font-size: 0.76rem; color: #888; }
+    .rep-table .rep-metodo { display: inline-block; padding: 0.12rem 0.5rem; border-radius: 6px; background: #eef5ff; color: #0056b3; font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2px; }
+    .rep-table .rep-ref { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.78rem; color: #555; }
+    .rep-table .rep-nota { font-size: 0.76rem; color: #888; font-style: italic; max-width: 220px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .rep-table .rep-monto { font-weight: 800; text-align: right; white-space: nowrap; }
+    .rep-table .rep-monto.ing { color: #059669; }
+    .rep-table .rep-monto.dev { color: var(--purple); }
+    .rep-table tfoot td { padding: 0.7rem 0.75rem; border-top: 2px solid #f1f3f5; font-weight: 800; font-size: 0.88rem; }
+    .rep-table tfoot td.total-label { color: #888; text-transform: uppercase; letter-spacing: 0.3px; font-size: 0.72rem; }
+
+    @media (max-width: 768px) {
+        .rep-table th:nth-child(4), .rep-table td:nth-child(4),
+        .rep-table th:nth-child(5), .rep-table td:nth-child(5) { display: none; }
+    }
+
     /* Dev selector dentro del range-wrap */
     .dev-select-row { display: grid; grid-template-columns: 1fr auto auto; gap: 0.6rem; margin-top: 0.75rem; align-items: end; }
     .dev-select-row label { font-size: 0.72rem; color: #888; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: block; margin-bottom: 0.3rem; }
@@ -392,6 +422,134 @@
         <div class="chart-wrap">
             <canvas id="chartFlujo"></canvas>
         </div>
+    </div>
+
+    {{-- Reporte: Pagos por proyectos (ingresos) --}}
+    <div class="panel">
+        <div class="panel-head">
+            <h3><i class="fas fa-hand-holding-usd"></i> Pagos recibidos por proyectos</h3>
+            <div class="rep-head">
+                <span class="rep-subcount">{{ $pagosClientes->count() }} pagos</span>
+                <span class="rep-total ing">{{ $fmtCop($pagosClientes->sum('monto_cop')) }}</span>
+            </div>
+        </div>
+        @if($pagosClientes->count() > 0)
+            <div style="overflow-x:auto;">
+                <table class="rep-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Proyecto / Cliente</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th>Nota</th>
+                            <th style="text-align:right;">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pagosClientes as $p)
+                            <tr>
+                                <td style="white-space:nowrap;">{{ $p['fecha']->format('d/m/Y') }}</td>
+                                <td>
+                                    <div class="rep-proj">
+                                        @if($p['proyecto_id'])
+                                            <a href="{{ route('admin.internal-projects.show', $p['proyecto_id']) }}">{{ $p['proyecto'] }}</a>
+                                        @else
+                                            {{ $p['proyecto'] }}
+                                        @endif
+                                    </div>
+                                    <div class="rep-sub">{{ $p['cliente'] }}</div>
+                                </td>
+                                <td>@if($p['metodo'])<span class="rep-metodo">{{ $p['metodo'] }}</span>@else <span style="color:#bbb;">—</span>@endif</td>
+                                <td><span class="rep-ref">{{ $p['referencia'] ?: '—' }}</span></td>
+                                <td><span class="rep-nota" title="{{ $p['nota'] }}">{{ $p['nota'] ?: '—' }}</span></td>
+                                <td class="rep-monto ing">
+                                    +{{ $fmtMoneda($p['monto'], $p['moneda']) }}
+                                    @if($p['moneda'] === 'USD')
+                                        <div style="font-size:0.7rem; color:#aaa; font-weight:500;">≈ {{ $fmtCop($p['monto_cop']) }}</div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="total-label" style="text-align:right;">Total en el rango</td>
+                            <td class="rep-monto ing">{{ $fmtCop($pagosClientes->sum('monto_cop')) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        @else
+            <div class="empty-mini">
+                <i class="fas fa-inbox"></i>
+                <p>No hay pagos de clientes en este rango.</p>
+            </div>
+        @endif
+    </div>
+
+    {{-- Reporte: Pagos a desarrolladores --}}
+    <div class="panel">
+        <div class="panel-head">
+            <h3><i class="fas fa-paper-plane"></i> Pagos a desarrolladores</h3>
+            <div class="rep-head">
+                <span class="rep-subcount">{{ $pagosDevs->count() }} transferencias</span>
+                <span class="rep-total dev">{{ $fmtCop($pagosDevs->sum('monto_cop')) }}</span>
+            </div>
+        </div>
+        @if($pagosDevs->count() > 0)
+            <div style="overflow-x:auto;">
+                <table class="rep-table">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Desarrollador / Proyecto</th>
+                            <th>Método</th>
+                            <th>Referencia</th>
+                            <th>Nota</th>
+                            <th style="text-align:right;">Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($pagosDevs as $p)
+                            <tr>
+                                <td style="white-space:nowrap;">{{ $p['fecha']->format('d/m/Y') }}</td>
+                                <td>
+                                    <div class="rep-proj">{{ $p['desarrollador'] }}</div>
+                                    <div class="rep-sub">
+                                        @if($p['proyecto_id'])
+                                            <a href="{{ route('admin.internal-projects.show', $p['proyecto_id']) }}" style="color:#888; text-decoration:none;">{{ $p['proyecto'] }}</a>
+                                        @else
+                                            {{ $p['proyecto'] }}
+                                        @endif
+                                    </div>
+                                </td>
+                                <td>@if($p['metodo'])<span class="rep-metodo" style="background:#f3ecff; color:#6b21a8;">{{ $p['metodo'] }}</span>@else <span style="color:#bbb;">—</span>@endif</td>
+                                <td><span class="rep-ref">{{ $p['referencia'] ?: '—' }}</span></td>
+                                <td><span class="rep-nota" title="{{ $p['nota'] }}">{{ $p['nota'] ?: '—' }}</span></td>
+                                <td class="rep-monto dev">
+                                    −{{ $fmtMoneda($p['monto'], $p['moneda']) }}
+                                    @if($p['moneda'] === 'USD')
+                                        <div style="font-size:0.7rem; color:#aaa; font-weight:500;">≈ {{ $fmtCop($p['monto_cop']) }}</div>
+                                    @endif
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="total-label" style="text-align:right;">Total en el rango</td>
+                            <td class="rep-monto dev">{{ $fmtCop($pagosDevs->sum('monto_cop')) }}</td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        @else
+            <div class="empty-mini">
+                <i class="fas fa-inbox"></i>
+                <p>No hay pagos a desarrolladores en este rango.</p>
+            </div>
+        @endif
     </div>
 
     {{-- Próximos a vencer --}}

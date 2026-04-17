@@ -264,14 +264,19 @@ class InternalProjectController extends Controller
         $pagos = $applyDevScope(
             ProjectPayment::with('project:id,nombre,cliente_nombre,moneda,desarrollador_nombre')
                 ->whereBetween('fecha', [$start, $end])
+                ->orderBy('fecha', 'desc')
         )->get()->map(function ($p) use ($toCop) {
                 $moneda = optional($p->project)->moneda ?? 'COP';
                 $cop = $p->monto_recibido_cop ? (float) $p->monto_recibido_cop : $toCop($p->monto, $moneda);
                 return [
                     'fecha' => $p->fecha,
                     'tipo' => 'Ingreso',
+                    'proyecto_id' => optional($p->project)->id,
                     'proyecto' => optional($p->project)->nombre ?? '—',
                     'cliente' => optional($p->project)->cliente_nombre ?? '—',
+                    'metodo' => $p->metodo,
+                    'referencia' => $p->referencia,
+                    'nota' => $p->nota,
                     'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
                     'monto' => (float) $p->monto,
                     'moneda' => $moneda,
@@ -282,13 +287,19 @@ class InternalProjectController extends Controller
         $pagosDev = $applyDevScope(
             DeveloperPayment::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
                 ->whereBetween('fecha', [$start, $end])
+                ->orderBy('fecha', 'desc')
         )->get()->map(function ($p) use ($toCop) {
                 $moneda = $p->moneda ?? 'COP';
                 return [
                     'fecha' => $p->fecha,
                     'tipo' => 'Pago dev',
+                    'proyecto_id' => optional($p->project)->id,
                     'proyecto' => optional($p->project)->nombre ?? '—',
                     'cliente' => optional($p->project)->desarrollador_nombre ?? '—',
+                    'desarrollador' => optional($p->project)->desarrollador_nombre ?? '—',
+                    'metodo' => $p->metodo,
+                    'referencia' => $p->referencia,
+                    'nota' => $p->nota,
                     'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
                     'monto' => (float) $p->monto,
                     'moneda' => $moneda,
@@ -492,6 +503,8 @@ class InternalProjectController extends Controller
             'movimientos' => $movimientosVista,
             'movimientosTotal' => $movimientos->count(),
             'proximos' => $proximos,
+            'pagosClientes' => $pagos,
+            'pagosDevs' => $pagosDev,
             'desarrolladores' => $desarrolladores,
             'desarrolladorFilter' => $desarrolladorFilter,
             'devSummary' => $devSummary,
