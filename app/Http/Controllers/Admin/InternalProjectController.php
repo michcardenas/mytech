@@ -203,6 +203,117 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.stats', $data);
     }
 
+    public function detalle(Request $request)
+    {
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+        $toCop = fn ($monto, $moneda) => ($moneda === 'USD' ? (float) $monto * $usdCop : (float) $monto);
+
+        $query = InternalProject::withSum('payments as payments_sum', 'monto')
+            ->withSum('payments as payments_sum_cop', 'monto_recibido_cop')
+            ->withSum('developerPayments as developer_payments_sum', 'monto')
+            ->withSum('expenses as expenses_sum', 'monto')
+            ->withCount('payments', 'developerPayments', 'expenses');
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('buscar')) {
+            $search = $request->buscar;
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                  ->orWhere('cliente_nombre', 'like', "%{$search}%")
+                  ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
+            });
+        }
+
+        $projects = $query->orderBy('created_at', 'desc')->paginate(30)->withQueryString();
+
+        // === Totales de empresa (lifetime, todo el histórico) ===
+        $allProjects = InternalProject::with(['payments', 'developerPayments', 'expenses'])->get();
+
+        $totalIngresos = 0;
+        $totalPagadoDevs = 0;
+        $totalGastos = 0;
+        $totalContratado = 0;
+        $porCobrar = 0;
+        $porPagarDev = 0;
+        $proyectoTop = null;
+        $clienteIngresos = [];
+
+        foreach ($allProjects as $p) {
+            $ingresos = $p->payments->sum(function ($pay) use ($p, $toCop) {
+                if ($pay->monto_recibido_cop) return (float) $pay->monto_recibido_cop;
+                return $toCop($pay->monto, $p->moneda);
+            });
+            $pagadoDev = $p->developerPayments->sum(fn ($d) => $toCop($d->monto, $d->moneda ?? 'COP'));
+            $gastos = $p->expenses->sum(fn ($e) => $toCop($e->monto, $e->moneda ?? 'COP'));
+            $contratado = $toCop($p->precio, $p->moneda);
+            $utilidadProj = $ingresos - $pagadoDev - $gastos;
+
+            $totalIngresos += $ingresos;
+            $totalPagadoDevs += $pagadoDev;
+            $totalGastos += $gastos;
+            $totalContratado += $contratado;
+
+            if (!in_array($p->estado, ['cancelado'])) {
+                $saldoCli = $contratado - $ingresos;
+                if ($saldoCli > 0) $porCobrar += $saldoCli;
+
+                $saldoDev = $toCop($p->desarrollador_pago ?? 0, $p->desarrollador_moneda ?? 'COP') - $pagadoDev;
+                if ($saldoDev > 0) $porPagarDev += $saldoDev;
+            }
+
+            if ($proyectoTop === null || $utilidadProj > $proyectoTop['utilidad']) {
+                $proyectoTop = [
+                    'id' => $p->id,
+                    'nombre' => $p->nombre,
+                    'utilidad' => $utilidadProj,
+                ];
+            }
+
+            $clienteIngresos[$p->cliente_nombre] = ($clienteIngresos[$p->cliente_nombre] ?? 0) + $ingresos;
+        }
+
+        arsort($clienteIngresos);
+        $clienteTop = $clienteIngresos ? [
+            'nombre' => array_key_first($clienteIngresos),
+            'ingresos' => reset($clienteIngresos),
+        ] : null;
+
+        $devsActivos = InternalProject::whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
+            ->whereNotNull('desarrollador_nombre')
+            ->where('desarrollador_nombre', '!=', '')
+            ->distinct()
+            ->count('desarrollador_nombre');
+
+        $companyTotals = [
+            'total_ingresos' => $totalIngresos,
+            'total_pagado_devs' => $totalPagadoDevs,
+            'total_gastos' => $totalGastos,
+            'utilidad_total' => $totalIngresos - $totalPagadoDevs - $totalGastos,
+            'margen' => $totalIngresos > 0 ? round((($totalIngresos - $totalPagadoDevs - $totalGastos) / $totalIngresos) * 100, 1) : 0,
+            'total_contratado' => $totalContratado,
+            'por_cobrar' => $porCobrar,
+            'por_pagar_dev' => $porPagarDev,
+            'proyectos_total' => $allProjects->count(),
+            'proyectos_activos' => $allProjects->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])->count(),
+            'proyectos_completados' => $allProjects->where('estado', 'completado')->count(),
+            'proyectos_pausados' => $allProjects->where('estado', 'pausado')->count(),
+            'proyectos_cancelados' => $allProjects->where('estado', 'cancelado')->count(),
+            'devs_activos' => $devsActivos,
+            'proyecto_top' => $proyectoTop,
+            'cliente_top' => $clienteTop,
+        ];
+
+        $filters = [
+            'estado' => $request->get('estado', ''),
+            'buscar' => $request->get('buscar', ''),
+        ];
+
+        return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'filters', 'usdCop'));
+    }
+
     public function statsExport(Request $request): StreamedResponse
     {
         $data = $this->buildStatsData($request, includeAllMovimientos: true);

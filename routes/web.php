@@ -161,6 +161,7 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
     // === PROYECTOS INTERNOS (GESTION INTERNA) ===
     Route::get('internal-projects/stats/export', [App\Http\Controllers\Admin\InternalProjectController::class, 'statsExport'])->name('admin.internal-projects.stats.export');
     Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
+    Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
     Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
         ->names('admin.internal-projects');
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');

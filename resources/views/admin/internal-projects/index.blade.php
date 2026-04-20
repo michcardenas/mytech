@@ -494,6 +494,9 @@
             <a href="{{ route('admin.internal-projects.stats') }}" class="btn-new" style="background: rgba(255,255,255,0.15);">
                 <i class="fas fa-chart-pie"></i> Estadísticas
             </a>
+            <a href="{{ route('admin.internal-projects.detalle') }}" class="btn-new" style="background: rgba(255,255,255,0.15);">
+                <i class="fas fa-table"></i> Detalle
+            </a>
             <a href="{{ route('admin.internal-projects.create') }}" class="btn-new">
                 <i class="fas fa-plus-circle"></i> Nuevo Proyecto
             </a>
