@@ -768,8 +768,10 @@ class InternalProjectController extends Controller
         $internal_project->load([
             'payments' => fn($q) => $q->orderBy('fecha', 'desc'),
             'developerPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
+            'gestionPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
             'expenses' => fn($q) => $q->orderBy('fecha', 'desc'),
             'files',
+            'vendedor',
         ]);
 
         return view('admin.internal-projects.show', [
@@ -917,6 +919,33 @@ class InternalProjectController extends Controller
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Pago al desarrollador eliminado.');
+    }
+
+    // --- Pagos de Gestión (vendedor) ---
+
+    public function storeGestionPayment(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'monto' => 'required|numeric|min:0.01',
+            'moneda' => 'required|in:COP,USD',
+            'fecha' => 'required|date',
+            'metodo' => 'nullable|string|max:100',
+            'referencia' => 'nullable|string|max:255',
+            'nota' => 'nullable|string|max:500',
+        ]);
+
+        $internal_project->gestionPayments()->create($validated);
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Pago de gestión registrado.');
+    }
+
+    public function destroyGestionPayment(InternalProject $internal_project, \App\Models\GestionPayment $gestionPayment)
+    {
+        $gestionPayment->delete();
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Pago de gestión eliminado.');
     }
 
     // --- Otros Gastos ---

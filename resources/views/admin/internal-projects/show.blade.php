@@ -204,6 +204,28 @@
             <div class="kpi-value">${{ number_format($project->total_gastos, 0, ',', '.') }}</div>
             <div class="kpi-sub">{{ $project->expenses->count() }} {{ Str::plural('item', $project->expenses->count()) }}</div>
         </div>
+        @if($project->comision_calculada > 0 || $project->vendedor_id)
+            @php
+                $comCalc = (float) $project->comision_calculada;
+                $comPag = (float) $project->total_pagado_gestion;
+                $pctGest = $comCalc > 0 ? min(round(($comPag / $comCalc) * 100), 100) : 0;
+                $colorGest = $pctGest >= 100 ? 'var(--success)' : ($pctGest >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
+            @endphp
+            <div class="kpi-card" style="--col: #059669;">
+                <div class="kpi-label"><i class="fas fa-handshake"></i> Gestión (vendedor)</div>
+                <div class="kpi-value">${{ number_format($comPag, 0, ',', '.') }}</div>
+                <div class="kpi-sub">
+                    @if($comCalc > 0)
+                        de ${{ number_format($comCalc, 0, ',', '.') }} · {{ $pctGest }}%
+                    @else
+                        sin comisión definida
+                    @endif
+                </div>
+                @if($comCalc > 0)
+                    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:{{ $pctGest }}%; background: {{ $colorGest }};"></div></div>
+                @endif
+            </div>
+        @endif
         <div class="kpi-card {{ $utilClass }}">
             <div class="kpi-label"><i class="fas fa-chart-line"></i> Utilidad Neta</div>
             <div class="kpi-value">${{ number_format($utilidad, 0, ',', '.') }}</div>
@@ -217,6 +239,7 @@
             <button class="tab-btn active" data-tab="info"><i class="fas fa-info-circle"></i> Informacion</button>
             <button class="tab-btn" data-tab="cobros"><i class="fas fa-money-bill-wave"></i> Cobros <span class="tab-count">{{ $project->payments->count() }}</span></button>
             <button class="tab-btn" data-tab="dev"><i class="fas fa-laptop-code"></i> Pagos al Dev <span class="tab-count">{{ $project->developerPayments->count() }}</span></button>
+            <button class="tab-btn" data-tab="gestion"><i class="fas fa-handshake"></i> Pagos de Gestión <span class="tab-count">{{ $project->gestionPayments->count() }}</span></button>
             <button class="tab-btn" data-tab="gastos"><i class="fas fa-receipt"></i> Otros Gastos <span class="tab-count">{{ $project->expenses->count() }}</span></button>
             <button class="tab-btn" data-tab="archivos"><i class="fas fa-paperclip"></i> Archivos <span class="tab-count">{{ $project->files->count() }}</span></button>
             <button class="tab-btn" data-tab="notas"><i class="fas fa-sticky-note"></i> Notas</button>
@@ -439,6 +462,146 @@
                     </div>
                 </form>
             </div>
+        </div>
+
+        {{-- TAB: PAGOS DE GESTION (vendedor) --}}
+        <div class="tab-content" id="tab-gestion">
+            @php
+                $comCalc = (float) $project->comision_calculada;
+                $comPag = (float) $project->total_pagado_gestion;
+                $saldoGest = max($comCalc - $comPag, 0);
+                $pctG = $comCalc > 0 ? min(round(($comPag / $comCalc) * 100), 100) : 0;
+                $colG = $pctG >= 100 ? 'var(--success)' : ($pctG >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
+            @endphp
+
+            @if($project->vendedor_id && $project->vendedor)
+                <div class="info-grid" style="margin-bottom: 1.25rem;">
+                    <div class="info-item" style="border-left-color: #059669;">
+                        <span class="info-item-label">Vendedor</span>
+                        <span class="info-item-value"><i class="fas fa-user-tie" style="color:#aaa;"></i> {{ $project->vendedor->nombre }}</span>
+                    </div>
+                    @if($project->vendedor->telefono)
+                        <div class="info-item" style="border-left-color: #059669;">
+                            <span class="info-item-label">Teléfono</span>
+                            <span class="info-item-value">{{ $project->vendedor->telefono }}</span>
+                        </div>
+                    @endif
+                    @if($project->vendedor->email)
+                        <div class="info-item" style="border-left-color: #059669;">
+                            <span class="info-item-label">Email</span>
+                            <span class="info-item-value"><a href="mailto:{{ $project->vendedor->email }}">{{ $project->vendedor->email }}</a></span>
+                        </div>
+                    @endif
+                    <div class="info-item" style="border-left-color: #059669;">
+                        <span class="info-item-label">Comisión pactada</span>
+                        <span class="info-item-value">
+                            @if($project->comision_tipo === 'porcentaje')
+                                {{ $project->comision_valor }}% sobre (precio − pago dev)
+                            @elseif($project->comision_tipo === 'monto')
+                                Monto fijo: {{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($project->comision_valor, 0, ',', '.') }}
+                            @else
+                                <span style="color:#aaa;">Sin comisión definida</span>
+                            @endif
+                        </span>
+                    </div>
+                </div>
+            @endif
+
+            @if($comCalc > 0)
+                <div class="section-summary">
+                    <div class="ss-stat">
+                        <div class="ss-stat-num" style="color: {{ $colG }};">{{ $pctG }}%</div>
+                        <div class="ss-stat-label">Pagado</div>
+                    </div>
+                    <div class="ss-progress-bar"><div class="ss-progress-fill" style="width:{{ $pctG }}%; background: {{ $colG }};"></div></div>
+                    <div class="ss-stat">
+                        <div class="ss-stat-num" style="color: #059669;">${{ number_format($comCalc, 0, ',', '.') }}</div>
+                        <div class="ss-stat-label">Comisión total</div>
+                    </div>
+                    <div class="ss-stat">
+                        <div class="ss-stat-num" style="color: {{ $saldoGest > 0 ? 'var(--danger)' : 'var(--success)' }};">${{ number_format($saldoGest, 0, ',', '.') }}</div>
+                        <div class="ss-stat-label">{{ $saldoGest > 0 ? 'Por pagar' : 'Saldado' }}</div>
+                    </div>
+                </div>
+            @endif
+
+            @if($project->gestionPayments->count() > 0)
+                <ul class="item-list">
+                    @foreach($project->gestionPayments as $gestionPayment)
+                        <li class="item-row">
+                            <div class="item-info">
+                                <div class="item-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> {{ $gestionPayment->fecha->format('d/m/Y') }}</div>
+                                <div class="item-secondary">
+                                    {{ $gestionPayment->metodo ?: 'Sin método' }}
+                                    @if($gestionPayment->referencia) &middot; Ref: {{ $gestionPayment->referencia }} @endif
+                                    @if($gestionPayment->nota) &middot; {{ $gestionPayment->nota }} @endif
+                                </div>
+                            </div>
+                            <div class="item-amount" style="color: #059669;">
+                                {{ $gestionPayment->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($gestionPayment->monto, 0, ',', '.') }}<small>{{ $gestionPayment->moneda }}</small>
+                            </div>
+                            <form action="{{ route('admin.internal-projects.gestion-payments.destroy', [$project, $gestionPayment]) }}" method="POST" onsubmit="return confirm('Eliminar este pago de gestión?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="no-data"><i class="fas fa-handshake"></i> No hay pagos de gestión registrados</div>
+            @endif
+
+            @if(!$project->vendedor_id)
+                <div class="add-form-card" style="border-color: rgba(247,168,49,0.3); background: linear-gradient(135deg, rgba(247,168,49,0.05) 0%, rgba(247,168,49,0.01) 100%);">
+                    <h4><i class="fas fa-info-circle" style="color: var(--warning) !important;"></i> Sin vendedor asignado</h4>
+                    <p style="font-size:0.85rem; color:#666; margin:0;">
+                        Primero asigna un vendedor al proyecto desde <a href="{{ route('admin.internal-projects.edit', $project) }}">Editar</a> para poder registrar pagos de gestión.
+                    </p>
+                </div>
+            @else
+                <div class="add-form-card">
+                    <h4><i class="fas fa-plus-circle"></i> Registrar Pago de Gestión
+                        <span style="color:#999; font-weight:500;">- {{ $project->vendedor->nombre }}</span>
+                    </h4>
+                    <form action="{{ route('admin.internal-projects.gestion-payments.store', $project) }}" method="POST">
+                        @csrf
+                        <div class="add-row">
+                            <div class="add-field">
+                                <label>Monto *</label>
+                                <input type="number" name="monto" required step="0.01" min="0.01"
+                                       placeholder="0.00" value="{{ $saldoGest > 0 ? number_format($saldoGest, 2, '.', '') : '' }}">
+                            </div>
+                            <div class="add-field">
+                                <label>Moneda</label>
+                                <select name="moneda">
+                                    <option value="COP" {{ $project->moneda == 'COP' ? 'selected' : '' }}>COP</option>
+                                    <option value="USD" {{ $project->moneda == 'USD' ? 'selected' : '' }}>USD</option>
+                                </select>
+                            </div>
+                            <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>
+                            <div class="add-field">
+                                <label>Método</label>
+                                <select name="metodo">
+                                    <option value="">Seleccionar</option>
+                                    <option value="Transferencia">Transferencia</option>
+                                    <option value="Nequi">Nequi</option>
+                                    <option value="Daviplata">Daviplata</option>
+                                    <option value="Bancolombia">Bancolombia</option>
+                                    <option value="PayPal">PayPal</option>
+                                    <option value="Efectivo">Efectivo</option>
+                                </select>
+                            </div>
+                            <div class="add-field"><label>Referencia</label><input type="text" name="referencia" placeholder="# transacción"></div>
+                            <div class="add-field"><label>Nota</label><input type="text" name="nota" placeholder="Opcional"></div>
+                            <div class="add-field" style="grid-column: 1 / -1;">
+                                <button type="submit" class="btn-add" style="background: linear-gradient(135deg, #34d399 0%, #059669 100%); box-shadow: 0 3px 10px rgba(5,150,105,0.25);">
+                                    <i class="fas fa-plus"></i> Registrar Pago de Gestión
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            @endif
         </div>
 
         {{-- TAB: OTROS GASTOS --}}

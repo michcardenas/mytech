@@ -56,6 +56,21 @@ class InternalProject extends Model
         return $this->belongsTo(Vendedor::class);
     }
 
+    public function gestionPayments()
+    {
+        return $this->hasMany(GestionPayment::class);
+    }
+
+    public function getTotalPagadoGestionAttribute()
+    {
+        return $this->gestionPayments->sum('monto');
+    }
+
+    public function getSaldoPendienteGestionAttribute()
+    {
+        return max((float) $this->comision_calculada - (float) $this->total_pagado_gestion, 0);
+    }
+
     /**
      * Comisión calculada del vendedor, en la moneda del proyecto.
      * Si tipo = 'monto' → devuelve el valor tal cual.
