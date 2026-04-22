@@ -504,9 +504,9 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-dollar-sign"></i> Precio <span class="required">*</span></div>
                         <div class="price-group">
-                            <input type="number" name="precio" class="form-control @error('precio') is-invalid @enderror"
+                            <input type="number" id="precio" name="precio" class="form-control @error('precio') is-invalid @enderror"
                                    value="{{ old('precio', $project->precio) }}" required step="0.01" min="0" placeholder="0.00">
-                            <select name="moneda" class="form-select">
+                            <select name="moneda" id="moneda" class="form-select">
                                 <option value="COP" {{ old('moneda', $project->moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('moneda', $project->moneda) == 'USD' ? 'selected' : '' }}>USD</option>
                             </select>
@@ -744,6 +744,297 @@
                         select.add(opt);
                         select.value = d.id;
                         syncFromDev();
+                        closeModal();
+                    } catch (err) {
+                        errorBox.textContent = err.message;
+                        errorBox.style.display = 'block';
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+                    }
+                });
+            })();
+        </script>
+
+        {{-- Comisión / Vendedor (gestión) --}}
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-handshake"></i>
+                <h3>Comisión de gestión (vendedor)</h3>
+            </div>
+            <div class="form-section-body">
+                <div class="field-row">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-user-tie"></i> Vendedor / gestor</div>
+                        <div style="display:flex; gap:0.5rem; align-items:stretch;">
+                            <select name="vendedor_id" id="vendedor_id" class="form-select @error('vendedor_id') is-invalid @enderror" style="flex:1;">
+                                <option value="">— Sin vendedor —</option>
+                                @foreach($vendedores as $v)
+                                    <option value="{{ $v->id }}"
+                                            data-comision-default="{{ $v->comision_porcentaje_default }}"
+                                            {{ old('vendedor_id', $project->vendedor_id) == $v->id ? 'selected' : '' }}>
+                                        {{ $v->nombre }}@if($v->comision_porcentaje_default) · {{ $v->comision_porcentaje_default }}%@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" id="btnNuevoVendedor" class="btn btn-primary"
+                                    style="padding:0 1rem; border-radius:10px; border:none; background:linear-gradient(135deg, #34d399 0%, #059669 100%); color:white; font-weight:600; white-space:nowrap; display:inline-flex; align-items:center; gap:0.4rem;">
+                                <i class="fas fa-plus"></i> Nuevo
+                            </button>
+                        </div>
+                        @error('vendedor_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-calculator"></i> Tipo de comisión</div>
+                        <div style="display:flex; gap:0.5rem;">
+                            <label style="flex:1; display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.8rem; border:2px solid #e9ecef; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.88rem;">
+                                <input type="radio" name="comision_tipo" value="porcentaje"
+                                    {{ old('comision_tipo', $project->comision_tipo ?? 'porcentaje') === 'porcentaje' ? 'checked' : '' }}
+                                    style="accent-color:#059669;">
+                                <i class="fas fa-percent"></i> Porcentaje
+                            </label>
+                            <label style="flex:1; display:flex; align-items:center; gap:0.5rem; padding:0.55rem 0.8rem; border:2px solid #e9ecef; border-radius:10px; cursor:pointer; font-weight:600; font-size:0.88rem;">
+                                <input type="radio" name="comision_tipo" value="monto"
+                                    {{ old('comision_tipo', $project->comision_tipo) === 'monto' ? 'checked' : '' }}
+                                    style="accent-color:#059669;">
+                                <i class="fas fa-dollar-sign"></i> Monto fijo
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="field-row single">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-money-bill"></i> Valor de la comisión</div>
+                        <div style="position:relative;">
+                            <input type="number" name="comision_valor" id="comision_valor" class="form-control"
+                                   value="{{ old('comision_valor', $project->comision_valor) }}" step="0.01" min="0" placeholder="Ej: 25">
+                            <span id="comisionUnidad" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:#666; font-weight:600; pointer-events:none;">%</span>
+                        </div>
+                        <div class="field-hint">
+                            Porcentaje → se aplica sobre (precio − pago dev). Monto fijo → se paga tal cual.
+                        </div>
+                    </div>
+                </div>
+
+                <div id="comisionPreview" style="margin-top:0.75rem; padding:1rem 1.25rem; border-radius:12px; background:linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border:1px solid #a7f3d0; display:none;">
+                    <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap; justify-content:space-between;">
+                        <div>
+                            <div style="font-size:0.72rem; text-transform:uppercase; font-weight:700; letter-spacing:0.3px; color:#047857; margin-bottom:0.2rem;">
+                                <i class="fas fa-coins"></i> Comisión a pagar al vendedor
+                            </div>
+                            <div style="font-size:1.35rem; font-weight:800; color:#065f46; line-height:1.1;" id="comisionMontoTxt">$0</div>
+                        </div>
+                        <div style="font-size:0.78rem; color:#065f46; line-height:1.4; text-align:right;" id="comisionDetalle"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Modal Nuevo Vendedor --}}
+        <div id="modalNuevoVendedor" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); backdrop-filter:blur(3px); z-index:10000; align-items:center; justify-content:center; padding:1rem;">
+            <div style="background:white; border-radius:16px; max-width:480px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.3); overflow:hidden;">
+                <div style="padding:1.25rem 1.5rem; background:linear-gradient(135deg, #34d399 0%, #059669 100%); color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <i class="fas fa-user-plus"></i>
+                        <strong>Nuevo vendedor</strong>
+                    </div>
+                    <button type="button" id="cerrarModalVendedor" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; opacity:0.8;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding:1.5rem;">
+                    <div id="modalErrorVendedor" style="display:none; padding:0.75rem 1rem; background:#fef2f2; color:#c53030; border-radius:10px; border-left:4px solid #dc3545; margin-bottom:1rem; font-size:0.85rem;"></div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">
+                            Nombre <span style="color:var(--danger);">*</span>
+                        </label>
+                        <input type="text" id="nuevoVendedorNombre" placeholder="Nombre completo"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Teléfono</label>
+                        <input type="text" id="nuevoVendedorTelefono" placeholder="+57 300 000 0000"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Email</label>
+                        <input type="email" id="nuevoVendedorEmail" placeholder="vendedor@ejemplo.com"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">% de comisión por defecto</label>
+                        <input type="number" id="nuevoVendedorComision" placeholder="25" step="0.01" min="0" max="100"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                        <div style="font-size:0.78rem; color:#888; margin-top:0.3rem;">Se sugerirá al asignarlo a un proyecto. Opcional.</div>
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                        <button type="button" id="cancelarModalVendedor" style="padding:0.65rem 1.2rem; border:1px solid #ddd; background:white; color:#666; font-weight:600; border-radius:10px; cursor:pointer;">
+                            Cancelar
+                        </button>
+                        <button type="button" id="guardarNuevoVendedor" style="padding:0.65rem 1.4rem; border:none; background:linear-gradient(135deg, #34d399 0%, #059669 100%); color:white; font-weight:600; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                const modal = document.getElementById('modalNuevoVendedor');
+                const select = document.getElementById('vendedor_id');
+                const valor = document.getElementById('comision_valor');
+                const unidad = document.getElementById('comisionUnidad');
+                const preview = document.getElementById('comisionPreview');
+                const montoTxt = document.getElementById('comisionMontoTxt');
+                const detalle = document.getElementById('comisionDetalle');
+                const precioInput = document.getElementById('precio');
+                const monedaInput = document.getElementById('moneda');
+                const pagoDevInput = document.getElementById('desarrollador_pago');
+                const monedaDevInput = document.getElementById('desarrollador_moneda');
+
+                const f = {
+                    nombre: document.getElementById('nuevoVendedorNombre'),
+                    telefono: document.getElementById('nuevoVendedorTelefono'),
+                    email: document.getElementById('nuevoVendedorEmail'),
+                    comision: document.getElementById('nuevoVendedorComision'),
+                };
+                const errorBox = document.getElementById('modalErrorVendedor');
+
+                function openModal() {
+                    modal.style.display = 'flex';
+                    errorBox.style.display = 'none';
+                    Object.values(f).forEach(el => el.value = '');
+                    setTimeout(() => f.nombre.focus(), 50);
+                }
+                function closeModal() { modal.style.display = 'none'; }
+
+                document.getElementById('btnNuevoVendedor').addEventListener('click', openModal);
+                document.getElementById('cerrarModalVendedor').addEventListener('click', closeModal);
+                document.getElementById('cancelarModalVendedor').addEventListener('click', closeModal);
+                modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
+
+                const USD_COP = {{ (float) config('services.usd_cop', env('USD_COP_RATE', 4000)) }};
+                const fmt = (n, m) => (m === 'USD' ? 'US$' : '$') + Number(n).toLocaleString('es-CO', { maximumFractionDigits: 0 }) + (m === 'USD' ? ' USD' : '');
+
+                function getTipo() {
+                    const r = document.querySelector('input[name="comision_tipo"]:checked');
+                    return r ? r.value : 'porcentaje';
+                }
+
+                function syncUnidad() {
+                    unidad.textContent = getTipo() === 'porcentaje' ? '%' : (monedaInput.value === 'USD' ? 'USD' : 'COP');
+                }
+
+                function calcular() {
+                    syncUnidad();
+                    const val = parseFloat(valor.value) || 0;
+                    if (val <= 0) { preview.style.display = 'none'; return; }
+
+                    if (getTipo() === 'monto') {
+                        montoTxt.textContent = fmt(val, monedaInput.value);
+                        detalle.textContent = 'Monto fijo pactado';
+                        preview.style.display = 'block';
+                        return;
+                    }
+
+                    const precio = parseFloat(precioInput.value) || 0;
+                    const pagoDev = parseFloat(pagoDevInput?.value) || 0;
+                    if (precio <= 0) { preview.style.display = 'none'; return; }
+
+                    // Normalizar pago dev a moneda del proyecto
+                    let pagoDevEnMoneda = pagoDev;
+                    const devM = monedaDevInput?.value || 'COP';
+                    const projM = monedaInput.value;
+                    if (devM !== projM) {
+                        if (devM === 'USD' && projM === 'COP') pagoDevEnMoneda = pagoDev * USD_COP;
+                        else if (devM === 'COP' && projM === 'USD') pagoDevEnMoneda = pagoDev / USD_COP;
+                    }
+                    const base = Math.max(precio - pagoDevEnMoneda, 0);
+                    const comision = base * (val / 100);
+
+                    montoTxt.textContent = fmt(comision, projM);
+                    detalle.innerHTML = '<strong>' + val + '%</strong> de ' + fmt(base, projM)
+                        + '<br><span style="opacity:0.8;">(precio ' + fmt(precio, projM)
+                        + ' − pago dev ' + fmt(pagoDevEnMoneda, projM) + ')</span>';
+                    preview.style.display = 'block';
+                }
+
+                document.querySelectorAll('input[name="comision_tipo"]').forEach(r => r.addEventListener('change', calcular));
+                valor.addEventListener('input', calcular);
+                precioInput?.addEventListener('input', calcular);
+                monedaInput?.addEventListener('change', calcular);
+                pagoDevInput?.addEventListener('input', calcular);
+                monedaDevInput?.addEventListener('change', calcular);
+
+                // Sugerir % default al elegir vendedor
+                select.addEventListener('change', () => {
+                    const opt = select.options[select.selectedIndex];
+                    const def = opt?.dataset?.comisionDefault;
+                    if (def && !valor.value) {
+                        document.querySelector('input[name="comision_tipo"][value="porcentaje"]').checked = true;
+                        valor.value = def;
+                    }
+                    calcular();
+                });
+
+                calcular();
+
+                document.getElementById('guardarNuevoVendedor').addEventListener('click', async () => {
+                    errorBox.style.display = 'none';
+                    const nombre = f.nombre.value.trim();
+                    if (!nombre) {
+                        errorBox.textContent = 'El nombre es obligatorio.';
+                        errorBox.style.display = 'block';
+                        f.nombre.focus();
+                        return;
+                    }
+                    const btn = document.getElementById('guardarNuevoVendedor');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+                    try {
+                        const res = await fetch('{{ route('admin.vendedores.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    || document.querySelector('input[name="_token"]').value,
+                            },
+                            body: JSON.stringify({
+                                nombre,
+                                telefono: f.telefono.value.trim() || null,
+                                email: f.email.value.trim() || null,
+                                comision_porcentaje_default: f.comision.value ? parseFloat(f.comision.value) : null,
+                            }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.ok) {
+                            const msg = data?.errors
+                                ? Object.values(data.errors).flat().join(' · ')
+                                : (data?.message || 'No se pudo crear el vendedor.');
+                            throw new Error(msg);
+                        }
+                        const v = data.vendedor;
+                        const label = v.nombre + (v.comision_porcentaje_default ? ' · ' + v.comision_porcentaje_default + '%' : '');
+                        const opt = new Option(label, v.id, true, true);
+                        opt.dataset.comisionDefault = v.comision_porcentaje_default || '';
+                        select.add(opt);
+                        select.value = v.id;
+                        if (v.comision_porcentaje_default && !valor.value) {
+                            document.querySelector('input[name="comision_tipo"][value="porcentaje"]').checked = true;
+                            valor.value = v.comision_porcentaje_default;
+                        }
+                        calcular();
                         closeModal();
                     } catch (err) {
                         errorBox.textContent = err.message;

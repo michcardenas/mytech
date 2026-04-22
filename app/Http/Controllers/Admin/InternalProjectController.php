@@ -10,6 +10,7 @@ use App\Models\ProjectExpense;
 use App\Models\Client;
 use App\Models\Developer;
 use App\Models\ProjectFile;
+use App\Models\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
@@ -694,6 +695,7 @@ class InternalProjectController extends Controller
             'isEdit' => false,
             'clients' => Client::orderBy('nombre')->get(),
             'developers' => Developer::orderBy('nombre')->get(),
+            'vendedores' => Vendedor::orderBy('nombre')->get(),
         ]);
     }
 
@@ -720,7 +722,15 @@ class InternalProjectController extends Controller
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
             'desarrollador_moneda' => 'required|in:COP,USD',
+            'vendedor_id' => 'nullable|exists:vendedores,id',
+            'comision_tipo' => 'nullable|in:porcentaje,monto',
+            'comision_valor' => 'nullable|numeric|min:0',
         ]);
+
+        if (empty($validated['vendedor_id'])) {
+            $validated['comision_tipo'] = null;
+            $validated['comision_valor'] = null;
+        }
 
         if (!empty($validated['client_id'])) {
             $client = Client::find($validated['client_id']);
@@ -774,6 +784,7 @@ class InternalProjectController extends Controller
             'isEdit' => true,
             'clients' => Client::orderBy('nombre')->get(),
             'developers' => Developer::orderBy('nombre')->get(),
+            'vendedores' => Vendedor::orderBy('nombre')->get(),
         ]);
     }
 
@@ -800,7 +811,15 @@ class InternalProjectController extends Controller
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
             'desarrollador_moneda' => 'required|in:COP,USD',
+            'vendedor_id' => 'nullable|exists:vendedores,id',
+            'comision_tipo' => 'nullable|in:porcentaje,monto',
+            'comision_valor' => 'nullable|numeric|min:0',
         ]);
+
+        if (empty($validated['vendedor_id'])) {
+            $validated['comision_tipo'] = null;
+            $validated['comision_valor'] = null;
+        }
 
         if (!empty($validated['client_id'])) {
             $client = Client::find($validated['client_id']);

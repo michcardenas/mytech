@@ -10,6 +10,9 @@ class InternalProject extends Model
         'nombre',
         'client_id',
         'developer_id',
+        'vendedor_id',
+        'comision_tipo',
+        'comision_valor',
         'cliente_nombre',
         'cliente_contacto',
         'cliente_email',
@@ -32,6 +35,7 @@ class InternalProject extends Model
     protected $casts = [
         'precio' => 'decimal:2',
         'desarrollador_pago' => 'decimal:2',
+        'comision_valor' => 'decimal:2',
         'fecha_inicio' => 'date',
         'fecha_entrega' => 'date',
         'es_recurrente' => 'boolean',
@@ -45,6 +49,42 @@ class InternalProject extends Model
     public function developer()
     {
         return $this->belongsTo(Developer::class);
+    }
+
+    public function vendedor()
+    {
+        return $this->belongsTo(Vendedor::class);
+    }
+
+    /**
+     * Comisión calculada del vendedor, en la moneda del proyecto.
+     * Si tipo = 'monto' → devuelve el valor tal cual.
+     * Si tipo = 'porcentaje' → calcula % sobre (precio − pago_dev).
+     *   Cuando el dev está en moneda distinta, se usa la tasa USD_COP de config.
+     */
+    public function getComisionCalculadaAttribute(): float
+    {
+        if (!$this->comision_tipo || !$this->comision_valor) {
+            return 0.0;
+        }
+
+        if ($this->comision_tipo === 'monto') {
+            return (float) $this->comision_valor;
+        }
+
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+        $pagoDev = (float) ($this->desarrollador_pago ?? 0);
+        $devMoneda = $this->desarrollador_moneda ?? 'COP';
+
+        // Normalizar pago del dev a la moneda del proyecto antes de restar
+        if ($devMoneda !== $this->moneda) {
+            $pagoDev = $devMoneda === 'USD' && $this->moneda === 'COP'
+                ? $pagoDev * $usdCop
+                : ($devMoneda === 'COP' && $this->moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
+        }
+
+        $base = max((float) $this->precio - $pagoDev, 0);
+        return round($base * ((float) $this->comision_valor / 100), 2);
     }
 
     public function payments()
