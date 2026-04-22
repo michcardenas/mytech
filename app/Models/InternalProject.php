@@ -8,6 +8,7 @@ class InternalProject extends Model
 {
     protected $fillable = [
         'nombre',
+        'client_id',
         'cliente_nombre',
         'cliente_contacto',
         'cliente_email',
@@ -34,6 +35,11 @@ class InternalProject extends Model
         'fecha_entrega' => 'date',
         'es_recurrente' => 'boolean',
     ];
+
+    public function client()
+    {
+        return $this->belongsTo(Client::class);
+    }
 
     public function payments()
     {

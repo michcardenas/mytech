@@ -7,6 +7,7 @@ use App\Models\InternalProject;
 use App\Models\ProjectPayment;
 use App\Models\DeveloperPayment;
 use App\Models\ProjectExpense;
+use App\Models\Client;
 use App\Models\ProjectFile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -227,7 +228,32 @@ class InternalProjectController extends Controller
             });
         }
 
-        $projects = $query->orderBy('created_at', 'desc')->paginate(30)->withQueryString();
+        if ($request->filled('desarrollador')) {
+            $query->where('desarrollador_nombre', $request->desarrollador);
+        }
+
+        if ($request->filled('fuente')) {
+            $query->where('fuente', $request->fuente);
+        }
+
+        match ($request->get('orden', 'reciente')) {
+            'mayor_precio' => $query->orderBy('precio', 'desc'),
+            'mayor_saldo_cliente' => $query->orderByRaw('(precio - COALESCE((SELECT SUM(monto) FROM project_payments WHERE project_payments.internal_project_id = internal_projects.id),0)) DESC'),
+            'mayor_saldo_dev' => $query->orderByRaw('(COALESCE(desarrollador_pago,0) - COALESCE((SELECT SUM(monto) FROM developer_payments WHERE developer_payments.internal_project_id = internal_projects.id),0)) DESC'),
+            'fecha_entrega' => $query->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC'),
+            'nombre' => $query->orderBy('nombre', 'asc'),
+            default => $query->orderBy('created_at', 'desc'),
+        };
+
+        $perPage = (int) $request->get('per_page', 30);
+        if (!in_array($perPage, [15, 30, 50, 100])) $perPage = 30;
+        $projects = $query->paginate($perPage)->withQueryString();
+
+        $desarrolladores = InternalProject::whereNotNull('desarrollador_nombre')
+            ->where('desarrollador_nombre', '!=', '')
+            ->distinct()
+            ->orderBy('desarrollador_nombre')
+            ->pluck('desarrollador_nombre');
 
         // === Totales de empresa (lifetime, todo el histórico) ===
         $allProjects = InternalProject::with(['payments', 'developerPayments', 'expenses'])->get();
@@ -309,9 +335,47 @@ class InternalProjectController extends Controller
         $filters = [
             'estado' => $request->get('estado', ''),
             'buscar' => $request->get('buscar', ''),
+            'desarrollador' => $request->get('desarrollador', ''),
+            'fuente' => $request->get('fuente', ''),
+            'orden' => $request->get('orden', 'reciente'),
+            'per_page' => $perPage,
         ];
 
-        return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'filters', 'usdCop'));
+        // === Totales de la página actual (para el tfoot, todo en COP) ===
+        $pageTotals = [
+            'precio_cop' => 0,
+            'cobrado_cop' => 0,
+            'saldo_cliente_cop' => 0,
+            'pago_dev_cop' => 0,
+            'abonado_dev_cop' => 0,
+            'saldo_dev_cop' => 0,
+            'gastos_cop' => 0,
+            'utilidad_cop' => 0,
+        ];
+        foreach ($projects as $p) {
+            $moneda = $p->moneda;
+            $devMoneda = $p->desarrollador_moneda ?? 'COP';
+            $cobrado = (float) ($p->payments_sum ?? 0);
+            $saldoCli = max((float) $p->precio - $cobrado, 0);
+            $pagoDev = (float) ($p->desarrollador_pago ?? 0);
+            $abonadoDev = (float) ($p->developer_payments_sum ?? 0);
+            $saldoDev = max($pagoDev - $abonadoDev, 0);
+            $gastos = (float) ($p->expenses_sum ?? 0);
+
+            $pageTotals['precio_cop'] += $toCop($p->precio, $moneda);
+            $pageTotals['cobrado_cop'] += $toCop($cobrado, $moneda);
+            $pageTotals['saldo_cliente_cop'] += $toCop($saldoCli, $moneda);
+            $pageTotals['pago_dev_cop'] += $toCop($pagoDev, $devMoneda);
+            $pageTotals['abonado_dev_cop'] += $toCop($abonadoDev, $devMoneda);
+            $pageTotals['saldo_dev_cop'] += $toCop($saldoDev, $devMoneda);
+            $pageTotals['gastos_cop'] += $gastos;
+
+            // Utilidad basada en pago asignado al dev (proyección real del proyecto)
+            $costoDev = $pagoDev > 0 ? $toCop($pagoDev, $devMoneda) : $toCop($abonadoDev, $devMoneda);
+            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda) - $costoDev - $gastos;
+        }
+
+        return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'pageTotals', 'filters', 'desarrolladores', 'usdCop'));
     }
 
     public function statsExport(Request $request): StreamedResponse
@@ -627,6 +691,7 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.form', [
             'project' => new InternalProject(),
             'isEdit' => false,
+            'clients' => Client::orderBy('nombre')->get(),
         ]);
     }
 
@@ -634,7 +699,8 @@ class InternalProjectController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'cliente_nombre' => 'required|string|max:255',
+            'client_id' => 'nullable|exists:clients,id',
+            'cliente_nombre' => 'required_without:client_id|nullable|string|max:255',
             'cliente_contacto' => 'nullable|string|max:255',
             'cliente_email' => 'nullable|email|max:255',
             'fuente' => 'required|in:directo,workana',
@@ -652,6 +718,16 @@ class InternalProjectController extends Controller
             'desarrollador_pago' => 'nullable|numeric|min:0',
             'desarrollador_moneda' => 'required|in:COP,USD',
         ]);
+
+        if (!empty($validated['client_id'])) {
+            $client = Client::find($validated['client_id']);
+            if ($client) {
+                $validated['cliente_nombre'] = $client->nombre;
+                if (empty($validated['cliente_contacto']) && $client->telefono) {
+                    $validated['cliente_contacto'] = $client->telefono;
+                }
+            }
+        }
 
         $validated['es_recurrente'] = $request->boolean('es_recurrente');
         if ($validated['es_recurrente']) {
@@ -683,6 +759,7 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.form', [
             'project' => $internal_project,
             'isEdit' => true,
+            'clients' => Client::orderBy('nombre')->get(),
         ]);
     }
 
@@ -690,7 +767,8 @@ class InternalProjectController extends Controller
     {
         $validated = $request->validate([
             'nombre' => 'required|string|max:255',
-            'cliente_nombre' => 'required|string|max:255',
+            'client_id' => 'nullable|exists:clients,id',
+            'cliente_nombre' => 'required_without:client_id|nullable|string|max:255',
             'cliente_contacto' => 'nullable|string|max:255',
             'cliente_email' => 'nullable|email|max:255',
             'fuente' => 'required|in:directo,workana',
@@ -708,6 +786,16 @@ class InternalProjectController extends Controller
             'desarrollador_pago' => 'nullable|numeric|min:0',
             'desarrollador_moneda' => 'required|in:COP,USD',
         ]);
+
+        if (!empty($validated['client_id'])) {
+            $client = Client::find($validated['client_id']);
+            if ($client) {
+                $validated['cliente_nombre'] = $client->nombre;
+                if (empty($validated['cliente_contacto']) && $client->telefono) {
+                    $validated['cliente_contacto'] = $client->telefono;
+                }
+            }
+        }
 
         $validated['es_recurrente'] = $request->boolean('es_recurrente');
         if ($validated['es_recurrente']) {

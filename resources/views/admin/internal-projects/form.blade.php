@@ -302,10 +302,27 @@
             <div class="form-section-body">
                 <div class="field-row">
                     <div class="field-group">
-                        <div class="field-label"><i class="fas fa-user"></i> Nombre del Cliente <span class="required">*</span></div>
-                        <input type="text" name="cliente_nombre" class="form-control @error('cliente_nombre') is-invalid @enderror"
-                               value="{{ old('cliente_nombre', $project->cliente_nombre) }}" required placeholder="Nombre completo o empresa">
-                        @error('cliente_nombre') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        <div class="field-label"><i class="fas fa-address-book"></i> Cliente <span class="required">*</span></div>
+                        <div style="display:flex; gap:0.5rem; align-items:stretch;">
+                            <select name="client_id" id="client_id" class="form-select @error('client_id') is-invalid @enderror" style="flex:1;">
+                                <option value="">— Seleccionar cliente —</option>
+                                @foreach($clients as $c)
+                                    <option value="{{ $c->id }}"
+                                            data-telefono="{{ $c->telefono }}"
+                                            data-empresa="{{ $c->empresa }}"
+                                            data-identificacion="{{ $c->identificacion }}"
+                                            {{ old('client_id', $project->client_id) == $c->id ? 'selected' : '' }}>
+                                        {{ $c->nombre }}@if($c->empresa) · {{ $c->empresa }}@endif
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" id="btnNuevoCliente" class="btn btn-primary"
+                                    style="padding: 0 1rem; border-radius: 10px; border:none; background: var(--gradient-blue); color:white; font-weight:600; white-space:nowrap; display:inline-flex; align-items:center; gap:0.4rem;">
+                                <i class="fas fa-plus"></i> Nuevo
+                            </button>
+                        </div>
+                        @error('client_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        <input type="hidden" name="cliente_nombre" id="cliente_nombre_hidden" value="{{ old('cliente_nombre', $project->cliente_nombre) }}">
                     </div>
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-envelope"></i> Email</div>
@@ -316,12 +333,165 @@
                 <div class="field-row single">
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-phone"></i> Contacto</div>
-                        <input type="text" name="cliente_contacto" class="form-control"
-                               value="{{ old('cliente_contacto', $project->cliente_contacto) }}" placeholder="Telefono o WhatsApp">
+                        <input type="text" name="cliente_contacto" id="cliente_contacto" class="form-control"
+                               value="{{ old('cliente_contacto', $project->cliente_contacto) }}" placeholder="Teléfono o WhatsApp (se completa con el del cliente si se deja vacío)">
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Modal Nuevo Cliente --}}
+        <div id="modalNuevoCliente" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); backdrop-filter:blur(3px); z-index:10000; align-items:center; justify-content:center; padding:1rem;">
+            <div style="background:white; border-radius:16px; max-width:480px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.3); overflow:hidden;">
+                <div style="padding:1.25rem 1.5rem; background:var(--gradient-blue); color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <i class="fas fa-user-plus"></i>
+                        <strong>Nuevo cliente</strong>
+                    </div>
+                    <button type="button" id="cerrarModalCliente" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; opacity:0.8;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding:1.5rem;">
+                    <div id="modalErrorCliente" style="display:none; padding:0.75rem 1rem; background:#fef2f2; color:#c53030; border-radius:10px; border-left:4px solid #dc3545; margin-bottom:1rem; font-size:0.85rem;"></div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">
+                            Nombre <span style="color:var(--danger);">*</span>
+                        </label>
+                        <input type="text" id="nuevoClienteNombre" placeholder="Nombre completo"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Teléfono</label>
+                        <input type="text" id="nuevoClienteTelefono" placeholder="+57 300 000 0000"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Empresa</label>
+                        <input type="text" id="nuevoClienteEmpresa" placeholder="Nombre de la empresa"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1.5rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Identificación</label>
+                        <input type="text" id="nuevoClienteIdentificacion" placeholder="NIT / Cédula / RUT"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                        <button type="button" id="cancelarModalCliente" style="padding:0.65rem 1.2rem; border:1px solid #ddd; background:white; color:#666; font-weight:600; border-radius:10px; cursor:pointer;">
+                            Cancelar
+                        </button>
+                        <button type="button" id="guardarNuevoCliente" style="padding:0.65rem 1.4rem; border:none; background:var(--gradient-blue); color:white; font-weight:600; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            (function () {
+                const modal = document.getElementById('modalNuevoCliente');
+                const select = document.getElementById('client_id');
+                const hiddenNombre = document.getElementById('cliente_nombre_hidden');
+                const telefonoInput = document.getElementById('cliente_contacto');
+                const nombreField = document.getElementById('nuevoClienteNombre');
+                const telField = document.getElementById('nuevoClienteTelefono');
+                const empField = document.getElementById('nuevoClienteEmpresa');
+                const idField = document.getElementById('nuevoClienteIdentificacion');
+                const errorBox = document.getElementById('modalErrorCliente');
+
+                function openModal() {
+                    modal.style.display = 'flex';
+                    errorBox.style.display = 'none';
+                    nombreField.value = telField.value = empField.value = idField.value = '';
+                    setTimeout(() => nombreField.focus(), 50);
+                }
+                function closeModal() { modal.style.display = 'none'; }
+
+                document.getElementById('btnNuevoCliente').addEventListener('click', openModal);
+                document.getElementById('cerrarModalCliente').addEventListener('click', closeModal);
+                document.getElementById('cancelarModalCliente').addEventListener('click', closeModal);
+                modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
+
+                // Sync hidden cliente_nombre from select selection (legacy fallback)
+                function syncHiddenFromSelect() {
+                    const opt = select.options[select.selectedIndex];
+                    if (opt && opt.value) {
+                        hiddenNombre.value = opt.textContent.split(' · ')[0].trim();
+                        // Si el campo teléfono está vacío y el cliente tiene teléfono → sugerirlo
+                        const tel = opt.dataset.telefono;
+                        if (tel && !telefonoInput.value) telefonoInput.value = tel;
+                    } else {
+                        hiddenNombre.value = '';
+                    }
+                }
+                select.addEventListener('change', syncHiddenFromSelect);
+                syncHiddenFromSelect();
+
+                document.getElementById('guardarNuevoCliente').addEventListener('click', async () => {
+                    errorBox.style.display = 'none';
+                    const nombre = nombreField.value.trim();
+                    if (!nombre) {
+                        errorBox.textContent = 'El nombre es obligatorio.';
+                        errorBox.style.display = 'block';
+                        nombreField.focus();
+                        return;
+                    }
+
+                    const btn = document.getElementById('guardarNuevoCliente');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+                    try {
+                        const res = await fetch('{{ route('admin.clients.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    || document.querySelector('input[name="_token"]').value,
+                            },
+                            body: JSON.stringify({
+                                nombre,
+                                telefono: telField.value.trim() || null,
+                                empresa: empField.value.trim() || null,
+                                identificacion: idField.value.trim() || null,
+                            }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.ok) {
+                            const msg = data?.errors
+                                ? Object.values(data.errors).flat().join(' · ')
+                                : (data?.message || 'No se pudo crear el cliente.');
+                            throw new Error(msg);
+                        }
+                        const c = data.client;
+                        const opt = new Option(
+                            c.nombre + (c.empresa ? ' · ' + c.empresa : ''),
+                            c.id, true, true
+                        );
+                        opt.dataset.telefono = c.telefono || '';
+                        opt.dataset.empresa = c.empresa || '';
+                        opt.dataset.identificacion = c.identificacion || '';
+                        select.add(opt);
+                        select.value = c.id;
+                        syncHiddenFromSelect();
+                        closeModal();
+                    } catch (err) {
+                        errorBox.textContent = err.message;
+                        errorBox.style.display = 'block';
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+                    }
+                });
+            })();
+        </script>
 
         {{-- Precio y Fuente --}}
         <div class="form-section">

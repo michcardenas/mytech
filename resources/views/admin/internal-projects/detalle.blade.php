@@ -131,6 +131,33 @@
     .resumen-top-value { font-size: 0.88rem; font-weight: 700; color: var(--primary-blue); }
     .resumen-top-value.verde { color: #059669; }
 
+    /* Filtros extra */
+    .det-filters-row2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.6rem; padding: 0.75rem 1.25rem 1rem; border-top: 1px dashed #e9ecef; }
+    .det-filters-row2 select { padding: 0.5rem 0.8rem; border: 2px solid #e9ecef; border-radius: 10px; font-size: 0.82rem; background: var(--white); color: var(--dark-text); width: 100%; transition: var(--transition); }
+    .det-filters-row2 select:focus { border-color: var(--primary-blue); outline: none; }
+    .det-filters-wrap { display: flex; flex-direction: column; }
+
+    /* Columnas toggle */
+    .cols-dropdown { position: relative; display: inline-block; }
+    .btn-cols { padding: 0.5rem 0.9rem; border: 1.5px solid #e9ecef; background: white; color: #666; font-weight: 600; font-size: 0.82rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: var(--transition); }
+    .btn-cols:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+    .cols-menu { position: absolute; right: 0; top: calc(100% + 6px); background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 0.6rem; min-width: 220px; z-index: 20; display: none; }
+    .cols-menu.open { display: block; }
+    .cols-menu h4 { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #888; letter-spacing: 0.3px; margin: 0 0 0.5rem 0; padding: 0 0.5rem; }
+    .cols-menu label { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--dark-text); transition: background 0.15s; }
+    .cols-menu label:hover { background: #f8fafc; }
+    .cols-menu input[type="checkbox"] { accent-color: var(--primary-blue); cursor: pointer; }
+    .cols-menu .cols-actions { border-top: 1px solid #f1f3f5; margin-top: 0.4rem; padding-top: 0.4rem; display: flex; gap: 0.4rem; padding-left: 0.5rem; padding-right: 0.5rem; }
+    .cols-menu .cols-actions button { flex: 1; padding: 0.35rem 0.6rem; border: none; border-radius: 6px; background: #f1f3f5; color: #666; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
+    .cols-menu .cols-actions button:hover { background: #e9ecef; color: var(--dark-text); }
+
+    /* tfoot de totales */
+    .det-table tfoot td {
+        position: sticky; bottom: 0; background: #f8fafc; z-index: 4;
+        padding: 0.85rem 0.8rem; border-top: 2px solid #e9ecef; font-weight: 800; font-size: 0.85rem;
+    }
+    .det-table tfoot td.total-label { color: #888; text-transform: uppercase; letter-spacing: 0.3px; font-size: 0.72rem; }
+
     @media (max-width: 768px) {
         .det-container { padding: 1rem; }
         .det-header { flex-direction: column; text-align: center; padding: 1.5rem; }
@@ -172,47 +199,96 @@
     </div>
 
     {{-- Filtros --}}
-    <div class="det-filters">
-        <div class="det-chips">
-            @foreach($estadoChips as $key => $label)
-                <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $key, 'buscar' => $filters['buscar']])) }}"
-                   class="det-chip {{ $filters['estado'] === $key ? 'active' : '' }}">
-                    {{ $label }}
-                </a>
-            @endforeach
+    <form method="GET" class="det-filters-wrap" style="background: var(--white); border-radius: 14px; box-shadow: var(--shadow-soft); margin-bottom: 1.25rem;">
+        <div class="det-filters" style="box-shadow:none; margin-bottom:0; border-radius:0; background:transparent;">
+            <div class="det-chips">
+                @foreach($estadoChips as $key => $label)
+                    <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $key, 'buscar' => $filters['buscar'], 'desarrollador' => $filters['desarrollador'], 'fuente' => $filters['fuente'], 'orden' => $filters['orden'] !== 'reciente' ? $filters['orden'] : null])) }}"
+                       class="det-chip {{ $filters['estado'] === $key ? 'active' : '' }}">
+                        {{ $label }}
+                    </a>
+                @endforeach
+            </div>
+
+            <div class="det-search">
+                @if($filters['estado'])<input type="hidden" name="estado" value="{{ $filters['estado'] }}">@endif
+                <input type="text" name="buscar" placeholder="Buscar proyecto, cliente o dev..." value="{{ $filters['buscar'] }}">
+                <div class="cols-dropdown">
+                    <button type="button" class="btn-cols" onclick="document.getElementById('colsMenu').classList.toggle('open')">
+                        <i class="fas fa-columns"></i> Columnas
+                    </button>
+                    <div class="cols-menu" id="colsMenu">
+                        <h4>Mostrar columnas</h4>
+                        <label><input type="checkbox" data-col="cliente" checked> Cliente</label>
+                        <label><input type="checkbox" data-col="fechas" checked> Fechas</label>
+                        <label><input type="checkbox" data-col="precio" checked> Precio</label>
+                        <label><input type="checkbox" data-col="cobrado" checked> Cobrado</label>
+                        <label><input type="checkbox" data-col="saldo_cli" checked> Saldo cliente</label>
+                        <label><input type="checkbox" data-col="pago_dev" checked> Pago dev</label>
+                        <label><input type="checkbox" data-col="abonado" checked> Abonado dev</label>
+                        <label><input type="checkbox" data-col="saldo_dev" checked> Saldo dev</label>
+                        <label><input type="checkbox" data-col="gastos" checked> Gastos</label>
+                        <label><input type="checkbox" data-col="utilidad" checked> Utilidad</label>
+                        <div class="cols-actions">
+                            <button type="button" onclick="detalleCols.setAll(true)">Mostrar todo</button>
+                            <button type="button" onclick="detalleCols.setAll(false)">Ocultar todo</button>
+                        </div>
+                    </div>
+                </div>
+                <button type="submit"><i class="fas fa-search"></i> Aplicar</button>
+                @if($filters['buscar'] || $filters['desarrollador'] || $filters['fuente'] || $filters['orden'] !== 'reciente' || (int) $filters['per_page'] !== 30)
+                    <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $filters['estado']])) }}" class="clear">
+                        <i class="fas fa-times"></i> Limpiar
+                    </a>
+                @endif
+            </div>
         </div>
 
-        <form method="GET" class="det-search">
-            @if($filters['estado'])
-                <input type="hidden" name="estado" value="{{ $filters['estado'] }}">
-            @endif
-            <input type="text" name="buscar" placeholder="Buscar proyecto, cliente o dev..." value="{{ $filters['buscar'] }}">
-            <button type="submit"><i class="fas fa-search"></i> Buscar</button>
-            @if($filters['buscar'])
-                <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $filters['estado']])) }}" class="clear">
-                    <i class="fas fa-times"></i>
-                </a>
-            @endif
-        </form>
-    </div>
+        <div class="det-filters-row2">
+            <select name="desarrollador" aria-label="Desarrollador">
+                <option value="">Todos los devs</option>
+                @foreach($desarrolladores as $dev)
+                    <option value="{{ $dev }}" {{ $filters['desarrollador'] === $dev ? 'selected' : '' }}>{{ $dev }}</option>
+                @endforeach
+            </select>
+            <select name="fuente" aria-label="Fuente">
+                <option value="">Cualquier fuente</option>
+                <option value="directo" {{ $filters['fuente'] === 'directo' ? 'selected' : '' }}>Directo</option>
+                <option value="workana" {{ $filters['fuente'] === 'workana' ? 'selected' : '' }}>Workana</option>
+            </select>
+            <select name="orden" aria-label="Orden">
+                <option value="reciente" {{ $filters['orden'] === 'reciente' ? 'selected' : '' }}>Más recientes</option>
+                <option value="nombre" {{ $filters['orden'] === 'nombre' ? 'selected' : '' }}>Nombre (A-Z)</option>
+                <option value="mayor_precio" {{ $filters['orden'] === 'mayor_precio' ? 'selected' : '' }}>Mayor precio</option>
+                <option value="mayor_saldo_cliente" {{ $filters['orden'] === 'mayor_saldo_cliente' ? 'selected' : '' }}>Mayor saldo cliente</option>
+                <option value="mayor_saldo_dev" {{ $filters['orden'] === 'mayor_saldo_dev' ? 'selected' : '' }}>Mayor deuda dev</option>
+                <option value="fecha_entrega" {{ $filters['orden'] === 'fecha_entrega' ? 'selected' : '' }}>Próxima entrega</option>
+            </select>
+            <select name="per_page" aria-label="Por página">
+                @foreach([15, 30, 50, 100] as $n)
+                    <option value="{{ $n }}" {{ (int) $filters['per_page'] === $n ? 'selected' : '' }}>{{ $n }} por página</option>
+                @endforeach
+            </select>
+        </div>
+    </form>
 
     {{-- Tabla --}}
     <div class="det-table-wrap">
         <div class="det-table-scroll">
-            <table class="det-table">
+            <table class="det-table" id="detTable">
                 <thead>
                     <tr>
-                        <th>Proyecto</th>
-                        <th>Cliente</th>
-                        <th>Fechas</th>
-                        <th style="text-align:right;">Precio</th>
-                        <th style="text-align:right;">Cobrado</th>
-                        <th style="text-align:right;">Saldo cli.</th>
-                        <th style="text-align:right;">Pago dev</th>
-                        <th style="text-align:right;">Abonado</th>
-                        <th style="text-align:right;">Saldo dev</th>
-                        <th style="text-align:right;">Gastos</th>
-                        <th style="text-align:right;">Utilidad</th>
+                        <th data-col="proyecto">Proyecto</th>
+                        <th data-col="cliente">Cliente</th>
+                        <th data-col="fechas">Fechas</th>
+                        <th data-col="precio" style="text-align:right;">Precio</th>
+                        <th data-col="cobrado" style="text-align:right;">Cobrado</th>
+                        <th data-col="saldo_cli" style="text-align:right;">Saldo cli.</th>
+                        <th data-col="pago_dev" style="text-align:right;">Pago dev</th>
+                        <th data-col="abonado" style="text-align:right;">Abonado</th>
+                        <th data-col="saldo_dev" style="text-align:right;">Saldo dev</th>
+                        <th data-col="gastos" style="text-align:right;">Gastos</th>
+                        <th data-col="utilidad" style="text-align:right;" title="Utilidad = Cobrado − (Pago dev asignado) − Gastos">Utilidad</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -226,14 +302,19 @@
                             $abonadoDev = (float) ($p->developer_payments_sum ?? 0);
                             $saldoDev = max($pagoDev - $abonadoDev, 0);
                             $gastos = (float) ($p->expenses_sum ?? 0);
-                            // Utilidad aproximada usando tasa fija (puede variar vs accesor que usa monto_recibido_cop exacto)
+
+                            // Utilidad basada en el pago asignado al dev (proyección real del proyecto)
+                            // Si no hay dev asignado y no hay abonos, se muestra "—" (no es calculable).
                             $ingresoCop = $moneda === 'USD' ? $cobrado * $usdCop : $cobrado;
-                            $devCop = $devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev;
-                            $gastosCop = $gastos; // expenses se registra con moneda propia; aproximamos
-                            $utilidad = $ingresoCop - $devCop - $gastosCop;
+                            $devCostoCop = $pagoDev > 0
+                                ? ($devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev)
+                                : ($devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev);
+                            $gastosCop = $gastos;
+                            $utilidadCalculable = $pagoDev > 0 || $abonadoDev > 0 || $cobrado > 0 || $gastos > 0;
+                            $utilidad = $ingresoCop - $devCostoCop - $gastosCop;
                         @endphp
                         <tr onclick="window.location='{{ route('admin.internal-projects.show', $p) }}'">
-                            <td>
+                            <td data-col="proyecto">
                                 <a href="{{ route('admin.internal-projects.show', $p) }}" class="det-proj-name" onclick="event.stopPropagation();">{{ $p->nombre }}</a>
                                 <div class="det-badges">
                                     <span class="det-estado" style="background: {{ $p->estado_color }}15; color: {{ $p->estado_color }};">{{ $p->estado_label }}</span>
@@ -241,40 +322,41 @@
                                     @if($p->es_recurrente)<span class="det-fuente" style="background: rgba(0,123,255,0.12); color:#0056b3;">Recurrente</span>@endif
                                 </div>
                             </td>
-                            <td><div class="det-cliente">{{ $p->cliente_nombre }}</div>
+                            <td data-col="cliente"><div class="det-cliente">{{ $p->cliente_nombre }}</div>
                                 @if($p->desarrollador_nombre)
                                     <div style="font-size:0.72rem; color:#aaa; margin-top:0.2rem;"><i class="fas fa-laptop-code"></i> {{ $p->desarrollador_nombre }}</div>
                                 @endif
                             </td>
-                            <td>
+                            <td data-col="fechas">
                                 <div class="det-fechas">
                                     @if($p->fecha_inicio)<div><i class="fas fa-play-circle"></i>{{ $p->fecha_inicio->format('d/m/y') }}</div>@endif
                                     @if($p->fecha_entrega && !$p->es_recurrente)<div><i class="fas fa-flag-checkered"></i>{{ $p->fecha_entrega->format('d/m/y') }}</div>@endif
                                     @if(!$p->fecha_inicio && !$p->fecha_entrega)<span style="color:#bbb;">—</span>@endif
                                 </div>
                             </td>
-                            <td class="mono">{{ $fmtMoneda($p->precio, $moneda) }}</td>
-                            <td class="mono ing">
+                            <td class="mono" data-col="precio">{{ $fmtMoneda($p->precio, $moneda) }}</td>
+                            <td class="mono ing" data-col="cobrado">
                                 {{ $fmtMoneda($cobrado, $moneda) }}
                                 <span class="sub">{{ $p->payments_count }} pagos</span>
                             </td>
-                            <td class="mono {{ $saldoCli > 0 && $p->estado !== 'cancelado' ? 'rojo' : 'mute' }}">
+                            <td class="mono {{ $saldoCli > 0 && $p->estado !== 'cancelado' ? 'rojo' : 'mute' }}" data-col="saldo_cli">
                                 {{ $fmtMoneda($saldoCli, $moneda) }}
                             </td>
-                            <td class="mono">
+                            <td class="mono" data-col="pago_dev">
                                 @if($pagoDev > 0){{ $fmtMoneda($pagoDev, $devMoneda) }}@else <span style="color:#bbb;">—</span>@endif
                             </td>
-                            <td class="mono dev">
-                                @if($pagoDev > 0){{ $fmtMoneda($abonadoDev, $devMoneda) }}<span class="sub">{{ $p->developer_payments_count }} pagos</span>@else <span style="color:#bbb;">—</span>@endif
+                            <td class="mono dev" data-col="abonado">
+                                @if($pagoDev > 0 || $abonadoDev > 0){{ $fmtMoneda($abonadoDev, $devMoneda) }}<span class="sub">{{ $p->developer_payments_count }} pagos</span>@else <span style="color:#bbb;">—</span>@endif
                             </td>
-                            <td class="mono {{ $saldoDev > 0 ? 'dev' : 'mute' }}">
+                            <td class="mono {{ $saldoDev > 0 ? 'dev' : 'mute' }}" data-col="saldo_dev">
                                 @if($pagoDev > 0){{ $fmtMoneda($saldoDev, $devMoneda) }}@else <span style="color:#bbb;">—</span>@endif
                             </td>
-                            <td class="mono {{ $gastos > 0 ? 'gas' : 'mute' }}">
+                            <td class="mono {{ $gastos > 0 ? 'gas' : 'mute' }}" data-col="gastos">
                                 @if($gastos > 0){{ $fmtMoneda($gastos, 'COP') }}<span class="sub">{{ $p->expenses_count }}</span>@else <span style="color:#bbb;">—</span>@endif
                             </td>
-                            <td class="mono {{ $utilidad >= 0 ? 'verde' : 'rojo' }}">
-                                {{ $fmtCop($utilidad) }}
+                            <td class="mono {{ $utilidadCalculable ? ($utilidad >= 0 ? 'verde' : 'rojo') : 'mute' }}" data-col="utilidad"
+                                title="{{ $pagoDev > 0 ? 'Basada en pago dev asignado' : ($abonadoDev > 0 ? 'Basada en lo abonado (sin asignación)' : 'Sin datos suficientes') }}">
+                                @if($utilidadCalculable){{ $fmtCop($utilidad) }}@else <span style="color:#bbb;">—</span>@endif
                             </td>
                         </tr>
                     @empty
@@ -286,6 +368,23 @@
                         </tr>
                     @endforelse
                 </tbody>
+                @if($projects->count() > 0)
+                    <tfoot>
+                        <tr>
+                            <td class="total-label" data-col="proyecto">Total página ({{ $projects->count() }} proyectos)</td>
+                            <td data-col="cliente"></td>
+                            <td data-col="fechas"></td>
+                            <td class="mono" data-col="precio">{{ $fmtCop($pageTotals['precio_cop']) }}</td>
+                            <td class="mono ing" data-col="cobrado">{{ $fmtCop($pageTotals['cobrado_cop']) }}</td>
+                            <td class="mono {{ $pageTotals['saldo_cliente_cop'] > 0 ? 'rojo' : 'mute' }}" data-col="saldo_cli">{{ $fmtCop($pageTotals['saldo_cliente_cop']) }}</td>
+                            <td class="mono" data-col="pago_dev">{{ $fmtCop($pageTotals['pago_dev_cop']) }}</td>
+                            <td class="mono dev" data-col="abonado">{{ $fmtCop($pageTotals['abonado_dev_cop']) }}</td>
+                            <td class="mono {{ $pageTotals['saldo_dev_cop'] > 0 ? 'dev' : 'mute' }}" data-col="saldo_dev">{{ $fmtCop($pageTotals['saldo_dev_cop']) }}</td>
+                            <td class="mono {{ $pageTotals['gastos_cop'] > 0 ? 'gas' : 'mute' }}" data-col="gastos">{{ $fmtCop($pageTotals['gastos_cop']) }}</td>
+                            <td class="mono {{ $pageTotals['utilidad_cop'] >= 0 ? 'verde' : 'rojo' }}" data-col="utilidad">{{ $fmtCop($pageTotals['utilidad_cop']) }}</td>
+                        </tr>
+                    </tfoot>
+                @endif
             </table>
         </div>
 
@@ -399,4 +498,64 @@
         @endif
     </div>
 </div>
+
+<script>
+    window.detalleCols = (function () {
+        const STORAGE_KEY = 'internal-projects-detalle-cols';
+        const menu = document.getElementById('colsMenu');
+        const checkboxes = menu ? menu.querySelectorAll('input[type="checkbox"][data-col]') : [];
+
+        function applyCol(col, visible) {
+            document.querySelectorAll('#detTable [data-col="' + col + '"]').forEach(el => {
+                el.style.display = visible ? '' : 'none';
+            });
+        }
+
+        function saveState() {
+            const state = {};
+            checkboxes.forEach(cb => { state[cb.dataset.col] = cb.checked; });
+            try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {}
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) return;
+                const state = JSON.parse(raw);
+                checkboxes.forEach(cb => {
+                    if (state[cb.dataset.col] === false) {
+                        cb.checked = false;
+                        applyCol(cb.dataset.col, false);
+                    }
+                });
+            } catch (e) {}
+        }
+
+        function setAll(visible) {
+            checkboxes.forEach(cb => {
+                cb.checked = visible;
+                applyCol(cb.dataset.col, visible);
+            });
+            saveState();
+        }
+
+        checkboxes.forEach(cb => {
+            cb.addEventListener('change', () => {
+                applyCol(cb.dataset.col, cb.checked);
+                saveState();
+            });
+        });
+
+        // Click fuera cierra el menú
+        document.addEventListener('click', (e) => {
+            if (!menu) return;
+            if (!menu.contains(e.target) && !e.target.closest('.btn-cols')) {
+                menu.classList.remove('open');
+            }
+        });
+
+        loadState();
+        return { setAll };
+    })();
+</script>
 @endsection
