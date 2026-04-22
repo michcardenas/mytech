@@ -8,6 +8,7 @@ use App\Models\ProjectPayment;
 use App\Models\DeveloperPayment;
 use App\Models\ProjectExpense;
 use App\Models\Client;
+use App\Models\Developer;
 use App\Models\ProjectFile;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -692,6 +693,7 @@ class InternalProjectController extends Controller
             'project' => new InternalProject(),
             'isEdit' => false,
             'clients' => Client::orderBy('nombre')->get(),
+            'developers' => Developer::orderBy('nombre')->get(),
         ]);
     }
 
@@ -713,6 +715,7 @@ class InternalProjectController extends Controller
             'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
+            'developer_id' => 'nullable|exists:developers,id',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
@@ -725,6 +728,16 @@ class InternalProjectController extends Controller
                 $validated['cliente_nombre'] = $client->nombre;
                 if (empty($validated['cliente_contacto']) && $client->telefono) {
                     $validated['cliente_contacto'] = $client->telefono;
+                }
+            }
+        }
+
+        if (!empty($validated['developer_id'])) {
+            $dev = Developer::find($validated['developer_id']);
+            if ($dev) {
+                $validated['desarrollador_nombre'] = $dev->nombre;
+                if (empty($validated['desarrollador_email']) && $dev->email) {
+                    $validated['desarrollador_email'] = $dev->email;
                 }
             }
         }
@@ -760,6 +773,7 @@ class InternalProjectController extends Controller
             'project' => $internal_project,
             'isEdit' => true,
             'clients' => Client::orderBy('nombre')->get(),
+            'developers' => Developer::orderBy('nombre')->get(),
         ]);
     }
 
@@ -781,6 +795,7 @@ class InternalProjectController extends Controller
             'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
+            'developer_id' => 'nullable|exists:developers,id',
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
@@ -793,6 +808,16 @@ class InternalProjectController extends Controller
                 $validated['cliente_nombre'] = $client->nombre;
                 if (empty($validated['cliente_contacto']) && $client->telefono) {
                     $validated['cliente_contacto'] = $client->telefono;
+                }
+            }
+        }
+
+        if (!empty($validated['developer_id'])) {
+            $dev = Developer::find($validated['developer_id']);
+            if ($dev) {
+                $validated['desarrollador_nombre'] = $dev->nombre;
+                if (empty($validated['desarrollador_email']) && $dev->email) {
+                    $validated['desarrollador_email'] = $dev->email;
                 }
             }
         }

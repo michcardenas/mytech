@@ -541,13 +541,32 @@
             <div class="form-section-body">
                 <div class="field-row">
                     <div class="field-group">
-                        <div class="field-label"><i class="fas fa-user-cog"></i> Nombre del Desarrollador</div>
-                        <input type="text" name="desarrollador_nombre" class="form-control"
-                               value="{{ old('desarrollador_nombre', $project->desarrollador_nombre) }}" placeholder="Nombre completo">
+                        <div class="field-label"><i class="fas fa-user-cog"></i> Desarrollador</div>
+                        <div style="display:flex; gap:0.5rem; align-items:stretch;">
+                            <select name="developer_id" id="developer_id" class="form-select @error('developer_id') is-invalid @enderror" style="flex:1;">
+                                <option value="">— Sin desarrollador —</option>
+                                @foreach($developers as $d)
+                                    <option value="{{ $d->id }}"
+                                            data-email="{{ $d->email }}"
+                                            data-telefono="{{ $d->telefono }}"
+                                            data-pago="{{ $d->pago_default }}"
+                                            data-moneda="{{ $d->moneda_default }}"
+                                            {{ old('developer_id', $project->developer_id) == $d->id ? 'selected' : '' }}>
+                                        {{ $d->nombre }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            <button type="button" id="btnNuevoDev" class="btn btn-primary"
+                                    style="padding:0 1rem; border-radius:10px; border:none; background:var(--gradient-blue); color:white; font-weight:600; white-space:nowrap; display:inline-flex; align-items:center; gap:0.4rem;">
+                                <i class="fas fa-plus"></i> Nuevo
+                            </button>
+                        </div>
+                        @error('developer_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                        <input type="hidden" name="desarrollador_nombre" id="desarrollador_nombre_hidden" value="{{ old('desarrollador_nombre', $project->desarrollador_nombre) }}">
                     </div>
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-envelope"></i> Email del Desarrollador</div>
-                        <input type="email" name="desarrollador_email" class="form-control"
+                        <input type="email" name="desarrollador_email" id="desarrollador_email" class="form-control"
                                value="{{ old('desarrollador_email', $project->desarrollador_email) }}" placeholder="dev@ejemplo.com">
                     </div>
                 </div>
@@ -555,18 +574,187 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-hand-holding-usd"></i> Pago al Desarrollador</div>
                         <div class="price-group">
-                            <input type="number" name="desarrollador_pago" class="form-control"
+                            <input type="number" name="desarrollador_pago" id="desarrollador_pago" class="form-control"
                                    value="{{ old('desarrollador_pago', $project->desarrollador_pago) }}" step="0.01" min="0" placeholder="0.00">
-                            <select name="desarrollador_moneda" class="form-select">
+                            <select name="desarrollador_moneda" id="desarrollador_moneda" class="form-select">
                                 <option value="COP" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'USD' ? 'selected' : '' }}>USD</option>
                             </select>
                         </div>
-                        <div class="field-hint">Monto que se le pagara al desarrollador por este proyecto</div>
+                        <div class="field-hint">Monto que se le pagará al desarrollador por este proyecto (auto-sugerido si el dev tiene tarifa).</div>
                     </div>
                 </div>
             </div>
         </div>
+
+        {{-- Modal Nuevo Dev --}}
+        <div id="modalNuevoDev" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.55); backdrop-filter:blur(3px); z-index:10000; align-items:center; justify-content:center; padding:1rem;">
+            <div style="background:white; border-radius:16px; max-width:480px; width:100%; box-shadow:0 25px 60px rgba(0,0,0,0.3); overflow:hidden;">
+                <div style="padding:1.25rem 1.5rem; background:linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); color:white; display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; align-items:center; gap:0.6rem;">
+                        <i class="fas fa-user-plus"></i>
+                        <strong>Nuevo desarrollador</strong>
+                    </div>
+                    <button type="button" id="cerrarModalDev" style="background:none; border:none; color:white; font-size:1.2rem; cursor:pointer; opacity:0.8;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div style="padding:1.5rem;">
+                    <div id="modalErrorDev" style="display:none; padding:0.75rem 1rem; background:#fef2f2; color:#c53030; border-radius:10px; border-left:4px solid #dc3545; margin-bottom:1rem; font-size:0.85rem;"></div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">
+                            Nombre <span style="color:var(--danger);">*</span>
+                        </label>
+                        <input type="text" id="nuevoDevNombre" placeholder="Nombre completo"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Teléfono</label>
+                        <input type="text" id="nuevoDevTelefono" placeholder="+57 300 000 0000"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1rem;">
+                        <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Email</label>
+                        <input type="email" id="nuevoDevEmail" placeholder="dev@ejemplo.com"
+                               style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                    </div>
+
+                    <div style="margin-bottom:1.5rem; display:grid; grid-template-columns: 2fr 1fr; gap:0.6rem;">
+                        <div>
+                            <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Tarifa por defecto</label>
+                            <input type="number" id="nuevoDevPago" placeholder="0.00" step="0.01" min="0"
+                                   style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                        </div>
+                        <div>
+                            <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Moneda</label>
+                            <select id="nuevoDevMoneda" style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
+                                <option value="COP">COP</option>
+                                <option value="USD">USD</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div style="display:flex; gap:0.5rem; justify-content:flex-end;">
+                        <button type="button" id="cancelarModalDev" style="padding:0.65rem 1.2rem; border:1px solid #ddd; background:white; color:#666; font-weight:600; border-radius:10px; cursor:pointer;">
+                            Cancelar
+                        </button>
+                        <button type="button" id="guardarNuevoDev" style="padding:0.65rem 1.4rem; border:none; background:linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%); color:white; font-weight:600; border-radius:10px; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+                            <i class="fas fa-save"></i> Guardar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            (function () {
+                const modal = document.getElementById('modalNuevoDev');
+                const select = document.getElementById('developer_id');
+                const hiddenNombre = document.getElementById('desarrollador_nombre_hidden');
+                const emailInput = document.getElementById('desarrollador_email');
+                const pagoInput = document.getElementById('desarrollador_pago');
+                const monedaSelect = document.getElementById('desarrollador_moneda');
+
+                const f = {
+                    nombre: document.getElementById('nuevoDevNombre'),
+                    telefono: document.getElementById('nuevoDevTelefono'),
+                    email: document.getElementById('nuevoDevEmail'),
+                    pago: document.getElementById('nuevoDevPago'),
+                    moneda: document.getElementById('nuevoDevMoneda'),
+                };
+                const errorBox = document.getElementById('modalErrorDev');
+
+                function openModal() {
+                    modal.style.display = 'flex';
+                    errorBox.style.display = 'none';
+                    Object.values(f).forEach(el => { if (el.tagName === 'INPUT') el.value = ''; });
+                    f.moneda.value = 'COP';
+                    setTimeout(() => f.nombre.focus(), 50);
+                }
+                function closeModal() { modal.style.display = 'none'; }
+
+                document.getElementById('btnNuevoDev').addEventListener('click', openModal);
+                document.getElementById('cerrarModalDev').addEventListener('click', closeModal);
+                document.getElementById('cancelarModalDev').addEventListener('click', closeModal);
+                modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+                document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
+
+                function syncFromDev(userChange) {
+                    const opt = select.options[select.selectedIndex];
+                    if (!opt || !opt.value) {
+                        // Solo limpiar si fue un cambio manual del usuario (preservar legacy en load inicial)
+                        if (userChange) hiddenNombre.value = '';
+                        return;
+                    }
+                    hiddenNombre.value = opt.textContent.trim();
+                    if (opt.dataset.email && !emailInput.value) emailInput.value = opt.dataset.email;
+                    if (opt.dataset.pago && (!pagoInput.value || pagoInput.value === '0' || pagoInput.value === '0.00')) {
+                        pagoInput.value = opt.dataset.pago;
+                    }
+                    if (opt.dataset.moneda) monedaSelect.value = opt.dataset.moneda;
+                }
+                select.addEventListener('change', () => syncFromDev(true));
+                syncFromDev(false);
+
+                document.getElementById('guardarNuevoDev').addEventListener('click', async () => {
+                    errorBox.style.display = 'none';
+                    const nombre = f.nombre.value.trim();
+                    if (!nombre) {
+                        errorBox.textContent = 'El nombre es obligatorio.';
+                        errorBox.style.display = 'block';
+                        f.nombre.focus();
+                        return;
+                    }
+                    const btn = document.getElementById('guardarNuevoDev');
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+                    try {
+                        const res = await fetch('{{ route('admin.developers.store') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    || document.querySelector('input[name="_token"]').value,
+                            },
+                            body: JSON.stringify({
+                                nombre,
+                                telefono: f.telefono.value.trim() || null,
+                                email: f.email.value.trim() || null,
+                                pago_default: f.pago.value ? parseFloat(f.pago.value) : null,
+                                moneda_default: f.moneda.value,
+                            }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.ok) {
+                            const msg = data?.errors
+                                ? Object.values(data.errors).flat().join(' · ')
+                                : (data?.message || 'No se pudo crear el desarrollador.');
+                            throw new Error(msg);
+                        }
+                        const d = data.developer;
+                        const opt = new Option(d.nombre, d.id, true, true);
+                        opt.dataset.email = d.email || '';
+                        opt.dataset.telefono = d.telefono || '';
+                        opt.dataset.pago = d.pago_default || '';
+                        opt.dataset.moneda = d.moneda_default || 'COP';
+                        select.add(opt);
+                        select.value = d.id;
+                        syncFromDev();
+                        closeModal();
+                    } catch (err) {
+                        errorBox.textContent = err.message;
+                        errorBox.style.display = 'block';
+                    } finally {
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fas fa-save"></i> Guardar';
+                    }
+                });
+            })();
+        </script>
 
         {{-- Notas --}}
         <div class="form-section">

@@ -9,6 +9,7 @@ class InternalProject extends Model
     protected $fillable = [
         'nombre',
         'client_id',
+        'developer_id',
         'cliente_nombre',
         'cliente_contacto',
         'cliente_email',
@@ -39,6 +40,11 @@ class InternalProject extends Model
     public function client()
     {
         return $this->belongsTo(Client::class);
+    }
+
+    public function developer()
+    {
+        return $this->belongsTo(Developer::class);
     }
 
     public function payments()
