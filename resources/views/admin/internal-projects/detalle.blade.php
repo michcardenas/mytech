@@ -137,19 +137,97 @@
     .det-filters-row2 select:focus { border-color: var(--primary-blue); outline: none; }
     .det-filters-wrap { display: flex; flex-direction: column; }
 
-    /* Columnas toggle */
+    /* Columnas toggle — dropdown moderno con switches */
     .cols-dropdown { position: relative; display: inline-block; }
-    .btn-cols { padding: 0.5rem 0.9rem; border: 1.5px solid #e9ecef; background: white; color: #666; font-weight: 600; font-size: 0.82rem; border-radius: 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; transition: var(--transition); }
-    .btn-cols:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
-    .cols-menu { position: absolute; right: 0; top: calc(100% + 6px); background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.12); padding: 0.6rem; min-width: 220px; z-index: 20; display: none; }
+    .btn-cols {
+        padding: 0.5rem 0.9rem; border: 1.5px solid #e9ecef; background: white; color: #555;
+        font-weight: 600; font-size: 0.82rem; border-radius: 10px; cursor: pointer;
+        display: inline-flex; align-items: center; gap: 0.45rem; transition: var(--transition);
+    }
+    .btn-cols:hover { border-color: var(--primary-blue); color: var(--primary-blue); background: #f7faff; }
+    .btn-cols .cols-counter {
+        background: var(--primary-blue); color: white; font-size: 0.68rem; font-weight: 700;
+        padding: 0.05rem 0.45rem; border-radius: 10px; line-height: 1.4;
+    }
+    .btn-cols .chev { font-size: 0.7rem; opacity: 0.7; transition: transform 0.2s; }
+    .cols-dropdown.open .btn-cols .chev { transform: rotate(180deg); }
+    .cols-dropdown.open .btn-cols { border-color: var(--primary-blue); color: var(--primary-blue); }
+
+    .cols-menu {
+        position: absolute; right: 0; top: calc(100% + 8px);
+        background: white; border-radius: 14px;
+        box-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(0,0,0,0.04);
+        width: 280px; z-index: 30; display: none;
+        overflow: hidden;
+        animation: colsMenuIn 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+    }
     .cols-menu.open { display: block; }
-    .cols-menu h4 { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; color: #888; letter-spacing: 0.3px; margin: 0 0 0.5rem 0; padding: 0 0.5rem; }
-    .cols-menu label { display: flex; align-items: center; gap: 0.5rem; padding: 0.4rem 0.5rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; color: var(--dark-text); transition: background 0.15s; }
-    .cols-menu label:hover { background: #f8fafc; }
-    .cols-menu input[type="checkbox"] { accent-color: var(--primary-blue); cursor: pointer; }
-    .cols-menu .cols-actions { border-top: 1px solid #f1f3f5; margin-top: 0.4rem; padding-top: 0.4rem; display: flex; gap: 0.4rem; padding-left: 0.5rem; padding-right: 0.5rem; }
-    .cols-menu .cols-actions button { flex: 1; padding: 0.35rem 0.6rem; border: none; border-radius: 6px; background: #f1f3f5; color: #666; font-size: 0.75rem; font-weight: 600; cursor: pointer; transition: var(--transition); }
-    .cols-menu .cols-actions button:hover { background: #e9ecef; color: var(--dark-text); }
+    @keyframes colsMenuIn {
+        from { opacity: 0; transform: translateY(-6px) scale(0.98); }
+        to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    .cols-menu-head {
+        padding: 0.85rem 1rem 0.7rem; border-bottom: 1px solid #f1f3f5;
+        display: flex; justify-content: space-between; align-items: center;
+    }
+    .cols-menu-head h4 {
+        font-size: 0.78rem; font-weight: 700; color: var(--dark-text);
+        margin: 0; display: flex; align-items: center; gap: 0.45rem;
+    }
+    .cols-menu-head h4 i { color: var(--primary-blue); font-size: 0.82rem; }
+    .cols-menu-head .cols-sub { font-size: 0.7rem; color: #aaa; font-weight: 500; }
+
+    .cols-menu-body { padding: 0.4rem 0.5rem; max-height: 320px; overflow-y: auto; }
+
+    /* Fila de columna: icon + nombre + switch */
+    .cols-menu-body label {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.55rem 0.65rem; border-radius: 9px;
+        cursor: pointer; transition: background 0.15s;
+        font-size: 0.85rem; color: var(--dark-text); font-weight: 500;
+    }
+    .cols-menu-body label:hover { background: #f8fafc; }
+    .cols-menu-body label .col-icon {
+        width: 26px; height: 26px; border-radius: 7px;
+        background: #f1f5f9; color: #64748b;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 0.72rem; flex-shrink: 0;
+    }
+    .cols-menu-body label.is-checked .col-icon { background: rgba(0,123,255,0.12); color: var(--primary-blue); }
+    .cols-menu-body label .col-name { flex: 1; }
+    .cols-menu-body label.is-checked .col-name { color: var(--dark-text); font-weight: 600; }
+    .cols-menu-body label:not(.is-checked) .col-name { color: #94a3b8; }
+
+    /* Toggle switch */
+    .cols-menu-body input[type="checkbox"] {
+        appearance: none; -webkit-appearance: none;
+        width: 34px; height: 20px; background: #cbd5e1; border-radius: 999px;
+        position: relative; cursor: pointer; transition: background 0.2s;
+        flex-shrink: 0;
+    }
+    .cols-menu-body input[type="checkbox"]::before {
+        content: ''; position: absolute; top: 2px; left: 2px;
+        width: 16px; height: 16px; border-radius: 50%; background: white;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        transition: transform 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .cols-menu-body input[type="checkbox"]:checked { background: var(--primary-blue); }
+    .cols-menu-body input[type="checkbox"]:checked::before { transform: translateX(14px); }
+
+    .cols-menu-actions {
+        border-top: 1px solid #f1f3f5; padding: 0.6rem 0.6rem;
+        display: flex; gap: 0.4rem; background: #fafbfc;
+    }
+    .cols-menu-actions button {
+        flex: 1; padding: 0.5rem 0.6rem; border: none; border-radius: 8px;
+        background: white; color: #555; font-size: 0.78rem; font-weight: 600;
+        cursor: pointer; transition: var(--transition);
+        display: inline-flex; align-items: center; justify-content: center; gap: 0.35rem;
+        border: 1px solid #e9ecef;
+    }
+    .cols-menu-actions button:hover { background: var(--primary-blue); color: white; border-color: var(--primary-blue); }
+    .cols-menu-actions button.secondary:hover { background: #64748b; border-color: #64748b; }
 
     /* tfoot de totales */
     .det-table tfoot td {
@@ -213,26 +291,45 @@
             <div class="det-search">
                 @if($filters['estado'])<input type="hidden" name="estado" value="{{ $filters['estado'] }}">@endif
                 <input type="text" name="buscar" placeholder="Buscar proyecto, cliente o dev..." value="{{ $filters['buscar'] }}">
-                <div class="cols-dropdown">
-                    <button type="button" class="btn-cols" onclick="document.getElementById('colsMenu').classList.toggle('open')">
-                        <i class="fas fa-columns"></i> Columnas
+                <div class="cols-dropdown" id="colsDropdown">
+                    <button type="button" class="btn-cols" id="colsBtn">
+                        <i class="fas fa-columns"></i>
+                        <span>Columnas</span>
+                        <span class="cols-counter" id="colsCounter">10</span>
+                        <i class="fas fa-chevron-down chev"></i>
                     </button>
                     <div class="cols-menu" id="colsMenu">
-                        <h4>Mostrar columnas</h4>
-                        <label><input type="checkbox" data-col="cliente" checked> Cliente</label>
-                        <label><input type="checkbox" data-col="fechas" checked> Fechas</label>
-                        <label><input type="checkbox" data-col="precio" checked> Precio</label>
-                        <label><input type="checkbox" data-col="cobrado" checked> Cobrado</label>
-                        <label><input type="checkbox" data-col="saldo_cli" checked> Saldo cliente</label>
-                        <label><input type="checkbox" data-col="pago_dev" checked> Pago dev</label>
-                        <label><input type="checkbox" data-col="abonado" checked> Abonado dev</label>
-                        <label><input type="checkbox" data-col="saldo_dev" checked> Saldo dev</label>
-                        <label><input type="checkbox" data-col="gestion" checked> Gestión</label>
-                        <label><input type="checkbox" data-col="gastos" checked> Gastos</label>
-                        <label><input type="checkbox" data-col="utilidad" checked> Utilidad</label>
-                        <div class="cols-actions">
-                            <button type="button" onclick="detalleCols.setAll(true)">Mostrar todo</button>
-                            <button type="button" onclick="detalleCols.setAll(false)">Ocultar todo</button>
+                        <div class="cols-menu-head">
+                            <h4><i class="fas fa-sliders-h"></i> Mostrar columnas</h4>
+                            <span class="cols-sub"><span id="colsVisibleCount">10</span> de 10</span>
+                        </div>
+                        <div class="cols-menu-body">
+                            @php
+                                $colDefs = [
+                                    ['cliente', 'fa-user', 'Cliente'],
+                                    ['fechas', 'fa-calendar', 'Fechas'],
+                                    ['precio', 'fa-tag', 'Precio'],
+                                    ['cobrado', 'fa-hand-holding-usd', 'Cobrado'],
+                                    ['saldo_cli', 'fa-balance-scale', 'Saldo cliente'],
+                                    ['pago_dev', 'fa-laptop-code', 'Pago dev'],
+                                    ['abonado', 'fa-paper-plane', 'Abonado dev'],
+                                    ['saldo_dev', 'fa-wallet', 'Saldo dev'],
+                                    ['gestion', 'fa-handshake', 'Gestión'],
+                                    ['gastos', 'fa-receipt', 'Gastos'],
+                                    ['utilidad', 'fa-chart-line', 'Utilidad'],
+                                ];
+                            @endphp
+                            @foreach($colDefs as [$col, $icon, $label])
+                                <label class="is-checked" data-col-row="{{ $col }}">
+                                    <span class="col-icon"><i class="fas {{ $icon }}"></i></span>
+                                    <span class="col-name">{{ $label }}</span>
+                                    <input type="checkbox" data-col="{{ $col }}" checked>
+                                </label>
+                            @endforeach
+                        </div>
+                        <div class="cols-menu-actions">
+                            <button type="button" onclick="detalleCols.setAll(true)"><i class="fas fa-eye"></i> Mostrar todo</button>
+                            <button type="button" class="secondary" onclick="detalleCols.setAll(false)"><i class="fas fa-eye-slash"></i> Ocultar todo</button>
                         </div>
                     </div>
                 </div>
@@ -548,13 +645,26 @@
 <script>
     window.detalleCols = (function () {
         const STORAGE_KEY = 'internal-projects-detalle-cols';
+        const dropdown = document.getElementById('colsDropdown');
+        const btn = document.getElementById('colsBtn');
         const menu = document.getElementById('colsMenu');
+        const counter = document.getElementById('colsCounter');
+        const visibleTxt = document.getElementById('colsVisibleCount');
         const checkboxes = menu ? menu.querySelectorAll('input[type="checkbox"][data-col]') : [];
+        const total = checkboxes.length;
 
         function applyCol(col, visible) {
             document.querySelectorAll('#detTable [data-col="' + col + '"]').forEach(el => {
                 el.style.display = visible ? '' : 'none';
             });
+            const row = menu.querySelector('label[data-col-row="' + col + '"]');
+            if (row) row.classList.toggle('is-checked', visible);
+        }
+
+        function updateCounter() {
+            const n = [...checkboxes].filter(cb => cb.checked).length;
+            if (counter) counter.textContent = n;
+            if (visibleTxt) visibleTxt.textContent = n;
         }
 
         function saveState() {
@@ -583,24 +693,40 @@
                 applyCol(cb.dataset.col, visible);
             });
             saveState();
+            updateCounter();
+        }
+
+        function toggle() {
+            const open = menu.classList.toggle('open');
+            dropdown.classList.toggle('open', open);
+        }
+        function close() {
+            menu.classList.remove('open');
+            dropdown.classList.remove('open');
         }
 
         checkboxes.forEach(cb => {
             cb.addEventListener('change', () => {
                 applyCol(cb.dataset.col, cb.checked);
                 saveState();
+                updateCounter();
             });
         });
 
-        // Click fuera cierra el menú
+        if (btn) btn.addEventListener('click', (e) => { e.stopPropagation(); toggle(); });
+
         document.addEventListener('click', (e) => {
             if (!menu) return;
-            if (!menu.contains(e.target) && !e.target.closest('.btn-cols')) {
-                menu.classList.remove('open');
+            if (!menu.contains(e.target) && !e.target.closest('#colsBtn')) {
+                close();
             }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') close();
         });
 
         loadState();
+        updateCounter();
         return { setAll };
     })();
 </script>
