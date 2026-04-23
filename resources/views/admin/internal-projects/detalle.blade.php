@@ -428,8 +428,11 @@
                             $saldoGestion = max($comision - $abonadoGestion, 0);
 
                             // Utilidad de caja = lo cobrado − lo que REALMENTE se pagó (dev + gestión) − gastos
-                            // Esto refleja el dinero que te queda en la mano ahora mismo.
-                            $ingresoCop = $moneda === 'USD' ? $cobrado * $usdCop : $cobrado;
+                            // Si el proyecto es USD y registraste `monto_recibido_cop` (neto), usamos eso en vez de convertir.
+                            $netoCopReal = (float) ($p->payments_sum_cop ?? 0);
+                            $ingresoCop = $moneda === 'USD'
+                                ? ($netoCopReal > 0 ? $netoCopReal : $cobrado * $usdCop)
+                                : $cobrado;
                             $abonadoDevCop = $devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev;
                             $abonadoGestionCop = $moneda === 'USD' ? $abonadoGestion * $usdCop : $abonadoGestion;
                             $gastosCop = $gastos;
@@ -459,6 +462,28 @@
                             <td class="mono" data-col="precio">{{ $fmtMoneda($p->precio, $moneda) }}</td>
                             <td class="mono ing" data-col="cobrado">
                                 {{ $fmtMoneda($cobrado, $moneda) }}
+                                @php
+                                    if ($moneda === 'USD') {
+                                        $netoCop = (float) ($p->payments_sum_cop ?? 0);
+                                        $cobradoEquiv = $netoCop > 0 ? $netoCop : ($cobrado * $usdCop);
+                                        $cobradoEquivLabel = $netoCop > 0 ? 'neto COP' : '≈ COP';
+                                    } elseif ($cobrado > 0) {
+                                        $cobradoEquiv = $cobrado / $usdCop;
+                                        $cobradoEquivLabel = '≈ USD';
+                                    } else {
+                                        $cobradoEquiv = 0;
+                                        $cobradoEquivLabel = '';
+                                    }
+                                @endphp
+                                @if($cobradoEquiv > 0)
+                                    <span class="sub" style="color:#059669; font-weight:600;">
+                                        @if($moneda === 'USD')
+                                            {{ $fmtCop($cobradoEquiv) }} {{ $cobradoEquivLabel }}
+                                        @else
+                                            US${{ number_format($cobradoEquiv, 0, ',', '.') }} {{ $cobradoEquivLabel }}
+                                        @endif
+                                    </span>
+                                @endif
                                 <span class="sub">{{ $p->payments_count }} pagos</span>
                             </td>
                             <td class="mono {{ $saldoCli > 0 && $p->estado !== 'cancelado' ? 'rojo' : 'mute' }}" data-col="saldo_cli">

@@ -447,7 +447,12 @@ class InternalProjectController extends Controller
             $pageTotals['gastos_cop'] += $gastos;
 
             // Utilidad de caja: cobrado − abonado_dev − abonado_gestion − gastos (todo en COP)
-            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda)
+            // Si es USD y hay monto_recibido_cop registrado, usamos ese neto real en vez de convertir.
+            $netoCopReal = (float) ($p->payments_sum_cop ?? 0);
+            $ingresoCopReal = $moneda === 'USD' && $netoCopReal > 0
+                ? $netoCopReal
+                : $toCop($cobrado, $moneda);
+            $pageTotals['utilidad_cop'] += $ingresoCopReal
                 - $toCop($abonadoDev, $devMoneda)
                 - $toCop($abonadoGestion, $moneda)
                 - $gastos;
