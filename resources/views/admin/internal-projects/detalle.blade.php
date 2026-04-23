@@ -508,14 +508,37 @@
                     @endforelse
                 </tbody>
                 @if($projects->count() > 0)
+                    @php
+                        // Render helper para celdas cliente con COP + USD separados
+                        $renderSplit = function ($cop, $usd, $cls = '') use ($fmtCop) {
+                            $out = '';
+                            $hasCop = $cop > 0;
+                            $hasUsd = $usd > 0;
+                            if ($hasCop && $hasUsd) {
+                                $out .= '<div>' . $fmtCop($cop) . '</div>';
+                                $out .= '<div class="sub" style="color:#059669; font-weight:700;">US$' . number_format($usd, 0, ',', '.') . ' USD</div>';
+                            } elseif ($hasUsd) {
+                                $out .= 'US$' . number_format($usd, 0, ',', '.') . ' <small style="font-size:0.72rem; color:#888; font-weight:500;">USD</small>';
+                            } else {
+                                $out .= $fmtCop($cop);
+                            }
+                            return $out;
+                        };
+                    @endphp
                     <tfoot>
                         <tr>
                             <td class="total-label" data-col="proyecto">Total página ({{ $projects->count() }} proyectos)</td>
                             <td data-col="cliente"></td>
                             <td data-col="fechas"></td>
-                            <td class="mono" data-col="precio">{{ $fmtCop($pageTotals['precio_cop']) }}</td>
-                            <td class="mono ing" data-col="cobrado">{{ $fmtCop($pageTotals['cobrado_cop']) }}</td>
-                            <td class="mono {{ $pageTotals['saldo_cliente_cop'] > 0 ? 'rojo' : 'mute' }}" data-col="saldo_cli">{{ $fmtCop($pageTotals['saldo_cliente_cop']) }}</td>
+                            <td class="mono" data-col="precio">
+                                {!! $renderSplit($pageTotals['precio_cop_native'], $pageTotals['precio_usd_native']) !!}
+                            </td>
+                            <td class="mono ing" data-col="cobrado">
+                                {!! $renderSplit($pageTotals['cobrado_cop_native'], $pageTotals['cobrado_usd_native']) !!}
+                            </td>
+                            <td class="mono {{ ($pageTotals['saldo_cliente_cop_native'] + $pageTotals['saldo_cliente_usd_native']) > 0 ? 'rojo' : 'mute' }}" data-col="saldo_cli">
+                                {!! $renderSplit($pageTotals['saldo_cliente_cop_native'], $pageTotals['saldo_cliente_usd_native']) !!}
+                            </td>
                             <td class="mono" data-col="pago_dev">{{ $fmtCop($pageTotals['pago_dev_cop']) }}</td>
                             <td class="mono dev" data-col="abonado">{{ $fmtCop($pageTotals['abonado_dev_cop']) }}</td>
                             <td class="mono {{ $pageTotals['saldo_dev_cop'] > 0 ? 'dev' : 'mute' }}" data-col="saldo_dev">{{ $fmtCop($pageTotals['saldo_dev_cop']) }}</td>

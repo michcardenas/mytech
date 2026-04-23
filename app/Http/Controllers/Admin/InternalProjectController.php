@@ -378,11 +378,16 @@ class InternalProjectController extends Controller
             'per_page' => $perPage,
         ];
 
-        // === Totales de la página actual (para el tfoot, todo en COP) ===
+        // === Totales de la página actual ===
+        // Para columnas del cliente (precio, cobrado, saldo cli.) separamos por moneda nativa.
+        // Para dev/gestión/gastos y la utilidad total se normaliza a COP.
         $pageTotals = [
-            'precio_cop' => 0,
-            'cobrado_cop' => 0,
-            'saldo_cliente_cop' => 0,
+            'precio_cop_native' => 0,
+            'precio_usd_native' => 0,
+            'cobrado_cop_native' => 0,
+            'cobrado_usd_native' => 0,
+            'saldo_cliente_cop_native' => 0,
+            'saldo_cliente_usd_native' => 0,
             'pago_dev_cop' => 0,
             'abonado_dev_cop' => 0,
             'saldo_dev_cop' => 0,
@@ -402,7 +407,7 @@ class InternalProjectController extends Controller
             $saldoDev = max($pagoDev - $abonadoDev, 0);
             $gastos = (float) ($p->expenses_sum ?? 0);
 
-            // Comisión de gestión calculada en moneda del proyecto (COP via toCop al sumar)
+            // Comisión de gestión calculada en moneda del proyecto
             $comision = 0;
             if ($p->comision_tipo && $p->comision_valor) {
                 if ($p->comision_tipo === 'monto') {
@@ -421,9 +426,18 @@ class InternalProjectController extends Controller
             $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
             $saldoGestion = max($comision - $abonadoGestion, 0);
 
-            $pageTotals['precio_cop'] += $toCop($p->precio, $moneda);
-            $pageTotals['cobrado_cop'] += $toCop($cobrado, $moneda);
-            $pageTotals['saldo_cliente_cop'] += $toCop($saldoCli, $moneda);
+            // Columnas cliente: acumular por moneda nativa del proyecto
+            if ($moneda === 'USD') {
+                $pageTotals['precio_usd_native'] += (float) $p->precio;
+                $pageTotals['cobrado_usd_native'] += $cobrado;
+                $pageTotals['saldo_cliente_usd_native'] += $saldoCli;
+            } else {
+                $pageTotals['precio_cop_native'] += (float) $p->precio;
+                $pageTotals['cobrado_cop_native'] += $cobrado;
+                $pageTotals['saldo_cliente_cop_native'] += $saldoCli;
+            }
+
+            // Dev/gestión/gastos en COP (dev puede estar en moneda distinta al proyecto)
             $pageTotals['pago_dev_cop'] += $toCop($pagoDev, $devMoneda);
             $pageTotals['abonado_dev_cop'] += $toCop($abonadoDev, $devMoneda);
             $pageTotals['saldo_dev_cop'] += $toCop($saldoDev, $devMoneda);
@@ -432,7 +446,7 @@ class InternalProjectController extends Controller
             $pageTotals['saldo_gestion_cop'] += $toCop($saldoGestion, $moneda);
             $pageTotals['gastos_cop'] += $gastos;
 
-            // Utilidad = cobrado − costo_dev − comisión − gastos (costo dev: asignado si existe, si no abonado)
+            // Utilidad = cobrado − costo_dev − comisión − gastos (todo en COP)
             $costoDev = $pagoDev > 0 ? $toCop($pagoDev, $devMoneda) : $toCop($abonadoDev, $devMoneda);
             $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda) - $costoDev - $toCop($comision, $moneda) - $gastos;
         }
