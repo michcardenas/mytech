@@ -308,6 +308,8 @@
     .flag-badge.pagar-dev { background: rgba(124,58,237,0.12); color: #6b21a8; }
     .flag-badge.sin-dev { background: rgba(247,168,49,0.15); color: #b76f00; }
     .flag-badge.recurrente { background: rgba(0,123,255,0.12); color: #0056b3; }
+    .flag-badge.gestion { background: rgba(5,150,105,0.12); color: #047857; }
+    .flag-badge.pagar-gestion { background: rgba(5,150,105,0.18); color: #065f46; }
 
     .ip-card-client {
         font-size: 0.85rem;
@@ -389,6 +391,7 @@
     .saldo-line strong { font-weight: 700; }
     .saldo-line.alert strong { color: var(--danger); }
     .saldo-line.pagar-dev strong { color: var(--purple); }
+    .saldo-line.pagar-gestion strong { color: #059669; }
 
     /* Empty */
     .ip-empty {
@@ -470,6 +473,10 @@
     if (request('pago_dev')) {
         $pagoDevLabels = ['pendiente' => 'Debo al dev', 'al_dia' => 'Dev al día', 'sin_dev_asignado' => 'Sin desarrollador'];
         $activeFilters['pago_dev'] = 'Pago dev: ' . ($pagoDevLabels[request('pago_dev')] ?? request('pago_dev'));
+    }
+    if (request('gestion')) {
+        $gestionLabels = ['con_gestion' => 'Con vendedor', 'sin_gestion' => 'Sin vendedor', 'pendiente_gestion' => 'Debo al vendedor'];
+        $activeFilters['gestion'] = 'Gestión: ' . ($gestionLabels[request('gestion')] ?? request('gestion'));
     }
     if (request('recurrente')) $activeFilters['recurrente'] = 'Recurrente: ' . (request('recurrente') === 'si' ? 'Sí' : 'No');
     if (request('buscar')) $activeFilters['buscar'] = 'Búsqueda: "' . request('buscar') . '"';
@@ -595,6 +602,12 @@
                 <option value="al_dia" {{ request('pago_dev') == 'al_dia' ? 'selected' : '' }}>Dev al día</option>
                 <option value="sin_dev_asignado" {{ request('pago_dev') == 'sin_dev_asignado' ? 'selected' : '' }}>Sin dev asignado</option>
             </select>
+            <select name="gestion" aria-label="Gestión / vendedor">
+                <option value="">Cualquier gestión</option>
+                <option value="con_gestion" {{ request('gestion') == 'con_gestion' ? 'selected' : '' }}>Con vendedor</option>
+                <option value="sin_gestion" {{ request('gestion') == 'sin_gestion' ? 'selected' : '' }}>Sin vendedor</option>
+                <option value="pendiente_gestion" {{ request('gestion') == 'pendiente_gestion' ? 'selected' : '' }}>Debo al vendedor</option>
+            </select>
             <select name="recurrente" aria-label="Filtrar recurrentes">
                 <option value="">Recurrente: todos</option>
                 <option value="si" {{ request('recurrente') == 'si' ? 'selected' : '' }}>Sí</option>
@@ -649,6 +662,20 @@
                 $muestraCobrar = $saldoCliente > 0 && $project->estado !== 'cancelado';
                 $muestraPagarDev = $saldoDev > 0 && $project->desarrollador_nombre;
                 $muestraSinDev = !$project->desarrollador_nombre && $estadoActivo;
+
+                // Gestión / comisión
+                $tieneGestion = $project->vendedor_id && $project->comision_tipo && $project->comision_valor;
+                $comCalc = 0;
+                if ($tieneGestion) {
+                    if ($project->comision_tipo === 'monto') {
+                        $comCalc = (float) $project->comision_valor;
+                    } else { // porcentaje
+                        $comCalc = max((float) $project->precio - (float) ($project->desarrollador_pago ?? 0), 0) * ((float) $project->comision_valor / 100);
+                    }
+                }
+                $abonadoGestion = (float) ($project->gestion_payments_sum_monto ?? 0);
+                $saldoGestion = max($comCalc - $abonadoGestion, 0);
+                $muestraPagarGestion = $saldoGestion > 0 && $tieneGestion;
             @endphp
             <a href="{{ route('admin.internal-projects.show', $project) }}" class="ip-card">
                 <div class="ip-card-body">
@@ -670,6 +697,11 @@
                         @endif
                         @if($muestraSinDev)
                             <span class="flag-badge sin-dev"><i class="fas fa-exclamation-triangle"></i> Sin dev</span>
+                        @endif
+                        @if($muestraPagarGestion)
+                            <span class="flag-badge pagar-gestion"><i class="fas fa-handshake"></i> Pagar gestión</span>
+                        @elseif($tieneGestion)
+                            <span class="flag-badge gestion"><i class="fas fa-handshake"></i> Gestión</span>
                         @endif
                     </div>
                     <p class="ip-card-client">
@@ -736,6 +768,13 @@
                                 <strong>{{ ($project->desarrollador_moneda ?? 'COP') == 'COP' ? '$' : 'US$' }}{{ number_format($saldoDev, 0, ',', '.') }}</strong>
                             </div>
                         @endif
+                    @endif
+
+                    @if($tieneGestion && $saldoGestion > 0)
+                        <div class="saldo-line pagar-gestion">
+                            <span>Gestión:</span>
+                            <strong>{{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($saldoGestion, 0, ',', '.') }}</strong>
+                        </div>
                     @endif
                 </div>
             </a>

@@ -13,6 +13,7 @@ use App\Models\ProjectFile;
 use App\Models\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
@@ -22,9 +23,10 @@ class InternalProjectController extends Controller
     {
         $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
 
-        $query = InternalProject::withCount('payments', 'files', 'developerPayments')
+        $query = InternalProject::withCount('payments', 'files', 'developerPayments', 'gestionPayments')
             ->withSum('payments', 'monto')
-            ->withSum('developerPayments as developer_payments_sum_monto', 'monto');
+            ->withSum('developerPayments as developer_payments_sum_monto', 'monto')
+            ->withSum('gestionPayments as gestion_payments_sum_monto', 'monto');
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -83,6 +85,26 @@ class InternalProjectController extends Controller
                 'al_dia' => $query->whereNotNull('desarrollador_pago')
                     ->whereRaw('desarrollador_pago <= (SELECT COALESCE(SUM(monto),0) FROM developer_payments WHERE developer_payments.internal_project_id = internal_projects.id)'),
                 'sin_dev_asignado' => $query->whereNull('desarrollador_nombre'),
+                default => null,
+            };
+        }
+
+        if ($request->filled('gestion')) {
+            match ($request->gestion) {
+                'con_gestion' => $query->whereNotNull('vendedor_id'),
+                'sin_gestion' => $query->whereNull('vendedor_id'),
+                'pendiente_gestion' => $query->whereNotNull('vendedor_id')
+                    ->where(function ($q) {
+                        $q->where(function ($sub) {
+                            // Monto fijo → saldo > 0
+                            $sub->where('comision_tipo', 'monto')
+                                ->whereColumn('comision_valor', '>', DB::raw('(SELECT COALESCE(SUM(monto),0) FROM gestion_payments WHERE gestion_payments.internal_project_id = internal_projects.id)'));
+                        })->orWhere(function ($sub) {
+                            // Porcentaje → (precio − pago_dev) × % > abonado
+                            $sub->where('comision_tipo', 'porcentaje')
+                                ->whereRaw('((precio - COALESCE(desarrollador_pago,0)) * comision_valor / 100) > (SELECT COALESCE(SUM(monto),0) FROM gestion_payments WHERE gestion_payments.internal_project_id = internal_projects.id)');
+                        });
+                    }),
                 default => null,
             };
         }
