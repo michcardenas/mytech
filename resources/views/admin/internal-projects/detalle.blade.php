@@ -428,13 +428,13 @@
                             $saldoGestion = max($comision - $abonadoGestion, 0);
 
                             // Utilidad = cobrado − costo_dev − comisión − gastos (todos en COP)
+                            // Se calcula siempre, incluso cuando no hay pago al dev (costo = 0).
                             $ingresoCop = $moneda === 'USD' ? $cobrado * $usdCop : $cobrado;
                             $devCostoCop = $pagoDev > 0
                                 ? ($devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev)
                                 : ($devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev);
                             $comisionCop = $moneda === 'USD' ? $comision * $usdCop : $comision;
                             $gastosCop = $gastos;
-                            $utilidadCalculable = $pagoDev > 0 || $abonadoDev > 0 || $cobrado > 0 || $gastos > 0 || $comision > 0;
                             $utilidad = $ingresoCop - $devCostoCop - $comisionCop - $gastosCop;
                         @endphp
                         <tr onclick="window.location='{{ route('admin.internal-projects.show', $p) }}'">
@@ -493,9 +493,9 @@
                             <td class="mono {{ $gastos > 0 ? 'gas' : 'mute' }}" data-col="gastos">
                                 @if($gastos > 0){{ $fmtMoneda($gastos, 'COP') }}<span class="sub">{{ $p->expenses_count }}</span>@else <span style="color:#bbb;">—</span>@endif
                             </td>
-                            <td class="mono {{ $utilidadCalculable ? ($utilidad >= 0 ? 'verde' : 'rojo') : 'mute' }}" data-col="utilidad"
-                                title="{{ $pagoDev > 0 ? 'Basada en pago dev asignado' : ($abonadoDev > 0 ? 'Basada en lo abonado (sin asignación)' : 'Sin datos suficientes') }}">
-                                @if($utilidadCalculable){{ $fmtCop($utilidad) }}@else <span style="color:#bbb;">—</span>@endif
+                            <td class="mono {{ $utilidad > 0 ? 'verde' : ($utilidad < 0 ? 'rojo' : 'mute') }}" data-col="utilidad"
+                                title="{{ $pagoDev > 0 ? 'Basada en pago dev asignado' : ($abonadoDev > 0 ? 'Basada en lo abonado' : 'Sin costo dev — cobrado menos comisión y gastos') }}">
+                                {{ $fmtCop($utilidad) }}
                             </td>
                         </tr>
                     @empty
