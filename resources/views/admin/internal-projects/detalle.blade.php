@@ -427,15 +427,13 @@
                             $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
                             $saldoGestion = max($comision - $abonadoGestion, 0);
 
-                            // Utilidad = cobrado − costo_dev − comisión − gastos (todos en COP)
-                            // Se calcula siempre, incluso cuando no hay pago al dev (costo = 0).
+                            // Utilidad de caja = lo cobrado − lo que REALMENTE se pagó (dev + gestión) − gastos
+                            // Esto refleja el dinero que te queda en la mano ahora mismo.
                             $ingresoCop = $moneda === 'USD' ? $cobrado * $usdCop : $cobrado;
-                            $devCostoCop = $pagoDev > 0
-                                ? ($devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev)
-                                : ($devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev);
-                            $comisionCop = $moneda === 'USD' ? $comision * $usdCop : $comision;
+                            $abonadoDevCop = $devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev;
+                            $abonadoGestionCop = $moneda === 'USD' ? $abonadoGestion * $usdCop : $abonadoGestion;
                             $gastosCop = $gastos;
-                            $utilidad = $ingresoCop - $devCostoCop - $comisionCop - $gastosCop;
+                            $utilidad = $ingresoCop - $abonadoDevCop - $abonadoGestionCop - $gastosCop;
                         @endphp
                         <tr onclick="window.location='{{ route('admin.internal-projects.show', $p) }}'">
                             <td data-col="proyecto">
@@ -494,7 +492,7 @@
                                 @if($gastos > 0){{ $fmtMoneda($gastos, 'COP') }}<span class="sub">{{ $p->expenses_count }}</span>@else <span style="color:#bbb;">—</span>@endif
                             </td>
                             <td class="mono {{ $utilidad > 0 ? 'verde' : ($utilidad < 0 ? 'rojo' : 'mute') }}" data-col="utilidad"
-                                title="{{ $pagoDev > 0 ? 'Basada en pago dev asignado' : ($abonadoDev > 0 ? 'Basada en lo abonado' : 'Sin costo dev — cobrado menos comisión y gastos') }}">
+                                title="Utilidad de caja: cobrado − abonado al dev − abonado gestión − gastos">
                                 {{ $fmtCop($utilidad) }}
                             </td>
                         </tr>

@@ -446,9 +446,11 @@ class InternalProjectController extends Controller
             $pageTotals['saldo_gestion_cop'] += $toCop($saldoGestion, $moneda);
             $pageTotals['gastos_cop'] += $gastos;
 
-            // Utilidad = cobrado − costo_dev − comisión − gastos (todo en COP)
-            $costoDev = $pagoDev > 0 ? $toCop($pagoDev, $devMoneda) : $toCop($abonadoDev, $devMoneda);
-            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda) - $costoDev - $toCop($comision, $moneda) - $gastos;
+            // Utilidad de caja: cobrado − abonado_dev − abonado_gestion − gastos (todo en COP)
+            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda)
+                - $toCop($abonadoDev, $devMoneda)
+                - $toCop($abonadoGestion, $moneda)
+                - $gastos;
         }
 
         return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'pageTotals', 'filters', 'desarrolladores', 'vendedores', 'usdCop'));
