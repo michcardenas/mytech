@@ -203,7 +203,7 @@
         <div class="det-filters" style="box-shadow:none; margin-bottom:0; border-radius:0; background:transparent;">
             <div class="det-chips">
                 @foreach($estadoChips as $key => $label)
-                    <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $key, 'buscar' => $filters['buscar'], 'desarrollador' => $filters['desarrollador'], 'fuente' => $filters['fuente'], 'orden' => $filters['orden'] !== 'reciente' ? $filters['orden'] : null])) }}"
+                    <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $key, 'buscar' => $filters['buscar'], 'desarrollador' => $filters['desarrollador'], 'fuente' => $filters['fuente'], 'vendedor' => $filters['vendedor'], 'orden' => $filters['orden'] !== 'reciente' ? $filters['orden'] : null])) }}"
                        class="det-chip {{ $filters['estado'] === $key ? 'active' : '' }}">
                         {{ $label }}
                     </a>
@@ -227,6 +227,7 @@
                         <label><input type="checkbox" data-col="pago_dev" checked> Pago dev</label>
                         <label><input type="checkbox" data-col="abonado" checked> Abonado dev</label>
                         <label><input type="checkbox" data-col="saldo_dev" checked> Saldo dev</label>
+                        <label><input type="checkbox" data-col="gestion" checked> Gestión</label>
                         <label><input type="checkbox" data-col="gastos" checked> Gastos</label>
                         <label><input type="checkbox" data-col="utilidad" checked> Utilidad</label>
                         <div class="cols-actions">
@@ -236,7 +237,7 @@
                     </div>
                 </div>
                 <button type="submit"><i class="fas fa-search"></i> Aplicar</button>
-                @if($filters['buscar'] || $filters['desarrollador'] || $filters['fuente'] || $filters['orden'] !== 'reciente' || (int) $filters['per_page'] !== 30)
+                @if($filters['buscar'] || $filters['desarrollador'] || $filters['fuente'] || $filters['vendedor'] || $filters['orden'] !== 'reciente' || (int) $filters['per_page'] !== 30)
                     <a href="{{ route('admin.internal-projects.detalle', array_filter(['estado' => $filters['estado']])) }}" class="clear">
                         <i class="fas fa-times"></i> Limpiar
                     </a>
@@ -255,6 +256,13 @@
                 <option value="">Cualquier fuente</option>
                 <option value="directo" {{ $filters['fuente'] === 'directo' ? 'selected' : '' }}>Directo</option>
                 <option value="workana" {{ $filters['fuente'] === 'workana' ? 'selected' : '' }}>Workana</option>
+            </select>
+            <select name="vendedor" aria-label="Vendedor / gestor">
+                <option value="">Todos los gestores</option>
+                <option value="sin" {{ $filters['vendedor'] === 'sin' ? 'selected' : '' }}>Sin gestor</option>
+                @foreach($vendedores as $v)
+                    <option value="{{ $v->id }}" {{ (string) $filters['vendedor'] === (string) $v->id ? 'selected' : '' }}>{{ $v->nombre }}</option>
+                @endforeach
             </select>
             <select name="orden" aria-label="Orden">
                 <option value="reciente" {{ $filters['orden'] === 'reciente' ? 'selected' : '' }}>Más recientes</option>
@@ -287,8 +295,9 @@
                         <th data-col="pago_dev" style="text-align:right;">Pago dev</th>
                         <th data-col="abonado" style="text-align:right;">Abonado</th>
                         <th data-col="saldo_dev" style="text-align:right;">Saldo dev</th>
+                        <th data-col="gestion" style="text-align:right;" title="Comisión al vendedor (pactada vs abonada)">Gestión</th>
                         <th data-col="gastos" style="text-align:right;">Gastos</th>
-                        <th data-col="utilidad" style="text-align:right;" title="Utilidad = Cobrado − (Pago dev asignado) − Gastos">Utilidad</th>
+                        <th data-col="utilidad" style="text-align:right;" title="Utilidad = Cobrado − (Pago dev asignado) − Comisión gestión − Gastos">Utilidad</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -303,15 +312,33 @@
                             $saldoDev = max($pagoDev - $abonadoDev, 0);
                             $gastos = (float) ($p->expenses_sum ?? 0);
 
-                            // Utilidad basada en el pago asignado al dev (proyección real del proyecto)
-                            // Si no hay dev asignado y no hay abonos, se muestra "—" (no es calculable).
+                            // Comisión de gestión en moneda del proyecto
+                            $comision = 0;
+                            if ($p->comision_tipo && $p->comision_valor) {
+                                if ($p->comision_tipo === 'monto') {
+                                    $comision = (float) $p->comision_valor;
+                                } else {
+                                    $pagoDevEnMoneda = $pagoDev;
+                                    if ($devMoneda !== $moneda) {
+                                        $pagoDevEnMoneda = $devMoneda === 'USD' && $moneda === 'COP'
+                                            ? $pagoDev * $usdCop
+                                            : ($devMoneda === 'COP' && $moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
+                                    }
+                                    $comision = max((float) $p->precio - $pagoDevEnMoneda, 0) * ((float) $p->comision_valor / 100);
+                                }
+                            }
+                            $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
+                            $saldoGestion = max($comision - $abonadoGestion, 0);
+
+                            // Utilidad = cobrado − costo_dev − comisión − gastos (todos en COP)
                             $ingresoCop = $moneda === 'USD' ? $cobrado * $usdCop : $cobrado;
                             $devCostoCop = $pagoDev > 0
                                 ? ($devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev)
                                 : ($devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev);
+                            $comisionCop = $moneda === 'USD' ? $comision * $usdCop : $comision;
                             $gastosCop = $gastos;
-                            $utilidadCalculable = $pagoDev > 0 || $abonadoDev > 0 || $cobrado > 0 || $gastos > 0;
-                            $utilidad = $ingresoCop - $devCostoCop - $gastosCop;
+                            $utilidadCalculable = $pagoDev > 0 || $abonadoDev > 0 || $cobrado > 0 || $gastos > 0 || $comision > 0;
+                            $utilidad = $ingresoCop - $devCostoCop - $comisionCop - $gastosCop;
                         @endphp
                         <tr onclick="window.location='{{ route('admin.internal-projects.show', $p) }}'">
                             <td data-col="proyecto">
@@ -351,6 +378,21 @@
                             <td class="mono {{ $saldoDev > 0 ? 'dev' : 'mute' }}" data-col="saldo_dev">
                                 @if($pagoDev > 0){{ $fmtMoneda($saldoDev, $devMoneda) }}@else <span style="color:#bbb;">—</span>@endif
                             </td>
+                            <td class="mono" data-col="gestion" style="color: {{ $saldoGestion > 0 ? '#059669' : ($comision > 0 ? '#94a3b8' : '#bbb') }};"
+                                title="{{ $p->vendedor?->nombre ?? 'Sin vendedor' }}">
+                                @if($comision > 0)
+                                    {{ $fmtMoneda($saldoGestion, $moneda) }}
+                                    <span class="sub">
+                                        {{ $p->vendedor?->nombre ? \Illuminate\Support\Str::limit($p->vendedor->nombre, 14) : 'vendedor' }}
+                                        @if($comision > 0) · {{ $fmtMoneda($comision, $moneda) }}@endif
+                                    </span>
+                                @elseif($p->vendedor_id)
+                                    <span style="color:#bbb;">—</span>
+                                    <span class="sub">{{ $p->vendedor?->nombre ? \Illuminate\Support\Str::limit($p->vendedor->nombre, 14) : '' }}</span>
+                                @else
+                                    <span style="color:#bbb;">—</span>
+                                @endif
+                            </td>
                             <td class="mono {{ $gastos > 0 ? 'gas' : 'mute' }}" data-col="gastos">
                                 @if($gastos > 0){{ $fmtMoneda($gastos, 'COP') }}<span class="sub">{{ $p->expenses_count }}</span>@else <span style="color:#bbb;">—</span>@endif
                             </td>
@@ -361,7 +403,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="11" class="det-empty">
+                            <td colspan="12" class="det-empty">
                                 <i class="fas fa-inbox"></i>
                                 <p>No hay proyectos que coincidan con los filtros.</p>
                             </td>
@@ -380,6 +422,10 @@
                             <td class="mono" data-col="pago_dev">{{ $fmtCop($pageTotals['pago_dev_cop']) }}</td>
                             <td class="mono dev" data-col="abonado">{{ $fmtCop($pageTotals['abonado_dev_cop']) }}</td>
                             <td class="mono {{ $pageTotals['saldo_dev_cop'] > 0 ? 'dev' : 'mute' }}" data-col="saldo_dev">{{ $fmtCop($pageTotals['saldo_dev_cop']) }}</td>
+                            <td class="mono" data-col="gestion" style="color: {{ $pageTotals['saldo_gestion_cop'] > 0 ? '#059669' : '#bbb' }};">
+                                {{ $fmtCop($pageTotals['saldo_gestion_cop']) }}
+                                <span class="sub" style="color:#aaa;">de {{ $fmtCop($pageTotals['comision_cop']) }}</span>
+                            </td>
                             <td class="mono {{ $pageTotals['gastos_cop'] > 0 ? 'gas' : 'mute' }}" data-col="gastos">{{ $fmtCop($pageTotals['gastos_cop']) }}</td>
                             <td class="mono {{ $pageTotals['utilidad_cop'] >= 0 ? 'verde' : 'rojo' }}" data-col="utilidad">{{ $fmtCop($pageTotals['utilidad_cop']) }}</td>
                         </tr>

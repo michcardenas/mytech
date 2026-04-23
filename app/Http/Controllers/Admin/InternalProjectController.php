@@ -236,8 +236,10 @@ class InternalProjectController extends Controller
         $query = InternalProject::withSum('payments as payments_sum', 'monto')
             ->withSum('payments as payments_sum_cop', 'monto_recibido_cop')
             ->withSum('developerPayments as developer_payments_sum', 'monto')
+            ->withSum('gestionPayments as gestion_payments_sum', 'monto')
             ->withSum('expenses as expenses_sum', 'monto')
-            ->withCount('payments', 'developerPayments', 'expenses');
+            ->withCount('payments', 'developerPayments', 'gestionPayments', 'expenses')
+            ->with('vendedor:id,nombre');
 
         if ($request->filled('estado')) {
             $query->where('estado', $request->estado);
@@ -260,6 +262,14 @@ class InternalProjectController extends Controller
             $query->where('fuente', $request->fuente);
         }
 
+        if ($request->filled('vendedor')) {
+            if ($request->vendedor === 'sin') {
+                $query->whereNull('vendedor_id');
+            } else {
+                $query->where('vendedor_id', $request->vendedor);
+            }
+        }
+
         match ($request->get('orden', 'reciente')) {
             'mayor_precio' => $query->orderBy('precio', 'desc'),
             'mayor_saldo_cliente' => $query->orderByRaw('(precio - COALESCE((SELECT SUM(monto) FROM project_payments WHERE project_payments.internal_project_id = internal_projects.id),0)) DESC'),
@@ -278,6 +288,8 @@ class InternalProjectController extends Controller
             ->distinct()
             ->orderBy('desarrollador_nombre')
             ->pluck('desarrollador_nombre');
+
+        $vendedores = Vendedor::orderBy('nombre')->get(['id', 'nombre']);
 
         // === Totales de empresa (lifetime, todo el histórico) ===
         $allProjects = InternalProject::with(['payments', 'developerPayments', 'expenses'])->get();
@@ -361,6 +373,7 @@ class InternalProjectController extends Controller
             'buscar' => $request->get('buscar', ''),
             'desarrollador' => $request->get('desarrollador', ''),
             'fuente' => $request->get('fuente', ''),
+            'vendedor' => $request->get('vendedor', ''),
             'orden' => $request->get('orden', 'reciente'),
             'per_page' => $perPage,
         ];
@@ -373,6 +386,9 @@ class InternalProjectController extends Controller
             'pago_dev_cop' => 0,
             'abonado_dev_cop' => 0,
             'saldo_dev_cop' => 0,
+            'comision_cop' => 0,
+            'abonado_gestion_cop' => 0,
+            'saldo_gestion_cop' => 0,
             'gastos_cop' => 0,
             'utilidad_cop' => 0,
         ];
@@ -386,20 +402,42 @@ class InternalProjectController extends Controller
             $saldoDev = max($pagoDev - $abonadoDev, 0);
             $gastos = (float) ($p->expenses_sum ?? 0);
 
+            // Comisión de gestión calculada en moneda del proyecto (COP via toCop al sumar)
+            $comision = 0;
+            if ($p->comision_tipo && $p->comision_valor) {
+                if ($p->comision_tipo === 'monto') {
+                    $comision = (float) $p->comision_valor;
+                } else { // porcentaje
+                    $pagoDevEnMoneda = $pagoDev;
+                    if ($devMoneda !== $moneda) {
+                        $pagoDevEnMoneda = $devMoneda === 'USD' && $moneda === 'COP'
+                            ? $pagoDev * $usdCop
+                            : ($devMoneda === 'COP' && $moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
+                    }
+                    $base = max((float) $p->precio - $pagoDevEnMoneda, 0);
+                    $comision = $base * ((float) $p->comision_valor / 100);
+                }
+            }
+            $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
+            $saldoGestion = max($comision - $abonadoGestion, 0);
+
             $pageTotals['precio_cop'] += $toCop($p->precio, $moneda);
             $pageTotals['cobrado_cop'] += $toCop($cobrado, $moneda);
             $pageTotals['saldo_cliente_cop'] += $toCop($saldoCli, $moneda);
             $pageTotals['pago_dev_cop'] += $toCop($pagoDev, $devMoneda);
             $pageTotals['abonado_dev_cop'] += $toCop($abonadoDev, $devMoneda);
             $pageTotals['saldo_dev_cop'] += $toCop($saldoDev, $devMoneda);
+            $pageTotals['comision_cop'] += $toCop($comision, $moneda);
+            $pageTotals['abonado_gestion_cop'] += $toCop($abonadoGestion, $moneda);
+            $pageTotals['saldo_gestion_cop'] += $toCop($saldoGestion, $moneda);
             $pageTotals['gastos_cop'] += $gastos;
 
-            // Utilidad basada en pago asignado al dev (proyección real del proyecto)
+            // Utilidad = cobrado − costo_dev − comisión − gastos (costo dev: asignado si existe, si no abonado)
             $costoDev = $pagoDev > 0 ? $toCop($pagoDev, $devMoneda) : $toCop($abonadoDev, $devMoneda);
-            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda) - $costoDev - $gastos;
+            $pageTotals['utilidad_cop'] += $toCop($cobrado, $moneda) - $costoDev - $toCop($comision, $moneda) - $gastos;
         }
 
-        return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'pageTotals', 'filters', 'desarrolladores', 'usdCop'));
+        return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'pageTotals', 'filters', 'desarrolladores', 'vendedores', 'usdCop'));
     }
 
     public function statsExport(Request $request): StreamedResponse
