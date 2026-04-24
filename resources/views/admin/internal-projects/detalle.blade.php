@@ -409,32 +409,32 @@
                             $saldoDev = max($pagoDev - $abonadoDev, 0);
                             $gastos = (float) ($p->expenses_sum ?? 0);
 
-                            // Comisión de gestión en moneda del proyecto
-                            $comision = 0;
+                            // Comisión de gestión — siempre calculada en COP (operaciones reales en pesos).
+                            // Porcentaje: sobre (ingreso_real_COP − pago_dev_COP). Monto: valor tal cual en COP.
+                            $netoCopTmp = (float) ($p->payments_sum_cop ?? 0);
+                            $ingresoCopBase = $moneda === 'USD'
+                                ? ($netoCopTmp > 0 ? $netoCopTmp : $cobrado * $usdCop)
+                                : $cobrado;
+                            $pagoDevCopBase = $devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev;
+
+                            $comisionCop = 0;
                             if ($p->comision_tipo && $p->comision_valor) {
                                 if ($p->comision_tipo === 'monto') {
-                                    $comision = (float) $p->comision_valor;
+                                    $comisionCop = (float) $p->comision_valor;
                                 } else {
-                                    $pagoDevEnMoneda = $pagoDev;
-                                    if ($devMoneda !== $moneda) {
-                                        $pagoDevEnMoneda = $devMoneda === 'USD' && $moneda === 'COP'
-                                            ? $pagoDev * $usdCop
-                                            : ($devMoneda === 'COP' && $moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
-                                    }
-                                    $comision = max((float) $p->precio - $pagoDevEnMoneda, 0) * ((float) $p->comision_valor / 100);
+                                    $baseCop = max($ingresoCopBase - $pagoDevCopBase, 0);
+                                    $comisionCop = $baseCop * ((float) $p->comision_valor / 100);
                                 }
                             }
+                            $comision = $comisionCop; // ya está en COP
                             $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
                             $saldoGestion = max($comision - $abonadoGestion, 0);
 
-                            // Utilidad de caja = lo cobrado − lo que REALMENTE se pagó (dev + gestión) − gastos
-                            // Si el proyecto es USD y registraste `monto_recibido_cop` (neto), usamos eso en vez de convertir.
-                            $netoCopReal = (float) ($p->payments_sum_cop ?? 0);
-                            $ingresoCop = $moneda === 'USD'
-                                ? ($netoCopReal > 0 ? $netoCopReal : $cobrado * $usdCop)
-                                : $cobrado;
+                            // Utilidad de caja = ingreso real COP − abonado_dev_COP − abonado_gestion_COP − gastos
+                            // Todo se opera en COP (los USD son informativos).
+                            $ingresoCop = $ingresoCopBase;
                             $abonadoDevCop = $devMoneda === 'USD' ? $abonadoDev * $usdCop : $abonadoDev;
-                            $abonadoGestionCop = $moneda === 'USD' ? $abonadoGestion * $usdCop : $abonadoGestion;
+                            $abonadoGestionCop = $abonadoGestion; // gestión siempre en COP
                             $gastosCop = $gastos;
                             $utilidad = $ingresoCop - $abonadoDevCop - $abonadoGestionCop - $gastosCop;
                         @endphp
@@ -499,12 +499,12 @@
                                 @if($pagoDev > 0){{ $fmtMoneda($saldoDev, $devMoneda) }}@else <span style="color:#bbb;">—</span>@endif
                             </td>
                             <td class="mono" data-col="gestion" style="color: {{ $saldoGestion > 0 ? '#059669' : ($comision > 0 ? '#94a3b8' : '#bbb') }};"
-                                title="{{ $p->vendedor?->nombre ?? 'Sin vendedor' }}">
+                                title="{{ $p->vendedor?->nombre ?? 'Sin vendedor' }} · comisión siempre en COP">
                                 @if($comision > 0)
-                                    {{ $fmtMoneda($saldoGestion, $moneda) }}
+                                    {{ $fmtCop($saldoGestion) }}
                                     <span class="sub">
                                         {{ $p->vendedor?->nombre ? \Illuminate\Support\Str::limit($p->vendedor->nombre, 14) : 'vendedor' }}
-                                        @if($comision > 0) · {{ $fmtMoneda($comision, $moneda) }}@endif
+                                        · {{ $fmtCop($comision) }}
                                     </span>
                                 @elseif($p->vendedor_id)
                                     <span style="color:#bbb;">—</span>

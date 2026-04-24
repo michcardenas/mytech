@@ -407,20 +407,21 @@ class InternalProjectController extends Controller
             $saldoDev = max($pagoDev - $abonadoDev, 0);
             $gastos = (float) ($p->expenses_sum ?? 0);
 
-            // Comisión de gestión calculada en moneda del proyecto
+            // Ingreso real en COP (usa monto_recibido_cop si está, sino convierte)
+            $netoCopReal = (float) ($p->payments_sum_cop ?? 0);
+            $ingresoCopBase = $moneda === 'USD'
+                ? ($netoCopReal > 0 ? $netoCopReal : $cobrado * $usdCop)
+                : $cobrado;
+            $pagoDevCopBase = $devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev;
+
+            // Comisión de gestión — siempre en COP
             $comision = 0;
             if ($p->comision_tipo && $p->comision_valor) {
                 if ($p->comision_tipo === 'monto') {
                     $comision = (float) $p->comision_valor;
-                } else { // porcentaje
-                    $pagoDevEnMoneda = $pagoDev;
-                    if ($devMoneda !== $moneda) {
-                        $pagoDevEnMoneda = $devMoneda === 'USD' && $moneda === 'COP'
-                            ? $pagoDev * $usdCop
-                            : ($devMoneda === 'COP' && $moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
-                    }
-                    $base = max((float) $p->precio - $pagoDevEnMoneda, 0);
-                    $comision = $base * ((float) $p->comision_valor / 100);
+                } else { // porcentaje sobre ingreso_real − pago_dev (en COP)
+                    $baseCop = max($ingresoCopBase - $pagoDevCopBase, 0);
+                    $comision = $baseCop * ((float) $p->comision_valor / 100);
                 }
             }
             $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);
@@ -437,24 +438,19 @@ class InternalProjectController extends Controller
                 $pageTotals['saldo_cliente_cop_native'] += $saldoCli;
             }
 
-            // Dev/gestión/gastos en COP (dev puede estar en moneda distinta al proyecto)
+            // Dev en COP, gestión ya está en COP (no convertir), gastos en COP
             $pageTotals['pago_dev_cop'] += $toCop($pagoDev, $devMoneda);
             $pageTotals['abonado_dev_cop'] += $toCop($abonadoDev, $devMoneda);
             $pageTotals['saldo_dev_cop'] += $toCop($saldoDev, $devMoneda);
-            $pageTotals['comision_cop'] += $toCop($comision, $moneda);
-            $pageTotals['abonado_gestion_cop'] += $toCop($abonadoGestion, $moneda);
-            $pageTotals['saldo_gestion_cop'] += $toCop($saldoGestion, $moneda);
+            $pageTotals['comision_cop'] += $comision;
+            $pageTotals['abonado_gestion_cop'] += $abonadoGestion;
+            $pageTotals['saldo_gestion_cop'] += $saldoGestion;
             $pageTotals['gastos_cop'] += $gastos;
 
-            // Utilidad de caja: cobrado − abonado_dev − abonado_gestion − gastos (todo en COP)
-            // Si es USD y hay monto_recibido_cop registrado, usamos ese neto real en vez de convertir.
-            $netoCopReal = (float) ($p->payments_sum_cop ?? 0);
-            $ingresoCopReal = $moneda === 'USD' && $netoCopReal > 0
-                ? $netoCopReal
-                : $toCop($cobrado, $moneda);
-            $pageTotals['utilidad_cop'] += $ingresoCopReal
+            // Utilidad de caja: ingreso_real − abonado_dev − abonado_gestion − gastos (todo COP)
+            $pageTotals['utilidad_cop'] += $ingresoCopBase
                 - $toCop($abonadoDev, $devMoneda)
-                - $toCop($abonadoGestion, $moneda)
+                - $abonadoGestion
                 - $gastos;
         }
 
