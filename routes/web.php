@@ -22,6 +22,21 @@ use App\Http\Controllers\BlogController;
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
 Route::get('/robots.txt', [App\Http\Controllers\SitemapController::class, 'robots'])->name('robots');
 
+/* ---------- Portal público (developers / gestores) ---------- */
+Route::prefix('portal')->group(function () {
+    // Desarrolladores
+    Route::get('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'showLogin'])->name('portal.developer.login.show');
+    Route::post('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'login'])->name('portal.developer.login');
+    Route::get('desarrollador/dashboard', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'dashboard'])->name('portal.developer.dashboard');
+    Route::post('desarrollador/logout', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'logout'])->name('portal.developer.logout');
+
+    // Gestores / vendedores
+    Route::get('gestor', [App\Http\Controllers\Portal\PortalVendedorController::class, 'showLogin'])->name('portal.vendedor.login.show');
+    Route::post('gestor', [App\Http\Controllers\Portal\PortalVendedorController::class, 'login'])->name('portal.vendedor.login');
+    Route::get('gestor/dashboard', [App\Http\Controllers\Portal\PortalVendedorController::class, 'dashboard'])->name('portal.vendedor.dashboard');
+    Route::post('gestor/logout', [App\Http\Controllers\Portal\PortalVendedorController::class, 'logout'])->name('portal.vendedor.logout');
+});
+
 /* ---------- Landing Pages (debe ir ANTES de otras rutas dinámicas) ---------- */
 Route::get('/landings', [LandingController::class, 'index'])->name('landings.index'); // Opcional: índice de landings
 
