@@ -508,6 +508,13 @@
     transition: opacity 0.35s ease 0.05s, transform 0.35s ease;
 }
 
+/* Drop-shadow ligero sobre los logos para que los blancos/claros sean visibles
+   sobre cualquier fondo sin perder el color natural del logo */
+.reveal-tile img {
+    filter: drop-shadow(0 1px 2px rgba(15, 23, 42, 0.18))
+            drop-shadow(0 0 1px rgba(15, 23, 42, 0.12));
+}
+
 /* Esquinas redondeadas dinámicas según breakpoint (7×3 desktop por defecto) */
 .reveal-tile:first-child { border-top-left-radius: 22px; }
 .reveal-tile:nth-child(7) { border-top-right-radius: 22px; }
@@ -520,9 +527,11 @@
 .reveal-main:hover .reveal-tile {
     margin: 6px;
     border-radius: 16px;
-    background: rgba(255, 255, 255, 0.92);
-    border: 1px solid rgba(0, 123, 255, 0.08);
-    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.08);
+    /* Fondo con leve tinte slate-azul para que logos blancos/claros se distingan */
+    background: linear-gradient(135deg, #f8fafc 0%, #eef2f6 100%);
+    border: 1px solid rgba(0, 123, 255, 0.1);
+    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.08),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.6);
 }
 .reveal-main:hover .reveal-tile img,
 .reveal-main:hover .reveal-tile .reveal-cta-label,
@@ -530,15 +539,21 @@
     opacity: 1;
 }
 
-/* Hover individual sobre un tile — destaca con brand color azul */
+/* Hover individual sobre un tile — fondo azul de marca para resaltar
+   el logo (incluso los blancos quedan a la vista contra el azul) */
 .reveal-tile:hover {
-    background: #ffffff !important;
-    border-color: rgba(0, 123, 255, 0.4) !important;
-    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.22) !important;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%) !important;
+    border-color: transparent !important;
+    box-shadow: 0 14px 32px rgba(0, 86, 179, 0.32) !important;
     transform: scale(1.06);
     z-index: 2;
 }
-.reveal-tile:hover img { transform: scale(1.1); }
+.reveal-tile:hover img {
+    transform: scale(1.1);
+    /* Drop-shadow blanco sutil sobre fondo azul para logos oscuros/multicolor */
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25))
+            drop-shadow(0 0 0.5px rgba(255, 255, 255, 0.3));
+}
 
 /* Tile CTA "Ver más" — colores de marca */
 .reveal-tile-cta {
