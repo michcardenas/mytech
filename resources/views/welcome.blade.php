@@ -198,12 +198,15 @@
             @endforeach
         </div>
 
-        <a href="{{ route('proyectos.index') }}" class="trust-cta-simple">
-            <span>{{ $homeContent['clients_button_text'] ?? 'Ver nuestros proyectos' }}</span>
-            <svg class="trust-cta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-                <polyline points="12 5 19 12 12 19"></polyline>
-            </svg>
+        <a href="{{ route('proyectos.index') }}" class="cta-glow">
+            <span class="cta-glow-shine" aria-hidden="true"></span>
+            <span class="cta-glow-text">{{ $homeContent['clients_button_text'] ?? 'Ver nuestros proyectos' }}</span>
+            <span class="cta-glow-icon" aria-hidden="true">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                    <polyline points="12 5 19 12 12 19"></polyline>
+                </svg>
+            </span>
         </a>
     </div>
 </section>
@@ -419,51 +422,113 @@
 .trust-logo:hover { transform: translateY(-3px); }
 .trust-logo:hover img { opacity: 1; }
 
-/* CTA refinado — texto + flecha SVG con animación sutil */
-.trust-cta-simple {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    margin: 3rem auto 0;
-    padding: 0.7rem 1.4rem;
-    border-radius: 999px;
-    border: 1.5px solid #e2e8f0;
-    background: #ffffff;
-    font-size: 0.9rem;
-    font-weight: 600;
-    color: #0f172a;
-    text-decoration: none;
-    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-    /* Centrar el botón usando flex en su contenedor padre */
-}
-.trust-cta-simple-wrap { display: flex; justify-content: center; }
-
-/* Wrapper trick: usamos display:block en el padre con text-align center */
-.trust-strip .trust-cta-simple {
-    display: inline-flex;
-}
-.trust-strip .container > .trust-cta-simple {
-    display: inline-flex;
-}
-/* Forzar centrado del CTA en su línea */
+/* Centrar el contenedor de la sección */
 .trust-strip .container { text-align: center; }
 .trust-strip .container > .trust-eyebrow-simple,
 .trust-strip .container > .trust-grid {
     text-align: initial;
 }
 
-.trust-cta-simple:hover {
-    border-color: #0f172a;
-    color: #0f172a;
+/* CTA con borde gradiente animado + shine al hover */
+.cta-glow {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin: 3rem auto 0;
+    padding: 0.85rem 1.5rem 0.85rem 1.7rem;
+    border-radius: 999px;
+    background: #0f172a;
+    color: #ffffff;
     text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
+    font-size: 0.92rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    overflow: hidden;
+    isolation: isolate;
+    box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.45);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
 }
-.trust-cta-icon {
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+.cta-glow::before {
+    content: '';
+    position: absolute;
+    inset: -2px;
+    border-radius: 999px;
+    z-index: -2;
+    background: conic-gradient(from var(--ang, 0deg),
+        #03a9f4, #6248ff, #cc39a4, #ffb5d2, #03a9f4);
+    animation: ctaGlowSpin 5s linear infinite;
 }
-.trust-cta-simple:hover .trust-cta-icon {
-    transform: translateX(3px);
+.cta-glow::after {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    border-radius: 999px;
+    z-index: -1;
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    transition: background 0.45s ease, opacity 0.45s ease;
+}
+.cta-glow-shine {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: -60%;
+    width: 50%;
+    background: linear-gradient(110deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.18) 45%,
+        rgba(255, 255, 255, 0.32) 50%,
+        rgba(255, 255, 255, 0.18) 55%,
+        transparent 100%);
+    transform: skewX(-18deg);
+    transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+}
+.cta-glow:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 16px 40px -10px rgba(98, 72, 255, 0.45),
+                0 6px 18px rgba(204, 57, 164, 0.25);
+    color: #ffffff;
+    text-decoration: none;
+}
+.cta-glow:hover::after {
+    background: linear-gradient(135deg, rgba(98, 72, 255, 0.92) 0%, rgba(204, 57, 164, 0.92) 100%);
+}
+.cta-glow:hover .cta-glow-shine {
+    left: 130%;
+}
+.cta-glow-text { position: relative; z-index: 1; }
+.cta-glow-icon {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.14);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
+}
+.cta-glow:hover .cta-glow-icon {
+    transform: translateX(4px) rotate(-12deg);
+    background: rgba(255, 255, 255, 0.25);
+}
+
+@keyframes ctaGlowSpin {
+    to { transform: rotate(360deg); }
+}
+
+/* Fallback elegante si no hay soporte para conic-gradient */
+@supports not (background: conic-gradient(red, blue)) {
+    .cta-glow::before {
+        background: linear-gradient(135deg, #03a9f4, #6248ff, #cc39a4, #ffb5d2);
+        animation: none;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .cta-glow::before { animation: none; }
+    .cta-glow-shine { display: none; }
 }
 
 @media (max-width: 768px) {
@@ -476,7 +541,8 @@
     }
     .trust-logo { height: 70px; }
     .trust-logo img { max-height: 50px; max-width: 140px; }
-    .trust-cta-simple { font-size: 0.85rem; margin-top: 2.5rem; padding: 0.65rem 1.2rem; }
+    .cta-glow { font-size: 0.85rem; margin-top: 2.5rem; padding: 0.75rem 1.3rem 0.75rem 1.5rem; }
+    .cta-glow-icon { width: 22px; height: 22px; }
 }
 
 /* Mejoras de accesibilidad */
