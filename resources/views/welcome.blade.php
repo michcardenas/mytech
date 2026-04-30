@@ -170,19 +170,36 @@
         </div>
     </div>
 </section>
-<!-- Trust Strip — minimalista (estilo Vercel/Stripe footer) -->
+<!-- Trust Strip — proyectos reales en reveal card -->
 <section class="trust-strip">
     @php
-        $trustLogos = [
-            ['url' => 'https://voyconvos.com/',           'name' => 'VoyConVos',     'img' => 'voyconvos.png'],
-            ['url' => 'https://hostella.co/',             'name' => 'Hostella',      'img' => 'hostella.png'],
-            ['url' => 'https://flexfood.es/',             'name' => 'FlexFood',      'img' => 'flexfood.png'],
-            ['url' => 'https://tumesa.ar/',               'name' => 'TuMesa',        'img' => 'tumesa.png'],
-            ['url' => 'https://calendarix.uy/',           'name' => 'Calendarix',    'img' => 'calendarix.png'],
-            ['url' => 'https://ipinvestmentsrd.com/',     'name' => 'IPvestment',    'img' => 'ipvestment.png'],
-            ['url' => 'https://jufmankitchendesigns.com/','name' => 'Jufman Kitchen','img' => 'jufman.png'],
-            ['url' => 'https://montanoandco.net/',        'name' => 'Montano&Co',    'img' => 'montano.png'],
-        ];
+        // Construir lista de proyectos para el reveal-card. Solo los que tengan logo real.
+        $trustLogos = [];
+        if (isset($proyectos) && $proyectos->count() > 0) {
+            foreach ($proyectos as $proyecto) {
+                if (!$proyecto->logo) continue; // ignorar los que no tienen logo
+                $trustLogos[] = [
+                    'url'  => $proyecto->url ?: route('proyectos.index'),
+                    'name' => $proyecto->nombre,
+                    'img'  => $proyecto->logo,
+                    // marca true si la ruta del logo es absoluta o ya viene con storage/
+                    'is_storage' => true,
+                ];
+            }
+        }
+        // Fallback al set hardcodeado si no hay proyectos
+        if (empty($trustLogos)) {
+            $trustLogos = [
+                ['url' => 'https://voyconvos.com/',           'name' => 'VoyConVos',     'img' => 'voyconvos.png',  'is_storage' => false],
+                ['url' => 'https://hostella.co/',             'name' => 'Hostella',      'img' => 'hostella.png',   'is_storage' => false],
+                ['url' => 'https://flexfood.es/',             'name' => 'FlexFood',      'img' => 'flexfood.png',   'is_storage' => false],
+                ['url' => 'https://tumesa.ar/',               'name' => 'TuMesa',        'img' => 'tumesa.png',     'is_storage' => false],
+                ['url' => 'https://calendarix.uy/',           'name' => 'Calendarix',    'img' => 'calendarix.png', 'is_storage' => false],
+                ['url' => 'https://ipinvestmentsrd.com/',     'name' => 'IPvestment',    'img' => 'ipvestment.png', 'is_storage' => false],
+                ['url' => 'https://jufmankitchendesigns.com/','name' => 'Jufman Kitchen','img' => 'jufman.png',     'is_storage' => false],
+                ['url' => 'https://montanoandco.net/',        'name' => 'Montano&Co',    'img' => 'montano.png',    'is_storage' => false],
+            ];
+        }
     @endphp
 
     <div class="container">
@@ -202,9 +219,14 @@
         <div class="reveal-wrap">
             <div class="reveal-main">
                 @foreach($extendedLogos as $i => $logo)
+                    @php
+                        $logoSrc = ($logo['is_storage'] ?? false)
+                            ? asset('storage/' . $logo['img'])
+                            : asset('images/logos/' . $logo['img']);
+                    @endphp
                     <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer"
                        class="reveal-tile" title="{{ $logo['name'] }}">
-                        <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+                        <img src="{{ $logoSrc }}" alt="{{ $logo['name'] }}" loading="lazy">
                     </a>
                 @endforeach
                 <a href="{{ route('proyectos.index') }}" class="reveal-tile reveal-tile-cta">

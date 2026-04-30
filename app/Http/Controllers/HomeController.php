@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Category;
 use App\Models\Page;
 use App\Models\Section;
+use App\Models\Proyecto;
 
 
 
@@ -63,7 +64,10 @@ public function index()
         ->orderBy('created_at', 'desc')
         ->get();
 
-    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData', 'landings'));
+    // Obtener proyectos activos para el reveal-card del trust strip
+    $proyectos = Proyecto::activos()->orderBy('orden')->orderBy('created_at', 'desc')->get();
+
+    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData', 'landings', 'proyectos'));
 }
 
     public function about()
