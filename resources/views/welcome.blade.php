@@ -170,141 +170,60 @@
         </div>
     </div>
 </section>
-<!-- Sección de Logos de Clientes Mejorada -->
-<section class="clients-logos">
-    <div class="container">
-        <div class="logos-header">
-            <h3>{{ $homeContent['clients_title'] ?? 'Empresas que confían en mi trabajo' }}</h3>
-            <p>{{ $homeContent['clients_subtitle'] ?? 'He desarrollado aplicaciones web exitosas para:' }}</p>
-        </div>
-        
-        <div class="logos-carousel">
-            <div class="logos-track">
-                <!-- Logo 1 - VoyConVos -->
-                <a href="https://voyconvos.com/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/voyconvos.png') }}" alt="VoyConVos" class="client-logo">
-                    <span class="logo-label">VoyConVos</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 2 - Hostella -->
-                <a href="https://hostella.co/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/hostella.png') }}" alt="Hostella" class="client-logo">
-                    <span class="logo-label">Hostella</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 3 - FlexFood -->
-                <a href="https://flexfood.es/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/flexfood.png') }}" alt="FlexFood" class="client-logo">
-                    <span class="logo-label">FlexFood</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 4 - TuMesa -->
-                <a href="https://tumesa.ar/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/tumesa.png') }}" alt="TuMesa" class="client-logo">
-                    <span class="logo-label">TuMesa</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 5 - Calendarix -->
-                <a href="https://calendarix.uy/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/calendarix.png') }}" alt="Calendarix" class="client-logo">
-                    <span class="logo-label">Calendarix</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 6 - IPvestment -->
-                <a href="https://ipinvestmentsrd.com/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/ipvestment.png') }}" alt="IPvestment" class="client-logo">
-                    <span class="logo-label">IPvestment</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 7 - Jufman Kitchen -->
-                <a href="https://jufmankitchendesigns.com/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/jufman.png') }}" alt="Jufman Kitchen" class="client-logo">
-                    <span class="logo-label">Jufman Kitchen</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Logo 8 - Montano&Co -->
-                <a href="https://montanoandco.net/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/montano.png') }}" alt="Montano&Co" class="client-logo">
-                    <span class="logo-label">Montano&Co</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <!-- Duplicar para animación continua -->
-                <a href="https://voyconvos.com/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/voyconvos.png') }}" alt="VoyConVos" class="client-logo">
-                    <span class="logo-label">VoyConVos</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <a href="https://hostella.co/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/hostella.png') }}" alt="Hostella" class="client-logo">
-                    <span class="logo-label">Hostella</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <a href="https://flexfood.es/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/flexfood.png') }}" alt="FlexFood" class="client-logo">
-                    <span class="logo-label">FlexFood</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-                
-                <a href="https://tumesa.ar/" target="_blank" rel="noopener noreferrer" class="logo-item">
-                    <img src="{{ asset('images/logos/tumesa.png') }}" alt="TuMesa" class="client-logo">
-                    <span class="logo-label">TuMesa</span>
-                    <div class="logo-overlay">
-                        <i class="fas fa-external-link-alt"></i>
-                        <span>Visitar sitio</span>
-                    </div>
-                </a>
-            </div>
-        </div>
-        
-        <!-- Indicador mejorado -->
-        <div class="carousel-note">
+<!-- Trust Strip — clientes que ya confiaron -->
+<section class="trust-strip" aria-labelledby="trust-title">
+    @php
+        $trustLogos = [
+            ['url' => 'https://voyconvos.com/',           'name' => 'VoyConVos',     'img' => 'voyconvos.png'],
+            ['url' => 'https://hostella.co/',             'name' => 'Hostella',      'img' => 'hostella.png'],
+            ['url' => 'https://flexfood.es/',             'name' => 'FlexFood',      'img' => 'flexfood.png'],
+            ['url' => 'https://tumesa.ar/',               'name' => 'TuMesa',        'img' => 'tumesa.png'],
+            ['url' => 'https://calendarix.uy/',           'name' => 'Calendarix',    'img' => 'calendarix.png'],
+            ['url' => 'https://ipinvestmentsrd.com/',     'name' => 'IPvestment',    'img' => 'ipvestment.png'],
+            ['url' => 'https://jufmankitchendesigns.com/','name' => 'Jufman Kitchen','img' => 'jufman.png'],
+            ['url' => 'https://montanoandco.net/',        'name' => 'Montano&Co',    'img' => 'montano.png'],
+        ];
+    @endphp
 
-<button class="button">
-    <span>{{ $homeContent['clients_button_text'] ?? 'Conoce más de nuestro trabajo' }}</span>
-</button>        </div>
+    <div class="trust-stats container">
+        <div class="trust-stat">
+            <span class="ts-num">8+</span>
+            <span class="ts-label">Productos en producción</span>
+        </div>
+        <span class="trust-divider"></span>
+        <div class="trust-stat">
+            <span class="ts-num">5</span>
+            <span class="ts-label">Países</span>
+        </div>
+        <span class="trust-divider"></span>
+        <div class="trust-stat">
+            <span class="ts-num">∞</span>
+            <span class="ts-label">Automatizaciones desplegadas</span>
+        </div>
+    </div>
+
+    <div class="trust-head container">
+        <span class="trust-eyebrow"><span class="dot"></span> {{ $homeContent['clients_subtitle'] ?? 'Equipos que ya operan con software hecho a medida' }}</span>
+        <h3 id="trust-title" class="trust-title">{{ $homeContent['clients_title'] ?? 'Construido para escalar. Probado en producción.' }}</h3>
+    </div>
+
+    <div class="trust-marquee" aria-hidden="false">
+        <div class="trust-track">
+            @foreach(array_merge($trustLogos, $trustLogos) as $logo)
+                <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
+                    <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="trust-cta container">
+        <a href="{{ route('proyectos.index') }}" class="trust-cta-link">
+            <span class="trust-cta-text">{{ $homeContent['clients_button_text'] ?? 'Ver todos los casos de estudio' }}</span>
+            <span class="trust-cta-arrow" aria-hidden="true">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+            </span>
+        </a>
     </div>
 </section>
 
@@ -472,10 +391,163 @@
 </section>
 
 <style>
+/* === TRUST STRIP (logos de clientes — estilo moderno SaaS/agencia) === */
+.trust-strip {
+    position: relative;
+    padding: 0 0 5rem;
+    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
+    overflow: hidden;
+}
+
+/* Stat strip flotante que conecta con el hero */
+.trust-stats {
+    margin-top: -56px;
+    position: relative;
+    z-index: 5;
+    background: white;
+    border-radius: 18px;
+    box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.04);
+    padding: 1.4rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.trust-stat { text-align: center; min-width: 120px; }
+.trust-stat .ts-num {
+    display: block; font-size: 1.8rem; font-weight: 800;
+    color: #0f172a; line-height: 1; letter-spacing: -0.02em;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.trust-stat .ts-label {
+    display: block; font-size: 0.75rem; color: #64748b;
+    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-top: 0.4rem;
+}
+.trust-divider { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, #cbd5e1, transparent); }
+
+/* Header tipográfico moderno — sin underlines decorativos */
+.trust-head {
+    text-align: center;
+    margin: 4rem auto 2.5rem;
+    max-width: 700px;
+}
+.trust-eyebrow {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-size: 0.78rem; font-weight: 600; color: #475569;
+    text-transform: none; letter-spacing: 0.02em;
+    padding: 0.4rem 0.95rem; border-radius: 999px;
+    background: rgba(15, 23, 42, 0.04);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    margin-bottom: 1rem;
+}
+.trust-eyebrow .dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
+    animation: trustDotPulse 2.4s ease-in-out infinite;
+}
+@keyframes trustDotPulse {
+    0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18); }
+    50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+}
+.trust-title {
+    font-size: clamp(1.5rem, 3vw, 2.1rem);
+    font-weight: 800; color: #0f172a; line-height: 1.15;
+    margin: 0; letter-spacing: -0.025em;
+}
+
+/* Marquee con fade en bordes */
+.trust-marquee {
+    position: relative;
+    overflow: hidden;
+    padding: 1.25rem 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+}
+.trust-track {
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+    width: max-content;
+    animation: trustScroll 38s linear infinite;
+}
+.trust-marquee:hover .trust-track { animation-play-state: paused; }
+.trust-logo {
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    height: 70px;
+    text-decoration: none;
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trust-logo img {
+    max-height: 48px; max-width: 160px; width: auto; height: auto;
+    object-fit: contain;
+    filter: grayscale(100%) opacity(0.55);
+    transition: filter 0.35s ease, transform 0.35s ease;
+}
+.trust-logo:hover { transform: translateY(-2px); }
+.trust-logo:hover img { filter: grayscale(0%) opacity(1); }
+
+@keyframes trustScroll {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+
+/* CTA refinado — link con flecha animada */
+.trust-cta { text-align: center; margin-top: 3rem; }
+.trust-cta-link {
+    display: inline-flex; align-items: center; gap: 0.65rem;
+    padding: 0.85rem 0;
+    font-size: 0.95rem; font-weight: 700;
+    color: #0f172a; text-decoration: none;
+    position: relative; transition: color 0.25s;
+}
+.trust-cta-link::after {
+    content: ''; position: absolute; bottom: 0.3rem; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, #007BFF, #0056b3);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trust-cta-link:hover { color: #0056b3; text-decoration: none; }
+.trust-cta-link:hover::after { transform: scaleX(1); }
+.trust-cta-arrow {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
+    color: white;
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.28);
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trust-cta-link:hover .trust-cta-arrow { transform: translateX(4px); }
+
+@media (max-width: 768px) {
+    .trust-strip { padding-bottom: 3.5rem; }
+    .trust-stats {
+        margin-top: -44px;
+        padding: 1rem 1.25rem;
+        gap: 1.25rem;
+    }
+    .trust-divider { display: none; }
+    .trust-stat { min-width: 90px; flex: 1; }
+    .trust-stat .ts-num { font-size: 1.4rem; }
+    .trust-stat .ts-label { font-size: 0.68rem; }
+    .trust-head { margin: 3rem auto 2rem; padding: 0 1.25rem; }
+    .trust-track { gap: 2.5rem; animation-duration: 30s; }
+    .trust-logo { height: 56px; }
+    .trust-logo img { max-height: 36px; max-width: 120px; }
+}
+
+/* === Carousel viejo: oculto pero conservado por compatibilidad ===
+   (Si en algún lado del admin todavía se inyecta `.clients-logos`, no rompe.)
+*/
 .clients-logos {
     background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
     padding: 5rem 0;
-    
     overflow: hidden;
     position: relative;
 }
@@ -1155,7 +1227,7 @@
 /* Padding superior para que el texto no quede pegado al nav transparente */
 .hero-simple.has-hero-media .container {
     padding-top: var(--navbar-height, 80px);
-    padding-bottom: 2rem;
+    padding-bottom: 4.5rem;
 }
 
 /* Respeto a usuarios con movimiento reducido */
