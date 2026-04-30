@@ -190,18 +190,20 @@
             {{ $homeContent['clients_subtitle'] ?? 'Equipos que confían en nuestro trabajo' }}
         </p>
 
-        <div class="trust-marquee">
-            <div class="trust-track">
-                @foreach(array_merge($trustLogos, $trustLogos) as $logo)
-                    <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
-                        <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
-                    </a>
-                @endforeach
-            </div>
+        <div class="trust-grid">
+            @foreach($trustLogos as $logo)
+                <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
+                    <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+                </a>
+            @endforeach
         </div>
 
         <a href="{{ route('proyectos.index') }}" class="trust-cta-simple">
-            {{ $homeContent['clients_button_text'] ?? 'Ver casos de estudio' }} →
+            <span>{{ $homeContent['clients_button_text'] ?? 'Ver nuestros proyectos' }}</span>
+            <svg class="trust-cta-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+            </svg>
         </a>
     </div>
 </section>
@@ -370,7 +372,7 @@
 </section>
 
 <style>
-/* === TRUST STRIP — minimalista (estilo Vercel/Stripe footer) === */
+/* === TRUST STRIP — grid minimalista de logos === */
 .trust-strip {
     background: #ffffff;
     padding: 4rem 0 5rem;
@@ -385,65 +387,96 @@
     color: #94a3b8;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    margin: 0 0 2rem;
+    margin: 0 0 2.5rem;
 }
 
-/* Marquee con fade en bordes */
-.trust-marquee {
-    position: relative;
-    overflow: hidden;
-    padding: 0.5rem 0;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
+/* Grid estático de logos — 4 columnas en desktop, 2 en mobile */
+.trust-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2.5rem 3rem;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 1rem;
 }
-.trust-track {
+.trust-logo {
     display: flex;
     align-items: center;
-    gap: 4.5rem;
-    width: max-content;
-    animation: trustScroll 40s linear infinite;
-}
-.trust-marquee:hover .trust-track { animation-play-state: paused; }
-.trust-logo {
-    flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    height: 50px;
+    justify-content: center;
+    height: 90px;
     text-decoration: none;
-    transition: opacity 0.3s ease;
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
 }
 .trust-logo img {
-    max-height: 40px; max-width: 150px; width: auto; height: auto;
+    max-height: 64px;
+    max-width: 180px;
+    width: auto;
+    height: auto;
     object-fit: contain;
-    opacity: 0.75;
-    transition: opacity 0.3s ease;
+    opacity: 0.85;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
+.trust-logo:hover { transform: translateY(-3px); }
 .trust-logo:hover img { opacity: 1; }
 
-@keyframes trustScroll {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+/* CTA refinado — texto + flecha SVG con animación sutil */
+.trust-cta-simple {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 3rem auto 0;
+    padding: 0.7rem 1.4rem;
+    border-radius: 999px;
+    border: 1.5px solid #e2e8f0;
+    background: #ffffff;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #0f172a;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    /* Centrar el botón usando flex en su contenedor padre */
+}
+.trust-cta-simple-wrap { display: flex; justify-content: center; }
+
+/* Wrapper trick: usamos display:block en el padre con text-align center */
+.trust-strip .trust-cta-simple {
+    display: inline-flex;
+}
+.trust-strip .container > .trust-cta-simple {
+    display: inline-flex;
+}
+/* Forzar centrado del CTA en su línea */
+.trust-strip .container { text-align: center; }
+.trust-strip .container > .trust-eyebrow-simple,
+.trust-strip .container > .trust-grid {
+    text-align: initial;
 }
 
-/* CTA discreto — solo link plano */
-.trust-cta-simple {
-    display: block;
-    text-align: center;
-    margin-top: 2.5rem;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: #475569;
+.trust-cta-simple:hover {
+    border-color: #0f172a;
+    color: #0f172a;
     text-decoration: none;
-    transition: color 0.2s ease;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.08);
 }
-.trust-cta-simple:hover { color: #0056b3; text-decoration: none; }
+.trust-cta-icon {
+    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.trust-cta-simple:hover .trust-cta-icon {
+    transform: translateX(3px);
+}
 
 @media (max-width: 768px) {
     .trust-strip { padding: 3rem 0 4rem; }
-    .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 1.5rem; }
-    .trust-track { gap: 2.5rem; animation-duration: 32s; }
-    .trust-logo { height: 40px; }
-    .trust-logo img { max-height: 32px; max-width: 110px; }
-    .trust-cta-simple { font-size: 0.82rem; margin-top: 2rem; }
+    .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 2rem; }
+    .trust-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 2rem 1.5rem;
+        max-width: 420px;
+    }
+    .trust-logo { height: 70px; }
+    .trust-logo img { max-height: 50px; max-width: 140px; }
+    .trust-cta-simple { font-size: 0.85rem; margin-top: 2.5rem; padding: 0.65rem 1.2rem; }
 }
 
 /* Mejoras de accesibilidad */
