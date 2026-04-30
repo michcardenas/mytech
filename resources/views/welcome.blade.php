@@ -190,24 +190,27 @@
             {{ $homeContent['clients_subtitle'] ?? 'Equipos que confían en nuestro trabajo' }}
         </p>
 
-        <div class="trust-grid">
-            @foreach($trustLogos as $logo)
-                <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
-                    <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+        <div class="reveal-wrap">
+            <div class="reveal-main">
+                @foreach($trustLogos as $i => $logo)
+                    <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer"
+                       class="reveal-tile reveal-tile-{{ $i + 1 }}" title="{{ $logo['name'] }}">
+                        <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+                    </a>
+                @endforeach
+                <a href="{{ route('proyectos.index') }}" class="reveal-tile reveal-tile-cta">
+                    <span class="reveal-cta-label">Ver más</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <line x1="5" y1="12" x2="19" y2="12"></line>
+                        <polyline points="12 5 19 12 12 19"></polyline>
+                    </svg>
                 </a>
-            @endforeach
+                <p class="reveal-text">
+                    {!! $homeContent['reveal_hint'] ?? 'PASA EL MOUSE<br><br>PARA VER<br><br>NUESTRO TRABAJO' !!}
+                </p>
+                <div class="reveal-back" aria-hidden="true"></div>
+            </div>
         </div>
-
-        <a href="{{ route('proyectos.index') }}" class="cta-glow">
-            <span class="cta-glow-shine" aria-hidden="true"></span>
-            <span class="cta-glow-text">{{ $homeContent['clients_button_text'] ?? 'Ver nuestros proyectos' }}</span>
-            <span class="cta-glow-icon" aria-hidden="true">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
-                    <line x1="5" y1="12" x2="19" y2="12"></line>
-                    <polyline points="12 5 19 12 12 19"></polyline>
-                </svg>
-            </span>
-        </a>
     </div>
 </section>
 
@@ -375,14 +378,14 @@
 </section>
 
 <style>
-/* === TRUST STRIP — grid minimalista de logos === */
+/* === TRUST STRIP — Reveal card (inspirado en Uiverse / Praashoo7) === */
 .trust-strip {
     background: #ffffff;
     padding: 4rem 0 5rem;
     position: relative;
 }
+.trust-strip .container { text-align: center; }
 
-/* Eyebrow discreto — caption pequeño en gris */
 .trust-eyebrow-simple {
     text-align: center;
     font-size: 0.78rem;
@@ -393,156 +396,181 @@
     margin: 0 0 2.5rem;
 }
 
-/* Grid estático de logos — 4 columnas en desktop, 2 en mobile */
-.trust-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 2.5rem 3rem;
-    max-width: 960px;
-    margin: 0 auto;
-    padding: 0 1rem;
+/* Wrapper que centra la card */
+.reveal-wrap {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
 }
-.trust-logo {
+
+/* Tarjeta principal — 3x3 grid de tiles */
+.reveal-main {
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(3, 100px);
+    grid-template-rows: repeat(3, 100px);
+    gap: 0;
+    width: 300px;
+    height: 300px;
+    cursor: pointer;
+    isolation: isolate;
+}
+
+/* Background gradient detrás (visible por defecto, se oculta al hover) */
+.reveal-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    background: linear-gradient(135deg, #03a9f4 0%, #6248ff 50%, #cc39a4 100%);
+    box-shadow: inset 0 0 120px 0 rgba(255, 255, 255, 0.35),
+                0 20px 60px -15px rgba(98, 72, 255, 0.4);
+    z-index: -2;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+}
+
+/* Texto centrado por defecto */
+.reveal-text {
+    position: absolute;
+    inset: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 90px;
-    text-decoration: none;
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+    margin: 0;
+    color: white;
+    font-weight: 800;
+    font-size: 0.78rem;
+    text-align: center;
+    letter-spacing: 0.28em;
+    line-height: 1.1;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    z-index: 3;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
 }
-.trust-logo img {
-    max-height: 64px;
-    max-width: 180px;
+
+/* Tiles de logos (glassmorphism por defecto, logo invisible) */
+.reveal-tile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    border: 1px solid transparent;
+    transition: all 0.4s ease-in-out;
+    text-decoration: none;
+    overflow: hidden;
+}
+.reveal-tile img,
+.reveal-tile .reveal-cta-label,
+.reveal-tile svg {
+    opacity: 0;
+    max-width: 100%;
+    max-height: 60px;
     width: auto;
     height: auto;
     object-fit: contain;
-    opacity: 0.85;
-    transition: opacity 0.3s ease, transform 0.3s ease;
-}
-.trust-logo:hover { transform: translateY(-3px); }
-.trust-logo:hover img { opacity: 1; }
-
-/* Centrar el contenedor de la sección */
-.trust-strip .container { text-align: center; }
-.trust-strip .container > .trust-eyebrow-simple,
-.trust-strip .container > .trust-grid {
-    text-align: initial;
+    transition: opacity 0.35s ease 0.05s, transform 0.35s ease;
 }
 
-/* CTA con borde gradiente animado + shine al hover */
-.cta-glow {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    margin: 3rem auto 0;
-    padding: 0.85rem 1.5rem 0.85rem 1.7rem;
-    border-radius: 999px;
-    background: #0f172a;
-    color: #ffffff;
-    text-decoration: none;
-    font-size: 0.92rem;
-    font-weight: 600;
-    letter-spacing: 0.01em;
-    overflow: hidden;
-    isolation: isolate;
-    box-shadow: 0 10px 30px -8px rgba(15, 23, 42, 0.45);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.35s ease;
+/* Esquinas redondeadas en las 4 esquinas del 3x3 */
+.reveal-tile-1 { border-top-left-radius: 16px; }
+.reveal-tile-3 { border-top-right-radius: 16px; }
+.reveal-tile-7 { border-bottom-left-radius: 16px; }
+.reveal-tile-cta { border-bottom-right-radius: 16px; }
+
+/* Hover sobre la tarjeta principal — esparcir tiles + revelar logos */
+.reveal-main:hover .reveal-back { opacity: 0; }
+.reveal-main:hover .reveal-text { opacity: 0; }
+.reveal-main:hover .reveal-tile {
+    margin: 4px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.65);
+    border: 1px solid rgba(15, 23, 42, 0.06);
+    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
 }
-.cta-glow::before {
-    content: '';
-    position: absolute;
-    inset: -2px;
-    border-radius: 999px;
-    z-index: -2;
-    background: conic-gradient(from var(--ang, 0deg),
-        #03a9f4, #6248ff, #cc39a4, #ffb5d2, #03a9f4);
-    animation: ctaGlowSpin 5s linear infinite;
-}
-.cta-glow::after {
-    content: '';
-    position: absolute;
-    inset: 2px;
-    border-radius: 999px;
-    z-index: -1;
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-    transition: background 0.45s ease, opacity 0.45s ease;
-}
-.cta-glow-shine {
-    position: absolute;
-    top: 0; bottom: 0;
-    left: -60%;
-    width: 50%;
-    background: linear-gradient(110deg,
-        transparent 0%,
-        rgba(255, 255, 255, 0.18) 45%,
-        rgba(255, 255, 255, 0.32) 50%,
-        rgba(255, 255, 255, 0.18) 55%,
-        transparent 100%);
-    transform: skewX(-18deg);
-    transition: left 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-    pointer-events: none;
-}
-.cta-glow:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 16px 40px -10px rgba(98, 72, 255, 0.45),
-                0 6px 18px rgba(204, 57, 164, 0.25);
-    color: #ffffff;
-    text-decoration: none;
-}
-.cta-glow:hover::after {
-    background: linear-gradient(135deg, rgba(98, 72, 255, 0.92) 0%, rgba(204, 57, 164, 0.92) 100%);
-}
-.cta-glow:hover .cta-glow-shine {
-    left: 130%;
-}
-.cta-glow-text { position: relative; z-index: 1; }
-.cta-glow-icon {
-    position: relative;
-    z-index: 1;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px; height: 26px;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.14);
-    border: 1px solid rgba(255, 255, 255, 0.22);
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease;
-}
-.cta-glow:hover .cta-glow-icon {
-    transform: translateX(4px) rotate(-12deg);
-    background: rgba(255, 255, 255, 0.25);
+.reveal-main:hover .reveal-tile img,
+.reveal-main:hover .reveal-tile .reveal-cta-label,
+.reveal-main:hover .reveal-tile svg {
+    opacity: 1;
 }
 
-@keyframes ctaGlowSpin {
-    to { transform: rotate(360deg); }
+/* Hover individual sobre un tile — destaca con brand color */
+.reveal-tile:hover {
+    background: #ffffff !important;
+    border-color: rgba(0, 123, 255, 0.25) !important;
+    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.18) !important;
+    transform: scale(1.05);
+    z-index: 2;
 }
+.reveal-tile:hover img { transform: scale(1.08); }
 
-/* Fallback elegante si no hay soporte para conic-gradient */
-@supports not (background: conic-gradient(red, blue)) {
-    .cta-glow::before {
-        background: linear-gradient(135deg, #03a9f4, #6248ff, #cc39a4, #ffb5d2);
-        animation: none;
-    }
+/* Tile CTA "Ver más" */
+.reveal-tile-cta {
+    flex-direction: column;
+    gap: 0.3rem;
+    color: #0f172a;
+}
+.reveal-tile-cta .reveal-cta-label {
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: #0f172a;
+}
+.reveal-main:hover .reveal-tile-cta {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    color: white !important;
+}
+.reveal-main:hover .reveal-tile-cta .reveal-cta-label {
+    color: white !important;
+}
+.reveal-main:hover .reveal-tile-cta svg {
+    color: white;
+    stroke: white;
+}
+.reveal-tile-cta:hover {
+    background: linear-gradient(135deg, #6248ff 0%, #cc39a4 100%) !important;
+    border-color: transparent !important;
+    box-shadow: 0 12px 30px rgba(98, 72, 255, 0.35) !important;
+    transform: scale(1.05);
+}
+.reveal-tile-cta:hover svg {
+    transform: translateX(3px);
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .cta-glow::before { animation: none; }
-    .cta-glow-shine { display: none; }
+    .reveal-tile,
+    .reveal-tile img,
+    .reveal-back,
+    .reveal-text { transition: none; }
 }
 
 @media (max-width: 768px) {
     .trust-strip { padding: 3rem 0 4rem; }
     .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 2rem; }
-    .trust-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem 1.5rem;
-        max-width: 420px;
+    .reveal-main {
+        grid-template-columns: repeat(3, 90px);
+        grid-template-rows: repeat(3, 90px);
+        width: 270px;
+        height: 270px;
     }
-    .trust-logo { height: 70px; }
-    .trust-logo img { max-height: 50px; max-width: 140px; }
-    .cta-glow { font-size: 0.85rem; margin-top: 2.5rem; padding: 0.75rem 1.3rem 0.75rem 1.5rem; }
-    .cta-glow-icon { width: 22px; height: 22px; }
+    .reveal-tile img { max-height: 50px; }
+    .reveal-text { font-size: 0.7rem; letter-spacing: 0.22em; }
+}
+
+@media (max-width: 380px) {
+    .reveal-main {
+        grid-template-columns: repeat(3, 78px);
+        grid-template-rows: repeat(3, 78px);
+        width: 234px;
+        height: 234px;
+    }
+    .reveal-tile img { max-height: 42px; }
+    .reveal-text { font-size: 0.62rem; letter-spacing: 0.18em; }
 }
 
 /* Mejoras de accesibilidad */
