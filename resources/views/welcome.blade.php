@@ -350,10 +350,9 @@
 /* === SERVICIOS — Tiles estilo Uiverse pero en paleta de marca === */
 .serv-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 1rem;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
     margin-bottom: 3rem;
-    /* Permitir que las tiles se expandan sobre las vecinas al rotar/escalar */
     overflow: visible;
 }
 .serv-tile {
@@ -361,28 +360,65 @@
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 0.45rem;
-    padding: 1.5rem 1.4rem 1.4rem;
-    border-radius: 18px;
+    gap: 0.6rem;
+    padding: 2.2rem 2rem 2rem;
+    min-height: 280px;
+    border-radius: 22px;
     background: var(--tile-bg, #d6e7ff);
     color: #0f172a;
     text-decoration: none;
     overflow: hidden;
-    /* Mismo timing que el componente Uiverse referencia */
     transition: all 1s ease-in-out;
-    border: 1px solid rgba(0, 86, 179, 0.05);
+    border: 1px solid rgba(0, 86, 179, 0.06);
     isolation: isolate;
     z-index: 1;
 }
-.serv-tile > * { position: relative; z-index: 1; }
-/* Animación calcada de Uiverse: scale + rotate 360deg + 1s ease-in-out */
+/* Blob decorativo gigante en la esquina inferior derecha */
+.serv-tile::before {
+    content: '';
+    position: absolute;
+    bottom: -50%;
+    right: -25%;
+    width: 75%;
+    height: 75%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.55) 0%, transparent 70%);
+    opacity: 0.6;
+    transition: transform 1s ease-in-out, opacity 1s ease-in-out;
+    z-index: 0;
+    pointer-events: none;
+}
+/* Pequeño dot decorativo arriba-derecha */
+.serv-tile::after {
+    content: '';
+    position: absolute;
+    top: 1.4rem; right: 1.4rem;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    background: var(--tile-accent);
+    opacity: 0.45;
+    box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.5);
+    transition: transform 1s ease-in-out;
+    z-index: 1;
+}
+.serv-tile > * { position: relative; z-index: 2; }
+
+/* Animación inspirada en Uiverse: scale + rotate 360deg + 1s ease */
 .serv-tile:hover {
-    transform: scale(1.15);
+    transform: scale(1.06);
     rotate: 360deg;
-    box-shadow: 0 22px 50px rgba(0, 86, 179, 0.28);
+    box-shadow: 0 26px 60px rgba(0, 86, 179, 0.32),
+                0 6px 18px rgba(0, 86, 179, 0.12);
     z-index: 5;
     text-decoration: none;
     color: #0f172a;
+}
+.serv-tile:hover::before {
+    transform: scale(1.4);
+    opacity: 1;
+}
+.serv-tile:hover::after {
+    transform: scale(2.2);
 }
 
 /* Paleta — variaciones del azul corporativo (cycling) */
@@ -393,78 +429,92 @@
 .serv-tile:nth-child(6n+5) { --tile-bg: #d3def7; --tile-accent: #003d82; }
 .serv-tile:nth-child(6n)   { --tile-bg: #bbd2f5; --tile-accent: #0056b3; }
 
-/* Numerito grande estilo "01, 02..." */
+/* Numerito gigante estilo "01, 02..." — protagonista */
 .serv-tile-num {
-    font-size: 2.2rem;
+    font-size: 3.2rem;
     font-weight: 800;
     color: var(--tile-accent);
-    line-height: 1;
-    letter-spacing: -0.04em;
-    opacity: 0.85;
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    opacity: 0.9;
 }
 
-/* Icono en chip glassmórfico */
+/* Icono en chip glassmórfico — más grande */
 .serv-tile-icon {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 44px; height: 44px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.55);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    width: 58px; height: 58px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     color: var(--tile-accent);
-    font-size: 1.15rem;
-    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-    margin-top: 0.3rem;
+    font-size: 1.55rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7),
+                0 4px 12px rgba(0, 86, 179, 0.06);
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+    margin: 0.4rem 0 0.3rem;
 }
 .serv-tile:hover .serv-tile-icon {
-    transform: scale(1.08);
+    transform: scale(1.1);
 }
 
 .serv-tile-title {
-    font-size: 1.05rem;
+    font-size: 1.3rem;
     font-weight: 800;
     color: #0f172a;
-    margin: 0.45rem 0 0;
-    line-height: 1.25;
-    letter-spacing: -0.01em;
+    margin: 0.5rem 0 0;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
 }
 .serv-tile-text {
-    font-size: 0.85rem;
+    font-size: 0.95rem;
     color: #475569;
-    line-height: 1.5;
-    margin: 0;
+    line-height: 1.55;
+    margin: 0.25rem 0 0;
 }
 
 .serv-tile-link {
     margin-top: auto;
-    padding-top: 0.8rem;
+    padding-top: 1rem;
     display: inline-flex;
     align-items: center;
-    gap: 0.35rem;
-    font-size: 0.82rem;
+    gap: 0.45rem;
+    font-size: 0.9rem;
     font-weight: 700;
     color: var(--tile-accent);
     transition: gap 0.3s ease;
 }
-.serv-tile:hover .serv-tile-link { gap: 0.55rem; }
-.serv-tile-link svg { transition: transform 0.3s ease; }
-.serv-tile:hover .serv-tile-link svg { transform: translateX(2px); }
+.serv-tile:hover .serv-tile-link { gap: 0.7rem; }
+.serv-tile-link svg { transition: transform 0.3s ease; width: 16px; height: 16px; }
+.serv-tile:hover .serv-tile-link svg { transform: translateX(3px); }
 
 @media (prefers-reduced-motion: reduce) {
     .serv-tile, .serv-tile-icon, .serv-tile-link svg { transition: none; }
     .serv-tile:hover { transform: none; }
 }
 
-@media (max-width: 768px) {
-    .serv-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
-    .serv-tile { padding: 1.2rem 1.1rem; }
-    .serv-tile-num { font-size: 1.8rem; }
-    .serv-tile-icon { width: 40px; height: 40px; font-size: 1rem; }
-    .serv-tile-title { font-size: 0.95rem; }
-    .serv-tile-text { font-size: 0.8rem; }
+/* Tablet: 2 columnas, tiles aún grandes */
+@media (max-width: 1024px) {
+    .serv-grid { grid-template-columns: repeat(2, 1fr); gap: 1.25rem; }
+    .serv-tile { min-height: 240px; padding: 1.8rem 1.6rem; }
+    .serv-tile-num { font-size: 2.6rem; }
+    .serv-tile-icon { width: 52px; height: 52px; font-size: 1.35rem; }
+    .serv-tile-title { font-size: 1.15rem; }
+    .serv-tile-text { font-size: 0.9rem; }
+}
+
+/* Mobile: 1 columna, full width */
+@media (max-width: 640px) {
+    .serv-grid { grid-template-columns: 1fr; gap: 1rem; }
+    .serv-tile { min-height: 200px; padding: 1.6rem 1.4rem; }
+    .serv-tile-num { font-size: 2.4rem; }
+    .serv-tile-icon { width: 48px; height: 48px; font-size: 1.25rem; }
+    .serv-tile-title { font-size: 1.1rem; }
+    .serv-tile-text { font-size: 0.88rem; }
+    /* En mobile la rotación 360 puede marear: solo escala */
+    .serv-tile:hover { rotate: 0deg; transform: scale(1.02); }
 }
 
 /* === TRUST STRIP — Reveal card (inspirado en Uiverse / Praashoo7) === */
