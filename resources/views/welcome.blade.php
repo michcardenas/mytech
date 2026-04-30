@@ -257,138 +257,76 @@
             </p>
         </div>
 
-        @if($landings && $landings->count() > 0)
-        <div class="row g-4 mb-5">
-            @foreach($landings as $landing)
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome landing-card">
-                    <div class="servicio-icon-welcome">
-                        <i class="fas fa-rocket"></i>
-                    </div>
-                    <h3>{{ $landing->title }}</h3>
+        @php
+            // Construye una lista unificada de servicios.
+            // Si hay landings activas, las usa. Si no, cae a los 6 servicios hardcodeados de $serviciosData.
+            $serviciosTiles = [];
 
-                    @if($landing->seo && $landing->seo->meta_description)
-                        <p>{{ Str::limit($landing->seo->meta_description, 120) }}</p>
-                    @else
-                        <p>{{ Str::limit(strip_tags($landing->content ?? 'Descubre más sobre esta solución'), 120) }}</p>
+            if ($landings && $landings->count() > 0) {
+                foreach ($landings as $landing) {
+                    $serviciosTiles[] = [
+                        'icon'  => 'fa-rocket',
+                        'title' => $landing->title,
+                        'desc'  => $landing->seo && $landing->seo->meta_description
+                                    ? Str::limit($landing->seo->meta_description, 80)
+                                    : Str::limit(strip_tags($landing->content ?? 'Descubre más sobre esta solución'), 80),
+                        'url'   => route('landing.show', $landing->slug),
+                    ];
+                }
+            } else {
+                $defaults = [
+                    ['fa-store', 'Marketplaces Personalizados', 'Plataformas de comercio adaptadas a tu nicho específico.'],
+                    ['fa-calendar-check', 'Apps de Reservas y Citas', 'Sistemas inteligentes para gestionar citas y horarios.'],
+                    ['fa-utensils', 'Plataformas de Restaurantes', 'Menús digitales con sistema de pedidos y gestión.'],
+                    ['fa-building', 'Sistemas Administrativos', 'Plataformas para condominios, negocios y consultoras.'],
+                    ['fa-globe', 'Páginas Web Profesionales', 'Sitios optimizados SEO con panel de control completo.'],
+                    ['fa-cogs', 'Aplicaciones Personalizadas', 'CRM, ERP y sistemas a medida de tu industria.'],
+                ];
+                foreach ($defaults as $idx => [$icon, $title, $desc]) {
+                    $n = $idx + 1;
+                    $serviciosTiles[] = [
+                        'icon'  => $serviciosData["servicio_{$n}_icon"] ?? 'fas ' . $icon,
+                        'title' => $serviciosData["servicio_{$n}_title"] ?? $title,
+                        'desc'  => $serviciosData["servicio_{$n}_description"] ?? $desc,
+                        'url'   => null,
+                    ];
+                }
+            }
+        @endphp
+
+        <div class="serv-grid">
+            @foreach($serviciosTiles as $idx => $serv)
+                @php
+                    // Asegurar prefijo "fas" si solo viene fa-xxx
+                    $iconCls = str_starts_with($serv['icon'], 'fa') && !str_contains($serv['icon'], ' ')
+                        ? 'fas ' . $serv['icon']
+                        : $serv['icon'];
+                @endphp
+                @if($serv['url'])
+                <a href="{{ $serv['url'] }}" class="serv-tile" style="--tile-i: {{ $idx }};">
+                @else
+                <div class="serv-tile" style="--tile-i: {{ $idx }};">
+                @endif
+                    <span class="serv-tile-num">{{ str_pad($idx + 1, 2, '0', STR_PAD_LEFT) }}</span>
+                    <span class="serv-tile-icon"><i class="{{ $iconCls }}"></i></span>
+                    <h3 class="serv-tile-title">{{ $serv['title'] }}</h3>
+                    <p class="serv-tile-text">{{ $serv['desc'] }}</p>
+                    @if($serv['url'])
+                        <span class="serv-tile-link">
+                            Ver más
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </span>
                     @endif
-
-                    <div class="landing-card-footer">
-                        <a href="{{ route('landing.show', $landing->slug) }}"
-                           class="btn-landing-ver">
-                            Ver Más
-                            <i class="fas fa-arrow-right ml-2"></i>
-                        </a>
-                    </div>
+                @if($serv['url'])
+                </a>
+                @else
                 </div>
-            </div>
+                @endif
             @endforeach
         </div>
-        @else
-        <div class="row g-4 mb-5">
-            <!-- Servicio 1 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_1_icon'] ?? 'fas fa-store' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_1_title'] ?? 'Marketplaces Personalizados' }}</h3>
-                    <p>{{ $serviciosData['servicio_1_description'] ?? 'Plataformas de comercio como MercadoLibre, pero adaptadas a tu nicho específico de mercado.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_1_feature_1'] ?? 'Sistema de vendedores múltiples' }}</li>
-                        <li>{{ $serviciosData['servicio_1_feature_2'] ?? 'Pagos integrados y seguros' }}</li>
-                        <li>{{ $serviciosData['servicio_1_feature_3'] ?? 'Panel administrativo completo' }}</li>
-                        <li>{{ $serviciosData['servicio_1_feature_4'] ?? 'App móvil nativa opcional' }}</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Servicio 2 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_2_icon'] ?? 'fas fa-calendar-check' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_2_title'] ?? 'Apps de Reservas y Citas' }}</h3>
-                    <p>{{ $serviciosData['servicio_2_description'] ?? 'Sistemas inteligentes para gestionar citas, reservas y horarios de manera automatizada.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_2_feature_1'] ?? 'Reservas en tiempo real' }}</li>
-                        <li>{{ $serviciosData['servicio_2_feature_2'] ?? 'Recordatorios automáticos' }}</li>
-                        <li>{{ $serviciosData['servicio_2_feature_3'] ?? 'Gestión de disponibilidad' }}</li>
-                        <li>{{ $serviciosData['servicio_2_feature_4'] ?? 'Integración con calendarios' }}</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Servicio 3 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_3_icon'] ?? 'fas fa-utensils' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_3_title'] ?? 'Plataformas de Restaurantes' }}</h3>
-                    <p>{{ $serviciosData['servicio_3_description'] ?? 'Menús digitales interactivos con sistema de pedidos y gestión completa del restaurante.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_3_feature_1'] ?? 'Menú digital con QR' }}</li>
-                        <li>{{ $serviciosData['servicio_3_feature_2'] ?? 'Pedidos online y delivery' }}</li>
-                        <li>{{ $serviciosData['servicio_3_feature_3'] ?? 'Gestión de inventario' }}</li>
-                        <li>{{ $serviciosData['servicio_3_feature_4'] ?? 'Reportes de ventas' }}</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Servicio 4 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_4_icon'] ?? 'fas fa-building' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_4_title'] ?? 'Sistemas Administrativos' }}</h3>
-                    <p>{{ $serviciosData['servicio_4_description'] ?? 'Plataformas para condominios, negocios y consultoras que automatizan procesos operativos.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_4_feature_1'] ?? 'Gestión de clientes/residentes' }}</li>
-                        <li>{{ $serviciosData['servicio_4_feature_2'] ?? 'Control de pagos y facturación' }}</li>
-                        <li>{{ $serviciosData['servicio_4_feature_3'] ?? 'Reportes automatizados' }}</li>
-                        <li>{{ $serviciosData['servicio_4_feature_4'] ?? 'Comunicación interna' }}</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Servicio 5 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_5_icon'] ?? 'fas fa-globe' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_5_title'] ?? 'Páginas Web Profesionales' }}</h3>
-                    <p>{{ $serviciosData['servicio_5_description'] ?? 'Sitios web con panel de control y optimizados para aparecer en los primeros lugares de Google.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_5_feature_1'] ?? 'Diseño responsive y moderno' }}</li>
-                        <li>{{ $serviciosData['servicio_5_feature_2'] ?? 'SEO optimizado para Google' }}</li>
-                        <li>{{ $serviciosData['servicio_5_feature_3'] ?? 'Panel de administración' }}</li>
-                        <li>{{ $serviciosData['servicio_5_feature_4'] ?? 'Velocidad de carga optimizada' }}</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- Servicio 6 -->
-            <div class="col-lg-4 col-md-6">
-                <div class="servicio-card-welcome">
-                    <div class="servicio-icon-welcome">
-                        <i class="{{ $serviciosData['servicio_6_icon'] ?? 'fas fa-cogs' }}"></i>
-                    </div>
-                    <h3>{{ $serviciosData['servicio_6_title'] ?? 'Aplicaciones Web Personalizadas' }}</h3>
-                    <p>{{ $serviciosData['servicio_6_description'] ?? 'Sistemas web complejos y especializados que automatizan procesos específicos de tu industria.' }}</p>
-                    <ul class="servicio-features-welcome">
-                        <li>{{ $serviciosData['servicio_6_feature_1'] ?? 'CRM y ERP personalizados' }}</li>
-                        <li>{{ $serviciosData['servicio_6_feature_2'] ?? 'Plataformas de e-learning' }}</li>
-                        <li>{{ $serviciosData['servicio_6_feature_3'] ?? 'Sistemas de inventario' }}</li>
-                        <li>{{ $serviciosData['servicio_6_feature_4'] ?? 'Dashboards y analytics' }}</li>
-                    </ul>
-                </div>
-            </div>
-        </div>
-        @endif
 
         <!-- CTA al final de servicios -->
         <div class="services-cta-welcome text-center">
@@ -409,6 +347,133 @@
 </section>
 
 <style>
+/* === SERVICIOS — Tiles estilo Uiverse pero en paleta de marca === */
+.serv-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+.serv-tile {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+    padding: 1.5rem 1.4rem 1.4rem;
+    border-radius: 18px;
+    background: var(--tile-bg, #d6e7ff);
+    color: #0f172a;
+    text-decoration: none;
+    overflow: hidden;
+    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.5s ease,
+                background 0.45s ease;
+    border: 1px solid rgba(0, 86, 179, 0.05);
+    isolation: isolate;
+}
+.serv-tile::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.5) 100%);
+    opacity: 0;
+    transition: opacity 0.45s ease;
+    z-index: 0;
+    pointer-events: none;
+}
+.serv-tile > * { position: relative; z-index: 1; }
+.serv-tile:hover {
+    transform: translateY(-6px) scale(1.025) rotate(-1deg);
+    box-shadow: 0 18px 40px rgba(0, 86, 179, 0.18),
+                0 4px 12px rgba(0, 86, 179, 0.08);
+    text-decoration: none;
+    color: #0f172a;
+}
+.serv-tile:hover::before { opacity: 1; }
+
+/* Paleta — variaciones del azul corporativo (cycling) */
+.serv-tile:nth-child(6n+1) { --tile-bg: #d6e7ff; --tile-accent: #0056b3; }
+.serv-tile:nth-child(6n+2) { --tile-bg: #cfe2ff; --tile-accent: #003d82; }
+.serv-tile:nth-child(6n+3) { --tile-bg: #e0eaff; --tile-accent: #1d4ed8; }
+.serv-tile:nth-child(6n+4) { --tile-bg: #c8dafc; --tile-accent: #0056b3; }
+.serv-tile:nth-child(6n+5) { --tile-bg: #d3def7; --tile-accent: #003d82; }
+.serv-tile:nth-child(6n)   { --tile-bg: #bbd2f5; --tile-accent: #0056b3; }
+
+/* Numerito grande estilo "01, 02..." */
+.serv-tile-num {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--tile-accent);
+    line-height: 1;
+    letter-spacing: -0.04em;
+    opacity: 0.85;
+}
+
+/* Icono en chip glassmórfico */
+.serv-tile-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px; height: 44px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: var(--tile-accent);
+    font-size: 1.15rem;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    margin-top: 0.3rem;
+}
+.serv-tile:hover .serv-tile-icon {
+    transform: rotate(-8deg) scale(1.06);
+}
+
+.serv-tile-title {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0.45rem 0 0;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+}
+.serv-tile-text {
+    font-size: 0.85rem;
+    color: #475569;
+    line-height: 1.5;
+    margin: 0;
+}
+
+.serv-tile-link {
+    margin-top: auto;
+    padding-top: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--tile-accent);
+    transition: gap 0.3s ease;
+}
+.serv-tile:hover .serv-tile-link { gap: 0.55rem; }
+.serv-tile-link svg { transition: transform 0.3s ease; }
+.serv-tile:hover .serv-tile-link svg { transform: translateX(2px); }
+
+@media (prefers-reduced-motion: reduce) {
+    .serv-tile, .serv-tile-icon, .serv-tile-link svg { transition: none; }
+    .serv-tile:hover { transform: none; }
+}
+
+@media (max-width: 768px) {
+    .serv-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 0.75rem; }
+    .serv-tile { padding: 1.2rem 1.1rem; }
+    .serv-tile-num { font-size: 1.8rem; }
+    .serv-tile-icon { width: 40px; height: 40px; font-size: 1rem; }
+    .serv-tile-title { font-size: 0.95rem; }
+    .serv-tile-text { font-size: 0.8rem; }
+}
+
 /* === TRUST STRIP — Reveal card (inspirado en Uiverse / Praashoo7) === */
 .trust-strip {
     background: #ffffff;
