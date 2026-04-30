@@ -353,6 +353,8 @@
     grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
     gap: 1rem;
     margin-bottom: 3rem;
+    /* Permitir que las tiles se expandan sobre las vecinas al rotar/escalar */
+    overflow: visible;
 }
 .serv-tile {
     position: relative;
@@ -366,31 +368,22 @@
     color: #0f172a;
     text-decoration: none;
     overflow: hidden;
-    transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
-                box-shadow 0.5s ease,
-                background 0.45s ease;
+    /* Mismo timing que el componente Uiverse referencia */
+    transition: all 1s ease-in-out;
     border: 1px solid rgba(0, 86, 179, 0.05);
     isolation: isolate;
-}
-.serv-tile::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, transparent 0%, rgba(255, 255, 255, 0.5) 100%);
-    opacity: 0;
-    transition: opacity 0.45s ease;
-    z-index: 0;
-    pointer-events: none;
+    z-index: 1;
 }
 .serv-tile > * { position: relative; z-index: 1; }
+/* Animación calcada de Uiverse: scale + rotate 360deg + 1s ease-in-out */
 .serv-tile:hover {
-    transform: translateY(-6px) scale(1.025) rotate(-1deg);
-    box-shadow: 0 18px 40px rgba(0, 86, 179, 0.18),
-                0 4px 12px rgba(0, 86, 179, 0.08);
+    transform: scale(1.15);
+    rotate: 360deg;
+    box-shadow: 0 22px 50px rgba(0, 86, 179, 0.28);
+    z-index: 5;
     text-decoration: none;
     color: #0f172a;
 }
-.serv-tile:hover::before { opacity: 1; }
 
 /* Paleta — variaciones del azul corporativo (cycling) */
 .serv-tile:nth-child(6n+1) { --tile-bg: #d6e7ff; --tile-accent: #0056b3; }
@@ -427,7 +420,7 @@
     margin-top: 0.3rem;
 }
 .serv-tile:hover .serv-tile-icon {
-    transform: rotate(-8deg) scale(1.06);
+    transform: scale(1.08);
 }
 
 .serv-tile-title {
