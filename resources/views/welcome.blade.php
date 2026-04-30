@@ -521,10 +521,13 @@
 .reveal-tile:nth-child(15) { border-bottom-left-radius: 22px; }
 .reveal-tile-cta { border-bottom-right-radius: 22px; }
 
-/* Hover sobre la tarjeta principal — esparcir tiles + revelar logos */
-.reveal-main:hover .reveal-back { opacity: 0; }
-.reveal-main:hover .reveal-text { opacity: 0; }
-.reveal-main:hover .reveal-tile {
+/* Hover sobre la tarjeta principal (desktop) o clase .is-revealed (mobile/scroll) */
+.reveal-main:hover .reveal-back,
+.reveal-main.is-revealed .reveal-back { opacity: 0; }
+.reveal-main:hover .reveal-text,
+.reveal-main.is-revealed .reveal-text { opacity: 0; }
+.reveal-main:hover .reveal-tile,
+.reveal-main.is-revealed .reveal-tile {
     margin: 6px;
     border-radius: 16px;
     /* Fondo con leve tinte slate-azul para que logos blancos/claros se distingan */
@@ -535,7 +538,10 @@
 }
 .reveal-main:hover .reveal-tile img,
 .reveal-main:hover .reveal-tile .reveal-cta-label,
-.reveal-main:hover .reveal-tile svg {
+.reveal-main:hover .reveal-tile svg,
+.reveal-main.is-revealed .reveal-tile img,
+.reveal-main.is-revealed .reveal-tile .reveal-cta-label,
+.reveal-main.is-revealed .reveal-tile svg {
     opacity: 1;
 }
 
@@ -568,15 +574,18 @@
     letter-spacing: 0.06em;
     color: #0f172a;
 }
-.reveal-main:hover .reveal-tile-cta {
+.reveal-main:hover .reveal-tile-cta,
+.reveal-main.is-revealed .reveal-tile-cta {
     background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%) !important;
     color: white !important;
     border-color: transparent !important;
 }
-.reveal-main:hover .reveal-tile-cta .reveal-cta-label {
+.reveal-main:hover .reveal-tile-cta .reveal-cta-label,
+.reveal-main.is-revealed .reveal-tile-cta .reveal-cta-label {
     color: white !important;
 }
-.reveal-main:hover .reveal-tile-cta svg {
+.reveal-main:hover .reveal-tile-cta svg,
+.reveal-main.is-revealed .reveal-tile-cta svg {
     color: white;
     stroke: white;
 }
