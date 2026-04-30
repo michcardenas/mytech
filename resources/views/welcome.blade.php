@@ -170,8 +170,8 @@
         </div>
     </div>
 </section>
-<!-- Trust Strip — clientes que ya confiaron -->
-<section class="trust-strip" aria-labelledby="trust-title">
+<!-- Trust Strip — minimalista (estilo Vercel/Stripe footer) -->
+<section class="trust-strip">
     @php
         $trustLogos = [
             ['url' => 'https://voyconvos.com/',           'name' => 'VoyConVos',     'img' => 'voyconvos.png'],
@@ -185,44 +185,23 @@
         ];
     @endphp
 
-    <div class="trust-stats container">
-        <div class="trust-stat">
-            <span class="ts-num">8+</span>
-            <span class="ts-label">Productos en producción</span>
-        </div>
-        <span class="trust-divider"></span>
-        <div class="trust-stat">
-            <span class="ts-num">5</span>
-            <span class="ts-label">Países</span>
-        </div>
-        <span class="trust-divider"></span>
-        <div class="trust-stat">
-            <span class="ts-num">∞</span>
-            <span class="ts-label">Automatizaciones desplegadas</span>
-        </div>
-    </div>
+    <div class="container">
+        <p class="trust-eyebrow-simple">
+            {{ $homeContent['clients_subtitle'] ?? 'Equipos que confían en nuestro trabajo' }}
+        </p>
 
-    <div class="trust-head container">
-        <span class="trust-eyebrow"><span class="dot"></span> {{ $homeContent['clients_subtitle'] ?? 'Equipos que ya operan con software hecho a medida' }}</span>
-        <h3 id="trust-title" class="trust-title">{{ $homeContent['clients_title'] ?? 'Construido para escalar. Probado en producción.' }}</h3>
-    </div>
-
-    <div class="trust-marquee" aria-hidden="false">
-        <div class="trust-track">
-            @foreach(array_merge($trustLogos, $trustLogos) as $logo)
-                <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
-                    <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
-                </a>
-            @endforeach
+        <div class="trust-marquee">
+            <div class="trust-track">
+                @foreach(array_merge($trustLogos, $trustLogos) as $logo)
+                    <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer" class="trust-logo" title="{{ $logo['name'] }}">
+                        <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
+                    </a>
+                @endforeach
+            </div>
         </div>
-    </div>
 
-    <div class="trust-cta container">
-        <a href="{{ route('proyectos.index') }}" class="trust-cta-link">
-            <span class="trust-cta-text">{{ $homeContent['clients_button_text'] ?? 'Ver todos los casos de estudio' }}</span>
-            <span class="trust-cta-arrow" aria-hidden="true">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
-            </span>
+        <a href="{{ route('proyectos.index') }}" class="trust-cta-simple">
+            {{ $homeContent['clients_button_text'] ?? 'Ver casos de estudio' }} →
         </a>
     </div>
 </section>
@@ -391,489 +370,80 @@
 </section>
 
 <style>
-/* === TRUST STRIP (logos de clientes — estilo moderno SaaS/agencia) === */
+/* === TRUST STRIP — minimalista (estilo Vercel/Stripe footer) === */
 .trust-strip {
+    background: #ffffff;
+    padding: 4rem 0 5rem;
     position: relative;
-    padding: 0 0 5rem;
-    background: linear-gradient(180deg, #f8fafc 0%, #ffffff 60%);
-    overflow: hidden;
 }
 
-/* Stat strip flotante que conecta con el hero */
-.trust-stats {
-    margin-top: -56px;
-    position: relative;
-    z-index: 5;
-    background: white;
-    border-radius: 18px;
-    box-shadow: 0 24px 60px -20px rgba(15, 23, 42, 0.18), 0 0 0 1px rgba(15, 23, 42, 0.04);
-    padding: 1.4rem 2rem;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 2.5rem;
-    flex-wrap: wrap;
-    max-width: 760px;
-    margin-left: auto;
-    margin-right: auto;
-}
-.trust-stat { text-align: center; min-width: 120px; }
-.trust-stat .ts-num {
-    display: block; font-size: 1.8rem; font-weight: 800;
-    color: #0f172a; line-height: 1; letter-spacing: -0.02em;
-    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
-    -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
-}
-.trust-stat .ts-label {
-    display: block; font-size: 0.75rem; color: #64748b;
-    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 600; margin-top: 0.4rem;
-}
-.trust-divider { width: 1px; height: 36px; background: linear-gradient(180deg, transparent, #cbd5e1, transparent); }
-
-/* Header tipográfico moderno — sin underlines decorativos */
-.trust-head {
+/* Eyebrow discreto — caption pequeño en gris */
+.trust-eyebrow-simple {
     text-align: center;
-    margin: 4rem auto 2.5rem;
-    max-width: 700px;
-}
-.trust-eyebrow {
-    display: inline-flex; align-items: center; gap: 0.5rem;
-    font-size: 0.78rem; font-weight: 600; color: #475569;
-    text-transform: none; letter-spacing: 0.02em;
-    padding: 0.4rem 0.95rem; border-radius: 999px;
-    background: rgba(15, 23, 42, 0.04);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    margin-bottom: 1rem;
-}
-.trust-eyebrow .dot {
-    width: 6px; height: 6px; border-radius: 50%;
-    background: #10b981; box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18);
-    animation: trustDotPulse 2.4s ease-in-out infinite;
-}
-@keyframes trustDotPulse {
-    0%, 100% { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.18); }
-    50% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
-}
-.trust-title {
-    font-size: clamp(1.5rem, 3vw, 2.1rem);
-    font-weight: 800; color: #0f172a; line-height: 1.15;
-    margin: 0; letter-spacing: -0.025em;
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin: 0 0 2rem;
 }
 
 /* Marquee con fade en bordes */
 .trust-marquee {
     position: relative;
     overflow: hidden;
-    padding: 1.25rem 0;
+    padding: 0.5rem 0;
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
             mask-image: linear-gradient(90deg, transparent 0%, black 8%, black 92%, transparent 100%);
 }
 .trust-track {
     display: flex;
     align-items: center;
-    gap: 4rem;
+    gap: 4.5rem;
     width: max-content;
-    animation: trustScroll 38s linear infinite;
+    animation: trustScroll 40s linear infinite;
 }
 .trust-marquee:hover .trust-track { animation-play-state: paused; }
 .trust-logo {
     flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    height: 70px;
+    height: 50px;
     text-decoration: none;
-    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+    transition: opacity 0.3s ease;
 }
 .trust-logo img {
-    max-height: 48px; max-width: 160px; width: auto; height: auto;
+    max-height: 40px; max-width: 150px; width: auto; height: auto;
     object-fit: contain;
-    filter: grayscale(100%) opacity(0.55);
-    transition: filter 0.35s ease, transform 0.35s ease;
+    opacity: 0.75;
+    transition: opacity 0.3s ease;
 }
-.trust-logo:hover { transform: translateY(-2px); }
-.trust-logo:hover img { filter: grayscale(0%) opacity(1); }
+.trust-logo:hover img { opacity: 1; }
 
 @keyframes trustScroll {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
 }
 
-/* CTA refinado — link con flecha animada */
-.trust-cta { text-align: center; margin-top: 3rem; }
-.trust-cta-link {
-    display: inline-flex; align-items: center; gap: 0.65rem;
-    padding: 0.85rem 0;
-    font-size: 0.95rem; font-weight: 700;
-    color: #0f172a; text-decoration: none;
-    position: relative; transition: color 0.25s;
-}
-.trust-cta-link::after {
-    content: ''; position: absolute; bottom: 0.3rem; left: 0; right: 0;
-    height: 2px;
-    background: linear-gradient(90deg, #007BFF, #0056b3);
-    transform: scaleX(0); transform-origin: left;
-    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.trust-cta-link:hover { color: #0056b3; text-decoration: none; }
-.trust-cta-link:hover::after { transform: scaleX(1); }
-.trust-cta-arrow {
-    display: inline-flex; align-items: center; justify-content: center;
-    width: 32px; height: 32px; border-radius: 50%;
-    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
-    color: white;
-    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.28);
-    transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-}
-.trust-cta-link:hover .trust-cta-arrow { transform: translateX(4px); }
-
-@media (max-width: 768px) {
-    .trust-strip { padding-bottom: 3.5rem; }
-    .trust-stats {
-        margin-top: -44px;
-        padding: 1rem 1.25rem;
-        gap: 1.25rem;
-    }
-    .trust-divider { display: none; }
-    .trust-stat { min-width: 90px; flex: 1; }
-    .trust-stat .ts-num { font-size: 1.4rem; }
-    .trust-stat .ts-label { font-size: 0.68rem; }
-    .trust-head { margin: 3rem auto 2rem; padding: 0 1.25rem; }
-    .trust-track { gap: 2.5rem; animation-duration: 30s; }
-    .trust-logo { height: 56px; }
-    .trust-logo img { max-height: 36px; max-width: 120px; }
-}
-
-/* === Carousel viejo: oculto pero conservado por compatibilidad ===
-   (Si en algún lado del admin todavía se inyecta `.clients-logos`, no rompe.)
-*/
-.clients-logos {
-    background: linear-gradient(135deg, #f8fafc 0%, #ffffff 100%);
-    padding: 5rem 0;
-    overflow: hidden;
-    position: relative;
-}
-
-.clients-logos::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 1px;
-    background: linear-gradient(90deg, transparent 0%, #007BFF 50%, transparent 100%);
-}
-
-.logos-header {
+/* CTA discreto — solo link plano */
+.trust-cta-simple {
+    display: block;
     text-align: center;
-    margin-bottom: 4rem;
-}
-
-.logos-header h3 {
-    font-size: 2rem;
-    font-weight: 800;
-    color: #1e293b;
-    margin-bottom: 0.8rem;
-    position: relative;
-}
-
-.logos-header h3::after {
-    content: '';
-    position: absolute;
-    bottom: -10px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 3px;
-    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%);
-    border-radius: 2px;
-}
-
-.logos-header p {
-    color: #64748b;
-    font-size: 1.1rem;
-    margin: 0;
-    font-weight: 500;
-}
-
-.logos-carousel {
-    position: relative;
-    overflow: hidden;
-    margin-bottom: 3rem;
-    padding: 1rem 0;
-}
-
-.logos-track {
-    display: flex;
-    animation: logoScroll 35s linear infinite;
-    gap: 4rem;
-    align-items: center;
-}
-
-.logo-item {
-    flex-shrink: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.8rem;
-    padding: 1.5rem;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    min-width: 140px;
+    margin-top: 2.5rem;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #475569;
     text-decoration: none;
-    position: relative;
-    border-radius: 16px;
-    background: rgba(255, 255, 255, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-    cursor: pointer;
-    overflow: hidden;
+    transition: color 0.2s ease;
 }
+.trust-cta-simple:hover { color: #0056b3; text-decoration: none; }
 
-.logo-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: linear-gradient(135deg, rgba(0, 123, 255, 0.05) 0%, rgba(0, 86, 179, 0.05) 100%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
-}
-
-.logo-item:hover::before {
-    opacity: 1;
-}
-
-.logo-item:hover {
-    transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 15px 40px rgba(0, 123, 255, 0.15);
-    border-color: rgba(0, 123, 255, 0.2);
-}
-
-.client-logo {
-    height: 70px;
-    width: auto;
-    max-width: 140px;
-    object-fit: contain;
-    filter: grayscale(80%) opacity(0.8);
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 2;
-    position: relative;
-}
-
-.logo-item:hover .client-logo {
-    filter: grayscale(0%) opacity(1);
-    transform: scale(1.1);
-}
-
-.logo-label {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #64748b;
-    text-align: center;
-    transition: all 0.3s ease;
-    z-index: 2;
-    position: relative;
-    letter-spacing: 0.5px;
-}
-
-.logo-item:hover .logo-label {
-    color: #007BFF;
-    transform: translateY(-2px);
-}
-
-.logo-overlay {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(0, 123, 255, 0.28);
-    color: white;
-    padding: 0.8rem 1.2rem;
-    border-radius: 12px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    opacity: 0;
-    visibility: hidden;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    z-index: 3;
-    box-shadow: 0 8px 25px rgba(0, 123, 255, 0.2);
-    backdrop-filter: blur(15px);
-}
-
-.logo-item:hover .logo-overlay {
-    opacity: 1;
-    visibility: visible;
-    transform: translate(-50%, -50%) scale(1);
-}
-
-.logo-overlay i {
-    font-size: 0.9rem;
-}
-
-.carousel-note {
-    text-align: center;
-}
-
-.stats-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 1rem;
-    flex-wrap: wrap;
-}
-
-.stat-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-}
-
-.stat-item strong {
-    font-size: 1.5rem;
-    font-weight: 800;
-    color: #007BFF;
-    line-height: 1;
-}
-
-.stat-item span {
-    font-size: 0.85rem;
-    color: #64748b;
-    font-weight: 600;
-}
-
-.stat-divider {
-    width: 1px;
-    height: 30px;
-    background: linear-gradient(to bottom, transparent, #e2e8f0, transparent);
-}
-
-.carousel-subtitle {
-    color: #10b981;
-    font-weight: 600;
-    font-size: 0.9rem;
-    margin: 0;
-    background: rgba(16, 185, 129, 0.1);
-    padding: 0.6rem 1.2rem;
-    border-radius: 25px;
-    border: 1px solid rgba(16, 185, 129, 0.2);
-    display: inline-block;
-}
-
-/* Animación del carrusel */
-@keyframes logoScroll {
-    0% {
-        transform: translateX(0);
-    }
-    100% {
-        transform: translateX(-50%);
-    }
-}
-
-/* Pausa animación al hover */
-.logos-carousel:hover .logos-track {
-    animation-play-state: paused;
-}
-
-/* Responsive mejorado */
 @media (max-width: 768px) {
-    .clients-logos {
-        padding: 4rem 0 3rem 0;
-    }
-    
-    .logos-header {
-        margin-bottom: 3rem;
-    }
-    
-    .logos-header h3 {
-        font-size: 1.6rem;
-    }
-    
-    .logos-header p {
-        font-size: 1rem;
-    }
-    
-    .logos-track {
-        gap: 2.5rem;
-    }
-    
-    .logo-item {
-        min-width: 120px;
-        padding: 1.2rem;
-        gap: 0.6rem;
-    }
-    
-    .client-logo {
-        height: 60px;
-        max-width: 120px;
-    }
-    
-    .logo-label {
-        font-size: 0.8rem;
-    }
-    
-    .logo-overlay {
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-    }
-    
-    .btn-more-projects {
-        padding: 0.9rem 1.8rem;
-        font-size: 0.95rem;
-        gap: 0.7rem;
-    }
-}
-
-@media (max-width: 576px) {
-    .clients-logos {
-        padding: 3rem 0 2.5rem 0;
-    }
-    
-    .logos-header {
-        margin-bottom: 2.5rem;
-    }
-    
-    .logos-header h3 {
-        font-size: 1.4rem;
-    }
-    
-    .logos-header p {
-        font-size: 0.95rem;
-    }
-    
-    .logos-track {
-        gap: 2rem;
-    }
-    
-    .logo-item {
-        min-width: 100px;
-        padding: 1rem;
-    }
-    
-    .client-logo {
-        height: 50px;
-        max-width: 100px;
-    }
-    
-    .logo-label {
-        font-size: 0.75rem;
-    }
-    
-    .logo-overlay {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.75rem;
-    }
-    
-    .btn-more-projects {
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
-        gap: 0.6rem;
-    }
+    .trust-strip { padding: 3rem 0 4rem; }
+    .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 1.5rem; }
+    .trust-track { gap: 2.5rem; animation-duration: 32s; }
+    .trust-logo { height: 40px; }
+    .trust-logo img { max-height: 32px; max-width: 110px; }
+    .trust-cta-simple { font-size: 0.82rem; margin-top: 2rem; }
 }
 
 /* Mejoras de accesibilidad */
@@ -1227,7 +797,7 @@
 /* Padding superior para que el texto no quede pegado al nav transparente */
 .hero-simple.has-hero-media .container {
     padding-top: var(--navbar-height, 80px);
-    padding-bottom: 4.5rem;
+    padding-bottom: 2rem;
 }
 
 /* Respeto a usuarios con movimiento reducido */
