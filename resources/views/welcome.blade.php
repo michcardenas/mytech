@@ -606,6 +606,36 @@
     .reveal-text { transition: none; }
 }
 
+/* Touch devices: tap feedback en tiles + animación de entrada al revelar */
+@media (hover: none) {
+    .reveal-tile:active {
+        background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%) !important;
+        border-color: transparent !important;
+        transform: scale(0.97);
+    }
+    .reveal-tile:active img {
+        filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
+    }
+    /* Cuando la card se revela vía scroll, los tiles aparecen con un fade-in encadenado */
+    .reveal-main.is-revealed .reveal-tile {
+        animation: revealTileIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .reveal-main.is-revealed .reveal-tile:nth-child(1)  { animation-delay: 0.00s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(2)  { animation-delay: 0.04s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(3)  { animation-delay: 0.08s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(4)  { animation-delay: 0.12s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(5)  { animation-delay: 0.16s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(6)  { animation-delay: 0.20s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(7)  { animation-delay: 0.24s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(8)  { animation-delay: 0.28s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(n+9) { animation-delay: 0.32s; }
+}
+
+@keyframes revealTileIn {
+    from { opacity: 0; transform: scale(0.92); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
 /* Tablet: 5×3 (15 tiles visibles, oculta 16-20) */
 @media (max-width: 1024px) {
     .reveal-main {
@@ -1843,6 +1873,29 @@
         setTimeout(() => {
             if (!played && v.readyState < 2) { v.style.display = 'none'; }
         }, 2500);
+    })();
+
+    /* Reveal-card: en dispositivos sin :hover (touch), revelar al hacer scroll. */
+    (function () {
+        const card = document.querySelector('.reveal-main');
+        if (!card) return;
+        const isTouch = window.matchMedia('(hover: none)').matches
+                     || !window.matchMedia('(hover: hover)').matches;
+        if (!isTouch) return;
+
+        if ('IntersectionObserver' in window) {
+            const obs = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        card.classList.add('is-revealed');
+                        obs.unobserve(card);
+                    }
+                });
+            }, { threshold: 0.35, rootMargin: '0px 0px -10% 0px' });
+            obs.observe(card);
+        } else {
+            card.classList.add('is-revealed');
+        }
     })();
 </script>
 @endsection
