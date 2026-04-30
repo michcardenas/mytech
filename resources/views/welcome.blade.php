@@ -616,23 +616,31 @@
     .reveal-tile:active img {
         filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.25));
     }
-    /* Cuando la card se revela vía scroll, los tiles aparecen con un fade-in encadenado */
+
+    /* Transiciones más lentas en touch para que la apertura se sienta cinematográfica */
     .reveal-main.is-revealed .reveal-tile {
-        animation: revealTileIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+        transition: all 0.85s cubic-bezier(0.22, 1, 0.36, 1);
     }
-    .reveal-main.is-revealed .reveal-tile:nth-child(1)  { animation-delay: 0.00s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(2)  { animation-delay: 0.04s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(3)  { animation-delay: 0.08s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(4)  { animation-delay: 0.12s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(5)  { animation-delay: 0.16s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(6)  { animation-delay: 0.20s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(7)  { animation-delay: 0.24s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(8)  { animation-delay: 0.28s; }
-    .reveal-main.is-revealed .reveal-tile:nth-child(n+9) { animation-delay: 0.32s; }
+    .reveal-main.is-revealed .reveal-back { transition: opacity 0.9s ease 0.15s; }
+    .reveal-main.is-revealed .reveal-text { transition: opacity 0.7s ease; }
+
+    /* Fade-in encadenado de los tiles, ritmo pausado */
+    .reveal-main.is-revealed .reveal-tile {
+        animation: revealTileIn 0.95s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .reveal-main.is-revealed .reveal-tile:nth-child(1)  { animation-delay: 0.05s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(2)  { animation-delay: 0.15s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(3)  { animation-delay: 0.25s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(4)  { animation-delay: 0.35s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(5)  { animation-delay: 0.45s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(6)  { animation-delay: 0.55s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(7)  { animation-delay: 0.65s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(8)  { animation-delay: 0.75s; }
+    .reveal-main.is-revealed .reveal-tile:nth-child(n+9) { animation-delay: 0.85s; }
 }
 
 @keyframes revealTileIn {
-    from { opacity: 0; transform: scale(0.92); }
+    from { opacity: 0; transform: scale(0.9); }
     to   { opacity: 1; transform: scale(1); }
 }
 
