@@ -408,23 +408,23 @@
 .reveal-main {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 100px);
-    grid-template-rows: repeat(3, 100px);
+    grid-template-columns: repeat(3, 160px);
+    grid-template-rows: repeat(3, 160px);
     gap: 0;
-    width: 300px;
-    height: 300px;
+    width: 480px;
+    height: 480px;
     cursor: pointer;
     isolation: isolate;
 }
 
-/* Background gradient detrás (visible por defecto, se oculta al hover) */
+/* Background gradient detrás (paleta de marca: azul → azul oscuro) */
 .reveal-back {
     position: absolute;
     inset: 0;
-    border-radius: 16px;
-    background: linear-gradient(135deg, #03a9f4 0%, #6248ff 50%, #cc39a4 100%);
-    box-shadow: inset 0 0 120px 0 rgba(255, 255, 255, 0.35),
-                0 20px 60px -15px rgba(98, 72, 255, 0.4);
+    border-radius: 22px;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 60%, #003d82 100%);
+    box-shadow: inset 0 0 180px 0 rgba(255, 255, 255, 0.18),
+                0 25px 70px -18px rgba(0, 86, 179, 0.45);
     z-index: -2;
     transition: opacity 0.4s ease;
     pointer-events: none;
@@ -440,11 +440,11 @@
     margin: 0;
     color: white;
     font-weight: 800;
-    font-size: 0.78rem;
+    font-size: 1rem;
     text-align: center;
-    letter-spacing: 0.28em;
-    line-height: 1.1;
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+    letter-spacing: 0.3em;
+    line-height: 1.2;
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
     z-index: 3;
     transition: opacity 0.35s ease;
     pointer-events: none;
@@ -455,10 +455,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 0.5rem;
-    background: rgba(255, 255, 255, 0.18);
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.16);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
     border: 1px solid transparent;
     transition: all 0.4s ease-in-out;
     text-decoration: none;
@@ -469,7 +469,7 @@
 .reveal-tile svg {
     opacity: 0;
     max-width: 100%;
-    max-height: 60px;
+    max-height: 95px;
     width: auto;
     height: auto;
     object-fit: contain;
@@ -477,20 +477,20 @@
 }
 
 /* Esquinas redondeadas en las 4 esquinas del 3x3 */
-.reveal-tile-1 { border-top-left-radius: 16px; }
-.reveal-tile-3 { border-top-right-radius: 16px; }
-.reveal-tile-7 { border-bottom-left-radius: 16px; }
-.reveal-tile-cta { border-bottom-right-radius: 16px; }
+.reveal-tile-1 { border-top-left-radius: 22px; }
+.reveal-tile-3 { border-top-right-radius: 22px; }
+.reveal-tile-7 { border-bottom-left-radius: 22px; }
+.reveal-tile-cta { border-bottom-right-radius: 22px; }
 
 /* Hover sobre la tarjeta principal — esparcir tiles + revelar logos */
 .reveal-main:hover .reveal-back { opacity: 0; }
 .reveal-main:hover .reveal-text { opacity: 0; }
 .reveal-main:hover .reveal-tile {
-    margin: 4px;
-    border-radius: 12px;
-    background: rgba(255, 255, 255, 0.65);
-    border: 1px solid rgba(15, 23, 42, 0.06);
-    box-shadow: 0 4px 16px rgba(15, 23, 42, 0.08);
+    margin: 6px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.92);
+    border: 1px solid rgba(0, 123, 255, 0.08);
+    box-shadow: 0 6px 20px rgba(0, 86, 179, 0.08);
 }
 .reveal-main:hover .reveal-tile img,
 .reveal-main:hover .reveal-tile .reveal-cta-label,
@@ -498,32 +498,33 @@
     opacity: 1;
 }
 
-/* Hover individual sobre un tile — destaca con brand color */
+/* Hover individual sobre un tile — destaca con brand color azul */
 .reveal-tile:hover {
     background: #ffffff !important;
-    border-color: rgba(0, 123, 255, 0.25) !important;
-    box-shadow: 0 8px 24px rgba(0, 123, 255, 0.18) !important;
-    transform: scale(1.05);
+    border-color: rgba(0, 123, 255, 0.4) !important;
+    box-shadow: 0 12px 30px rgba(0, 123, 255, 0.22) !important;
+    transform: scale(1.06);
     z-index: 2;
 }
-.reveal-tile:hover img { transform: scale(1.08); }
+.reveal-tile:hover img { transform: scale(1.1); }
 
-/* Tile CTA "Ver más" */
+/* Tile CTA "Ver más" — colores de marca */
 .reveal-tile-cta {
     flex-direction: column;
-    gap: 0.3rem;
+    gap: 0.4rem;
     color: #0f172a;
 }
 .reveal-tile-cta .reveal-cta-label {
-    font-size: 0.72rem;
+    font-size: 0.85rem;
     font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.06em;
     color: #0f172a;
 }
 .reveal-main:hover .reveal-tile-cta {
-    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%) !important;
+    background: linear-gradient(135deg, #007BFF 0%, #0056b3 100%) !important;
     color: white !important;
+    border-color: transparent !important;
 }
 .reveal-main:hover .reveal-tile-cta .reveal-cta-label {
     color: white !important;
@@ -533,13 +534,13 @@
     stroke: white;
 }
 .reveal-tile-cta:hover {
-    background: linear-gradient(135deg, #6248ff 0%, #cc39a4 100%) !important;
+    background: linear-gradient(135deg, #0056b3 0%, #003d82 100%) !important;
     border-color: transparent !important;
-    box-shadow: 0 12px 30px rgba(98, 72, 255, 0.35) !important;
-    transform: scale(1.05);
+    box-shadow: 0 16px 36px rgba(0, 86, 179, 0.4) !important;
+    transform: scale(1.06);
 }
 .reveal-tile-cta:hover svg {
-    transform: translateX(3px);
+    transform: translateX(4px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -549,28 +550,39 @@
     .reveal-text { transition: none; }
 }
 
+@media (max-width: 1024px) {
+    .reveal-main {
+        grid-template-columns: repeat(3, 140px);
+        grid-template-rows: repeat(3, 140px);
+        width: 420px;
+        height: 420px;
+    }
+    .reveal-tile img { max-height: 80px; }
+}
+
 @media (max-width: 768px) {
     .trust-strip { padding: 3rem 0 4rem; }
     .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 2rem; }
     .reveal-main {
-        grid-template-columns: repeat(3, 90px);
-        grid-template-rows: repeat(3, 90px);
-        width: 270px;
-        height: 270px;
+        grid-template-columns: repeat(3, 110px);
+        grid-template-rows: repeat(3, 110px);
+        width: 330px;
+        height: 330px;
     }
-    .reveal-tile img { max-height: 50px; }
-    .reveal-text { font-size: 0.7rem; letter-spacing: 0.22em; }
+    .reveal-tile img { max-height: 65px; }
+    .reveal-text { font-size: 0.85rem; letter-spacing: 0.24em; }
+    .reveal-tile-cta .reveal-cta-label { font-size: 0.75rem; }
 }
 
 @media (max-width: 380px) {
     .reveal-main {
-        grid-template-columns: repeat(3, 78px);
-        grid-template-rows: repeat(3, 78px);
-        width: 234px;
-        height: 234px;
+        grid-template-columns: repeat(3, 92px);
+        grid-template-rows: repeat(3, 92px);
+        width: 276px;
+        height: 276px;
     }
-    .reveal-tile img { max-height: 42px; }
-    .reveal-text { font-size: 0.62rem; letter-spacing: 0.18em; }
+    .reveal-tile img { max-height: 52px; }
+    .reveal-text { font-size: 0.7rem; letter-spacing: 0.2em; }
 }
 
 /* Mejoras de accesibilidad */
