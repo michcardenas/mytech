@@ -190,11 +190,20 @@
             {{ $homeContent['clients_subtitle'] ?? 'Equipos que confían en nuestro trabajo' }}
         </p>
 
+        @php
+            // Construimos un set extendido cicleando los logos hasta llenar 20 tiles + 1 CTA = 21 (grid 7x3)
+            $extendedLogos = [];
+            $cycleLen = max(1, count($trustLogos));
+            for ($i = 0; $i < 20; $i++) {
+                $extendedLogos[] = $trustLogos[$i % $cycleLen];
+            }
+        @endphp
+
         <div class="reveal-wrap">
             <div class="reveal-main">
-                @foreach($trustLogos as $i => $logo)
+                @foreach($extendedLogos as $i => $logo)
                     <a href="{{ $logo['url'] }}" target="_blank" rel="noopener noreferrer"
-                       class="reveal-tile reveal-tile-{{ $i + 1 }}" title="{{ $logo['name'] }}">
+                       class="reveal-tile" title="{{ $logo['name'] }}">
                         <img src="{{ asset('images/logos/' . $logo['img']) }}" alt="{{ $logo['name'] }}" loading="lazy">
                     </a>
                 @endforeach
@@ -401,18 +410,19 @@
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 1rem;
+    padding: 1rem 0;
 }
 
-/* Tarjeta principal — 3x3 grid de tiles */
+/* Tarjeta principal — grid responsivo 7×3 → 5×3 → 3×3 */
 .reveal-main {
     position: relative;
     display: grid;
-    grid-template-columns: repeat(3, 160px);
-    grid-template-rows: repeat(3, 160px);
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(3, 1fr);
     gap: 0;
-    width: 480px;
-    height: 480px;
+    width: 100%;
+    max-width: 1100px;
+    aspect-ratio: 7 / 3;
     cursor: pointer;
     isolation: isolate;
 }
@@ -476,10 +486,10 @@
     transition: opacity 0.35s ease 0.05s, transform 0.35s ease;
 }
 
-/* Esquinas redondeadas en las 4 esquinas del 3x3 */
-.reveal-tile-1 { border-top-left-radius: 22px; }
-.reveal-tile-3 { border-top-right-radius: 22px; }
-.reveal-tile-7 { border-bottom-left-radius: 22px; }
+/* Esquinas redondeadas dinámicas según breakpoint (7×3 desktop por defecto) */
+.reveal-tile:first-child { border-top-left-radius: 22px; }
+.reveal-tile:nth-child(7) { border-top-right-radius: 22px; }
+.reveal-tile:nth-child(15) { border-bottom-left-radius: 22px; }
 .reveal-tile-cta { border-bottom-right-radius: 22px; }
 
 /* Hover sobre la tarjeta principal — esparcir tiles + revelar logos */
@@ -550,25 +560,38 @@
     .reveal-text { transition: none; }
 }
 
+/* Tablet: 5×3 (15 tiles visibles, oculta 16-20) */
 @media (max-width: 1024px) {
     .reveal-main {
-        grid-template-columns: repeat(3, 140px);
-        grid-template-rows: repeat(3, 140px);
-        width: 420px;
-        height: 420px;
+        grid-template-columns: repeat(5, 1fr);
+        aspect-ratio: 5 / 3;
+        max-width: 760px;
     }
+    /* Oculta tiles 16-20 (el CTA es el 21, sigue visible) */
+    .reveal-tile:nth-child(n+16):not(.reveal-tile-cta) { display: none; }
+    /* Resetear esquinas del layout 7×3 y aplicar las del 5×3 */
+    .reveal-tile:nth-child(7) { border-top-right-radius: 0; }
+    .reveal-tile:nth-child(15) { border-bottom-left-radius: 0; }
+    .reveal-tile:nth-child(5) { border-top-right-radius: 22px; }
+    .reveal-tile:nth-child(11) { border-bottom-left-radius: 22px; }
     .reveal-tile img { max-height: 80px; }
 }
 
+/* Mobile: 3×3 (8 logos + CTA, oculta 9-20) */
 @media (max-width: 768px) {
     .trust-strip { padding: 3rem 0 4rem; }
     .trust-eyebrow-simple { font-size: 0.72rem; margin-bottom: 2rem; }
     .reveal-main {
-        grid-template-columns: repeat(3, 110px);
-        grid-template-rows: repeat(3, 110px);
-        width: 330px;
-        height: 330px;
+        grid-template-columns: repeat(3, 1fr);
+        aspect-ratio: 1 / 1;
+        max-width: 380px;
     }
+    .reveal-tile:nth-child(n+9):not(.reveal-tile-cta) { display: none; }
+    /* Resetear esquinas del layout 5×3 y aplicar las del 3×3 */
+    .reveal-tile:nth-child(5) { border-top-right-radius: 0; }
+    .reveal-tile:nth-child(11) { border-bottom-left-radius: 0; }
+    .reveal-tile:nth-child(3) { border-top-right-radius: 22px; }
+    .reveal-tile:nth-child(7) { border-bottom-left-radius: 22px; }
     .reveal-tile img { max-height: 65px; }
     .reveal-text { font-size: 0.85rem; letter-spacing: 0.24em; }
     .reveal-tile-cta .reveal-cta-label { font-size: 0.75rem; }
@@ -576,10 +599,7 @@
 
 @media (max-width: 380px) {
     .reveal-main {
-        grid-template-columns: repeat(3, 92px);
-        grid-template-rows: repeat(3, 92px);
-        width: 276px;
-        height: 276px;
+        max-width: 290px;
     }
     .reveal-tile img { max-height: 52px; }
     .reveal-text { font-size: 0.7rem; letter-spacing: 0.2em; }
