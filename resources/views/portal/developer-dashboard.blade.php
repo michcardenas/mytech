@@ -90,6 +90,8 @@
         .kpi-mini { background: white; border-radius: 14px; padding: 1rem 1.1rem; box-shadow: var(--shadow); border-left: 3px solid var(--purple); }
         .kpi-mini.green { border-left-color: #059669; }
         .kpi-mini.amber { border-left-color: #f59e0b; }
+        .kpi-mini.red { border-left-color: #dc2626; }
+        .kpi-mini.red .kpi-mini-value { color: #dc2626; }
         .kpi-mini-label { font-size: 0.7rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem; }
         .kpi-mini-value { font-size: 1.25rem; font-weight: 800; color: #0f172a; line-height: 1.1; }
         .kpi-mini-sub { font-size: 0.72rem; color: #94a3b8; margin-top: 0.2rem; }
@@ -105,8 +107,18 @@
 
         /* === GRID DE PROYECTOS === */
         .proj-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 0.85rem; }
-        .proj-card { background: #fafbfc; border: 1px solid #f1f3f5; border-radius: 12px; padding: 1rem 1.1rem; transition: all 0.25s; }
+        .proj-card { background: #fafbfc; border: 1px solid #f1f3f5; border-radius: 12px; padding: 1rem 1.1rem; transition: all 0.25s; position: relative; }
         .proj-card:hover { border-color: rgba(124,58,237,0.2); transform: translateY(-2px); box-shadow: 0 6px 18px rgba(124,58,237,0.08); }
+        .proj-card.is-pendiente { border-left: 3px solid #dc2626; background: #fff8f8; }
+        .proj-card.is-pendiente:hover { border-color: rgba(220,38,38,0.4); border-left-color: #dc2626; box-shadow: 0 6px 18px rgba(220,38,38,0.1); }
+        .proj-card.is-completo { border-left: 3px solid #059669; }
+
+        .proj-status { margin-bottom: 0.5rem; }
+        .status-pill { display: inline-flex; align-items: center; gap: 0.3rem; padding: 0.22rem 0.6rem; border-radius: 999px; font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; }
+        .status-pill i { font-size: 0.65rem; }
+        .status-cobrado { background: rgba(5,150,105,0.12); color: #059669; }
+        .status-pendiente { background: rgba(220,38,38,0.12); color: #dc2626; }
+        .status-completo { background: rgba(5,150,105,0.12); color: #059669; }
         .proj-name { font-size: 0.95rem; font-weight: 700; color: #0f172a; margin-bottom: 0.2rem; line-height: 1.25; }
         .proj-cliente { font-size: 0.78rem; color: #94a3b8; margin-bottom: 0.65rem; }
         .proj-amounts { display: flex; gap: 1rem; padding: 0.65rem 0; border-top: 1px dashed #e2e8f0; border-bottom: 1px dashed #e2e8f0; flex-wrap: wrap; }
@@ -116,6 +128,7 @@
         .proj-amount-value.green { color: #059669; }
         .proj-amount-value.purple { color: var(--purple); }
         .proj-amount-value.amber { color: #d97706; }
+        .proj-amount-value.red { color: #dc2626; }
         .proj-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 0.65rem; }
         .proj-bar-fill { height: 100%; background: var(--grad); border-radius: 3px; transition: width 0.6s ease; }
         .proj-foot { font-size: 0.72rem; color: #94a3b8; margin-top: 0.5rem; display: flex; justify-content: space-between; }
@@ -244,6 +257,11 @@
             <div class="kpi-mini-value">{{ $fmtCop($kpis['lifetime_cop']) }}</div>
             <div class="kpi-mini-sub">desde el inicio</div>
         </div>
+        <div class="kpi-mini red">
+            <div class="kpi-mini-label"><i class="fas fa-hourglass-half"></i> Por cobrar</div>
+            <div class="kpi-mini-value">{{ $fmtCop($kpis['pendiente_total_cop']) }}</div>
+            <div class="kpi-mini-sub">{{ $kpis['pendientes_count'] }} {{ $kpis['pendientes_count'] == 1 ? 'proyecto pendiente' : 'proyectos pendientes' }}</div>
+        </div>
         <div class="kpi-mini">
             <div class="kpi-mini-label"><i class="fas fa-briefcase"></i> Proyectos</div>
             <div class="kpi-mini-value">{{ $kpis['proyectos_total'] }}</div>
@@ -306,19 +324,40 @@
     </div>
     @endif
 
-    {{-- ===== PROYECTOS NO-RECURRENTES CON PAGOS EN ESTE MES ===== --}}
+    {{-- ===== PROYECTOS NO-RECURRENTES (con pago en mes O con saldo pendiente) ===== --}}
     @if($resumenOneShot->count() > 0)
+    @php
+        $countCobrados = $resumenOneShot->where('tiene_pago_mes', true)->count();
+        $countPendientes = $resumenOneShot->where('status', 'pendiente')->count();
+    @endphp
     <div class="section">
         <div class="section-head">
             <h3>
                 <span class="icon-circle green"><i class="fas fa-folder-open"></i></span>
-                Proyectos cobrados en {{ $kpis['mes_label_short'] }}
+                Proyectos
             </h3>
-            <span class="muted">{{ $resumenOneShot->count() }} {{ $resumenOneShot->count() == 1 ? 'proyecto' : 'proyectos' }}</span>
+            <span class="muted">
+                @if($countCobrados > 0){{ $countCobrados }} cobrados este mes@endif
+                @if($countCobrados > 0 && $countPendientes > 0) · @endif
+                @if($countPendientes > 0)<strong style="color:#dc2626;">{{ $countPendientes }} pendientes de pago</strong>@endif
+            </span>
         </div>
         <div class="proj-grid">
             @foreach($resumenOneShot as $o)
-                <div class="proj-card">
+                @php
+                    $isPendiente = $o['status'] === 'pendiente';
+                    $isCompleto = $o['status'] === 'completo';
+                @endphp
+                <div class="proj-card {{ $isPendiente ? 'is-pendiente' : '' }} {{ $isCompleto ? 'is-completo' : '' }}">
+                    <div class="proj-status">
+                        @if($o['status'] === 'cobrado_mes')
+                            <span class="status-pill status-cobrado"><i class="fas fa-check-circle"></i> Cobrado este mes</span>
+                        @elseif($isCompleto)
+                            <span class="status-pill status-completo"><i class="fas fa-check-double"></i> Completado</span>
+                        @else
+                            <span class="status-pill status-pendiente"><i class="fas fa-hourglass-half"></i> Por cobrar</span>
+                        @endif
+                    </div>
                     <div class="proj-name">{{ $o['nombre'] }}</div>
                     <div class="proj-cliente"><i class="fas fa-user" style="color:#cbd5e1; font-size:0.7rem;"></i> {{ $o['cliente'] }}
                         <span class="est-pill" style="background: {{ $o['estado_color'] }}15; color: {{ $o['estado_color'] }};">{{ $o['estado_label'] }}</span>
@@ -328,14 +367,16 @@
                             <div class="proj-amount-label">Pago total</div>
                             <div class="proj-amount-value purple">{{ $fmtMoneda($o['asignado'], $o['moneda']) }}</div>
                         </div>
+                        @if($o['tiene_pago_mes'])
                         <div class="proj-amount">
                             <div class="proj-amount-label">Cobrado este mes</div>
                             <div class="proj-amount-value green">{{ $fmtMoneda($o['cobrado_mes'], $o['moneda']) }}</div>
                         </div>
+                        @endif
                         @if($o['pendiente'] > 0)
                         <div class="proj-amount">
-                            <div class="proj-amount-label">Falta cobrar</div>
-                            <div class="proj-amount-value amber">{{ $fmtMoneda($o['pendiente'], $o['moneda']) }}</div>
+                            <div class="proj-amount-label">{{ $isPendiente ? 'Te deben' : 'Falta cobrar' }}</div>
+                            <div class="proj-amount-value red">{{ $fmtMoneda($o['pendiente'], $o['moneda']) }}</div>
                         </div>
                         @endif
                     </div>

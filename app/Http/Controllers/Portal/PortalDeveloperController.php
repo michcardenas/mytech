@@ -129,18 +129,34 @@ class PortalDeveloperController extends Controller
                 ];
             })->values();
 
-        // === Proyectos no-recurrentes con pagos en este mes (con todo su histórico de pagos) ===
+        // === Proyectos no-recurrentes:
+        //  (a) con pago en este mes (cobrados este mes), O
+        //  (b) con saldo pendiente y no cancelados (siguen apareciendo aunque no haya pago este mes)
         $idsOneShotConPagoMes = $monthPayments->filter(fn ($p) => $p->project && !$p->project->es_recurrente)
             ->pluck('internal_project_id')->unique();
+
         $resumenOneShot = $projects->where('es_recurrente', false)
-            ->whereIn('id', $idsOneShotConPagoMes)
-            ->map(function ($p) use ($allPayments, $monthPayments, $toCop) {
+            ->filter(function ($p) use ($idsOneShotConPagoMes) {
+                $asignado = (float) ($p->desarrollador_pago ?? 0);
+                $pagado = (float) ($p->total_pagado_dev ?? 0);
+                $tienePendiente = $asignado > $pagado && $p->estado !== 'cancelado';
+                return $idsOneShotConPagoMes->contains($p->id) || $tienePendiente;
+            })
+            ->map(function ($p) use ($allPayments, $monthPayments, $toCop, $idsOneShotConPagoMes) {
                 $devMoneda = $p->desarrollador_moneda ?? 'COP';
                 $asignado = (float) ($p->desarrollador_pago ?? 0);
                 $totalPagado = (float) ($p->total_pagado_dev ?? 0);
                 $pagosMes = $monthPayments->where('internal_project_id', $p->id);
                 $cobradoMes = $pagosMes->sum('monto');
                 $totalPagosProyecto = $allPayments->where('internal_project_id', $p->id)->count();
+                $pendiente = max($asignado - $totalPagado, 0);
+                $tienePagoMes = $idsOneShotConPagoMes->contains($p->id);
+
+                // Status: cobrado_mes / pendiente / completo
+                if ($tienePagoMes && $pendiente <= 0) $status = 'completo';
+                elseif ($tienePagoMes) $status = 'cobrado_mes';
+                else $status = 'pendiente';
+
                 return [
                     'id' => $p->id,
                     'nombre' => $p->nombre,
@@ -150,14 +166,23 @@ class PortalDeveloperController extends Controller
                     'asignado' => $asignado,
                     'pagado_total' => $totalPagado,
                     'cobrado_mes' => $cobradoMes,
-                    'pendiente' => max($asignado - $totalPagado, 0),
+                    'pendiente' => $pendiente,
                     'moneda' => $devMoneda,
                     'pagos_mes_count' => $pagosMes->count(),
                     'pagos_total_count' => $totalPagosProyecto,
                     'cobrado_mes_cop' => $toCop($cobradoMes, $devMoneda),
+                    'pendiente_cop' => $toCop($pendiente, $devMoneda),
                     'pct' => $asignado > 0 ? min(round(($totalPagado / $asignado) * 100), 100) : 0,
+                    'tiene_pago_mes' => $tienePagoMes,
+                    'status' => $status, // 'completo' | 'cobrado_mes' | 'pendiente'
                 ];
-            })->values();
+            })
+            // Orden: primero los cobrados este mes, después los pendientes
+            ->sortBy(fn ($r) => $r['tiene_pago_mes'] ? 0 : 1)
+            ->values();
+
+        // Total pendiente lifetime (no-recurrentes activos)
+        $totalPendienteCop = $resumenOneShot->where('status', '!=', 'completo')->sum('pendiente_cop');
 
         // === Histórico de últimos 12 meses (para selector + barras) ===
         $historico = collect(range(11, 0))->map(function ($i) use ($allPayments, $toCop, $selectedMonth) {
@@ -205,10 +230,12 @@ class PortalDeveloperController extends Controller
             'mes_proyectos_count' => $monthPayments->pluck('internal_project_id')->unique()->count(),
             'is_current_month' => $isCurrentMonth,
             'lifetime_cop' => $totalLifetime,
+            'pendiente_total_cop' => $totalPendienteCop,
             'proyectos_total' => $projects->count(),
             'proyectos_activos' => $proyectosActivos,
             'proyectos_completados' => $proyectosCompletados,
             'recurrentes_count' => $projects->where('es_recurrente', true)->where('estado', '!=', 'cancelado')->count(),
+            'pendientes_count' => $resumenOneShot->where('status', 'pendiente')->count(),
             'desde' => $primerProyecto ? \Carbon\Carbon::parse($primerProyecto) : null,
             'ultimo_pago' => $allPayments->first()?->fecha,
         ];
