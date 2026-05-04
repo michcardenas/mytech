@@ -337,7 +337,7 @@
                 Proyectos
             </h3>
             <span class="muted">
-                @if($countCobrados > 0){{ $countCobrados }} cobrados este mes@endif
+                @if($countCobrados > 0){{ $countCobrados }} cobrados este mes @endif
                 @if($countCobrados > 0 && $countPendientes > 0) · @endif
                 @if($countPendientes > 0)<strong style="color:#dc2626;">{{ $countPendientes }} pendientes de pago</strong>@endif
             </span>
