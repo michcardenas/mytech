@@ -187,7 +187,94 @@
                 "addressLocality": "Bogotá",
                 "addressCountry": "CO"
             },
-            "sameAs": []
+            "sameAs": [
+                "https://www.facebook.com/profile.php?id=61575108256490",
+                "https://www.instagram.com/mytech_solutions"
+            ],
+            "contactPoint": {
+                "@type": "ContactPoint",
+                "telephone": "+57-333-724-6403",
+                "contactType": "sales",
+                "areaServed": ["CO", "MX", "US", "ES"],
+                "availableLanguage": ["Spanish", "English"]
+            }
+        }
+        </script>
+
+        {{-- Schema Service: catálogo de servicios --}}
+        <script type="application/ld+json">
+        {
+            "@context": "https://schema.org",
+            "@type": "ProfessionalService",
+            "name": "MY Tech Solutions",
+            "url": "https://mytechsolutionsco.com",
+            "image": "https://mytechsolutionsco.com/images/logo.png",
+            "priceRange": "$$",
+            "address": {
+                "@type": "PostalAddress",
+                "addressLocality": "Bogotá",
+                "addressCountry": "CO"
+            },
+            "hasOfferCatalog": {
+                "@type": "OfferCatalog",
+                "name": "Servicios de desarrollo de software",
+                "itemListElement": [
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Marketplaces personalizados",
+                            "description": "Plataformas tipo MercadoLibre y marketplaces B2B/B2C con múltiples vendedores, comisiones y pagos integrados.",
+                            "serviceType": "Desarrollo de marketplaces"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Apps de reservas y citas",
+                            "description": "Sistemas de agendamiento online con calendarios, pagos y notificaciones automáticas.",
+                            "serviceType": "Software de reservas"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Plataformas para restaurantes",
+                            "description": "Menús digitales QR, pedidos en línea, gestión de mesas y delivery integrado.",
+                            "serviceType": "Software para restaurantes"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Sistemas administrativos / CRM",
+                            "description": "ERPs y CRMs a medida: inventarios, facturación, reportes y roles personalizados.",
+                            "serviceType": "Software empresarial"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Páginas web profesionales",
+                            "description": "Sitios web corporativos optimizados para SEO, velocidad y conversión.",
+                            "serviceType": "Desarrollo web"
+                        }
+                    },
+                    {
+                        "@type": "Offer",
+                        "itemOffered": {
+                            "@type": "Service",
+                            "name": "Aplicaciones web personalizadas",
+                            "description": "Plataformas SaaS y aplicaciones web a medida sobre Laravel con paneles de administración.",
+                            "serviceType": "Desarrollo de software a medida"
+                        }
+                    }
+                ]
+            }
         }
         </script>
     @endunless
@@ -215,6 +302,25 @@ new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
 j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
 })(window,document,'script','dataLayer','GTM-MDMLQKMM');</script>
+
+@if(config('services.meta.pixel_id'))
+    {{-- Meta Pixel Code --}}
+    <script>
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '{{ config('services.meta.pixel_id') }}');
+    fbq('track', 'PageView');
+    </script>
+    <noscript><img height="1" width="1" style="display:none"
+    src="https://www.facebook.com/tr?id={{ config('services.meta.pixel_id') }}&ev=PageView&noscript=1"/></noscript>
+    {{-- End Meta Pixel Code --}}
+@endif
     <style>
         :root {
             --primary-blue: #007BFF;

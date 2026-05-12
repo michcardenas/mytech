@@ -35,4 +35,15 @@ return [
         ],
     ],
 
+    'meta' => [
+        'pixel_id'           => env('META_PIXEL_ID'),
+        'capi_access_token'  => env('META_CAPI_ACCESS_TOKEN'),
+        'capi_test_event'    => env('META_CAPI_TEST_EVENT_CODE'),
+    ],
+
+    'google_ads' => [
+        'conversion_id'    => env('GOOGLE_ADS_CONVERSION_ID'),
+        'conversion_label' => env('GOOGLE_ADS_CONVERSION_LABEL'),
+    ],
+
 ];
