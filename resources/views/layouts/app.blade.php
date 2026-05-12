@@ -1220,6 +1220,68 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         });
     </script>
 
+    {{-- ====================================================== --}}
+    {{-- Tracking global: WhatsApp + Email clicks                --}}
+    {{-- Detecta clicks en CUALQUIER enlace wa.me / whatsapp /   --}}
+    {{-- mailto en todo el sitio mediante event delegation.      --}}
+    {{-- ====================================================== --}}
+    <script>
+        (function() {
+            window.dataLayer = window.dataLayer || [];
+
+            function getLinkType(href) {
+                if (!href) return null;
+                var h = href.toLowerCase();
+                if (h.indexOf('wa.me') !== -1 || h.indexOf('api.whatsapp.com') !== -1 || h.indexOf('whatsapp://') === 0) {
+                    return 'whatsapp';
+                }
+                if (h.indexOf('mailto:') === 0) {
+                    return 'email';
+                }
+                if (h.indexOf('tel:') === 0) {
+                    return 'phone';
+                }
+                return null;
+            }
+
+            function getClickLocation(el) {
+                // Identifica de dónde viene el click (header, footer, float, etc.)
+                if (el.closest('.whatsapp-float')) return 'float';
+                if (el.closest('footer, .footer-custom')) return 'footer';
+                if (el.closest('nav, .navbar-custom, .mobile-nav')) return 'header';
+                return 'content';
+            }
+
+            document.addEventListener('click', function(e) {
+                var link = e.target.closest('a');
+                if (!link) return;
+
+                var type = getLinkType(link.getAttribute('href'));
+                if (!type) return;
+
+                var location = getClickLocation(link);
+                var path = window.location.pathname;
+
+                // Push a dataLayer (para GTM)
+                window.dataLayer.push({
+                    'event': 'click_' + type,
+                    'click_location': location,
+                    'page_path': path
+                });
+
+                // Meta Pixel: Contact event para WhatsApp y email
+                @if(config('services.meta.pixel_id'))
+                if (typeof fbq !== 'undefined' && (type === 'whatsapp' || type === 'email')) {
+                    fbq('track', 'Contact', {
+                        content_name: type + '_' + location,
+                        content_category: 'Contact intent'
+                    });
+                }
+                @endif
+            }, true);
+        })();
+    </script>
+
     @stack('scripts')
 </body>
 </html>

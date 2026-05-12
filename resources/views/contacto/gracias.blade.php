@@ -24,16 +24,40 @@
         </div>
     </div>
 
-    {{-- 🚀 Etiqueta de conversión Google Ads (reemplaza con tu ID real) --}}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-XXXXXXXXXX"></script>
+    {{-- dataLayer push para GTM (siempre activo) --}}
     <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'AW-XXXXXXXXXX');
-
-      // Evento de conversión
-      gtag('event', 'conversion', {'send_to': 'AW-XXXXXXXXXX/abcdEFGHijk'});
+        window.dataLayer = window.dataLayer || [];
+        window.dataLayer.push({
+            'event': 'form_submit_contacto',
+            'form_name': 'contacto_principal',
+            'form_destination': '/gracias'
+        });
     </script>
+
+    {{-- Meta Pixel: evento Lead --}}
+    @if(config('services.meta.pixel_id'))
+    <script>
+        if (typeof fbq !== 'undefined') {
+            fbq('track', 'Lead', {
+                content_name: 'Formulario de contacto',
+                content_category: 'Lead generation'
+            });
+        }
+    </script>
+    @endif
+
+    {{-- Google Ads: conversión (solo si está configurado en .env) --}}
+    @if(config('services.google_ads.conversion_id') && config('services.google_ads.conversion_label'))
+    <script async src="https://www.googletagmanager.com/gtag/js?id={{ config('services.google_ads.conversion_id') }}"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', '{{ config('services.google_ads.conversion_id') }}');
+        gtag('event', 'conversion', {
+            'send_to': '{{ config('services.google_ads.conversion_id') }}/{{ config('services.google_ads.conversion_label') }}'
+        });
+    </script>
+    @endif
 </div>
 @endsection
