@@ -70,6 +70,46 @@ public function index()
     return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData', 'landings', 'proyectos'));
 }
 
+/**
+ * PREVIEW: nueva home rediseñada (dark tech).
+ * Reutiliza la misma lógica de datos que index() pero renderiza otra vista + layout.
+ * Eliminar este método y su ruta `/home-v2` si se descarta el rediseño.
+ */
+public function indexV2()
+{
+    $page = Page::where('slug', 'inicio')->with([
+        'sections' => function($query) {
+            $query->orderBy('order');
+        },
+        'seo'
+    ])->first();
+
+    $sectionsData = [];
+    $seo = null;
+    if ($page) {
+        foreach($page->sections as $section) {
+            $sectionsData[$section->name] = $section;
+        }
+        $seo = $page->seo;
+    }
+
+    $serviciosPage = Page::where('slug', 'servicios')->first();
+    $serviciosData = [];
+    if ($serviciosPage && $serviciosPage->content) {
+        $serviciosData = json_decode($serviciosPage->content, true) ?? [];
+    }
+
+    $proyectos = Proyecto::activos()
+        ->orderBy('orden')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    $totalProyectos = $proyectos->count();
+    $totalPaises    = $proyectos->pluck('pais')->filter()->unique()->count();
+
+    return view('home-v2', compact('sectionsData', 'page', 'seo', 'serviciosData', 'proyectos', 'totalProyectos', 'totalPaises'));
+}
+
     public function about()
 {
     // Obtener la página de quienes-somos con sus secciones activas y ordenadas

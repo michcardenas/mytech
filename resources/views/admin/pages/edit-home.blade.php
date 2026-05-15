@@ -438,6 +438,80 @@
                 </div>
             </div>
 
+            <!-- Hero · Pruebas Sociales (Stats) -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Hero · Pruebas Sociales
+                </h3>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                    Fila de 3 cifras que aparece debajo de los botones del hero. Mantén los valores cortos (números o "+N").
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_1_value" class="form-label">Stat 1 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_1_value" name="hero_stat_1_value"
+                               value="{{ old('hero_stat_1_value', $homeContent['hero_stat_1_value'] ?? '28') }}"
+                               placeholder="28" maxlength="16">
+                        @error('hero_stat_1_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_1_label" class="form-label">Stat 1 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_1_label" name="hero_stat_1_label"
+                               value="{{ old('hero_stat_1_label', $homeContent['hero_stat_1_label'] ?? 'Proyectos en producción') }}"
+                               placeholder="Proyectos en producción" maxlength="64">
+                        @error('hero_stat_1_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_2_value" class="form-label">Stat 2 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_2_value" name="hero_stat_2_value"
+                               value="{{ old('hero_stat_2_value', $homeContent['hero_stat_2_value'] ?? '11') }}"
+                               placeholder="11" maxlength="16">
+                        @error('hero_stat_2_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_2_label" class="form-label">Stat 2 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_2_label" name="hero_stat_2_label"
+                               value="{{ old('hero_stat_2_label', $homeContent['hero_stat_2_label'] ?? 'Países') }}"
+                               placeholder="Países" maxlength="64">
+                        @error('hero_stat_2_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_3_value" class="form-label">Stat 3 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_3_value" name="hero_stat_3_value"
+                               value="{{ old('hero_stat_3_value', $homeContent['hero_stat_3_value'] ?? '+5') }}"
+                               placeholder="+5" maxlength="16">
+                        @error('hero_stat_3_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_3_label" class="form-label">Stat 3 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_3_label" name="hero_stat_3_label"
+                               value="{{ old('hero_stat_3_label', $homeContent['hero_stat_3_label'] ?? 'Años desarrollando') }}"
+                               placeholder="Años desarrollando" maxlength="64">
+                        @error('hero_stat_3_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <!-- Sección de Clientes -->
             <div class="form-section">
                 <h3 class="section-title">

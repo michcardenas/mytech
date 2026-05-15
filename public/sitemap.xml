@@ -1,57 +1,165 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9">
     <url>
-    <loc>https://mytechsolutionsco.com</loc>
-    <lastmod>2026-01-09T03:11:57+00:00</lastmod>
+    <loc>http://127.0.0.1:8000</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/servicios</loc>
-    <lastmod>2026-01-09T03:11:57+00:00</lastmod>
+    <loc>http://127.0.0.1:8000/servicios</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/proyectos</loc>
-    <lastmod>2026-01-09T03:11:57+00:00</lastmod>
+    <loc>http://127.0.0.1:8000/proyectos</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/sobre-nosotros</loc>
-    <lastmod>2026-01-09T03:11:57+00:00</lastmod>
+    <loc>http://127.0.0.1:8000/sobre-nosotros</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/contacto</loc>
-    <lastmod>2026-01-09T03:11:57+00:00</lastmod>
+    <loc>http://127.0.0.1:8000/contacto</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/proyectos/ipvestment</loc>
-    <lastmod>2025-12-26T21:20:15+00:00</lastmod>
+    <loc>http://127.0.0.1:8000/proyectos/nuvion-glass</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/products/1</loc>
-    <lastmod>2025-08-10T22:27:31+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <loc>http://127.0.0.1:8000/proyectos/dicomsa</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/products/2</loc>
-    <lastmod>2025-08-21T21:31:00+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.6</priority>
+    <loc>http://127.0.0.1:8000/proyectos/voyconvos</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
             </url>
     <url>
-    <loc>https://mytechsolutionsco.com/categories/1</loc>
-    <lastmod>2025-08-10T22:16:55+00:00</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.5</priority>
+    <loc>http://127.0.0.1:8000/proyectos/ipvestment</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/sur-alpine</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/tumesa</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/flexfood</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/jufman-kitchen</loc>
+    <lastmod>2026-05-13T02:23:35+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/calendarix</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/montano-co</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/electralhome</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/offiesco-latam</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/betogether</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/elitecloser</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/esnova</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/academia-gva</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/cleanme</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/guillen-cleaning</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/innovatech</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/bingo-riffy</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/proyectos/navasan</loc>
+    <lastmod>2026-05-14T02:14:17+00:00</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+            </url>
+    <url>
+    <loc>http://127.0.0.1:8000/blog</loc>
+    <lastmod>2026-05-14T02:14:18+00:00</lastmod>
+    <changefreq>daily</changefreq>
+    <priority>0.8</priority>
             </url>
 </urlset>
