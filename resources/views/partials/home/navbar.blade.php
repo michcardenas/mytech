@@ -93,11 +93,13 @@
             </button>
         </div>
 
-        {{-- Nav editorial --}}
+        {{-- Nav editorial — cierra el menu antes de que el browser navegue
+             para evitar conflictos entre la transición Alpine y la nav --}}
         <ul class="mt-mobile-menu-list">
             @foreach($navItems as $i => $item)
                 <li class="mt-mobile-menu-item" style="--idx: {{ $i }}">
                     <a href="{{ route($item['route']) }}"
+                       @click="open = false"
                        class="mt-mobile-menu-link {{ $isActive($item['route']) ? 'is-active' : '' }}">
                         <span class="mt-mobile-menu-num">{{ str_pad($i + 1, 2, '0', STR_PAD_LEFT) }}</span>
                         <span class="mt-mobile-menu-label">{{ $item['label'] }}</span>
@@ -117,7 +119,9 @@
                     +57 333 724 6403
                 </a>
             </div>
-            <a href="{{ route('contacto.index') }}" class="mt-btn-primary w-full justify-center">
+            <a href="{{ route('contacto.index') }}"
+               @click="open = false"
+               class="mt-btn-primary w-full justify-center">
                 Cotiza tu proyecto
                 <span aria-hidden="true">→</span>
             </a>
