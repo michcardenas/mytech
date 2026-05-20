@@ -338,7 +338,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Número de WhatsApp</label>
-                                    <input type="text" class="form-control" name="method_1_number" value="{{ $data['method_1_number'] ?? '+57 312 370 8407' }}" required>
+                                    <input type="text" class="form-control" name="method_1_number" value="{{ $data['method_1_number'] ?? '+57 333 724 6403' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">

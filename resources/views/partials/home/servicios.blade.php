@@ -1,6 +1,12 @@
 @php
     $sd = $serviciosData ?? [];
 
+    // Contenido editable del HEADER de servicios (desde /pages/1/edit)
+    $homeContent = [];
+    if (isset($page) && $page && $page->content) {
+        $homeContent = json_decode($page->content, true) ?? [];
+    }
+
     /**
      * Las 6 ranuras de servicio tienen significado estable (definido por el
      * cliente). El TEXTO se edita desde la página de servicios (page id=3).
@@ -69,22 +75,22 @@
     }
 @endphp
 
-<section class="relative py-28 md:py-36 bg-white border-t border-mt-border">
+<section class="relative py-28 md:py-36 bg-white border-t border-mt-border" data-pin-servicios>
     <div class="mt-container">
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
 
             <div class="lg:col-span-4">
-                <div class="lg:sticky lg:top-32" data-animate>
-                    <span class="mt-eyebrow-gray">Servicios</span>
+                <div class="lg:sticky lg:top-32" data-animate data-pin-servicios-sticky>
+                    <span class="mt-eyebrow-gray">{{ $homeContent['servicios_eyebrow'] ?? 'Servicios' }}</span>
                     <h2 class="mt-4 text-section font-display text-mt-text">
-                        Lo que hacemos.
+                        {{ $homeContent['servicios_title'] ?? 'Lo que hacemos.' }}
                     </h2>
                     <p class="mt-6 text-mt-text-2 text-base md:text-lg leading-relaxed">
-                        Diseñamos y desarrollamos soluciones digitales a medida para empresas que buscan vender más, automatizar procesos y escalar con tecnología confiable.
+                        {{ $homeContent['servicios_subtitle'] ?? 'Diseñamos y desarrollamos soluciones digitales a medida para empresas que buscan vender más, automatizar procesos y escalar con tecnología confiable.' }}
                     </p>
                     <a href="{{ route('servicios.index') }}" class="inline-flex items-center gap-2 mt-8 text-mt-accent hover:gap-3 transition-all text-sm font-mono uppercase tracking-wider">
-                        Ver detalle de servicios
+                        {{ $homeContent['servicios_link_text'] ?? 'Ver detalle de servicios' }}
                         <span aria-hidden="true">→</span>
                     </a>
                 </div>
@@ -92,9 +98,9 @@
 
             <div class="lg:col-span-8 flex flex-col gap-14">
                 @foreach($grouped as $catKey => $items)
-                    <div data-animate>
-                        {{-- Encabezado de categoría --}}
-                        <div class="flex items-baseline gap-4 mb-6">
+                    <div data-animate data-svc-category="{{ $catKey }}">
+                        {{-- Encabezado de categoría (sticky en mobile, estático en desktop) --}}
+                        <div class="mt-svc-cat-header flex items-baseline gap-4 mb-6">
                             <span class="font-mono text-xs uppercase tracking-[0.18em] text-mt-accent">
                                 {{ $catLabels[$catKey] ?? $catKey }}
                             </span>
@@ -108,6 +114,7 @@
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                             @foreach($items as $s)
                                 <a href="{{ $s['href'] }}"
+                                   data-pin-servicios-card
                                    class="group mt-svc-card relative block transition-colors duration-300">
                                     <div class="flex items-start gap-4 mb-4">
                                         <span class="flex-shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl border border-mt-border bg-white text-mt-text transition-colors duration-300 group-hover:border-mt-accent group-hover:text-mt-accent">

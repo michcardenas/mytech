@@ -25,13 +25,19 @@
 <section class="py-28 md:py-36 bg-mt-bg-2 border-t border-mt-border">
     <div class="mt-container">
 
+        @php
+            $hc = [];
+            if (isset($page) && $page && $page->content) {
+                $hc = json_decode($page->content, true) ?? [];
+            }
+        @endphp
         <div class="max-w-3xl mb-14" data-animate>
-            <span class="mt-eyebrow-gray">Tecnologías</span>
+            <span class="mt-eyebrow-gray">{{ $hc['stack_eyebrow'] ?? 'Tecnologías' }}</span>
             <h2 class="mt-4 text-section font-display text-mt-text text-balance">
-                Stack maduro, probado en producción.
+                {{ $hc['stack_title'] ?? 'Stack maduro, probado en producción.' }}
             </h2>
             <p class="mt-5 text-mt-text-2 text-base md:text-lg leading-relaxed">
-                Las mismas herramientas que usan Shopify, GitHub y Laravel Forge — escalan a millones de requests sin reescribirlo todo.
+                {{ $hc['stack_subtitle'] ?? 'Las mismas herramientas que usan Shopify, GitHub y Laravel Forge — escalan a millones de requests sin reescribirlo todo.' }}
             </p>
         </div>
 

@@ -42,7 +42,8 @@ Route::get('/landings', [LandingController::class, 'index'])->name('landings.ind
 
 /* ---------- Landing y páginas públicas ---------- */
 Route::get('/', [HomeController::class, 'index'])->name('home');
-Route::get('/home-v2', [HomeController::class, 'indexV2'])->name('home.v2'); // Preview rediseño (borrable)
+// Redirect 301 legacy /home-v2 → / por si quedó cacheado en historial o links externos
+Route::permanentRedirect('/home-v2', '/');
 Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios.index');
 Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'indexproyectos'])->name('proyectos.index');
 Route::get('/proyectos/{slug}', [App\Http\Controllers\ProyectoPublicController::class, 'show'])->name('proyectos.show');

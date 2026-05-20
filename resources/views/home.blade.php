@@ -1,7 +1,9 @@
 @extends('layouts.app-home')
 
-@section('title', 'Agencia de Software a Medida en Colombia | MY Tech Solutions')
-@section('meta_description', 'Desarrollamos software a medida, SaaS e integraciones IA para empresas en Colombia y LATAM. Proyectos en producción en 7 países. Cotiza tu proyecto gratis.')
+{{--
+    Title y meta description NO se sobreescriben aquí — viven en BD (tabla `seo`),
+    editables desde /admin/seo/1/edit. Si necesitas cambiar copy de SEO, hazlo allí.
+--}}
 
 @section('content')
     @include('partials.home.hero')

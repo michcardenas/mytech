@@ -4,6 +4,12 @@
     $showcase         = isset($proyectos) ? $proyectos->take(9) : collect();
     $totalDisponibles = isset($proyectos) ? $proyectos->count() : 0;
 
+    // Contenido editable desde /pages/1/edit (page slug='inicio')
+    $homeContent = [];
+    if (isset($page) && $page && $page->content) {
+        $homeContent = json_decode($page->content, true) ?? [];
+    }
+
     /**
      * Mapeo categoría → tinte de color (puro estilo, NO data).
      * El label visible viene de $proyecto->badge_text (BD).
@@ -34,18 +40,30 @@
     <div class="mt-container relative">
 
         {{-- Header --}}
+        @php
+            $hc                = $homeContent ?? [];
+            $clientsTitle      = $hc['clients_title']       ?? null;
+            $clientsSubtitle   = $hc['clients_subtitle']    ?? null;
+            $clientsButtonText = $hc['clients_button_text'] ?? null;
+        @endphp
         <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16" data-animate>
             <div class="max-w-2xl">
-                <span class="mt-eyebrow-gray">Casos en producción</span>
+                <span class="mt-eyebrow-gray">{{ $homeContent['casos_eyebrow'] ?? 'Casos en producción' }}</span>
                 <h2 class="mt-4 text-section font-display text-mt-text text-balance max-w-[14ch]">
-                    Plataformas que ya están <span class="text-mt-accent">funcionando</span>.
+                    @if($clientsTitle)
+                        {{ $clientsTitle }}
+                    @else
+                        Plataformas que ya están <span class="text-mt-accent">funcionando</span>.
+                    @endif
                 </h2>
                 <p class="mt-5 text-mt-text-2 text-base md:text-lg leading-relaxed">
-                    {{ $totalDisponibles }} proyectos construidos a medida para empresas reales. E-commerces, CRMs, automatizaciones con WhatsApp, marketplaces y SaaS.
+                    {{ $clientsSubtitle ?? $totalDisponibles . ' proyectos construidos a medida para empresas reales. E-commerces, CRMs, automatizaciones con WhatsApp, marketplaces y SaaS.' }}
                 </p>
             </div>
             <a href="{{ route('proyectos.index') }}" class="mt-btn-ghost self-start md:self-end">
-                @if($totalDisponibles > 9)
+                @if($clientsButtonText)
+                    {{ $clientsButtonText }}
+                @elseif($totalDisponibles > 9)
                     Ver los {{ $totalDisponibles }} proyectos
                 @else
                     Ver todos los proyectos
@@ -55,20 +73,21 @@
         </div>
 
         @if($showcase->count() > 0)
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-animate-children>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" data-casos-grid>
                 @foreach($showcase as $p)
                     @php
                         $tint     = $catTints[$p->categoria] ?? '#2563EB';
                         $estado   = $estadoMap[$p->estado] ?? $estadoMap['en_vivo'];
-                        $href     = $p->url ?: '#';
-                        $domain   = PCH::domain($p->url);  // null si el proyecto es privado
+                        // El click siempre va al detalle interno del proyecto.
+                        // El CTA "Visitar sitio" externo vive dentro del detalle.
+                        $href     = route('proyectos.show', $p->slug);
+                        $domain   = PCH::domain($p->url);
                         $techs    = is_array($p->tecnologias) ? array_slice($p->tecnologias, 0, 4) : [];
                         $hasLogo  = !empty($p->logo);
-                        $isPublic = !empty($p->url);
+                        $isPublic = !empty($p->url);  // sigue usándose para mostrar la URL bar
                     @endphp
 
                     <a href="{{ $href }}"
-                       @if($isPublic) target="_blank" rel="noopener" @endif
                        class="mt-browser-card group relative block rounded-2xl border border-mt-border bg-white overflow-hidden"
                        style="--card-tint: {{ $tint }}; --estado-color: {{ $estado['color'] }};">
 
@@ -162,14 +181,10 @@
                                     </span>
                                     {{ $estado['label'] }}
                                 </span>
-                                @if($isPublic)
-                                    <span class="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider transition-all duration-300 group-hover:gap-2.5 text-[color:var(--card-tint)]">
-                                        Visitar
-                                        <svg class="w-3.5 h-3.5" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
-                                        </svg>
-                                    </span>
-                                @endif
+                                <span class="inline-flex items-center gap-1.5 text-[11px] font-mono uppercase tracking-wider transition-all duration-300 group-hover:gap-2.5 text-[color:var(--card-tint)]">
+                                    Ver proyecto
+                                    <span aria-hidden="true">→</span>
+                                </span>
                             </div>
 
                         </div>
@@ -189,7 +204,7 @@
             </div>
         @else
             <div class="text-center text-mt-text-2 py-12">
-                <p>Pronto: nuestro portafolio completo aquí.</p>
+                <p>{{ $homeContent['casos_empty_message'] ?? 'Pronto: nuestro portafolio completo aquí.' }}</p>
             </div>
         @endif
 

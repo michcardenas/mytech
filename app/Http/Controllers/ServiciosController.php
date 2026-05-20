@@ -13,21 +13,21 @@ class ServiciosController extends Controller
 public function index()
 {
     $page = Page::with('seo')->where('slug', 'servicios')->first();
-    
-    // Decodificar el JSON del contenido
+
+    // Decodificar el JSON del contenido (los partials lo leen también)
     $data = [];
     if ($page && $page->content) {
         $data = json_decode($page->content, true) ?? [];
     }
-    
+
     // Obtener SEO desde la relación
     $seo = $page ? $page->seo : null;
-    
-    return view('servicios.index', compact('data', 'seo'));
+
+    return view('servicios.index', compact('page', 'data', 'seo'));
 }
    public function indexproyectos()
 {
-    $page = Page::where('slug', 'proyectos')->first();
+    $page = Page::with('seo')->where('slug', 'proyectos')->first();
 
     // Decodificar el contenido JSON si existe
     $data = [];
@@ -35,16 +35,44 @@ public function index()
         $data = json_decode($page->content, true) ?? [];
     }
 
-    // Obtener datos de SEO si existen
-    $seo = null;
-    if ($page) {
-        $seo = Seo::where('page_id', $page->id)->first();
-    }
+    $seo = $page ? $page->seo : null;
 
-    // Obtener proyectos activos ordenados
-    $proyectos = Proyecto::activos()->orderBy('orden')->orderBy('created_at', 'desc')->get();
+    // Todos los proyectos activos, ordenados
+    $proyectos = Proyecto::activos()
+        ->orderBy('orden')
+        ->orderBy('created_at', 'desc')
+        ->get();
 
-    return view('proyectos.index', compact('data', 'seo', 'proyectos'));
+    // Destacados para el cinematic showcase
+    $destacados = $proyectos->where('destacado', true)->values();
+
+    // Stats agregadas para el hero
+    $totalProyectos = $proyectos->count();
+    $totalPaises    = $proyectos->pluck('pais')->filter()->unique()->count();
+    $totalCategorias = $proyectos->pluck('categoria')->filter()->unique()->count();
+
+    // Categorías únicas (para filtros) con count por cat
+    $categoriasConteo = $proyectos
+        ->groupBy('categoria')
+        ->map(fn($g) => $g->count())
+        ->sortDesc();
+
+    // Países con count (para sección países)
+    $paisesConteo = $proyectos
+        ->groupBy('pais')
+        ->map(function ($g) {
+            return [
+                'count'  => $g->count(),
+                'flag'   => $g->first()->bandera_emoji ?? '🌎',
+            ];
+        })
+        ->sortByDesc('count');
+
+    return view('proyectos.index', compact(
+        'page', 'data', 'seo', 'proyectos', 'destacados',
+        'totalProyectos', 'totalPaises', 'totalCategorias',
+        'categoriasConteo', 'paisesConteo'
+    ));
 }
     public function indexsobreNosotros()
     {
@@ -67,20 +95,20 @@ public function index()
   public function indexContacto()
 {
     $page = Page::where('slug', 'contacto')->first();
-    
+
     // Decodificar el contenido JSON si existe
     $data = [];
     if ($page && $page->content) {
         $data = json_decode($page->content, true) ?? [];
     }
-    
+
     // Obtener datos de SEO si existen
     $seo = null;
     if ($page) {
         $seo = Seo::where('page_id', $page->id)->first();
     }
-    
-    return view('contacto.index', compact('data', 'seo'));
+
+    return view('contacto.index', compact('data', 'seo', 'page'));
 }
 
 public function storeContacto(Request $request)

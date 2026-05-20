@@ -8,50 +8,56 @@ use Illuminate\Support\Str;
 class Proyecto extends Model
 {
     protected $fillable = [
-        'nombre',
-        'slug',
-        'pais',
-        'bandera_emoji',
-        'categoria',
-        'badge_text',
-        'descripcion',
-        'url',
-        'logo',
-        'tecnologias',
-        'estado',
-        'destacado',
-        'orden',
-        'activo',
-        // Campos SEO
-        'meta_title',
-        'meta_description',
-        'meta_keywords',
-        'og_image',
-        // Campos de contenido extendido
-        'descripcion_extendida',
-        'desafio',
-        'solucion',
-        'resultados',
-        'galeria',
-        // Campos de testimonios
-        'testimonio',
-        'testimonio_autor',
-        'testimonio_cargo',
-        // Campos adicionales del proyecto
-        'duracion_desarrollo',
-        'equipo_size',
-        'fecha_lanzamiento',
-        'visitas_mensuales',
+        // ── Básicos ─────────────────────────────────────
+        'nombre', 'slug', 'pais', 'bandera_emoji', 'categoria', 'badge_text',
+        'descripcion', 'url', 'logo', 'tecnologias',
+        'estado', 'destacado', 'orden', 'activo',
+
+        // ── SEO Esencial ────────────────────────────────
+        'focus_keyword', 'secondary_keywords', 'excerpt',
+        'canonical_url', 'robots',
+        'meta_title', 'meta_description', 'meta_keywords',
+
+        // ── Open Graph ──────────────────────────────────
+        'og_image', 'og_title', 'og_description', 'og_type',
+
+        // ── Twitter Cards ───────────────────────────────
+        'twitter_card', 'twitter_title', 'twitter_description', 'twitter_image',
+
+        // ── Schema.org ──────────────────────────────────
+        'schema_type', 'schema_markup',
+
+        // ── Metadata avanzada ───────────────────────────
+        'breadcrumb_title', 'author', 'reading_time',
+        'alt_logo', 'alt_og_image', 'publicado_en',
+
+        // ── Clasificación cliente ───────────────────────
+        'industria', 'client_size',
+
+        // ── Recursos externos ───────────────────────────
+        'case_study_url', 'video_url',
+
+        // ── Contenido extendido ─────────────────────────
+        'descripcion_extendida', 'desafio', 'solucion', 'resultados', 'galeria',
+
+        // ── Testimonios ─────────────────────────────────
+        'testimonio', 'testimonio_autor', 'testimonio_cargo',
+
+        // ── Métricas del proyecto ───────────────────────
+        'duracion_desarrollo', 'equipo_size', 'fecha_lanzamiento', 'visitas_mensuales',
     ];
 
     protected $casts = [
-        'tecnologias' => 'array',
-        'galeria' => 'array',
-        'destacado' => 'boolean',
-        'activo' => 'boolean',
-        'fecha_lanzamiento' => 'date',
-        'equipo_size' => 'integer',
-        'visitas_mensuales' => 'integer',
+        'tecnologias'         => 'array',
+        'secondary_keywords'  => 'array',
+        'galeria'             => 'array',
+        'destacado'           => 'boolean',
+        'activo'              => 'boolean',
+        'fecha_lanzamiento'   => 'date',
+        'publicado_en'        => 'date',
+        'equipo_size'         => 'integer',
+        'visitas_mensuales'   => 'integer',
+        'reading_time'        => 'integer',
     ];
 
     protected static function boot()

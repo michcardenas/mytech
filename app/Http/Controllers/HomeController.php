@@ -3,10 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Product;
-use App\Models\Category;
 use App\Models\Page;
-use App\Models\Section;
 use App\Models\Proyecto;
 
 
@@ -15,90 +12,30 @@ class HomeController extends Controller
 {
 public function index()
 {
-    // Obtener la página de inicio y TODAS sus secciones (activas e inactivas) + SEO
+    // Página de inicio: contenido editable desde /pages/1/edit + SEO desde /admin/seo/1/edit
     $page = Page::where('slug', 'inicio')->with([
-        'sections' => function($query) {
-            $query->orderBy('order'); // Quitamos el filtro is_active para mostrar todas
-        },
-        'seo' // AGREGAR ESTA LÍNEA - Cargar datos SEO
-    ])->first();
-
-    // Si no existe la página, crear datos por defecto
-    if (!$page) {
-        $sectionsData = [
-            'hero' => null,
-            'featured' => null,
-            'cta' => null,
-            'categories' => null
-        ];
-        $seo = null; // SEO por defecto si no hay página
-    } else {
-        // Convertir las secciones en un array asociativo para fácil acceso
-        $sectionsData = [];
-        foreach($page->sections as $section) {
-            $sectionsData[$section->name] = $section;
-        }
-        $seo = $page->seo; // Obtener SEO de la página
-    }
-
-    // Obtener datos de servicios desde la página de servicios
-    $serviciosPage = Page::where('slug', 'servicios')->first();
-    $serviciosData = [];
-    if ($serviciosPage && $serviciosPage->content) {
-        $serviciosData = json_decode($serviciosPage->content, true) ?? [];
-    }
-
-    // Obtener productos destacados
-    $featuredProducts = Product::with(['category', 'images'])
-        ->where('stock', '>', 0)
-        ->limit(8)
-        ->get();
-
-    // Obtener categorías para navegación
-    $categories = Category::with('products')->get();
-
-    // Obtener landing pages activas para mostrar en las tarjetas
-    $landings = Page::where('type', 'landing')
-        ->where('is_active', true)
-        ->with('seo')
-        ->orderBy('created_at', 'desc')
-        ->get();
-
-    // Obtener proyectos activos para el reveal-card del trust strip
-    $proyectos = Proyecto::activos()->orderBy('orden')->orderBy('created_at', 'desc')->get();
-
-    return view('welcome', compact('featuredProducts', 'categories', 'sectionsData', 'page', 'seo', 'serviciosData', 'landings', 'proyectos'));
-}
-
-/**
- * PREVIEW: nueva home rediseñada (dark tech).
- * Reutiliza la misma lógica de datos que index() pero renderiza otra vista + layout.
- * Eliminar este método y su ruta `/home-v2` si se descarta el rediseño.
- */
-public function indexV2()
-{
-    $page = Page::where('slug', 'inicio')->with([
-        'sections' => function($query) {
-            $query->orderBy('order');
-        },
-        'seo'
+        'sections' => function ($query) { $query->orderBy('order'); },
+        'seo',
     ])->first();
 
     $sectionsData = [];
     $seo = null;
     if ($page) {
-        foreach($page->sections as $section) {
+        foreach ($page->sections as $section) {
             $sectionsData[$section->name] = $section;
         }
         $seo = $page->seo;
     }
 
+    // Servicios — page id=3 (slug='servicios'). Los titles/descriptions de cada
+    // servicio viven en pages.content; los iconos/categorías son design-system.
     $serviciosPage = Page::where('slug', 'servicios')->first();
     $serviciosData = [];
     if ($serviciosPage && $serviciosPage->content) {
         $serviciosData = json_decode($serviciosPage->content, true) ?? [];
     }
 
+    // Casos en producción: tabla `proyectos`, solo activos, orden manual + recencia.
     $proyectos = Proyecto::activos()
         ->orderBy('orden')
         ->orderBy('created_at', 'desc')
@@ -107,7 +44,10 @@ public function indexV2()
     $totalProyectos = $proyectos->count();
     $totalPaises    = $proyectos->pluck('pais')->filter()->unique()->count();
 
-    return view('home-v2', compact('sectionsData', 'page', 'seo', 'serviciosData', 'proyectos', 'totalProyectos', 'totalPaises'));
+    return view('home', compact(
+        'sectionsData', 'page', 'seo', 'serviciosData',
+        'proyectos', 'totalProyectos', 'totalPaises'
+    ));
 }
 
     public function about()

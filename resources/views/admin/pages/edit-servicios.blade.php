@@ -249,6 +249,11 @@
                 </button>
             </li>
             <li class="nav-item" role="presentation">
+                <button class="nav-link" id="storytelling-tab" data-bs-toggle="tab" data-bs-target="#storytelling" type="button">
+                    <i class="fas fa-film me-2"></i>Storytelling
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
                 <button class="nav-link" id="tecnologias-tab" data-bs-toggle="tab" data-bs-target="#tecnologias" type="button">
                     <i class="fas fa-laptop-code me-2"></i>Tecnologías
                 </button>
@@ -592,6 +597,123 @@
                                 <input type="text" class="form-control" name="servicio_6_feature_4" value="{{ $data['servicio_6_feature_4'] ?? 'Dashboards y analytics' }}" required>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Storytelling Section (Rediseño /servicios) -->
+            <div class="tab-pane fade" id="storytelling" role="tabpanel">
+
+                {{-- Fieldset 1: Hero del nuevo /servicios --}}
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-star"></i>
+                        Hero — /servicios rediseñada
+                    </h3>
+                    <p class="text-muted" style="font-size:0.85rem;">
+                        Estos campos aplican al hero del nuevo diseño de /servicios. Si están vacíos, se usa el hero legacy (Sección Hero).
+                    </p>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Badge (eyebrow superior)</label>
+                            <input type="text" class="form-control" name="serv_hero_badge"
+                                   value="{{ old('serv_hero_badge', $data['serv_hero_badge'] ?? 'Servicios') }}">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Texto del botón CTA</label>
+                            <input type="text" class="form-control" name="serv_hero_button_text"
+                                   value="{{ old('serv_hero_button_text', $data['serv_hero_button_text'] ?? 'Cotiza tu proyecto') }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Título principal</label>
+                        <input type="text" class="form-control" name="serv_hero_title"
+                               value="{{ old('serv_hero_title', $data['serv_hero_title'] ?? 'Construimos el software que tu empresa necesita.') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción / bajada</label>
+                        <textarea class="form-control" name="serv_hero_description" rows="3">{{ old('serv_hero_description', $data['serv_hero_description'] ?? 'Desde plataformas web a medida hasta automatización con IA. Diseñamos cada solución alrededor de tu negocio, no al revés.') }}</textarea>
+                    </div>
+                </div>
+
+                {{-- Fieldset 2: 6 servicios storytelling --}}
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-film"></i>
+                        Storytelling — 6 Servicios (escenas cinematográficas)
+                    </h3>
+                    <p class="text-muted" style="font-size:0.85rem;">
+                        Cada servicio es una escena del scroll storytelling. Lead = 1 línea destacada. Tags = comma-separated. Image = fondo del slide (recomendado 1920×1080).
+                    </p>
+
+                    @for($i = 1; $i <= 6; $i++)
+                        @php $currentImage = $data['servicio_'.$i.'_image'] ?? ''; @endphp
+                        <div style="border:1px solid #e5e7eb; border-radius:0.5rem; padding:1.25rem; margin-bottom:1.5rem; background:#fafafa;">
+                            <h4 style="font-size:1rem; font-weight:600; margin-bottom:1rem; color:#1F2937;">
+                                Servicio {{ $i }}: <span style="color:#6b7280; font-weight:400;">{{ $data['servicio_'.$i.'_title'] ?? '(sin título)' }}</span>
+                            </h4>
+
+                            <div class="form-group">
+                                <label class="form-label">Lead (1 línea hook editorial)</label>
+                                <input type="text" class="form-control" name="servicio_{{ $i }}_lead"
+                                       value="{{ old('servicio_'.$i.'_lead', $data['servicio_'.$i.'_lead'] ?? '') }}"
+                                       placeholder="Plataformas a medida que escalan con tu negocio.">
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label class="form-label">Tags (separadas por coma)</label>
+                                    <input type="text" class="form-control" name="servicio_{{ $i }}_tags"
+                                           value="{{ old('servicio_'.$i.'_tags', $data['servicio_'.$i.'_tags'] ?? '') }}"
+                                           placeholder="Laravel, PHP, PostgreSQL">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Precio orientativo</label>
+                                    <input type="text" class="form-control" name="servicio_{{ $i }}_precio"
+                                           value="{{ old('servicio_'.$i.'_precio', $data['servicio_'.$i.'_precio'] ?? '') }}"
+                                           placeholder="Desde $8.000.000 COP">
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Imagen de fondo del slide</label>
+                                @if($currentImage)
+                                    <div style="margin-bottom:0.5rem;">
+                                        <img src="{{ asset($currentImage) }}" alt="Servicio {{ $i }}"
+                                             style="max-width:200px; max-height:120px; object-fit:cover; border-radius:4px; border:1px solid #ddd;">
+                                        <p style="font-size:0.75rem; color:#6b7280; margin-top:0.25rem;">Actual: {{ basename($currentImage) }}</p>
+                                    </div>
+                                @endif
+                                <input type="file" class="form-control" name="servicio_{{ $i }}_image_file" accept="image/*">
+                                <input type="hidden" name="servicio_{{ $i }}_image" value="{{ $currentImage }}">
+                                <small class="text-muted">Sube una imagen nueva para reemplazar. Recomendado 1920×1080. Si no subes, mantiene la actual.</small>
+                            </div>
+                        </div>
+                    @endfor
+                </div>
+
+                {{-- Fieldset 3: Stack override --}}
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-layer-group"></i>
+                        Stack Tecnológico — Override
+                    </h3>
+                    <p class="text-muted" style="font-size:0.85rem;">
+                        Override de los textos del bloque Stack en /servicios (los 12 logos son design system, no editables).
+                    </p>
+                    <div class="form-group">
+                        <label class="form-label">Eyebrow</label>
+                        <input type="text" class="form-control" name="serv_stack_eyebrow"
+                               value="{{ old('serv_stack_eyebrow', $data['serv_stack_eyebrow'] ?? 'Tecnologías') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Título</label>
+                        <input type="text" class="form-control" name="serv_stack_title"
+                               value="{{ old('serv_stack_title', $data['serv_stack_title'] ?? 'El stack con el que trabajamos.') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Subtítulo</label>
+                        <textarea class="form-control" name="serv_stack_subtitle" rows="2">{{ old('serv_stack_subtitle', $data['serv_stack_subtitle'] ?? 'Herramientas maduras, probadas en producción en 11 países. No frameworks de moda.') }}</textarea>
                     </div>
                 </div>
             </div>

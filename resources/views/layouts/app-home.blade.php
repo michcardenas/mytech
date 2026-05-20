@@ -4,20 +4,48 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('title', 'Agencia de Software a Medida en Colombia | MY Tech Solutions')</title>
-    <meta name="description" content="@yield('meta_description', 'Desarrollamos software a medida, SaaS e integraciones IA para empresas en Colombia y LATAM. Proyectos en producción en 7 países. Cotiza tu proyecto gratis.')">
+    {{--
+        SEO source-of-truth: tabla `seo` (editable desde /admin/seo/{id}/edit).
+        El layout NO debe hardcodear texto. Si una página no pasa $seo, se usa
+        el fallback hardcoded como red de seguridad — pero no es el camino feliz.
+    --}}
+    @php
+        $seoRow            = $seo ?? null;
+        $metaTitleVal      = $seoRow->meta_title       ?? 'Agencia de Software a Medida en Colombia | MY Tech Solutions';
+        $metaDescVal       = $seoRow->meta_description ?? 'Software a medida, SaaS y automatizaciones con IA — 28 plataformas vivas en 11 países. Desde Bogotá para empresas en LATAM. Cotiza tu proyecto gratis.';
+        $canonicalVal      = $seoRow->canonical_url    ?? 'https://mytechsolutionsco.com/';
+        $robotsVal         = $seoRow->robots           ?? 'index,follow';
+        $ogTitleVal        = $seoRow->og_title         ?? $metaTitleVal;
+        $ogDescVal         = $seoRow->og_description   ?? $metaDescVal;
+        $ogUrlVal          = $seoRow->og_url           ?? $canonicalVal;
+        $ogTypeVal         = $seoRow->og_type          ?? 'website';
+        $ogImageVal        = $seoRow->og_image         ?? asset('images/logo.png');
+        $ogSiteVal         = $seoRow->og_site_name     ?? 'MY Tech Solutions';
+        $twCardVal         = $seoRow->twitter_card     ?? 'summary_large_image';
+        $twTitleVal        = $seoRow->twitter_title    ?? $ogTitleVal;
+        $twDescVal         = $seoRow->twitter_description ?? $ogDescVal;
+        $twImageVal        = $seoRow->twitter_image    ?? $ogImageVal;
+    @endphp
 
-    <link rel="canonical" href="https://mytechsolutionsco.com/">
+    <title>{{ $metaTitleVal }}</title>
+    <meta name="description" content="{{ $metaDescVal }}">
+    <meta name="robots" content="{{ $robotsVal }},max-image-preview:large">
+
+    <link rel="canonical" href="{{ $canonicalVal }}">
     <meta name="google-site-verification" content="Yk8ILwU3yKtRTW0Zspxa9tKAFR3mRyI3idT0SpNvSIo">
     <meta name="msvalidate.01" content="808CD1DC4ADF1CDC768B784CFB343FAD">
 
     <meta property="og:locale" content="es_CO">
-    <meta property="og:title" content="MY Tech Solutions | Software a Medida">
-    <meta property="og:description" content="Desarrollamos plataformas Laravel y SaaS para empresas en LATAM.">
-    <meta property="og:url" content="https://mytechsolutionsco.com/">
-    <meta property="og:type" content="website">
-    <meta property="og:image" content="{{ asset('images/logo.png') }}">
-    <meta name="twitter:card" content="summary_large_image">
+    <meta property="og:site_name" content="{{ $ogSiteVal }}">
+    <meta property="og:title" content="{{ $ogTitleVal }}">
+    <meta property="og:description" content="{{ $ogDescVal }}">
+    <meta property="og:url" content="{{ $ogUrlVal }}">
+    <meta property="og:type" content="{{ $ogTypeVal }}">
+    <meta property="og:image" content="{{ $ogImageVal }}">
+    <meta name="twitter:card" content="{{ $twCardVal }}">
+    <meta name="twitter:title" content="{{ $twTitleVal }}">
+    <meta name="twitter:description" content="{{ $twDescVal }}">
+    <meta name="twitter:image" content="{{ $twImageVal }}">
 
     {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.bunny.net">
@@ -26,32 +54,24 @@
     {{-- Favicon --}}
     <link rel="icon" type="image/png" href="{{ asset('images/icon.png') }}">
 
-    {{-- Schema Organization --}}
+    {{--
+        Schema.org JSON-LD desde BD (tabla `seo.schema_markup`).
+        Editable desde /admin/seo/{id}/edit. Si la página no pasa $seo o el
+        schema viene vacío, se renderiza un Organization mínimo como red de seguridad.
+    --}}
+    @php
+        $schemaPayload = ($seoRow && !empty($seoRow->schema_markup))
+            ? $seoRow->schema_markup
+            : [
+                '@context' => 'https://schema.org',
+                '@type'    => 'Organization',
+                'name'     => 'MY Tech Solutions',
+                'url'      => 'https://mytechsolutionsco.com',
+                'logo'     => 'https://mytechsolutionsco.com/images/icon.png',
+            ];
+    @endphp
     <script type="application/ld+json">
-    {
-        "@context": "https://schema.org",
-        "@type": "Organization",
-        "url": "https://mytechsolutionsco.com",
-        "logo": "https://mytechsolutionsco.com/images/icon.png",
-        "name": "MY Tech Solutions",
-        "description": "Desarrollo de software a medida y plataformas SaaS para empresas en LATAM",
-        "address": {
-            "@type": "PostalAddress",
-            "addressLocality": "Bogotá",
-            "addressCountry": "CO"
-        },
-        "sameAs": [
-            "https://www.facebook.com/profile.php?id=61575108256490",
-            "https://www.instagram.com/mytech_solutions"
-        ],
-        "contactPoint": {
-            "@type": "ContactPoint",
-            "telephone": "+57-333-724-6403",
-            "contactType": "sales",
-            "areaServed": ["CO", "MX", "US", "ES"],
-            "availableLanguage": ["Spanish", "English"]
-        }
-    }
+{!! json_encode($schemaPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
 
     {{-- GTM --}}
