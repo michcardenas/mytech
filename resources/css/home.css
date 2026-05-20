@@ -539,32 +539,69 @@
 
 /* ===========================================================
    MOBILE MENU — full screen editorial
+   z-index map: menu=90, navbar overlays=70, WhatsApp=80 (hidden when menu open)
    =========================================================== */
 .mt-mobile-menu {
     position: fixed;
     inset: 0;
-    z-index: 55;
+    z-index: 90;
     background: #FFFFFF;
     background-image:
-        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
-        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(37, 99, 235, 0.025) 0%, transparent 70%);
+        radial-gradient(ellipse 80% 60% at 50% 0%, rgba(37, 99, 235, 0.05) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 50% at 0% 100%, rgba(37, 99, 235, 0.03) 0%, transparent 70%);
     display: flex;
     flex-direction: column;
-    padding: 6.5rem 1.5rem 1.5rem;
+    padding: 5.5rem 1.5rem 1.75rem;
     overflow-y: auto;
     overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
 }
 
-/* Eyebrow superior */
+/* Ocultar overlays globales (WhatsApp widget) cuando el menu está abierto */
+html.has-mobile-menu-open .mt-wa-float { display: none; }
+
+/* Eyebrow superior — más limpio, con botón Cerrar tappable */
 .mt-mobile-menu-eyebrow {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-bottom: 1.5rem;
-    margin-bottom: 0.75rem;
+    padding-bottom: 1.25rem;
+    margin-bottom: 0.5rem;
     border-bottom: 1px solid #E5E7EB;
     opacity: 0;
     animation: mtMenuFadeIn 600ms 100ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.mt-mobile-menu-eyebrow-label {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.22em;
+    color: #9CA3AF;
+}
+.mt-mobile-menu-eyebrow-close {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    background: transparent;
+    border: none;
+    padding: 0.5rem 0;
+    cursor: pointer;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    color: #6B7280;
+    transition: color 200ms ease;
+}
+.mt-mobile-menu-eyebrow-close span {
+    font-size: 18px;
+    line-height: 1;
+    font-family: "Inter Tight", system-ui, sans-serif;
+    color: #1F2937;
+}
+.mt-mobile-menu-eyebrow-close:active,
+.mt-mobile-menu-eyebrow-close:hover {
+    color: #1F2937;
 }
 
 /* Lista de items */
@@ -679,6 +716,27 @@
 .mt-mobile-menu-contact {
     display: flex;
     flex-direction: column;
+    gap: 0.35rem;
+}
+.mt-mobile-menu-contact-eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    color: #9CA3AF;
+}
+.mt-mobile-menu-contact-phone {
+    font-family: "Inter Tight", "Inter", system-ui, sans-serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1F2937;
+    text-decoration: none;
+    letter-spacing: -0.015em;
+    transition: color 200ms ease;
+}
+.mt-mobile-menu-contact-phone:hover,
+.mt-mobile-menu-contact-phone:active {
+    color: #2563EB;
 }
 
 /* Cuando reduce-motion: aparecen instantáneos */

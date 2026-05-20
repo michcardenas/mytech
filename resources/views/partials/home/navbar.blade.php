@@ -15,65 +15,82 @@
     ];
 @endphp
 
-<nav data-home-navbar
-     class="fixed top-0 left-0 right-0 z-50 py-5 md:py-6"
-     x-data="{ open: false }"
-     x-effect="document.documentElement.style.overflow = open ? 'hidden' : ''"
+{{-- Wrapper Alpine: navbar y mobile menu son SIBLINGS para evitar que el
+     backdrop-filter del navbar.is-scrolled cree un containing block que
+     rompa el position:fixed del menu. Cuando open=true, también marcamos
+     <html> con clase para ocultar overlays (WhatsApp, etc.) via CSS. --}}
+<div x-data="{ open: false }"
+     x-effect="
+        document.documentElement.style.overflow = open ? 'hidden' : '';
+        document.documentElement.classList.toggle('has-mobile-menu-open', open);
+     "
      @keydown.escape.window="open = false">
 
-    <div class="mt-container flex items-center justify-between gap-6">
+    <nav data-home-navbar class="fixed top-0 left-0 right-0 z-50 py-5 md:py-6">
+        <div class="mt-container flex items-center justify-between gap-6">
 
-        {{-- Logo --}}
-        <a href="{{ route('home') }}"
-           class="flex items-center shrink-0 nav-logo-link relative z-[60]"
-           aria-label="MY Tech Solutions">
-            <img src="{{ asset('images/logo.png') }}"
-                 alt="MY Tech Solutions"
-                 class="nav-logo h-11 md:h-12 w-auto transition-all duration-500">
-        </a>
+            {{-- Logo --}}
+            <a href="{{ route('home') }}"
+               class="flex items-center shrink-0 nav-logo-link relative z-[70]"
+               aria-label="MY Tech Solutions">
+                <img src="{{ asset('images/logo.png') }}"
+                     alt="MY Tech Solutions"
+                     class="nav-logo h-11 md:h-12 w-auto transition-all duration-500">
+            </a>
 
-        {{-- Desktop nav --}}
-        <ul class="hidden lg:flex items-center gap-9 xl:gap-11">
-            @foreach($navItems as $item)
-                <li>
-                    <a href="{{ route($item['route']) }}"
-                       class="nav-link {{ $isActive($item['route']) ? 'is-active' : '' }}">{{ $item['label'] }}</a>
-                </li>
-            @endforeach
-        </ul>
+            {{-- Desktop nav --}}
+            <ul class="hidden lg:flex items-center gap-9 xl:gap-11">
+                @foreach($navItems as $item)
+                    <li>
+                        <a href="{{ route($item['route']) }}"
+                           class="nav-link {{ $isActive($item['route']) ? 'is-active' : '' }}">{{ $item['label'] }}</a>
+                    </li>
+                @endforeach
+            </ul>
 
-        {{-- CTA derecha --}}
-        <a href="{{ route('contacto.index') }}" class="hidden lg:inline-flex mt-btn-primary !text-[14px] !px-5 !py-3">
-            Hablemos
-            <span aria-hidden="true">→</span>
-        </a>
+            {{-- CTA derecha --}}
+            <a href="{{ route('contacto.index') }}" class="hidden lg:inline-flex mt-btn-primary !text-[14px] !px-5 !py-3">
+                Hablemos
+                <span aria-hidden="true">→</span>
+            </a>
 
-        {{-- Mobile toggle — barras que morphean a X --}}
-        <button type="button"
-                class="mt-mobile-toggle lg:hidden relative z-[60]"
-                :class="{ 'is-open': open }"
-                :aria-label="open ? 'Cerrar menú' : 'Abrir menú'"
-                :aria-expanded="open"
-                @click="open = !open">
-            <span class="mt-mobile-toggle-bar" aria-hidden="true"></span>
-            <span class="mt-mobile-toggle-bar" aria-hidden="true"></span>
-        </button>
-    </div>
+            {{-- Mobile toggle — barras que morphean a X --}}
+            <button type="button"
+                    class="mt-mobile-toggle lg:hidden relative z-[70]"
+                    :class="{ 'is-open': open }"
+                    :aria-label="open ? 'Cerrar menú' : 'Abrir menú'"
+                    :aria-expanded="open"
+                    @click="open = !open">
+                <span class="mt-mobile-toggle-bar" aria-hidden="true"></span>
+                <span class="mt-mobile-toggle-bar" aria-hidden="true"></span>
+            </button>
+        </div>
+    </nav>
 
-    {{-- ===== Mobile menu — full screen editorial ===== --}}
+    {{-- ===== Mobile menu — fuera del <nav> para evitar containing-block
+         issues con backdrop-filter, transform, etc. ===== --}}
     <div x-show="open" x-cloak
-         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter="transition ease-out duration-400"
          x-transition:enter-start="opacity-0"
          x-transition:enter-end="opacity-100"
-         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave="transition ease-in duration-250"
          x-transition:leave-start="opacity-100"
          x-transition:leave-end="opacity-0"
-         class="mt-mobile-menu lg:hidden">
+         class="mt-mobile-menu lg:hidden"
+         role="dialog"
+         aria-modal="true"
+         aria-label="Menú de navegación">
 
         {{-- Eyebrow superior --}}
         <div class="mt-mobile-menu-eyebrow">
-            <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-mt-text-3">Menú</span>
-            <span class="font-mono text-[11px] uppercase tracking-[0.22em] text-mt-text-3">Esc para cerrar</span>
+            <span class="mt-mobile-menu-eyebrow-label">Menú</span>
+            <button type="button"
+                    @click="open = false"
+                    class="mt-mobile-menu-eyebrow-close"
+                    aria-label="Cerrar menú">
+                Cerrar
+                <span aria-hidden="true">×</span>
+            </button>
         </div>
 
         {{-- Nav editorial --}}
@@ -93,14 +110,12 @@
         {{-- Footer del menú --}}
         <div class="mt-mobile-menu-foot" style="--idx: {{ count($navItems) }}">
             <div class="mt-mobile-menu-contact">
-                <a href="https://wa.me/573337246403"
+                <span class="mt-mobile-menu-contact-eyebrow">WhatsApp · Respuesta en 24h</span>
+                <a href="https://wa.me/573337246403?text=Hola%2C%20me%20interesa%20conocer%20m%C3%A1s%20sobre%20sus%20servicios"
                    target="_blank" rel="noopener"
-                   class="block text-mt-text font-display font-semibold text-lg">
+                   class="mt-mobile-menu-contact-phone">
                     +57 333 724 6403
                 </a>
-                <span class="block mt-1 font-mono text-[11px] uppercase tracking-wider text-mt-text-3">
-                    WhatsApp · Respuesta en 24h
-                </span>
             </div>
             <a href="{{ route('contacto.index') }}" class="mt-btn-primary w-full justify-center">
                 Cotiza tu proyecto
@@ -108,4 +123,4 @@
             </a>
         </div>
     </div>
-</nav>
+</div>
