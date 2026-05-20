@@ -1,1740 +1,486 @@
-@extends('layouts.app')
-
-@section('title', 'Contacto - MY Tech Solutions')
-
-@push('styles')
-<style>
-    /* Variables */
-    :root {
-        --gradient-primary: linear-gradient(135deg, #007bff 0%, #1a5cff 100%);
-        --gradient-secondary: linear-gradient(135deg, #00d4ff 0%, #007bff 100%);
-        --glass-bg: rgba(255, 255, 255, 0.1);
-        --glass-border: rgba(255, 255, 255, 0.2);
-    }
-
-    /* Hero Section con Parallax Avanzado */
-    .hero-contact {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-dark) 100%);
-        padding: 120px 0 80px;
-        color: white;
-        position: relative;
-        overflow: hidden;
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-    }
-
-    .parallax-bg {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 120%;
-        height: 120%;
-        z-index: 1;
-        background: 
-            radial-gradient(circle at 25% 25%, rgba(0, 212, 255, 0.4) 0%, transparent 50%),
-            radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
-            radial-gradient(circle at 50% 10%, rgba(0, 123, 255, 0.3) 0%, transparent 40%);
-        animation: parallax-float 20s ease-in-out infinite;
-    }
-
-    @keyframes parallax-float {
-        0%, 100% { 
-            transform: translateX(0) translateY(0) rotate(0deg); 
-        }
-        33% { 
-            transform: translateX(-30px) translateY(-20px) rotate(1deg); 
-        }
-        66% { 
-            transform: translateX(20px) translateY(-10px) rotate(-0.5deg); 
-        }
-    }
-
-    .geometric-elements {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 2;
-        pointer-events: none;
-    }
-
-    .geo-element {
-        position: absolute;
-        background: rgba(0, 212, 255, 0.1);
-        border: 2px solid rgba(0, 212, 255, 0.3);
-        animation: geo-float 15s ease-in-out infinite;
-    }
-
-    .geo-element:nth-child(1) {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        top: 15%;
-        left: 10%;
-        animation-delay: 0s;
-    }
-
-    .geo-element:nth-child(2) {
-        width: 60px;
-        height: 60px;
-        border-radius: 15px;
-        top: 70%;
-        right: 15%;
-        animation-delay: 2s;
-    }
-
-    .geo-element:nth-child(3) {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        top: 40%;
-        right: 5%;
-        animation-delay: 4s;
-        background: rgba(255, 255, 255, 0.05);
-        border-color: rgba(255, 255, 255, 0.2);
-    }
-
-    .geo-element:nth-child(4) {
-        width: 40px;
-        height: 40px;
-        border-radius: 10px;
-        top: 60%;
-        left: 20%;
-        animation-delay: 6s;
-        transform: rotate(45deg);
-    }
-
-    @keyframes geo-float {
-        0%, 100% { 
-            transform: translateY(0px) translateX(0px) rotate(0deg);
-            opacity: 0.3;
-        }
-        25% { 
-            transform: translateY(-30px) translateX(20px) rotate(90deg);
-            opacity: 0.6;
-        }
-        50% { 
-            transform: translateY(-20px) translateX(-15px) rotate(180deg);
-            opacity: 0.4;
-        }
-        75% { 
-            transform: translateY(-40px) translateX(10px) rotate(270deg);
-            opacity: 0.7;
-        }
-    }
-
-    .hero-content {
-        position: relative;
-        z-index: 3;
-        text-align: center;
-        max-width: 900px;
-        margin: 0 auto;
-        animation: content-slide-up 1.2s ease-out;
-    }
-
-    @keyframes content-slide-up {
-        0% { 
-            opacity: 0; 
-            transform: translateY(50px); 
-        }
-        100% { 
-            opacity: 1; 
-            transform: translateY(0); 
-        }
-    }
-
-    .contact-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(25px);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        border-radius: 50px;
-        padding: 1.2rem 2.5rem;
-        margin-bottom: 2rem;
-        font-weight: 600;
-        font-size: 1.1rem;
-        color: #00d4ff;
-        animation: badge-pulse 4s ease-in-out infinite;
-        box-shadow: 
-            0 15px 35px rgba(0, 212, 255, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    }
-
-    @keyframes badge-pulse {
-        0%, 100% { 
-            box-shadow: 
-                0 15px 35px rgba(0, 212, 255, 0.2),
-                inset 0 1px 0 rgba(255, 255, 255, 0.2);
-            transform: scale(1);
-        }
-        50% { 
-            box-shadow: 
-                0 20px 50px rgba(0, 212, 255, 0.4),
-                inset 0 1px 0 rgba(255, 255, 255, 0.3);
-            transform: scale(1.02);
-        }
-    }
-
-    .hero-contact h1 {
-        font-size: 4.5rem;
-        font-weight: 900;
-        margin-bottom: 2rem;
-        background: linear-gradient(45deg, #ffffff 20%, #e3f2fd 50%, #00d4ff 80%, #ffffff 100%);
-        background-size: 300% 300%;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        line-height: 1.1;
-        animation: gradient-shift 6s ease-in-out infinite;
-        text-shadow: 0 0 40px rgba(255, 255, 255, 0.1);
-    }
-
-    @keyframes gradient-shift {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    .hero-contact .lead {
-        font-size: 1.5rem;
-        margin-bottom: 3rem;
-        opacity: 0.95;
-        line-height: 1.6;
-        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-        animation: text-fade-in 1.8s ease-out 0.5s both;
-    }
-
-    @keyframes text-fade-in {
-        0% { opacity: 0; transform: translateY(30px); }
-        100% { opacity: 0.95; transform: translateY(0); }
-    }
-
-    .cta-buttons-hero {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-        animation: buttons-fade-in 2s ease-out 1s both;
-    }
-
-    @keyframes buttons-fade-in {
-        0% { opacity: 0; transform: translateY(40px); }
-        100% { opacity: 1; transform: translateY(0); }
-    }
-
-    .hero-cta {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.8rem;
-        background: rgba(255, 255, 255, 0.15);
-        backdrop-filter: blur(20px);
-        color: white;
-        padding: 1.3rem 2.8rem;
-        border-radius: 30px;
-        font-weight: 700;
-        font-size: 1.1rem;
-        text-decoration: none;
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        border: 2px solid rgba(255, 255, 255, 0.3);
-        box-shadow: 
-            0 15px 35px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .hero-cta::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-        transition: left 0.6s ease;
-    }
-
-    .hero-cta:hover::before {
-        left: 100%;
-    }
-
-    .hero-cta:hover {
-        background: rgba(255, 255, 255, 0.25);
-        transform: translateY(-5px) scale(1.05);
-        box-shadow: 
-            0 25px 50px rgba(0, 0, 0, 0.2),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        color: white;
-    }
-
-    .whatsapp-hero {
-        background: rgba(37, 211, 102, 0.2);
-        border-color: rgba(37, 211, 102, 0.5);
-    }
-
-    .whatsapp-hero:hover {
-        background: rgba(37, 211, 102, 0.3);
-        color: white;
-    }
-
-    /* Contact Methods Section */
-    .contact-methods {
-        padding: 100px 0;
-        background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%);
-        position: relative;
-    }
-
-    .contact-methods::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: 
-            radial-gradient(circle at 20% 30%, rgba(0, 123, 255, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 70%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
-        pointer-events: none;
-    }
-
-    .section-header {
-        text-align: center;
-        margin-bottom: 4rem;
-        position: relative;
-        z-index: 2;
-    }
-
-    .section-header h2 {
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, #00d4ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        position: relative;
-    }
-
-    .section-header h2::after {
-        content: '';
-        position: absolute;
-        bottom: -15px;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 80px;
-        height: 4px;
-        background: var(--gradient-primary);
-        border-radius: 2px;
-    }
-
-    .section-header p {
-        font-size: 1.3rem;
-        color: #6c757d;
-        max-width: 600px;
-        margin: 0 auto;
-    }
-
-    .contact-options {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 2rem;
-        margin-bottom: 4rem;
-        position: relative;
-        z-index: 2;
-    }
-
-    .contact-card {
-        background: rgba(255, 255, 255, 0.9);
-        backdrop-filter: blur(20px);
-        border-radius: 25px;
-        padding: 2.5rem 1.8rem;
-        text-align: center;
-        box-shadow: 0 20px 60px rgba(0, 123, 255, 0.1);
-        border: 1px solid rgba(0, 123, 255, 0.1);
-        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        position: relative;
-        overflow: hidden;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        min-height: 350px;
-    }
-
-    .contact-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: var(--gradient-primary);
-        transform: scaleX(0);
-        transition: transform 0.3s ease;
-    }
-
-    .contact-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .contact-card:hover {
-        transform: translateY(-15px);
-        box-shadow: 0 30px 80px rgba(0, 123, 255, 0.2);
-    }
-
-    .contact-icon {
-        width: 80px;
-        height: 80px;
-        background: var(--gradient-primary);
-        border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 2rem;
-        font-size: 2rem;
-        color: white;
-        box-shadow: 0 15px 30px rgba(0, 123, 255, 0.3);
-        transition: all 0.3s ease;
-    }
-
-    .contact-card:hover .contact-icon {
-        transform: scale(1.1) rotate(5deg);
-    }
-
-    .contact-card-content {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-    }
-
-    .contact-card h3 {
-        font-size: 1.4rem;
-        font-weight: 700;
-        margin-bottom: 1rem;
-        color: var(--dark-text);
-    }
-
-    .contact-card p {
-        color: #6c757d;
-        line-height: 1.6;
-        margin-bottom: 1.5rem;
-        flex: 1;
-    }
-
-    .contact-card-action {
-        margin-top: auto;
-        padding-top: 1rem;
-    }
-
-    .contact-btn {
-        background: var(--gradient-primary);
-        color: white;
-        padding: 1rem 1.5rem;
-        border-radius: 25px;
-        text-decoration: none;
-        font-weight: 600;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 0.5rem;
-        transition: all 0.3s ease;
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.3);
-        text-align: center;
-        min-height: 50px;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-        word-break: break-all;
-        font-size: 0.9rem;
-    }
-
-    .contact-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 15px 35px rgba(0, 123, 255, 0.4);
-        color: white;
-    }
-
-    .contact-btn.email-btn {
-        font-size: 0.8rem;
-        padding: 0.8rem 1rem;
-        line-height: 1.2;
-        white-space: normal;
-        word-break: break-all;
-        text-align: center;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.3rem;
-    }
-
-    .contact-btn.email-btn i {
-        margin-bottom: 0.2rem;
-    }
-
-    /* Contact Form Section con Parallax */
-    .form-section {
-        padding: 120px 0;
-        background: 
-            linear-gradient(135deg, #ffffff 0%, #f8f9fa 50%, #e3f2fd 100%),
-            radial-gradient(circle at 20% 80%, rgba(0, 123, 255, 0.05) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(0, 212, 255, 0.05) 0%, transparent 50%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .form-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 120%;
-        height: 120%;
-        background: 
-            radial-gradient(circle at 30% 30%, rgba(0, 123, 255, 0.1) 0%, transparent 30%),
-            radial-gradient(circle at 70% 70%, rgba(0, 212, 255, 0.08) 0%, transparent 40%);
-        animation: form-parallax 25s ease-in-out infinite;
-        z-index: 1;
-    }
-
-    @keyframes form-parallax {
-        0%, 100% { 
-            transform: translateX(0) translateY(0) rotate(0deg); 
-        }
-        33% { 
-            transform: translateX(-40px) translateY(-20px) rotate(1deg); 
-        }
-        66% { 
-            transform: translateX(30px) translateY(-30px) rotate(-1deg); 
-        }
-    }
-
-    .floating-shapes {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        z-index: 1;
-        pointer-events: none;
-    }
-
-    .shape {
-        position: absolute;
-        background: linear-gradient(45deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.15));
-        border-radius: 50%;
-        animation: shape-float 20s ease-in-out infinite;
-    }
-
-    .shape:nth-child(1) {
-        width: 60px;
-        height: 60px;
-        top: 10%;
-        left: 5%;
-        animation-delay: 0s;
-    }
-
-    .shape:nth-child(2) {
-        width: 80px;
-        height: 80px;
-        top: 60%;
-        right: 10%;
-        animation-delay: 3s;
-    }
-
-    .shape:nth-child(3) {
-        width: 40px;
-        height: 40px;
-        top: 30%;
-        left: 80%;
-        animation-delay: 6s;
-    }
-
-    .shape:nth-child(4) {
-        width: 100px;
-        height: 100px;
-        top: 80%;
-        left: 15%;
-        animation-delay: 9s;
-    }
-
-    @keyframes shape-float {
-        0%, 100% { 
-            transform: translateY(0px) translateX(0px) scale(1);
-            opacity: 0.4;
-        }
-        25% { 
-            transform: translateY(-50px) translateX(20px) scale(1.1);
-            opacity: 0.6;
-        }
-        50% { 
-            transform: translateY(-30px) translateX(-25px) scale(0.9);
-            opacity: 0.3;
-        }
-        75% { 
-            transform: translateY(-70px) translateX(15px) scale(1.05);
-            opacity: 0.5;
-        }
-    }
-
-    .form-container {
-        max-width: 900px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 2;
-    }
-
-    .alert {
-        padding: 1.2rem 1.5rem;
-        margin-bottom: 2rem;
-        border-radius: 15px;
-        border: none;
-        font-weight: 500;
-        display: flex;
-        align-items: flex-start;
-        gap: 0.8rem;
-        animation: alert-slide-in 0.6s ease-out;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-
-    @keyframes alert-slide-in {
-        0% {
-            opacity: 0;
-            transform: translateY(-20px);
-        }
-        100% {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .alert-success {
-        background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
-        color: #155724;
-        border-left: 4px solid #28a745;
-    }
-
-    .alert-danger {
-        background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
-        color: #721c24;
-        border-left: 4px solid #dc3545;
-    }
-
-    .alert i {
-        font-size: 1.2rem;
-        margin-top: 0.1rem;
-        flex-shrink: 0;
-    }
-
-    .alert ul {
-        margin: 0.5rem 0 0 0;
-        padding-left: 1.2rem;
-    }
-
-    .alert li {
-        margin-bottom: 0.3rem;
-    }
-
-    .contact-form {
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(25px);
-        border-radius: 25px;
-        padding: 3rem 2.5rem;
-        box-shadow:
-            0 40px 100px rgba(0, 123, 255, 0.15),
-            0 20px 60px rgba(0, 0, 0, 0.05),
-            inset 0 1px 0 rgba(255, 255, 255, 0.8);
-        border: 1px solid rgba(255, 255, 255, 0.3);
-        position: relative;
-        overflow: hidden;
-        animation: form-slide-up 1.5s ease-out;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
-    @keyframes form-slide-up {
-        0% { 
-            opacity: 0; 
-            transform: translateY(80px);
-        }
-        100% { 
-            opacity: 1; 
-            transform: translateY(0);
-        }
-    }
-
-    .contact-form::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 8px;
-        background: linear-gradient(90deg, var(--primary-blue) 0%, #00d4ff 50%, var(--primary-blue) 100%);
-        background-size: 200% 200%;
-        border-radius: 35px 35px 0 0;
-        animation: gradient-flow 3s ease-in-out infinite;
-    }
-
-    @keyframes gradient-flow {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    .form-header {
-        text-align: center;
-        margin-bottom: 3rem;
-    }
-
-    .form-header h3 {
-        font-size: 2.5rem;
-        font-weight: 800;
-        margin-bottom: 1rem;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, #00d4ff 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-    }
-
-    .form-header p {
-        font-size: 1.2rem;
-        color: #6c757d;
-        margin: 0;
-    }
-
-    .form-grid {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 2rem;
-        margin-bottom: 2rem;
-    }
-
-    @media (max-width: 768px) {
-        .form-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-    }
-
-    .form-group {
-        position: relative;
-        animation: field-fade-in 1.8s ease-out;
-    }
-
-    @keyframes field-fade-in {
-        0% { 
-            opacity: 0; 
-            transform: translateY(30px);
-        }
-        100% { 
-            opacity: 1; 
-            transform: translateY(0);
-        }
-    }
-
-    .form-group.full-width {
-        grid-column: 1 / -1;
-    }
-
-    .form-control {
-        width: 100%;
-        padding: 1.2rem 1.5rem;
-        border: 2px solid transparent;
-        border-radius: 15px;
-        font-size: 1rem;
-        transition: all 0.3s ease;
-        background:
-            linear-gradient(white, white) padding-box,
-            linear-gradient(135deg, rgba(0, 123, 255, 0.2), rgba(0, 212, 255, 0.2)) border-box;
-        box-shadow:
-            0 4px 12px rgba(0, 123, 255, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        position: relative;
-        font-family: inherit;
-    }
-
-    .form-control:focus {
-        outline: none;
-        background:
-            linear-gradient(white, white) padding-box,
-            linear-gradient(135deg, var(--primary-blue), #00d4ff) border-box;
-        box-shadow:
-            0 8px 25px rgba(0, 123, 255, 0.2),
-            0 0 0 3px rgba(0, 123, 255, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        transform: translateY(-2px);
-    }
-
-    .form-control::placeholder {
-        color: #adb5bd;
-        font-weight: 500;
-        transition: all 0.3s ease;
-    }
-
-    .form-control:focus::placeholder {
-        opacity: 0.7;
-        transform: translateY(-2px);
-    }
-
-    .form-label {
-        position: absolute;
-        top: -10px;
-        left: 15px;
-        background: linear-gradient(135deg, var(--primary-blue), #00d4ff);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-        padding: 0 12px;
-        font-size: 0.9rem;
-        font-weight: 700;
-        border-radius: 12px;
-        background-color: white;
-        z-index: 2;
-    }
-
-    select.form-control {
-        cursor: pointer;
-        appearance: none;
-        background:
-            linear-gradient(white, white) padding-box,
-            linear-gradient(135deg, rgba(0, 123, 255, 0.1), rgba(0, 212, 255, 0.1)) border-box;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%23007bff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 20px center;
-        background-repeat: no-repeat;
-        background-size: 18px;
-        padding-right: 55px;
-        font-weight: 500;
-    }
-
-    select.form-control:focus {
-        background:
-            linear-gradient(white, white) padding-box,
-            linear-gradient(135deg, var(--primary-blue), #00d4ff) border-box;
-        background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2300d4ff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-        background-position: right 20px center;
-        background-repeat: no-repeat;
-        background-size: 18px;
-    }
-
-    select.form-control option {
-        background: white;
-        color: #333;
-        padding: 12px;
-        font-weight: 500;
-    }
-
-    textarea.form-control {
-        min-height: 120px;
-        resize: vertical;
-        font-family: inherit;
-        line-height: 1.5;
-        padding: 1.2rem 1.5rem;
-    }
-
-    .submit-btn {
-        background: linear-gradient(135deg, var(--primary-blue) 0%, #00d4ff 100%);
-        color: white;
-        padding: 1.5rem 3rem;
-        border: none;
-        border-radius: 25px;
-        font-size: 1.1rem;
-        font-weight: 700;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        box-shadow:
-            0 15px 30px rgba(0, 123, 255, 0.3),
-            0 8px 15px rgba(0, 0, 0, 0.1),
-            inset 0 1px 0 rgba(255, 255, 255, 0.2);
-        width: 100%;
-        position: relative;
-        overflow: hidden;
-        letter-spacing: 0.3px;
-        text-transform: uppercase;
-        margin-top: 1rem;
-    }
-
-    .submit-btn::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: -100%;
-        width: 100%;
-        height: 100%;
-        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-        transition: left 0.8s ease;
-    }
-
-    .submit-btn:hover::before {
-        left: 100%;
-    }
-
-    .submit-btn:hover {
-        transform: translateY(-5px) scale(1.02);
-        box-shadow: 
-            0 30px 60px rgba(0, 123, 255, 0.4),
-            0 15px 30px rgba(0, 0, 0, 0.15),
-            inset 0 1px 0 rgba(255, 255, 255, 0.3);
-        background: linear-gradient(135deg, #00d4ff 0%, var(--primary-blue) 100%);
-    }
-
-    .submit-btn:active {
-        transform: translateY(-2px) scale(1.01);
-    }
-
-    .form-features {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-        gap: 2rem;
-        margin-top: 3rem;
-        padding-top: 2rem;
-        border-top: 2px solid rgba(0, 123, 255, 0.1);
-    }
-
-    .feature-item {
-        text-align: center;
-        padding: 1.5rem;
-        background: rgba(0, 123, 255, 0.05);
-        border-radius: 20px;
-        border: 1px solid rgba(0, 123, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .feature-item:hover {
-        background: rgba(0, 123, 255, 0.08);
-        transform: translateY(-5px);
-    }
-
-    .feature-item i {
-        font-size: 2rem;
-        color: var(--primary-blue);
-        margin-bottom: 1rem;
-    }
-
-    .feature-item h4 {
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--dark-text);
-    }
-
-    .feature-item p {
-        font-size: 0.9rem;
-        color: #6c757d;
-        margin: 0;
-    }
-
-    /* Map Section */
-    .map-section {
-        padding: 100px 0;
-        background: linear-gradient(135deg, #f8f9fa 0%, #e3f2fd 100%);
-        position: relative;
-    }
-
-    .map-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        align-items: center;
-        position: relative;
-        z-index: 2;
-    }
-
-    .map-info h3 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        margin-bottom: 1.5rem;
-        color: var(--dark-text);
-    }
-
-    .map-info p {
-        font-size: 1.1rem;
-        line-height: 1.8;
-        color: #495057;
-        margin-bottom: 2rem;
-    }
-
-    .info-grid {
-        display: grid;
-        gap: 1rem;
-    }
-
-    .info-item {
-        background: rgba(255, 255, 255, 0.8);
-        backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 1.5rem;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        border: 1px solid rgba(0, 123, 255, 0.1);
-        transition: all 0.3s ease;
-    }
-
-    .info-item:hover {
-        background: white;
-        transform: translateX(10px);
-        box-shadow: 0 10px 25px rgba(0, 123, 255, 0.1);
-    }
-
-    .info-icon {
-        width: 50px;
-        height: 50px;
-        background: var(--gradient-primary);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-size: 1.2rem;
-    }
-
-    .info-text h4 {
-        font-weight: 600;
-        margin-bottom: 0.3rem;
-        color: var(--dark-text);
-    }
-
-    .info-text p {
-        margin: 0;
-        color: #6c757d;
-        font-size: 0.95rem;
-    }
-
-    .map-container {
-        position: relative;
-        border-radius: 25px;
-        overflow: hidden;
-        box-shadow: 0 25px 50px rgba(0, 123, 255, 0.15);
-        background: white;
-        padding: 15px;
-    }
-
-    .map-container iframe {
-        width: 100%;
-        height: 400px;
-        border-radius: 15px;
-        border: none;
-    }
-
-    .map-overlay {
-        position: absolute;
-        top: 25px;
-        left: 25px;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(15px);
-        border-radius: 15px;
-        padding: 1rem 1.5rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        z-index: 10;
-    }
-
-    .map-overlay h5 {
-        font-weight: 700;
-        margin-bottom: 0.5rem;
-        color: var(--primary-blue);
-    }
-
-    .map-overlay p {
-        margin: 0;
-        font-size: 0.9rem;
-        color: #6c757d;
-    }
-
-    /* Responsive Mejorado con Parallax */
-    @media (max-width: 1024px) {
-        .hero-contact h1 {
-            font-size: 3.5rem;
-        }
-        
-        .geometric-elements {
-            display: none; /* Simplificar en tablet */
-        }
-        
-        .contact-form {
-            padding: 3rem 2.5rem;
-        }
-    }
-
-    @media (max-width: 768px) {
-        .hero-contact {
-            padding: 80px 0 60px;
-            min-height: 80vh;
-        }
-
-        .hero-contact h1 {
-            font-size: 2.8rem;
-            line-height: 1.2;
-            margin-bottom: 1.5rem;
-        }
-
-        .hero-contact .lead {
-            font-size: 1.3rem;
-            margin-bottom: 2.5rem;
-        }
-
-        .contact-badge {
-            padding: 1rem 2rem;
-            font-size: 1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .cta-buttons-hero {
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-        }
-
-        .hero-cta {
-            width: 100%;
-            max-width: 320px;
-            justify-content: center;
-            padding: 1.2rem 2rem;
-            font-size: 1rem;
-        }
-
-        /* Simplificar animaciones en móvil */
-        .parallax-bg {
-            animation: none;
-            opacity: 0.6;
-        }
-
-        .floating-shapes .shape {
-            animation-duration: 30s; /* Más lento para mejor performance */
-        }
-
-        .contact-options {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-
-        .contact-card {
-            padding: 2rem 1.5rem;
-        }
-
-        .form-section {
-            padding: 60px 0;
-        }
-
-        .section-header h2 {
-            font-size: 2.2rem;
-        }
-
-        .section-header p {
-            font-size: 1.1rem;
-        }
-
-        .form-container {
-            margin: 0 0.5rem;
-        }
-
-        .contact-form {
-            padding: 2rem 1.5rem;
-            border-radius: 20px;
-        }
-
-        .form-header h3 {
-            font-size: 1.8rem;
-        }
-
-        .contact-form {
-            padding: 2rem 1.5rem;
-            border-radius: 20px;
-        }
-
-        .form-grid {
-            grid-template-columns: 1fr;
-            gap: 1.5rem;
-        }
-
-        .form-control {
-            padding: 1.1rem 1.3rem;
-            font-size: 0.95rem;
-            border-radius: 12px;
-        }
-
-        .form-label {
-            left: 12px;
-            font-size: 0.8rem;
-            padding: 0 10px;
-        }
-
-        .contact-btn {
-            font-size: 0.85rem;
-            padding: 0.9rem 1.2rem;
-            word-break: break-word;
-            white-space: normal;
-            line-height: 1.3;
-        }
-
-        .submit-btn {
-            padding: 1.4rem 2.5rem;
-            font-size: 1rem;
-            border-radius: 20px;
-        }
-
-        .form-features {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1rem;
-        }
-
-        .feature-item {
-            padding: 1rem;
-        }
-
-        .feature-item i {
-            font-size: 1.5rem;
-        }
-
-        .feature-item h4 {
-            font-size: 0.9rem;
-        }
-
-        .feature-item p {
-            font-size: 0.8rem;
-        }
-
-        .map-content {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        .map-info {
-            order: 1;
-        }
-
-        .map-container {
-            order: -1;
-        }
-
-        .map-container iframe {
-            height: 300px;
-        }
-    }
-
-    @media (max-width: 480px) {
-        .hero-contact {
-            padding: 50px 0 30px;
-            min-height: 70vh;
-        }
-
-        .hero-contact h1 {
-            font-size: 2rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero-contact .lead {
-            font-size: 1.1rem;
-            margin-bottom: 1.5rem;
-        }
-
-        .contact-badge {
-            padding: 0.8rem 1.5rem;
-            font-size: 0.9rem;
-            margin-bottom: 1rem;
-        }
-
-        .hero-cta {
-            max-width: 100%;
-            padding: 1rem 1.5rem;
-            font-size: 0.9rem;
-        }
-
-        .form-section {
-            padding: 40px 0;
-        }
-
-        .section-header h2 {
-            font-size: 1.8rem;
-        }
-
-        .section-header p {
-            font-size: 0.95rem;
-        }
-
-        .form-container {
-            margin: 0 0.75rem;
-        }
-
-        .contact-form {
-            padding: 1.5rem 1rem;
-            border-radius: 15px;
-        }
-
-        .form-header {
-            margin-bottom: 1.5rem;
-        }
-
-        .form-header h3 {
-            font-size: 1.5rem;
-        }
-
-        .form-header p {
-            font-size: 0.9rem;
-        }
-
-        .form-grid {
-            gap: 1rem;
-        }
-
-        .form-control {
-            padding: 1rem 1.2rem;
-            font-size: 0.9rem;
-            border-radius: 12px;
-        }
-
-        .form-label {
-            left: 12px;
-            font-size: 0.8rem;
-            padding: 0 8px;
-        }
-
-        select.form-control {
-            background-size: 16px;
-            padding-right: 45px;
-            font-size: 0.9rem;
-        }
-
-        textarea.form-control {
-            min-height: 100px;
-        }
-
-        .submit-btn {
-            padding: 1.2rem 2rem;
-            font-size: 0.95rem;
-            border-radius: 15px;
-        }
-
-        .form-features {
-            grid-template-columns: 1fr;
-            gap: 0.8rem;
-            margin-top: 1.5rem;
-        }
-
-        .feature-item {
-            padding: 0.8rem;
-            text-align: left;
-            display: flex;
-            align-items: center;
-            gap: 0.8rem;
-        }
-
-        .feature-item i {
-            font-size: 1.1rem;
-            margin-bottom: 0;
-            flex-shrink: 0;
-        }
-
-        .feature-item h4 {
-            font-size: 0.85rem;
-            margin-bottom: 0.2rem;
-        }
-
-        .feature-item p {
-            font-size: 0.75rem;
-            margin: 0;
-        }
-
-        .contact-card {
-            padding: 1.5rem 1rem;
-        }
-
-        .contact-icon {
-            width: 60px;
-            height: 60px;
-            font-size: 1.5rem;
-        }
-
-        .map-container iframe {
-            height: 250px;
-        }
-
-        .map-overlay {
-            top: 15px;
-            left: 15px;
-            padding: 0.8rem 1rem;
-        }
-    }
-
-    /* Pantallas muy pequeñas */
-    @media (max-width: 360px) {
-        .hero-contact h1 {
-            font-size: 1.9rem;
-        }
-        
-        .hero-cta {
-            max-width: 100%;
-            padding: 1rem 1.5rem;
-            font-size: 0.9rem;
-        }
-        
-        .contact-form {
-            padding: 1.5rem 1rem;
-        }
-        
-        .form-control {
-            padding: 1.1rem 1.3rem;
-            font-size: 0.9rem;
-        }
-        
-        .submit-btn {
-            padding: 1.3rem 2rem;
-            font-size: 0.95rem;
-        }
-    }
-
-    /* Animaciones optimizadas para mobile */
-    @media (max-width: 768px) {
-        .hero-content {
-            animation-duration: 0.8s;
-        }
-        
-        .form-slide-up {
-            animation-duration: 1s;
-        }
-        
-        .field-fade-in {
-            animation-duration: 1.2s;
-        }
-        
-        .buttons-fade-in {
-            animation-duration: 1.5s;
-        }
-        
-        /* Reducir motion para usuarios sensibles */
-        @media (prefers-reduced-motion: reduce) {
-            .parallax-bg,
-            .geometric-elements,
-            .floating-shapes,
-            .geo-element,
-            .shape {
-                animation: none;
-            }
-            
-            .hero-contact h1 {
-                animation: none;
-                background: linear-gradient(45deg, #ffffff 30%, #00d4ff 100%);
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-            }
-        }
-    }
-</style>
-@endpush
+@php
+    /* ─────────────────────────────────────────────────────────────────
+       SEO premium /contacto. BD-driven con fallbacks.
+       ───────────────────────────────────────────────────────────────── */
+    $contactoUrl = route('contacto.index');
+
+    $seoTitle = $seo?->meta_title       ?? 'Contacto · MY Tech Solutions — Cotiza tu proyecto en 24h';
+    $seoDesc  = $seo?->meta_description ?? 'Cuéntanos tu proyecto y recibe una propuesta clara en 24 horas. Desarrollo web, SaaS, automatización y soluciones a medida en LATAM.';
+
+    $autoSchema = [
+        '@context' => 'https://schema.org',
+        '@type'    => 'ContactPage',
+        'url'      => $contactoUrl,
+        'inLanguage' => 'es',
+        'name'     => $seoTitle,
+        'description' => $seoDesc,
+        'mainEntity' => [
+            '@type' => 'Organization',
+            'name'  => 'MY Tech Solutions',
+            'url'   => url('/'),
+            'email' => $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com',
+            'contactPoint' => [
+                [
+                    '@type' => 'ContactPoint',
+                    'telephone' => '+57 333 724 6403',
+                    'contactType' => 'customer service',
+                    'areaServed' => ['CO', 'AR', 'CL', 'MX', 'GT', 'CR', 'ES'],
+                    'availableLanguage' => ['Spanish', 'English'],
+                ],
+            ],
+        ],
+        'breadcrumb' => [
+            '@type' => 'BreadcrumbList',
+            'itemListElement' => [
+                ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio',   'item' => url('/')],
+                ['@type' => 'ListItem', 'position' => 2, 'name' => 'Contacto', 'item' => $contactoUrl],
+            ],
+        ],
+    ];
+
+    $seo = (object) [
+        'meta_title'          => $seoTitle,
+        'meta_description'    => $seoDesc,
+        'canonical_url'       => $seo->canonical_url ?? $contactoUrl,
+        'robots'              => $seo->robots ?? 'index,follow',
+        'og_title'            => $seo->og_title ?? $seoTitle,
+        'og_description'      => $seo->og_description ?? $seoDesc,
+        'og_url'              => $contactoUrl,
+        'og_type'             => 'website',
+        'og_image'            => $seo->og_image ? asset('storage/'.$seo->og_image) : asset('images/logo.png'),
+        'og_site_name'        => 'MY Tech Solutions',
+        'twitter_card'        => $seo->twitter_card ?? 'summary_large_image',
+        'twitter_title'       => $seo->twitter_title ?? $seoTitle,
+        'twitter_description' => $seo->twitter_description ?? $seoDesc,
+        'twitter_image'       => $seo->twitter_image ? asset('storage/'.$seo->twitter_image) : asset('images/logo.png'),
+        'schema_markup'       => $autoSchema,
+    ];
+
+    $waNumber  = $data['hero_whatsapp_number'] ?? '573337246403';
+    $waMessage = $data['hero_whatsapp_message'] ?? 'Hola, quiero cotizar un proyecto con MY Tech Solutions.';
+    $waUrl     = 'https://wa.me/'.preg_replace('/\D/', '', $waNumber).'?text='.urlencode($waMessage);
+    $contactEmail = $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com';
+@endphp
+
+@extends('layouts.app-home')
 
 @section('content')
-<!-- Hero Section -->
-<section class="hero-contact">
-    <!-- Fondo con parallax -->
-    <div class="parallax-bg"></div>
-    
-    <!-- Elementos geométricos flotantes -->
-    <div class="geometric-elements">
-        <div class="geo-element"></div>
-        <div class="geo-element"></div>
-        <div class="geo-element"></div>
-        <div class="geo-element"></div>
-    </div>
-    
-    <div class="container">
-        <div class="hero-content">
-            <div class="contact-badge">
-                <i class="fas fa-rocket"></i>
-                <span>{{ $data['hero_badge'] ?? 'Tu Próximo Proyecto Comienza Aquí' }}</span>
-            </div>
-            <h1>{{ $data['hero_title'] ?? '¿Listo para Transformar tu Idea en Realidad?' }}</h1>
-            <p class="lead">
-                {!! $data['hero_description'] ?? 'No esperes más para digitalizar tu negocio. Conversemos sobre tu proyecto y descubre cómo podemos crear la <strong>solución digital perfecta</strong> que impulse el crecimiento de tu empresa.' !!}
-            </p>
-            
-            <div class="cta-buttons-hero">
-                <a href="https://wa.me/{{ $data['hero_whatsapp_number'] ?? '573337246403' }}?text={{ urlencode($data['hero_whatsapp_message'] ?? 'Hola, quiero digitalizar mi negocio y me interesa una consultoría gratuita') }}" 
-                   target="_blank" 
-                   class="hero-cta whatsapp-hero">
-                    <i class="fab fa-whatsapp"></i>
-                    {{ $data['hero_whatsapp_text'] ?? 'Consultoría Gratuita' }}
-                </a>
-                <a href="#form" class="hero-cta">
-                    <i class="fas fa-edit"></i>
-                    {{ $data['hero_form_text'] ?? 'Enviar mi Proyecto' }}
-                </a>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Contact Methods -->
-<section class="contact-methods">
-    <div class="container">
-        <div class="section-header">
-            <h2>{{ $data['methods_title'] ?? 'Múltiples Formas de Contactarnos' }}</h2>
-            <p>{{ $data['methods_description'] ?? 'Elige la opción que más te convenga para comenzar tu proyecto' }}</p>
-        </div>
-        
-        <div class="contact-options">
-            <!-- WhatsApp Method -->
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="{{ $data['method_1_icon'] ?? 'fab fa-whatsapp' }}"></i>
+{{-- ════════════════ HERO ════════════════ --}}
+<section class="mt-cnt-hero" data-cnt-hero>
+    <div class="mt-cnt-hero-bg" aria-hidden="true"></div>
+    <div class="mt-cnt-hero-grid" aria-hidden="true"></div>
+    <div class="mt-container relative z-10">
+        <div class="grid lg:grid-cols-12 gap-10 items-end">
+
+            {{-- Left: copy editorial --}}
+            <div class="lg:col-span-7">
+                <span class="mt-cnt-eyebrow" data-animate>
+                    <span class="mt-cnt-eyebrow-dot"></span>
+                    {{ $data['hero_eyebrow'] ?? '[ Hablemos de tu proyecto ]' }}
+                </span>
+                <h1 class="mt-cnt-title" data-cnt-title>{{ $data['hero_title'] ?? 'Convertimos ideas en plataformas en producción.' }}</h1>
+                <p class="mt-cnt-lead" data-animate>
+                    {{ $data['hero_description'] ?? 'Cuéntanos qué quieres construir. Te respondemos en menos de 24 horas con una propuesta clara, sin promesas vacías y sin formularios eternos.' }}
+                </p>
+
+                <div class="mt-cnt-promesas" data-animate-children>
+                    @php
+                        $promesas = array_values(array_filter([
+                            $data['hero_promise_1'] ?? 'Respuesta humana en <strong>menos de 24h</strong>',
+                            $data['hero_promise_2'] ?? 'Diagnóstico inicial <strong>gratuito y sin compromiso</strong>',
+                            $data['hero_promise_3'] ?? 'Propuesta con <strong>alcance, tiempos y precio</strong> antes de empezar',
+                        ]));
+                    @endphp
+                    @foreach($promesas as $p)
+                        <div class="mt-cnt-promesa">
+                            <svg class="mt-cnt-promesa-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <span>{!! $p !!}</span>
+                        </div>
+                    @endforeach
                 </div>
-                <div class="contact-card-content">
-                    <h3>{{ $data['method_1_title'] ?? 'WhatsApp Directo' }}</h3>
-                    <p>
-                        {{ $data['method_1_description'] ?? 'La forma más rápida de contactarnos. Te respondemos en menos de 30 minutos durante horario laboral. Perfecto para consultas rápidas y coordinación de reuniones.' }}
-                    </p>
-                </div>
-                <div class="contact-card-action">
-                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573337246403') }}?text={{ urlencode($data['method_1_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}"
-                       target="_blank"
-                       class="contact-btn">
-                        <i class="fab fa-whatsapp"></i>
-                        {{ $data['method_1_number'] ?? '+57 312 370 8407' }}
+
+                <div class="mt-cnt-cta-row" data-animate>
+                    <a href="#form" class="mt-btn-primary mt-cnt-cta-scroll" data-cnt-scroll-form>
+                        {{ $data['hero_form_text'] ?? 'Empezar cotización' }}
+                        <span aria-hidden="true">↓</span>
+                    </a>
+                    <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="mt-btn-ghost">
+                        <svg class="w-[18px] h-[18px]" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        {{ $data['hero_whatsapp_text'] ?? 'Hablar por WhatsApp' }}
                     </a>
                 </div>
             </div>
-            
-            <!-- Video Call Method -->
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="{{ $data['method_2_icon'] ?? 'fas fa-video' }}"></i>
-                </div>
-                <div class="contact-card-content">
-                    <h3>{{ $data['method_2_title'] ?? 'Videollamada de Consultoría' }}</h3>
-                    <p>
-                        {{ $data['method_2_description'] ?? 'Agenda una videollamada gratuita de 30 minutos para analizar tu proyecto en detalle. Revisamos tus necesidades y te damos una propuesta inicial sin compromiso.' }}
-                    </p>
-                </div>
-                <div class="contact-card-action">
-                    <a href="https://wa.me/{{ str_replace(['+', ' '], '', $data['method_1_number'] ?? '573337246403') }}?text={{ urlencode($data['method_2_message'] ?? 'Hola, me gustaría agendar una videollamada de consultoría gratuita') }}"
-                       target="_blank"
-                       class="contact-btn">
-                        <i class="fas fa-calendar"></i>
-                        {{ $data['method_2_button'] ?? 'Agendar Consultoría' }}
+
+            {{-- Right: card de canales rápidos --}}
+            <div class="lg:col-span-5 lg:pl-8" data-animate>
+                <div class="mt-cnt-channels">
+                    <span class="mt-cnt-channels-label">Canales directos</span>
+
+                    <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="mt-cnt-channel">
+                        <div class="mt-cnt-channel-icon" style="background: linear-gradient(135deg, #25d366, #128c7e);">
+                            <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.966-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                        </div>
+                        <div class="mt-cnt-channel-body">
+                            <span class="mt-cnt-channel-eyebrow">Respuesta &lt; 30 min</span>
+                            <span class="mt-cnt-channel-title">WhatsApp directo</span>
+                            <span class="mt-cnt-channel-meta">{{ $data['method_1_number'] ?? '+57 333 724 6403' }}</span>
+                        </div>
+                        <span class="mt-cnt-channel-arrow" aria-hidden="true">→</span>
                     </a>
-                </div>
-            </div>
-            
-            <!-- Email Method -->
-            <div class="contact-card">
-                <div class="contact-icon">
-                    <i class="{{ $data['method_3_icon'] ?? 'fas fa-envelope' }}"></i>
-                </div>
-                <div class="contact-card-content">
-                    <h3>{{ $data['method_3_title'] ?? 'Email Profesional' }}</h3>
-                    <p>
-                        {{ $data['method_3_description'] ?? 'Para consultas detalladas, envío de documentos o comunicación formal. Te respondemos en máximo 24 horas con una propuesta personalizada.' }}
-                    </p>
-                </div>
-                <div class="contact-card-action">
-                    <a href="mailto:{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}" class="contact-btn email-btn">
-                        <i class="fas fa-envelope"></i>
-                        <span>{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}</span>
+
+                    <a href="mailto:{{ $contactEmail }}" class="mt-cnt-channel">
+                        <div class="mt-cnt-channel-icon" style="background: linear-gradient(135deg, #2563EB, #1D4ED8);">
+                            <svg class="w-5 h-5 text-white" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l9 6 9-6M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-cnt-channel-body">
+                            <span class="mt-cnt-channel-eyebrow">Respuesta &lt; 24h</span>
+                            <span class="mt-cnt-channel-title">Email profesional</span>
+                            <span class="mt-cnt-channel-meta">{{ $contactEmail }}</span>
+                        </div>
+                        <span class="mt-cnt-channel-arrow" aria-hidden="true">→</span>
                     </a>
+
+                    <a href="{{ $waUrl }}" target="_blank" rel="noopener" class="mt-cnt-channel">
+                        <div class="mt-cnt-channel-icon" style="background: linear-gradient(135deg, #0F172A, #1F2937);">
+                            <svg class="w-5 h-5 text-white" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div class="mt-cnt-channel-body">
+                            <span class="mt-cnt-channel-eyebrow">30 min · sin costo</span>
+                            <span class="mt-cnt-channel-title">Videollamada de discovery</span>
+                            <span class="mt-cnt-channel-meta">Agendamos contigo por WhatsApp</span>
+                        </div>
+                        <span class="mt-cnt-channel-arrow" aria-hidden="true">→</span>
+                    </a>
+
+                    <div class="mt-cnt-channels-foot">
+                        <span class="mt-cnt-pulse"></span>
+                        <span>Disponibles ahora · LATAM &amp; EU</span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Contact Form -->
-<section class="form-section" id="form">
-    <!-- Formas flotantes de fondo -->
-    <div class="floating-shapes">
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-        <div class="shape"></div>
-    </div>
-    
-    <div class="container">
-        <div class="section-header">
-            <h2>{{ $data['form_title'] ?? 'Cuéntanos sobre tu Proyecto' }}</h2>
-            <p>{{ $data['form_description'] ?? 'Completa el formulario y te contactaremos en menos de 24 horas con una propuesta personalizada' }}</p>
+{{-- ════════════════ FORM PREMIUM ════════════════ --}}
+<section class="mt-cnt-form-section" id="form">
+    <div class="mt-cnt-form-bg" aria-hidden="true"></div>
+
+    <div class="mt-container relative z-10">
+        <div class="mt-cnt-form-head" data-animate>
+            <span class="mt-eyebrow-gray">{{ $data['form_eyebrow'] ?? '[ Cuéntanos tu proyecto ]' }}</span>
+            <h2 class="text-section font-display font-bold text-mt-text mt-3 text-balance">
+                {{ $data['form_title'] ?? 'Un formulario corto.' }}
+                <span class="text-mt-accent italic">{{ $data['form_title_accent'] ?? 'Una propuesta seria.' }}</span>
+            </h2>
+            <p class="mt-cnt-form-sub">{{ $data['form_description'] ?? 'Mientras más detalles compartas, más precisa será la propuesta. Promedio para completarlo: 90 segundos.' }}</p>
         </div>
-        
-        <div class="form-container">
-            @if(session('success'))
-                <div class="alert alert-success">
-                    <i class="fas fa-check-circle"></i>
-                    {{ session('success') }}
-                </div>
-            @endif
 
-            @if(session('error'))
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-circle"></i>
-                    {{ session('error') }}
-                </div>
-            @endif
+        <div class="mt-cnt-form-wrap">
 
-            @if($errors->any())
-                <div class="alert alert-danger">
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <strong>Por favor, corrige los siguientes errores:</strong>
-                    <ul>
-                        @foreach($errors->all() as $error)
-                            <li>{{ $error }}</li>
-                        @endforeach
-                    </ul>
+            {{-- Side panel — context, no a contact card --}}
+            <aside class="mt-cnt-form-side" data-animate>
+                <div class="mt-cnt-side-step">
+                    <span class="mt-cnt-side-num">01</span>
+                    <div>
+                        <h4>Recibimos tu solicitud</h4>
+                        <p>Confirmación inmediata en pantalla y por correo.</p>
+                    </div>
                 </div>
-            @endif
+                <div class="mt-cnt-side-step">
+                    <span class="mt-cnt-side-num">02</span>
+                    <div>
+                        <h4>Analizamos el alcance</h4>
+                        <p>Un líder técnico revisa tu caso y prepara preguntas clave.</p>
+                    </div>
+                </div>
+                <div class="mt-cnt-side-step">
+                    <span class="mt-cnt-side-num">03</span>
+                    <div>
+                        <h4>Conversamos en 24h</h4>
+                        <p>Videollamada o WhatsApp. Sin guion comercial.</p>
+                    </div>
+                </div>
+                <div class="mt-cnt-side-step">
+                    <span class="mt-cnt-side-num">04</span>
+                    <div>
+                        <h4>Propuesta clara</h4>
+                        <p>Alcance, tiempos y precio antes de firmar nada.</p>
+                    </div>
+                </div>
 
-            <form class="contact-form" action="{{ route('contacto.store') }}" method="POST">
+                <div class="mt-cnt-side-trust">
+                    <div class="mt-cnt-trust-pill">
+                        <strong>40+</strong>
+                        <span>plataformas en producción</span>
+                    </div>
+                    <div class="mt-cnt-trust-pill">
+                        <strong>7 países</strong>
+                        <span>CO · AR · CL · MX · GT · CR · ES</span>
+                    </div>
+                </div>
+            </aside>
+
+            {{-- Form --}}
+            <form class="mt-cnt-form" action="{{ route('contacto.store') }}" method="POST" data-cnt-form>
                 @csrf
-                
-                <div class="form-header">
-                    <h3>{{ $data['form_header_title'] ?? 'Formulario de Proyecto' }}</h3>
-                    <p>{{ $data['form_header_description'] ?? 'Todos los campos son importantes para crear la mejor propuesta para ti' }}</p>
+
+                {{-- Alerts --}}
+                @if(session('success'))
+                    <div class="mt-cnt-alert mt-cnt-alert-success" role="status">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <span>{{ session('success') }}</span>
+                    </div>
+                @endif
+
+                @if(session('error'))
+                    <div class="mt-cnt-alert mt-cnt-alert-error" role="alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                @endif
+
+                @if($errors->any())
+                    <div class="mt-cnt-alert mt-cnt-alert-error" role="alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div>
+                            <strong>Faltan algunos datos:</strong>
+                            <ul>
+                                @foreach($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
+                {{-- Fieldset 1: identidad --}}
+                <div class="mt-cnt-fieldset" data-cnt-step>
+                    <div class="mt-cnt-fieldset-head">
+                        <span class="mt-cnt-fieldset-num">01</span>
+                        <h3>¿Quién nos contacta?</h3>
+                    </div>
+
+                    <div class="mt-cnt-grid-2">
+                        <label class="mt-cnt-field">
+                            <span class="mt-cnt-field-label">Nombre completo *</span>
+                            <input type="text" name="nombre" required value="{{ old('nombre') }}" placeholder="Ej. Camila Rodríguez" autocomplete="name">
+                            <span class="mt-cnt-field-line" aria-hidden="true"></span>
+                        </label>
+
+                        <label class="mt-cnt-field">
+                            <span class="mt-cnt-field-label">Email *</span>
+                            <input type="email" name="email" required value="{{ old('email') }}" placeholder="tu@empresa.com" autocomplete="email">
+                            <span class="mt-cnt-field-line" aria-hidden="true"></span>
+                        </label>
+
+                        <label class="mt-cnt-field">
+                            <span class="mt-cnt-field-label">WhatsApp *</span>
+                            <input type="tel" name="whatsapp" required value="{{ old('whatsapp') }}" placeholder="+57 312 345 6789" autocomplete="tel">
+                            <span class="mt-cnt-field-line" aria-hidden="true"></span>
+                        </label>
+
+                        <label class="mt-cnt-field">
+                            <span class="mt-cnt-field-label">Empresa u organización *</span>
+                            <input type="text" name="empresa" required value="{{ old('empresa') }}" placeholder="Nombre comercial o proyecto" autocomplete="organization">
+                            <span class="mt-cnt-field-line" aria-hidden="true"></span>
+                        </label>
+                    </div>
                 </div>
-                
-                <div class="form-grid">
-                    <div class="form-group">
-                        <label class="form-label">Nombre Completo</label>
-                        <input type="text" name="nombre" class="form-control" placeholder="Escribe tu nombre completo" value="{{ old('nombre') }}" required>
+
+                {{-- Fieldset 2: tipo de proyecto (chips) --}}
+                <div class="mt-cnt-fieldset" data-cnt-step>
+                    <div class="mt-cnt-fieldset-head">
+                        <span class="mt-cnt-fieldset-num">02</span>
+                        <h3>¿Qué tipo de proyecto necesitas?</h3>
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">Email Profesional</label>
-                        <input type="email" name="email" class="form-control" placeholder="tu@empresa.com" value="{{ old('email') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">WhatsApp</label>
-                        <input type="tel" name="whatsapp" class="form-control" placeholder="+57 312 345 6789" value="{{ old('whatsapp') }}" required>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Empresa/Organización</label>
-                        <input type="text" name="empresa" class="form-control" placeholder="Nombre de tu empresa o proyecto" value="{{ old('empresa') }}" required>
-                    </div>
-                    <div class="form-group full-width">
-                        <label class="form-label">Tipo de Proyecto</label>
-                        <select name="tipo_proyecto" class="form-control" required>
-                            <option value="">¿Qué tipo de proyecto necesitas?</option>
-                            <option value="web" {{ old('tipo_proyecto') == 'web' ? 'selected' : '' }}>Página Web Profesional</option>
-                            <option value="ecommerce" {{ old('tipo_proyecto') == 'ecommerce' ? 'selected' : '' }}>Tienda Online / E-commerce</option>
-                            <option value="marketplace" {{ old('tipo_proyecto') == 'marketplace' ? 'selected' : '' }}>Marketplace como MercadoLibre</option>
-                            <option value="app" {{ old('tipo_proyecto') == 'app' ? 'selected' : '' }}>Aplicación Web Personalizada</option>
-                            <option value="booking" {{ old('tipo_proyecto') == 'booking' ? 'selected' : '' }}>Sistema de Reservas/Citas</option>
-                            <option value="restaurant" {{ old('tipo_proyecto') == 'restaurant' ? 'selected' : '' }}>Plataforma para Restaurante (QR, Pedidos)</option>
-                            <option value="admin" {{ old('tipo_proyecto') == 'admin' ? 'selected' : '' }}>Sistema Administrativo/CRM</option>
-                            <option value="saas" {{ old('tipo_proyecto') == 'saas' ? 'selected' : '' }}>Plataforma SaaS</option>
-                            <option value="otros" {{ old('tipo_proyecto') == 'otros' ? 'selected' : '' }}>Otro (especificar en descripción)</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label class="form-label">Presupuesto Disponible</label>
-                        <select name="presupuesto" class="form-control" required>
-                            <option value="">Selecciona tu rango de presupuesto</option>
-                            <option value="0-300" {{ old('presupuesto') == '0-300' ? 'selected' : '' }}>$0 - $300 USD</option>
-                            <option value="300-500" {{ old('presupuesto') == '300-500' ? 'selected' : '' }}>$300 - $500 USD</option>
-                            <option value="500-1000" {{ old('presupuesto') == '500-1000' ? 'selected' : '' }}>$500 - $1,000 USD</option>
-                            <option value="1000-2000" {{ old('presupuesto') == '1000-2000' ? 'selected' : '' }}>$1,000 - $2,000 USD</option>
-                            <option value="2000+" {{ old('presupuesto') == '2000+' ? 'selected' : '' }}>Más de $2,000 USD</option>
-                            <option value="consultar" {{ old('presupuesto') == 'consultar' ? 'selected' : '' }}>Prefiero consultarlo en la reunión</option>
-                        </select>
-                    </div>
-                    <div class="form-group full-width">
-                        <label class="form-label">Descripción Detallada del Proyecto</label>
-                        <textarea name="descripcion" class="form-control" placeholder="Describe tu proyecto: ¿Qué problema resuelve? ¿Quién es tu audiencia? ¿Qué funcionalidades específicas necesitas? ¿Cuándo te gustaría lanzarlo? Mientras más detalles nos proporciones, mejor será nuestra propuesta." required>{{ old('descripcion') }}</textarea>
+
+                    <input type="hidden" name="tipo_proyecto" id="tipo_proyecto" value="{{ old('tipo_proyecto') }}" required>
+                    <div class="mt-cnt-chips" data-cnt-chip-group="tipo_proyecto">
+                        @php
+                            $tipos = [
+                                ['v' => 'web',         'l' => 'Sitio web profesional',       'd' => 'Marca, landings, alta velocidad y SEO'],
+                                ['v' => 'ecommerce',   'l' => 'E-commerce / Tienda online', 'd' => 'Catálogo, pagos, logística'],
+                                ['v' => 'app',         'l' => 'App web a medida',           'd' => 'CRM, dashboards, automatización'],
+                                ['v' => 'saas',        'l' => 'Plataforma SaaS',            'd' => 'Multi-tenant, suscripciones, API'],
+                                ['v' => 'marketplace', 'l' => 'Marketplace',                'd' => 'Tipo MercadoLibre, multi-vendor'],
+                                ['v' => 'booking',     'l' => 'Sistema de reservas',        'd' => 'Citas, agenda, recordatorios'],
+                                ['v' => 'admin',       'l' => 'Sistema interno / CRM',      'd' => 'Operaciones, métricas, equipos'],
+                                ['v' => 'otros',       'l' => 'Otro',                       'd' => 'Cuéntanos abajo en detalle'],
+                            ];
+                        @endphp
+                        @foreach($tipos as $t)
+                            <button type="button" class="mt-cnt-chip {{ old('tipo_proyecto') === $t['v'] ? 'is-active' : '' }}"
+                                    data-chip-value="{{ $t['v'] }}" data-chip-target="tipo_proyecto">
+                                <span class="mt-cnt-chip-title">{{ $t['l'] }}</span>
+                                <span class="mt-cnt-chip-desc">{{ $t['d'] }}</span>
+                                <span class="mt-cnt-chip-check" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                </span>
+                            </button>
+                        @endforeach
                     </div>
                 </div>
-                
-                <button type="submit" class="submit-btn">
-                    <i class="fas fa-rocket"></i>
-                    {{ $data['form_submit_text'] ?? 'Enviar Proyecto y Recibir Propuesta' }}
-                </button>
-                
-                <div class="form-features">
-                    <div class="feature-item">
-                        <i class="fas fa-clock"></i>
-                        <h4>Respuesta en 24h</h4>
-                        <p>Te contactamos máximo en 24 horas</p>
+
+                {{-- Fieldset 3: presupuesto (chips) --}}
+                <div class="mt-cnt-fieldset" data-cnt-step>
+                    <div class="mt-cnt-fieldset-head">
+                        <span class="mt-cnt-fieldset-num">03</span>
+                        <h3>¿Cuál es tu presupuesto estimado?</h3>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-video"></i>
-                        <h4>Consultoría Gratuita</h4>
-                        <p>Primera videollamada sin costo</p>
+
+                    <input type="hidden" name="presupuesto" id="presupuesto" value="{{ old('presupuesto') }}" required>
+                    <div class="mt-cnt-chips mt-cnt-chips-budget" data-cnt-chip-group="presupuesto">
+                        @php
+                            $budgets = [
+                                ['v' => '0-300',     'l' => '< $300 USD',           'd' => 'Landing o sitio simple'],
+                                ['v' => '300-500',   'l' => '$300 – $500 USD',      'd' => 'Web profesional con CMS'],
+                                ['v' => '500-1000',  'l' => '$500 – $1,000 USD',    'd' => 'E-commerce o web compleja'],
+                                ['v' => '1000-2000', 'l' => '$1,000 – $2,000 USD',  'd' => 'App web o sistema interno'],
+                                ['v' => '2000+',     'l' => '$2,000+ USD',          'd' => 'SaaS, marketplace, integraciones'],
+                                ['v' => 'consultar', 'l' => 'Prefiero conversarlo', 'd' => 'Lo definimos en la reunión'],
+                            ];
+                        @endphp
+                        @foreach($budgets as $b)
+                            <button type="button" class="mt-cnt-chip {{ old('presupuesto') === $b['v'] ? 'is-active' : '' }}"
+                                    data-chip-value="{{ $b['v'] }}" data-chip-target="presupuesto">
+                                <span class="mt-cnt-chip-title">{{ $b['l'] }}</span>
+                                <span class="mt-cnt-chip-desc">{{ $b['d'] }}</span>
+                                <span class="mt-cnt-chip-check" aria-hidden="true">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                </span>
+                            </button>
+                        @endforeach
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-shield-alt"></i>
-                        <h4>Propuesta Personalizada</h4>
-                        <p>Diseñada específicamente para ti</p>
+                </div>
+
+                {{-- Fieldset 4: descripción --}}
+                <div class="mt-cnt-fieldset" data-cnt-step>
+                    <div class="mt-cnt-fieldset-head">
+                        <span class="mt-cnt-fieldset-num">04</span>
+                        <h3>Cuéntanos el detalle</h3>
                     </div>
-                    <div class="feature-item">
-                        <i class="fas fa-handshake"></i>
-                        <h4>Sin Compromiso</h4>
-                        <p>Analizamos tu proyecto gratis</p>
-                    </div>
+
+                    <label class="mt-cnt-field mt-cnt-field-textarea">
+                        <span class="mt-cnt-field-label">Descripción del proyecto *</span>
+                        <textarea name="descripcion" required rows="6" maxlength="2000" data-cnt-textarea
+                            placeholder="¿Qué problema resuelve? ¿Quién lo usará? ¿Qué necesitas que haga? ¿Tienes fecha objetivo? Mientras más detalles, mejor la propuesta.">{{ old('descripcion') }}</textarea>
+                        <span class="mt-cnt-field-line" aria-hidden="true"></span>
+                        <span class="mt-cnt-field-counter"><span data-cnt-counter>0</span> / 2000</span>
+                    </label>
+                </div>
+
+                {{-- Submit --}}
+                <div class="mt-cnt-submit-wrap">
+                    <button type="submit" class="mt-cnt-submit" data-cnt-submit>
+                        <span class="mt-cnt-submit-label">
+                            {{ $data['form_submit_text'] ?? 'Enviar y recibir propuesta' }}
+                            <span aria-hidden="true">→</span>
+                        </span>
+                        <span class="mt-cnt-submit-loading" aria-hidden="true">
+                            <span class="mt-cnt-spinner"></span>
+                            Enviando…
+                        </span>
+                    </button>
+                    <p class="mt-cnt-submit-foot">
+                        Al enviar aceptas que te contactemos por los medios proporcionados. Sin spam, jamás.
+                    </p>
                 </div>
             </form>
         </div>
     </div>
 </section>
 
-<!-- Map Section -->
-<section class="map-section">
-    <div class="container">
-        <div class="map-content">
-            <div class="map-info">
-                <h3>{{ $data['map_title'] ?? 'Nuestra Oficina en Bogotá' }}</h3>
-                <p>
-                    {{ $data['map_description'] ?? 'Trabajamos desde el corazón de Bogotá, Colombia, pero nuestro alcance es global. Desarrollamos proyectos para clientes en múltiples países, combinando la calidez del servicio colombiano con estándares internacionales.' }}
-                </p>
-                
-                <div class="info-grid">
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="{{ $data['info_1_icon'] ?? 'fas fa-map-marker-alt' }}"></i>
-                        </div>
-                        <div class="info-text">
-                            <h4>{{ $data['info_1_title'] ?? 'Ubicación' }}</h4>
-                            <p>{{ $data['info_1_text'] ?? 'Bogotá, Colombia' }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="{{ $data['info_2_icon'] ?? 'fas fa-clock' }}"></i>
-                        </div>
-                        <div class="info-text">
-                            <h4>{{ $data['info_2_title'] ?? 'Horario de Atención' }}</h4>
-                            <p>{{ $data['info_2_text'] ?? 'Lunes a Viernes: 8:00 AM - 6:00 PM (COT)' }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="{{ $data['info_3_icon'] ?? 'fas fa-globe' }}"></i>
-                        </div>
-                        <div class="info-text">
-                            <h4>{{ $data['info_3_title'] ?? 'Alcance' }}</h4>
-                            <p>{{ $data['info_3_text'] ?? 'Proyectos en América y Europa' }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="info-item">
-                        <div class="info-icon">
-                            <i class="{{ $data['info_4_icon'] ?? 'fas fa-headset' }}"></i>
-                        </div>
-                        <div class="info-text">
-                            <h4>{{ $data['info_4_title'] ?? 'Soporte' }}</h4>
-                            <p>{{ $data['info_4_text'] ?? 'Disponible 24/7 para proyectos activos' }}</p>
-                        </div>
-                    </div>
+{{-- ════════════════ TRUST STRIP ════════════════ --}}
+<section class="mt-cnt-trust">
+    <div class="mt-container">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-px bg-mt-border" data-animate-children>
+            @php
+                $trustItems = [
+                    ['n' => '< 24h', 't' => 'Respuesta garantizada', 'd' => 'A toda solicitud, de lunes a viernes.'],
+                    ['n' => 'Gratis', 't' => 'Diagnóstico inicial',  'd' => 'Sin condiciones ni letra chica.'],
+                    ['n' => '100%',   't' => 'Propuesta a medida',   'd' => 'No vendemos plantillas pre-armadas.'],
+                    ['n' => '0$',     't' => 'Sin compromiso',       'd' => 'Si no encaja, te lo decimos claro.'],
+                ];
+            @endphp
+            @foreach($trustItems as $ti)
+                <div class="mt-cnt-trust-cell">
+                    <span class="mt-cnt-trust-num">{{ $ti['n'] }}</span>
+                    <h4>{{ $ti['t'] }}</h4>
+                    <p>{{ $ti['d'] }}</p>
                 </div>
-            </div>
-            
-            <div class="map-container">
-                <div class="map-overlay">
-                    <h5>MY Tech Solutions</h5>
-                    <p>Desarrollo Web Profesional</p>
-                </div>
-                <iframe src="{{ $data['map_url'] ?? 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3249.012195470509!2d-74.13449935362908!3d4.600360674860746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1757988380012!5m2!1ses-419!2sco' }}" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                </iframe>
-            </div>
+            @endforeach
         </div>
     </div>
 </section>
+
+{{-- ════════════════ INFO + MAP ════════════════ --}}
+<section class="mt-cnt-map-section">
+    <div class="mt-container">
+        <div class="grid lg:grid-cols-12 gap-12 items-center">
+
+            <div class="lg:col-span-5" data-animate>
+                <span class="mt-eyebrow-gray">[ Dónde encontrarnos ]</span>
+                <h2 class="text-section font-display font-bold text-mt-text mt-3 leading-tight text-balance">
+                    {{ $data['map_title'] ?? 'Bogotá como base.' }}
+                    <span class="text-mt-accent italic">LATAM &amp; EU</span> como alcance.
+                </h2>
+                <p class="mt-5 text-mt-text-muted text-lg leading-relaxed">
+                    {{ $data['map_description'] ?? 'Operamos desde Colombia con clientes en siete países (CO, AR, CL, MX, GT, CR, ES). Asincronía cuando funciona, reuniones en vivo cuando hace falta. Tu zona horaria es el límite, no el nuestro.' }}
+                </p>
+
+                <div class="mt-cnt-info-grid">
+                    <div class="mt-cnt-info-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                        <div>
+                            <h4>Ubicación</h4>
+                            <p>{{ $data['info_1_text'] ?? 'Bogotá, Colombia' }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-cnt-info-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div>
+                            <h4>Horario</h4>
+                            <p>{{ $data['info_2_text'] ?? 'Lunes a viernes · 8:00 AM – 6:00 PM (COT)' }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-cnt-info-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <div>
+                            <h4>Alcance</h4>
+                            <p>{{ $data['info_3_text'] ?? 'Colombia · Argentina · México · España · USA' }}</p>
+                        </div>
+                    </div>
+                    <div class="mt-cnt-info-row">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                        <div>
+                            <h4>Soporte</h4>
+                            <p>{{ $data['info_4_text'] ?? '24/7 para proyectos activos con SLA' }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-7" data-animate>
+                <div class="mt-cnt-map-frame">
+                    <div class="mt-cnt-map-overlay">
+                        <span class="mt-cnt-map-overlay-eyebrow">MY Tech Solutions HQ</span>
+                        <span class="mt-cnt-map-overlay-title">Bogotá, Colombia</span>
+                    </div>
+                    <iframe src="{{ $data['map_url'] ?? 'https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d3249.012195470509!2d-74.13449935362908!3d4.600360674860746!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!5e0!3m2!1ses-419!2sco!4v1757988380012!5m2!1ses-419!2sco' }}"
+                            loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Ubicación MY Tech Solutions"></iframe>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</section>
+
 @endsection

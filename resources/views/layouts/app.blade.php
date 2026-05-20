@@ -195,7 +195,7 @@
                 "@type": "ContactPoint",
                 "telephone": "+57-333-724-6403",
                 "contactType": "sales",
-                "areaServed": ["CO", "MX", "US", "ES"],
+                "areaServed": ["CO", "AR", "CL", "MX", "GT", "CR", "ES"],
                 "availableLanguage": ["Spanish", "English"]
             }
         }

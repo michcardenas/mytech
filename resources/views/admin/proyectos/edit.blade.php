@@ -7,16 +7,39 @@
 <style>
     body, .container { background: #101820 !important; color: #FCFAF1; }
     .main-content { background: #1a252f; padding: 20px; border-radius: 8px; border: 1px solid #00A9E0; }
-    .form-section { background: #2a3441; border: 1px solid #00A9E0; border-radius: 8px; padding: 25px; margin-bottom: 20px; }
+    .form-section {
+        background: #2a3441;
+        border: 1px solid #00A9E0;
+        border-radius: 8px;
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+    .form-section h4 { color: #00A9E0 !important; }
+    .form-section.seo-section { border-color: #f7a831; }
+    .form-section.seo-section h4 { color: #f7a831 !important; }
+    .form-section.social-section { border-color: #25D366; }
+    .form-section.social-section h4 { color: #25D366 !important; }
+    .form-section.schema-section { border-color: #8B5CF6; }
+    .form-section.schema-section h4 { color: #8B5CF6 !important; }
     .form-control, .form-select, textarea { background: #101820; border: 1px solid #00A9E0; color: #FCFAF1; }
     .form-control:focus, .form-select:focus, textarea:focus { background: #101820; border-color: #f7a831; color: #FCFAF1; box-shadow: 0 0 0 0.2rem rgba(247, 168, 49, 0.25); }
     .btn-primary { background-color: #00A9E0; border-color: #00A9E0; }
     .btn-secondary { background-color: #6c757d; border-color: #6c757d; }
-    h2, h4 { color: #00A9E0 !important; }
+    h2 { color: #00A9E0 !important; }
     label { color: #FCFAF1; font-weight: 600; margin-bottom: 8px; }
     .form-check-input:checked { background-color: #00A9E0; border-color: #00A9E0; }
     .invalid-feedback { display: block; }
     .image-preview { max-width: 150px; max-height: 150px; border-radius: 10px; margin-top: 10px; background: white; padding: 5px; }
+    .hint { color: #9CA3AF; font-size: 0.825rem; margin-top: 4px; display: block; }
+    .hint code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #f7a831; }
+    .char-counter { color: #6c757d; font-size: 0.8rem; font-family: ui-monospace, "JetBrains Mono", monospace; text-align: right; display: block; margin-top: 4px; }
+    .char-counter.good { color: #10b981; }
+    .char-counter.warn { color: #f7a831; }
+    .char-counter.bad { color: #ef4444; }
+    .serp-preview { background: #FFFFFF; color: #202124; padding: 16px 20px; border-radius: 8px; font-family: arial, sans-serif; margin-top: 12px; max-width: 600px; }
+    .serp-preview-url { color: #202124; font-size: 14px; }
+    .serp-preview-title { color: #1a0dab; font-size: 20px; line-height: 1.3; margin: 4px 0 8px; }
+    .serp-preview-desc { color: #4d5156; font-size: 14px; line-height: 1.58; }
 
     /* Quill Editor Dark Theme */
     .ql-container { background: #101820; border: 1px solid #00A9E0; color: #FCFAF1; min-height: 150px; }
@@ -33,6 +56,8 @@
     .ql-toolbar button:hover .ql-fill { fill: #00A9E0; }
     .ql-toolbar button.ql-active .ql-stroke { stroke: #00A9E0; }
     .ql-toolbar button.ql-active .ql-fill { fill: #00A9E0; }
+
+    .seo-badge { display: inline-block; background: #f7a831; color: #101820; padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; font-weight: 700; margin-left: 8px; vertical-align: middle; text-transform: uppercase; letter-spacing: 0.04em; }
 </style>
 
 <div class="main-content">
@@ -42,585 +67,523 @@
                 <h2 class="mb-1">✏️ Editar Proyecto</h2>
                 <p class="text-light mb-0">{{ $proyecto->nombre }}</p>
             </div>
-            <a href="{{ route('admin.proyectos.index') }}" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Volver
-            </a>
+            <div class="d-flex gap-2">
+                <a href="{{ route('proyectos.show', $proyecto->slug) }}" target="_blank" class="btn btn-outline-info">
+                    <i class="fas fa-external-link-alt"></i> Ver en vivo
+                </a>
+                <a href="{{ route('admin.proyectos.index') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
         </div>
 
-        <form action="{{ route('admin.proyectos.update', $proyecto) }}" method="POST" enctype="multipart/form-data">
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <strong>Errores:</strong>
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form action="{{ route('admin.proyectos.update', $proyecto) }}" method="POST" enctype="multipart/form-data" id="proyectoForm">
             @csrf
             @method('PUT')
 
-            <!-- Información Básica -->
+            {{-- 1. INFORMACIÓN BÁSICA --}}
             <div class="form-section">
                 <h4 class="mb-3"><i class="fas fa-info-circle me-2"></i>Información Básica</h4>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="nombre" class="form-label">Nombre del Proyecto *</label>
-                        <input type="text" class="form-control @error('nombre') is-invalid @enderror"
-                               id="nombre" name="nombre" value="{{ old('nombre', $proyecto->nombre) }}" required>
-                        @error('nombre')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <div class="row g-3">
+                    <div class="col-md-8">
+                        <label for="nombre">Nombre del Proyecto <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="nombre" name="nombre"
+                               value="{{ old('nombre', $proyecto->nombre) }}" required maxlength="255">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="slug">URL slug</label>
+                        <input type="text" class="form-control" id="slug" name="slug"
+                               value="{{ old('slug', $proyecto->slug) }}" pattern="[a-z0-9\-]+" maxlength="255">
+                        <span class="hint">URL: <code>/proyectos/<span id="slugPreview">{{ $proyecto->slug }}</span></code></span>
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label for="pais" class="form-label">País *</label>
-                        <input type="text" class="form-control @error('pais') is-invalid @enderror"
-                               id="pais" name="pais" value="{{ old('pais', $proyecto->pais) }}" required>
-                        @error('pais')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-6">
+                        <label for="pais">País <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="pais" name="pais"
+                               value="{{ old('pais', $proyecto->pais) }}" required maxlength="100">
+                    </div>
+                    <div class="col-md-2">
+                        <label for="bandera_emoji">Bandera <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="bandera_emoji" name="bandera_emoji"
+                               value="{{ old('bandera_emoji', $proyecto->bandera_emoji) }}" required maxlength="10">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="badge_text">Badge / Tagline <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="badge_text" name="badge_text"
+                               value="{{ old('badge_text', $proyecto->badge_text) }}" required maxlength="255">
                     </div>
 
-                    <div class="col-md-3 mb-3">
-                        <label for="bandera_emoji" class="form-label">Bandera Emoji *</label>
-                        <input type="text" class="form-control @error('bandera_emoji') is-invalid @enderror"
-                               id="bandera_emoji" name="bandera_emoji" value="{{ old('bandera_emoji', $proyecto->bandera_emoji) }}" required>
-                        @error('bandera_emoji')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-12">
+                        <label for="descripcion">Descripción Corta <span class="text-danger">*</span></label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" rows="3"
+                                  required maxlength="500">{{ old('descripcion', $proyecto->descripcion) }}</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="url">URL del proyecto en vivo</label>
+                        <input type="url" class="form-control" id="url" name="url"
+                               value="{{ old('url', $proyecto->url) }}">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="tecnologias">Tecnologías (separadas por coma) <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="tecnologias" name="tecnologias"
+                               value="{{ old('tecnologias', is_array($proyecto->tecnologias) ? implode(', ', $proyecto->tecnologias) : $proyecto->tecnologias) }}" required>
                     </div>
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="categoria" class="form-label">Categoría *</label>
-                        <select class="form-select @error('categoria') is-invalid @enderror"
-                                id="categoria" name="categoria" required>
-                            <option value="">Selecciona una categoría</option>
-                            <option value="travel" {{ old('categoria', $proyecto->categoria) == 'travel' ? 'selected' : '' }}>🌍 Viajes & Movilidad</option>
-                            <option value="booking" {{ old('categoria', $proyecto->categoria) == 'booking' ? 'selected' : '' }}>🏨 Reservas & Booking</option>
-                            <option value="restaurant" {{ old('categoria', $proyecto->categoria) == 'restaurant' ? 'selected' : '' }}>🍽️ Gastronomía</option>
-                            <option value="admin" {{ old('categoria', $proyecto->categoria) == 'admin' ? 'selected' : '' }}>⚙️ Gestión & Admin</option>
-                            <option value="legal" {{ old('categoria', $proyecto->categoria) == 'legal' ? 'selected' : '' }}>⚖️ Legal & Corporativo</option>
-                            <option value="tech" {{ old('categoria', $proyecto->categoria) == 'tech' ? 'selected' : '' }}>💻 Tecnología</option>
-                            <option value="ecommerce" {{ old('categoria', $proyecto->categoria) == 'ecommerce' ? 'selected' : '' }}>🛒 E-commerce a medida / Plataforma Web Personalizada</option>
+            {{-- 2. CATEGORIZACIÓN & CLIENTE --}}
+            <div class="form-section">
+                <h4 class="mb-3"><i class="fas fa-tags me-2"></i>Categorización & Cliente</h4>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="categoria">Categoría <span class="text-danger">*</span></label>
+                        <select class="form-select" id="categoria" name="categoria" required>
+                            @foreach(['ecommerce','admin','tech','automation','travel','booking','restaurant','legal'] as $cat)
+                                <option value="{{ $cat }}" {{ old('categoria', $proyecto->categoria) === $cat ? 'selected' : '' }}>{{ ucfirst($cat) }}</option>
+                            @endforeach
                         </select>
-                        @error('categoria')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="badge_text" class="form-label">Texto del Badge *</label>
-                        <input type="text" class="form-control @error('badge_text') is-invalid @enderror"
-                               id="badge_text" name="badge_text" value="{{ old('badge_text', $proyecto->badge_text) }}" required>
-                        @error('badge_text')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-4">
+                        <label for="industria">Industria / Vertical</label>
+                        <input type="text" class="form-control" id="industria" name="industria"
+                               value="{{ old('industria', $proyecto->industria) }}" maxlength="120">
                     </div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="descripcion" class="form-label">Descripción *</label>
-                    <div id="descripcion-editor" style="min-height: 150px;"></div>
-                    <textarea class="form-control d-none @error('descripcion') is-invalid @enderror"
-                              id="descripcion" name="descripcion" rows="3" required>{{ old('descripcion', $proyecto->descripcion) }}</textarea>
-                    @error('descripcion')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Breve descripción del proyecto - Usa el editor para formato</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="url" class="form-label">URL del Proyecto</label>
-                    <input type="url" class="form-control @error('url') is-invalid @enderror"
-                           id="url" name="url" value="{{ old('url', $proyecto->url) }}">
-                    @error('url')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-            </div>
-
-            <!-- Logo y Tecnologías -->
-            <div class="form-section">
-                <h4 class="mb-3"><i class="fas fa-image me-2"></i>Logo y Tecnologías</h4>
-
-                <div class="mb-3">
-                    <label for="logo" class="form-label">Logo del Proyecto</label>
-
-                    @if($proyecto->logo)
-                        <div class="mb-2">
-                            <img src="{{ asset('storage/' . $proyecto->logo) }}" alt="{{ $proyecto->nombre }}" class="image-preview">
-                            <p class="text-muted small mt-1">Logo actual</p>
-                        </div>
-                    @endif
-
-                    <input type="file" class="form-control @error('logo') is-invalid @enderror"
-                           id="logo" name="logo" accept="image/*" onchange="previewImage(event)">
-                    @error('logo')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Sube un nuevo logo solo si quieres cambiarlo</small>
-                    <div id="preview-container"></div>
-                </div>
-
-                <div class="mb-3">
-                    <label for="tecnologias" class="form-label">Tecnologías *</label>
-                    <input type="text" class="form-control @error('tecnologias') is-invalid @enderror"
-                           id="tecnologias" name="tecnologias"
-                           value="{{ old('tecnologias', is_array($proyecto->tecnologias) ? implode(', ', $proyecto->tecnologias) : $proyecto->tecnologias) }}" required>
-                    @error('tecnologias')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Separa las tecnologías con comas</small>
-                </div>
-            </div>
-
-            <!-- Estado y Opciones -->
-            <div class="form-section">
-                <h4 class="mb-3"><i class="fas fa-cog me-2"></i>Estado y Opciones</h4>
-
-                <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <label for="estado" class="form-label">Estado del Proyecto *</label>
-                        <select class="form-select @error('estado') is-invalid @enderror"
-                                id="estado" name="estado" required>
-                            <option value="en_vivo" {{ old('estado', $proyecto->estado) == 'en_vivo' ? 'selected' : '' }}>🟢 En Vivo</option>
-                            <option value="en_desarrollo" {{ old('estado', $proyecto->estado) == 'en_desarrollo' ? 'selected' : '' }}>🟡 En Desarrollo</option>
-                            <option value="pausado" {{ old('estado', $proyecto->estado) == 'pausado' ? 'selected' : '' }}>⚫ Pausado</option>
+                    <div class="col-md-4">
+                        <label for="client_size">Tamaño del cliente</label>
+                        <select class="form-select" id="client_size" name="client_size">
+                            <option value="">— Sin especificar —</option>
+                            @foreach(['startup'=>'Startup','pyme'=>'PyME','empresa'=>'Empresa','enterprise'=>'Enterprise'] as $k=>$v)
+                                <option value="{{ $k }}" {{ old('client_size', $proyecto->client_size) === $k ? 'selected' : '' }}>{{ $v }}</option>
+                            @endforeach
                         </select>
-                        @error('estado')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
                     </div>
 
-                    <div class="col-md-4 mb-3">
-                        <label for="orden" class="form-label">Orden de Visualización</label>
-                        <input type="number" class="form-control @error('orden') is-invalid @enderror"
-                               id="orden" name="orden" value="{{ old('orden', $proyecto->orden) }}" min="0">
-                        @error('orden')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
-                        <small class="text-muted">Menor número = aparece primero</small>
+                    <div class="col-md-3">
+                        <label for="estado">Estado <span class="text-danger">*</span></label>
+                        <select class="form-select" id="estado" name="estado" required>
+                            <option value="en_vivo" {{ old('estado', $proyecto->estado) === 'en_vivo' ? 'selected' : '' }}>🟢 En Vivo</option>
+                            <option value="en_desarrollo" {{ old('estado', $proyecto->estado) === 'en_desarrollo' ? 'selected' : '' }}>🟡 En Desarrollo</option>
+                            <option value="pausado" {{ old('estado', $proyecto->estado) === 'pausado' ? 'selected' : '' }}>⚪ Pausado</option>
+                        </select>
                     </div>
-
-                    <div class="col-md-4 mb-3">
-                        <label class="form-label d-block">Opciones</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="destacado" name="destacado"
-                                   value="1" {{ old('destacado', $proyecto->destacado) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="destacado">
-                                ⭐ Destacado
-                            </label>
+                    <div class="col-md-3">
+                        <label for="orden">Orden</label>
+                        <input type="number" class="form-control" id="orden" name="orden"
+                               value="{{ old('orden', $proyecto->orden) }}" min="0">
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="destacado" name="destacado" value="1" {{ old('destacado', $proyecto->destacado) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="destacado">⭐ Destacado</label>
                         </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="checkbox" id="activo" name="activo"
-                                   value="1" {{ old('activo', $proyecto->activo) ? 'checked' : '' }}>
-                            <label class="form-check-label" for="activo">
-                                ✅ Activo
-                            </label>
+                    </div>
+                    <div class="col-md-3 d-flex align-items-end">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="activo" name="activo" value="1" {{ old('activo', $proyecto->activo) ? 'checked' : '' }}>
+                            <label class="form-check-label" for="activo">✅ Activo</label>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Contenido Extendido -->
+            {{-- 3. LOGO --}}
             <div class="form-section">
-                <h4 class="mb-3"><i class="fas fa-file-alt me-2"></i>Contenido Extendido (Para página individual)</h4>
-                <p class="text-muted small mb-4">Este contenido se mostrará en la página individual del proyecto</p>
-
-                <div class="mb-3">
-                    <label for="descripcion_extendida" class="form-label">Descripción Extendida</label>
-                    <div id="descripcion_extendida-editor" style="min-height: 200px;"></div>
-                    <textarea class="form-control d-none @error('descripcion_extendida') is-invalid @enderror"
-                              id="descripcion_extendida" name="descripcion_extendida" rows="4">{{ old('descripcion_extendida', $proyecto->descripcion_extendida) }}</textarea>
-                    @error('descripcion_extendida')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Descripción completa y detallada del proyecto - Usa el editor para formato</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="desafio" class="form-label">El Desafío</label>
-                    <div id="desafio-editor" style="min-height: 150px;"></div>
-                    <textarea class="form-control d-none @error('desafio') is-invalid @enderror"
-                              id="desafio" name="desafio" rows="3">{{ old('desafio', $proyecto->desafio) }}</textarea>
-                    @error('desafio')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">¿Qué problema resolvió este proyecto? - Usa el editor para formato</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="solucion" class="form-label">La Solución</label>
-                    <div id="solucion-editor" style="min-height: 150px;"></div>
-                    <textarea class="form-control d-none @error('solucion') is-invalid @enderror"
-                              id="solucion" name="solucion" rows="3">{{ old('solucion', $proyecto->solucion) }}</textarea>
-                    @error('solucion')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">¿Cómo se resolvió el problema? - Usa el editor para formato</small>
-                </div>
-
-                <div class="mb-3">
-                    <label for="resultados" class="form-label">Resultados</label>
-                    <div id="resultados-editor" style="min-height: 150px;"></div>
-                    <textarea class="form-control d-none @error('resultados') is-invalid @enderror"
-                              id="resultados" name="resultados" rows="3">{{ old('resultados', $proyecto->resultados) }}</textarea>
-                    @error('resultados')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Métricas, logros o impacto del proyecto - Usa el editor para formato</small>
-                </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="duracion_desarrollo" class="form-label">Duración del Desarrollo</label>
-                        <input type="text" class="form-control @error('duracion_desarrollo') is-invalid @enderror"
-                               id="duracion_desarrollo" name="duracion_desarrollo" value="{{ old('duracion_desarrollo', $proyecto->duracion_desarrollo) }}"
-                               placeholder="Ej: 3 meses">
-                        @error('duracion_desarrollo')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <h4 class="mb-3"><i class="fas fa-image me-2"></i>Logo del Proyecto</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="logo">Archivo del logo</label>
+                        @if($proyecto->logo)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/'.$proyecto->logo) }}" class="image-preview" alt="Logo actual">
+                            </div>
+                        @endif
+                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
+                        <span class="hint">Si subes uno nuevo, reemplaza el actual.</span>
                     </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="equipo_size" class="form-label">Tamaño del Equipo</label>
-                        <input type="number" class="form-control @error('equipo_size') is-invalid @enderror"
-                               id="equipo_size" name="equipo_size" value="{{ old('equipo_size', $proyecto->equipo_size) }}"
-                               placeholder="Ej: 3" min="1">
-                        @error('equipo_size')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-6">
+                        <label for="alt_logo">Alt text del logo <span class="seo-badge">SEO</span></label>
+                        <input type="text" class="form-control" id="alt_logo" name="alt_logo"
+                               value="{{ old('alt_logo', $proyecto->alt_logo) }}" maxlength="255">
                     </div>
                 </div>
+            </div>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="fecha_lanzamiento" class="form-label">Fecha de Lanzamiento</label>
-                        <input type="date" class="form-control @error('fecha_lanzamiento') is-invalid @enderror"
-                               id="fecha_lanzamiento" name="fecha_lanzamiento"
-                               value="{{ old('fecha_lanzamiento', $proyecto->fecha_lanzamiento ? $proyecto->fecha_lanzamiento->format('Y-m-d') : '') }}">
-                        @error('fecha_lanzamiento')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+            {{-- 4. SEO ESENCIAL --}}
+            <div class="form-section seo-section">
+                <h4 class="mb-3"><i class="fas fa-search me-2"></i>SEO Esencial <span class="seo-badge">Core</span></h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="focus_keyword">Focus keyword (1 sola)</label>
+                        <input type="text" class="form-control" id="focus_keyword" name="focus_keyword"
+                               value="{{ old('focus_keyword', $proyecto->focus_keyword) }}" maxlength="120">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="secondary_keywords">Keywords secundarias (CSV)</label>
+                        <input type="text" class="form-control" id="secondary_keywords" name="secondary_keywords"
+                               value="{{ old('secondary_keywords', is_array($proyecto->secondary_keywords) ? implode(', ', $proyecto->secondary_keywords) : '') }}">
                     </div>
 
-                    <div class="col-md-6 mb-3">
-                        <label for="visitas_mensuales" class="form-label">Visitas Mensuales</label>
-                        <input type="number" class="form-control @error('visitas_mensuales') is-invalid @enderror"
-                               id="visitas_mensuales" name="visitas_mensuales" value="{{ old('visitas_mensuales', $proyecto->visitas_mensuales) }}"
-                               placeholder="Ej: 50000" min="0">
-                        @error('visitas_mensuales')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-12">
+                        <label for="meta_title">Meta Title <span class="seo-badge">SEO</span></label>
+                        <input type="text" class="form-control" id="meta_title" name="meta_title"
+                               value="{{ old('meta_title', $proyecto->meta_title) }}" maxlength="150">
+                        <span class="char-counter" id="counter_meta_title">0 / 60 chars</span>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="meta_description">Meta Description <span class="seo-badge">SEO</span></label>
+                        <textarea class="form-control" id="meta_description" name="meta_description" rows="2"
+                                  maxlength="300">{{ old('meta_description', $proyecto->meta_description) }}</textarea>
+                        <span class="char-counter" id="counter_meta_description">0 / 160 chars</span>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="excerpt">Excerpt / Resumen corto</label>
+                        <textarea class="form-control" id="excerpt" name="excerpt" rows="2" maxlength="500">{{ old('excerpt', $proyecto->excerpt) }}</textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="canonical_url">Canonical URL</label>
+                        <input type="url" class="form-control" id="canonical_url" name="canonical_url"
+                               value="{{ old('canonical_url', $proyecto->canonical_url) }}" maxlength="500">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="robots">Robots</label>
+                        <select class="form-select" id="robots" name="robots">
+                            @foreach([
+                                'index,follow' => '✅ index, follow',
+                                'noindex,follow' => '🚫 noindex, follow',
+                                'index,nofollow' => '⚠️ index, nofollow',
+                                'noindex,nofollow' => '❌ noindex, nofollow'
+                            ] as $val => $label)
+                                <option value="{{ $val }}" {{ old('robots', $proyecto->robots) === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="text-warning">📺 Vista previa Google (SERP)</label>
+                        <div class="serp-preview">
+                            <div class="serp-preview-url">mytechsolutionsco.com › proyectos › <span id="serpSlug">{{ $proyecto->slug }}</span></div>
+                            <div class="serp-preview-title" id="serpTitle">{{ $proyecto->meta_title ?: $proyecto->nombre.' — MY Tech Solutions' }}</div>
+                            <div class="serp-preview-desc" id="serpDesc">{{ $proyecto->meta_description ?: 'La meta description aparecerá aquí.' }}</div>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label for="meta_keywords">Meta Keywords (legacy)</label>
+                        <input type="text" class="form-control" id="meta_keywords" name="meta_keywords"
+                               value="{{ old('meta_keywords', $proyecto->meta_keywords) }}" maxlength="255">
                     </div>
                 </div>
+            </div>
 
+            {{-- 5. OPEN GRAPH --}}
+            <div class="form-section social-section">
+                <h4 class="mb-3"><i class="fab fa-facebook me-2"></i>Open Graph <span class="seo-badge" style="background:#1877F2;color:#fff;">Social</span></h4>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label for="og_title">OG Title</label>
+                        <input type="text" class="form-control" id="og_title" name="og_title"
+                               value="{{ old('og_title', $proyecto->og_title) }}" maxlength="150">
+                    </div>
+                    <div class="col-12">
+                        <label for="og_description">OG Description</label>
+                        <textarea class="form-control" id="og_description" name="og_description" rows="2" maxlength="300">{{ old('og_description', $proyecto->og_description) }}</textarea>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="og_image">OG Image (1200×630)</label>
+                        @if($proyecto->og_image)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/'.$proyecto->og_image) }}" class="image-preview" alt="OG actual">
+                            </div>
+                        @endif
+                        <input type="file" class="form-control" id="og_image" name="og_image" accept="image/*">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="alt_og_image">Alt OG Image</label>
+                        <input type="text" class="form-control" id="alt_og_image" name="alt_og_image"
+                               value="{{ old('alt_og_image', $proyecto->alt_og_image) }}" maxlength="255">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="og_type">OG Type</label>
+                        <select class="form-select" id="og_type" name="og_type">
+                            @foreach(['article'=>'article', 'website'=>'website', 'product'=>'product'] as $val => $label)
+                                <option value="{{ $val }}" {{ old('og_type', $proyecto->og_type ?: 'article') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 6. TWITTER --}}
+            <div class="form-section social-section" style="border-color:#1DA1F2;">
+                <h4 class="mb-3" style="color:#1DA1F2 !important;"><i class="fab fa-twitter me-2"></i>Twitter / X Cards</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="twitter_card">Tipo de card</label>
+                        <select class="form-select" id="twitter_card" name="twitter_card">
+                            @foreach(['summary_large_image'=>'Summary Large Image','summary'=>'Summary','app'=>'App','player'=>'Player'] as $val => $label)
+                                <option value="{{ $val }}" {{ old('twitter_card', $proyecto->twitter_card ?: 'summary_large_image') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-md-6">
+                        <label for="twitter_image">Twitter Image (override)</label>
+                        @if($proyecto->twitter_image)
+                            <div class="mb-2">
+                                <img src="{{ asset('storage/'.$proyecto->twitter_image) }}" class="image-preview" alt="Twitter actual">
+                            </div>
+                        @endif
+                        <input type="file" class="form-control" id="twitter_image" name="twitter_image" accept="image/*">
+                    </div>
+                    <div class="col-12">
+                        <label for="twitter_title">Twitter Title</label>
+                        <input type="text" class="form-control" id="twitter_title" name="twitter_title"
+                               value="{{ old('twitter_title', $proyecto->twitter_title) }}" maxlength="150">
+                    </div>
+                    <div class="col-12">
+                        <label for="twitter_description">Twitter Description</label>
+                        <textarea class="form-control" id="twitter_description" name="twitter_description" rows="2" maxlength="300">{{ old('twitter_description', $proyecto->twitter_description) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 7. SCHEMA.ORG --}}
+            <div class="form-section schema-section">
+                <h4 class="mb-3"><i class="fas fa-code me-2"></i>Schema.org Structured Data</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="schema_type">Schema Type</label>
+                        <select class="form-select" id="schema_type" name="schema_type">
+                            @foreach([
+                                'CreativeWork' => 'CreativeWork (default)',
+                                'SoftwareApplication' => 'SoftwareApplication',
+                                'Service' => 'Service',
+                                'Product' => 'Product',
+                                'WebApplication' => 'WebApplication',
+                                'MobileApplication' => 'MobileApplication',
+                            ] as $val => $label)
+                                <option value="{{ $val }}" {{ old('schema_type', $proyecto->schema_type ?: 'CreativeWork') === $val ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+                    <div class="col-12">
+                        <label for="schema_markup">Schema JSON-LD custom (override)</label>
+                        <textarea class="form-control" id="schema_markup" name="schema_markup" rows="6"
+                                  style="font-family: ui-monospace, monospace; font-size: 0.85rem;">{{ old('schema_markup', $proyecto->schema_markup) }}</textarea>
+                    </div>
+                </div>
+            </div>
+
+            {{-- 8. METADATA AVANZADA --}}
+            <div class="form-section">
+                <h4 class="mb-3"><i class="fas fa-pen me-2"></i>Metadata Avanzada</h4>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <label for="breadcrumb_title">Breadcrumb title</label>
+                        <input type="text" class="form-control" id="breadcrumb_title" name="breadcrumb_title"
+                               value="{{ old('breadcrumb_title', $proyecto->breadcrumb_title) }}" maxlength="120">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="author">Autor</label>
+                        <input type="text" class="form-control" id="author" name="author"
+                               value="{{ old('author', $proyecto->author ?: 'MY Tech Solutions') }}" maxlength="120">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="reading_time">Tiempo de lectura (min)</label>
+                        <input type="number" class="form-control" id="reading_time" name="reading_time"
+                               value="{{ old('reading_time', $proyecto->reading_time) }}" min="1" max="120">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="publicado_en">Fecha publicación SEO</label>
+                        <input type="date" class="form-control" id="publicado_en" name="publicado_en"
+                               value="{{ old('publicado_en', $proyecto->publicado_en?->format('Y-m-d')) }}">
+                    </div>
+                </div>
+            </div>
+
+            {{-- 9. RECURSOS EXTERNOS --}}
+            <div class="form-section">
+                <h4 class="mb-3"><i class="fas fa-external-link-alt me-2"></i>Recursos externos</h4>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="case_study_url">URL externa del case study</label>
+                        <input type="url" class="form-control" id="case_study_url" name="case_study_url"
+                               value="{{ old('case_study_url', $proyecto->case_study_url) }}" maxlength="500">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="video_url">URL del video</label>
+                        <input type="url" class="form-control" id="video_url" name="video_url"
+                               value="{{ old('video_url', $proyecto->video_url) }}" maxlength="500">
+                    </div>
+                </div>
+            </div>
+
+            {{-- 10. CONTENIDO EXTENDIDO --}}
+            <div class="form-section">
+                <h4 class="mb-3"><i class="fas fa-book me-2"></i>Contenido Extendido del Caso</h4>
                 <div class="mb-3">
-                    <label for="galeria" class="form-label">Galería de Imágenes</label>
-
-                    @if($proyecto->galeria && count($proyecto->galeria) > 0)
-                        <div class="mb-2 d-flex flex-wrap gap-2">
-                            @foreach($proyecto->galeria as $imagen)
-                                <img src="{{ asset('storage/' . $imagen) }}" alt="Galería" class="image-preview" style="max-width: 100px; max-height: 100px;">
+                    <label>Descripción Extendida</label>
+                    <input type="hidden" name="descripcion_extendida" id="descripcion_extendida" value="{{ old('descripcion_extendida', $proyecto->descripcion_extendida) }}">
+                    <div id="editor_descripcion_extendida"></div>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label>🎯 El Desafío</label>
+                        <input type="hidden" name="desafio" id="desafio" value="{{ old('desafio', $proyecto->desafio) }}">
+                        <div id="editor_desafio"></div>
+                    </div>
+                    <div class="col-md-6">
+                        <label>💡 La Solución</label>
+                        <input type="hidden" name="solucion" id="solucion" value="{{ old('solucion', $proyecto->solucion) }}">
+                        <div id="editor_solucion"></div>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label>📈 Resultados</label>
+                    <input type="hidden" name="resultados" id="resultados" value="{{ old('resultados', $proyecto->resultados) }}">
+                    <div id="editor_resultados"></div>
+                </div>
+                <div class="mt-3">
+                    <label for="galeria">📸 Galería (reemplaza la actual al subir)</label>
+                    @if($proyecto->galeria && is_array($proyecto->galeria) && count($proyecto->galeria))
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            @foreach($proyecto->galeria as $g)
+                                <img src="{{ asset('storage/'.$g) }}" style="max-height:80px; border-radius:4px;">
                             @endforeach
                         </div>
-                        <p class="text-muted small">Imágenes actuales de la galería</p>
                     @endif
-
-                    <input type="file" class="form-control @error('galeria.*') is-invalid @enderror"
-                           id="galeria" name="galeria[]" accept="image/*" multiple onchange="previewGallery(event)">
-                    @error('galeria.*')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Selecciona nuevas imágenes para reemplazar la galería completa (máx 2MB c/u)</small>
-                    <div id="gallery-preview-container" class="d-flex flex-wrap gap-2 mt-2"></div>
+                    <input type="file" class="form-control" id="galeria" name="galeria[]" accept="image/*" multiple>
                 </div>
             </div>
 
-            <!-- Testimonio -->
+            {{-- 11. TESTIMONIO --}}
             <div class="form-section">
-                <h4 class="mb-3"><i class="fas fa-quote-right me-2"></i>Testimonio del Cliente</h4>
-
+                <h4 class="mb-3"><i class="fas fa-quote-left me-2"></i>Testimonio del Cliente</h4>
                 <div class="mb-3">
-                    <label for="testimonio" class="form-label">Testimonio</label>
-                    <textarea class="form-control @error('testimonio') is-invalid @enderror"
-                              id="testimonio" name="testimonio" rows="3">{{ old('testimonio', $proyecto->testimonio) }}</textarea>
-                    @error('testimonio')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">Quote o comentario del cliente sobre el proyecto</small>
+                    <label for="testimonio">Quote</label>
+                    <textarea class="form-control" id="testimonio" name="testimonio" rows="3">{{ old('testimonio', $proyecto->testimonio) }}</textarea>
                 </div>
-
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="testimonio_autor" class="form-label">Nombre del Cliente</label>
-                        <input type="text" class="form-control @error('testimonio_autor') is-invalid @enderror"
-                               id="testimonio_autor" name="testimonio_autor" value="{{ old('testimonio_autor', $proyecto->testimonio_autor) }}"
-                               placeholder="Ej: Juan Pérez">
-                        @error('testimonio_autor')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="testimonio_autor">Autor</label>
+                        <input type="text" class="form-control" id="testimonio_autor" name="testimonio_autor"
+                               value="{{ old('testimonio_autor', $proyecto->testimonio_autor) }}" maxlength="255">
                     </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label for="testimonio_cargo" class="form-label">Cargo del Cliente</label>
-                        <input type="text" class="form-control @error('testimonio_cargo') is-invalid @enderror"
-                               id="testimonio_cargo" name="testimonio_cargo" value="{{ old('testimonio_cargo', $proyecto->testimonio_cargo) }}"
-                               placeholder="Ej: CEO de Empresa XYZ">
-                        @error('testimonio_cargo')
-                            <div class="invalid-feedback">{{ $message }}</div>
-                        @enderror
+                    <div class="col-md-6">
+                        <label for="testimonio_cargo">Cargo</label>
+                        <input type="text" class="form-control" id="testimonio_cargo" name="testimonio_cargo"
+                               value="{{ old('testimonio_cargo', $proyecto->testimonio_cargo) }}" maxlength="255">
                     </div>
                 </div>
             </div>
 
-            <!-- SEO COMPLETO -->
+            {{-- 12. MÉTRICAS --}}
             <div class="form-section">
-                <h4 class="mb-3"><i class="fas fa-search me-2"></i>Optimización SEO Completa</h4>
-                <p class="text-muted small mb-4">🎯 Optimiza la visibilidad del proyecto en Google y redes sociales</p>
-
-                <div class="mb-4">
-                    <label for="meta_title" class="form-label">
-                        Meta Título SEO *
-                        <span class="badge bg-info ms-2">Recomendado: 50-60 caracteres</span>
-                    </label>
-                    <input type="text" class="form-control @error('meta_title') is-invalid @enderror"
-                           id="meta_title" name="meta_title" value="{{ old('meta_title', $proyecto->meta_title) }}"
-                           placeholder="Ej: {{ $proyecto->nombre }} - Desarrollo Web Profesional Laravel | MY Tech"
-                           maxlength="255"
-                           oninput="countChars(this, 'title-count', 60)">
-                    <div class="d-flex justify-content-between align-items-center mt-1">
-                        <small class="text-muted">Título optimizado que aparecerá en Google</small>
-                        <small id="title-count" class="text-info">0 caracteres</small>
+                <h4 class="mb-3"><i class="fas fa-chart-line me-2"></i>Métricas del Proyecto</h4>
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <label for="duracion_desarrollo">Duración</label>
+                        <input type="text" class="form-control" id="duracion_desarrollo" name="duracion_desarrollo"
+                               value="{{ old('duracion_desarrollo', $proyecto->duracion_desarrollo) }}" maxlength="100">
                     </div>
-                    @error('meta_title')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-4">
-                    <label for="meta_description" class="form-label">
-                        Meta Descripción SEO *
-                        <span class="badge bg-info ms-2">Recomendado: 150-160 caracteres</span>
-                    </label>
-                    <textarea class="form-control @error('meta_description') is-invalid @enderror"
-                              id="meta_description" name="meta_description" rows="3"
-                              maxlength="500"
-                              placeholder="Descripción atractiva que incluya palabras clave y llame a la acción. Ej: Plataforma web desarrollada con Laravel para {{ $proyecto->pais }}. Sistema completo de {{ $proyecto->categoria }} con arquitectura moderna y diseño responsive."
-                              oninput="countChars(this, 'desc-count', 160)">{{ old('meta_description', $proyecto->meta_description) }}</textarea>
-                    <div class="d-flex justify-content-between align-items-center mt-1">
-                        <small class="text-muted">Descripción que aparecerá en los resultados de búsqueda</small>
-                        <small id="desc-count" class="text-info">0 caracteres</small>
+                    <div class="col-md-3">
+                        <label for="equipo_size">Tamaño equipo</label>
+                        <input type="number" class="form-control" id="equipo_size" name="equipo_size"
+                               value="{{ old('equipo_size', $proyecto->equipo_size) }}" min="1">
                     </div>
-                    @error('meta_description')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <div class="mb-4">
-                    <label for="meta_keywords" class="form-label">
-                        Palabras Clave (Keywords)
-                        <span class="badge bg-secondary ms-2">5-10 palabras clave</span>
-                    </label>
-                    <input type="text" class="form-control @error('meta_keywords') is-invalid @enderror"
-                           id="meta_keywords" name="meta_keywords" value="{{ old('meta_keywords', $proyecto->meta_keywords) }}"
-                           placeholder="desarrollo web, laravel, {{ strtolower($proyecto->pais) }}, {{ $proyecto->categoria }}, plataforma online, sistema web">
-                    <small class="text-muted">Separa las palabras clave con comas. Incluye términos relevantes para SEO</small>
-                    @error('meta_keywords')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                </div>
-
-                <hr class="my-4" style="border-color: #00A9E0;">
-                <h5 class="mb-3 text-info"><i class="fab fa-facebook me-2"></i>Open Graph (Facebook, LinkedIn, WhatsApp)</h5>
-
-                <div class="mb-3">
-                    <label for="og_image" class="form-label">
-                        Imagen para Redes Sociales (OG Image)
-                        <span class="badge bg-warning text-dark ms-2">Tamaño ideal: 1200x630px</span>
-                    </label>
-
-                    @if($proyecto->og_image)
-                        <div class="mb-2">
-                            <img src="{{ asset('storage/' . $proyecto->og_image) }}" alt="OG Image actual" class="image-preview" style="max-width: 300px;">
-                            <p class="text-muted small mt-1">Imagen actual para redes sociales</p>
-                        </div>
-                    @endif
-
-                    <input type="file" class="form-control @error('og_image') is-invalid @enderror"
-                           id="og_image" name="og_image" accept="image/*" onchange="previewOgImage(event)">
-                    @error('og_image')
-                        <div class="invalid-feedback">{{ $message }}</div>
-                    @enderror
-                    <small class="text-muted">
-                        📱 Esta imagen aparece cuando compartes el proyecto en Facebook, LinkedIn, WhatsApp, etc.
-                        <br>💡 Consejo: Usa texto grande, colores llamativos y el logo del proyecto
-                    </small>
-                    <div id="og-preview-container"></div>
-                </div>
-
-                <div class="alert alert-info mt-4" style="background: rgba(0, 169, 224, 0.1); border-color: #00A9E0;">
-                    <h6 class="alert-heading"><i class="fas fa-lightbulb me-2"></i>Tips para un SEO perfecto:</h6>
-                    <ul class="mb-0 small">
-                        <li><strong>Meta Título:</strong> Incluye el nombre del proyecto + beneficio clave + tu marca</li>
-                        <li><strong>Meta Descripción:</strong> Responde "qué hace" y "por qué es único" + llamado a la acción</li>
-                        <li><strong>Keywords:</strong> Usa términos que tus clientes buscarían en Google</li>
-                        <li><strong>OG Image:</strong> Imagen atractiva que represente el proyecto visualmente</li>
-                    </ul>
+                    <div class="col-md-3">
+                        <label for="fecha_lanzamiento">Fecha lanzamiento</label>
+                        <input type="date" class="form-control" id="fecha_lanzamiento" name="fecha_lanzamiento"
+                               value="{{ old('fecha_lanzamiento', $proyecto->fecha_lanzamiento?->format('Y-m-d')) }}">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="visitas_mensuales">Visitas / mes</label>
+                        <input type="number" class="form-control" id="visitas_mensuales" name="visitas_mensuales"
+                               value="{{ old('visitas_mensuales', $proyecto->visitas_mensuales) }}" min="0">
+                    </div>
                 </div>
             </div>
 
-            <!-- Botones -->
-            <div class="d-flex justify-content-between">
-                <a href="{{ route('admin.proyectos.index') }}" class="btn btn-secondary">
-                    <i class="fas fa-times"></i> Cancelar
-                </a>
-                <button type="submit" class="btn btn-primary">
-                    <i class="fas fa-save"></i> Guardar Cambios
+            <div class="d-flex gap-2 justify-content-end mb-5">
+                <a href="{{ route('admin.proyectos.index') }}" class="btn btn-secondary">Cancelar</a>
+                <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fas fa-save me-2"></i>Actualizar Proyecto
                 </button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- Quill.js Library -->
-<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
-
+<script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
 <script>
-// Configuración de Quill para cada editor
-const quillOptions = {
-    theme: 'snow',
-    modules: {
-        toolbar: [
-            [{ 'header': [1, 2, 3, false] }],
-            ['bold', 'italic', 'underline', 'strike'],
-            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-            [{ 'color': [] }, { 'background': [] }],
-            ['link'],
-            ['clean']
-        ]
-    },
-    placeholder: 'Escribe aquí...'
-};
-
-// Inicializar editores Quill
-const descripcionQuill = new Quill('#descripcion-editor', quillOptions);
-const descripcionExtendidaQuill = new Quill('#descripcion_extendida-editor', quillOptions);
-const desafioQuill = new Quill('#desafio-editor', quillOptions);
-const solucionQuill = new Quill('#solucion-editor', quillOptions);
-const resultadosQuill = new Quill('#resultados-editor', quillOptions);
-
-// Cargar contenido existente
-const descripcionContent = document.getElementById('descripcion').value;
-const descripcionExtendidaContent = document.getElementById('descripcion_extendida').value;
-const desafioContent = document.getElementById('desafio').value;
-const solucionContent = document.getElementById('solucion').value;
-const resultadosContent = document.getElementById('resultados').value;
-
-if (descripcionContent) descripcionQuill.root.innerHTML = descripcionContent;
-if (descripcionExtendidaContent) descripcionExtendidaQuill.root.innerHTML = descripcionExtendidaContent;
-if (desafioContent) desafioQuill.root.innerHTML = desafioContent;
-if (solucionContent) solucionQuill.root.innerHTML = solucionContent;
-if (resultadosContent) resultadosQuill.root.innerHTML = resultadosContent;
-
-// Sincronizar contenido con textareas ocultos
-descripcionQuill.on('text-change', function() {
-    document.getElementById('descripcion').value = descripcionQuill.root.innerHTML;
-});
-
-descripcionExtendidaQuill.on('text-change', function() {
-    document.getElementById('descripcion_extendida').value = descripcionExtendidaQuill.root.innerHTML;
-});
-
-desafioQuill.on('text-change', function() {
-    document.getElementById('desafio').value = desafioQuill.root.innerHTML;
-});
-
-solucionQuill.on('text-change', function() {
-    document.getElementById('solucion').value = solucionQuill.root.innerHTML;
-});
-
-resultadosQuill.on('text-change', function() {
-    document.getElementById('resultados').value = resultadosQuill.root.innerHTML;
-});
-
-function previewImage(event) {
-    const container = document.getElementById('preview-container');
-    container.innerHTML = '';
-
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'image-preview';
-            container.appendChild(img);
-        }
-        reader.readAsDataURL(file);
-    }
-}
-
-function previewGallery(event) {
-    const container = document.getElementById('gallery-preview-container');
-    container.innerHTML = '';
-
-    const files = event.target.files;
-    if (files.length > 0) {
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                img.className = 'image-preview';
-                img.style.maxWidth = '100px';
-                img.style.maxHeight = '100px';
-                container.appendChild(img);
-            }
-            reader.readAsDataURL(file);
+(function () {
+    // Quill editors
+    ['descripcion_extendida','desafio','solucion','resultados'].forEach(name => {
+        const container = document.getElementById('editor_' + name);
+        const hidden = document.getElementById(name);
+        if (!container || !hidden) return;
+        const q = new Quill(container, {
+            theme: 'snow',
+            modules: { toolbar: [
+                [{header:[1,2,3,false]}],
+                ['bold','italic','underline','strike'],
+                [{list:'ordered'},{list:'bullet'}],
+                ['link','blockquote','code-block'],
+                ['clean'],
+            ]},
+            placeholder: 'Escribe aquí…',
         });
+        if (hidden.value) q.root.innerHTML = hidden.value;
+        q.on('text-change', () => { hidden.value = q.root.innerHTML; });
+    });
+
+    // Char counters
+    function counter(inputId, counterId, ideal) {
+        const inp = document.getElementById(inputId);
+        const cnt = document.getElementById(counterId);
+        if (!inp || !cnt) return;
+        const update = () => {
+            const len = inp.value.length;
+            cnt.textContent = `${len} / ${ideal} chars (ideal: ${ideal-10}–${ideal})`;
+            cnt.className = 'char-counter';
+            if (len === 0) cnt.classList.add('');
+            else if (len < ideal-15) cnt.classList.add('warn');
+            else if (len <= ideal) cnt.classList.add('good');
+            else cnt.classList.add('bad');
+        };
+        inp.addEventListener('input', update); update();
     }
-}
+    counter('meta_title', 'counter_meta_title', 60);
+    counter('meta_description', 'counter_meta_description', 160);
 
-function previewOgImage(event) {
-    const container = document.getElementById('og-preview-container');
-    container.innerHTML = '';
-
-    const file = event.target.files[0];
-    if (file) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'image-preview';
-            img.style.maxWidth = '300px';
-            container.appendChild(img);
-        }
-        reader.readAsDataURL(file);
+    // SERP preview
+    const serpTitle = document.getElementById('serpTitle');
+    const serpDesc  = document.getElementById('serpDesc');
+    const serpSlug  = document.getElementById('serpSlug');
+    const nombreEl = document.getElementById('nombre');
+    const slugEl = document.getElementById('slug');
+    const metaTitleEl = document.getElementById('meta_title');
+    const metaDescEl  = document.getElementById('meta_description');
+    function update() {
+        if (serpTitle) serpTitle.textContent = metaTitleEl.value || (nombreEl.value + ' — MY Tech Solutions');
+        if (serpDesc)  serpDesc.textContent  = metaDescEl.value || 'La meta description aparecerá aquí.';
+        if (serpSlug)  serpSlug.textContent  = slugEl.value || 'slug';
     }
-}
-
-function countChars(element, counterId, recommended) {
-    const count = element.value.length;
-    const counter = document.getElementById(counterId);
-    counter.textContent = count + ' caracteres';
-
-    if (count >= recommended - 10 && count <= recommended + 10) {
-        counter.className = 'text-success fw-bold';
-    } else if (count > recommended + 10) {
-        counter.className = 'text-warning fw-bold';
-    } else {
-        counter.className = 'text-info';
-    }
-}
-
-// Inicializar contadores al cargar la página
-document.addEventListener('DOMContentLoaded', function() {
-    const titleInput = document.getElementById('meta_title');
-    const descInput = document.getElementById('meta_description');
-
-    if (titleInput && titleInput.value) {
-        countChars(titleInput, 'title-count', 60);
-    }
-
-    if (descInput && descInput.value) {
-        countChars(descInput, 'desc-count', 160);
-    }
-});
+    [metaTitleEl, metaDescEl, nombreEl, slugEl].forEach(el => el && el.addEventListener('input', update));
+})();
 </script>
 @endsection

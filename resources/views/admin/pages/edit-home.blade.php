@@ -438,6 +438,80 @@
                 </div>
             </div>
 
+            <!-- Hero · Pruebas Sociales (Stats) -->
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-chart-line"></i>
+                    Hero · Pruebas Sociales
+                </h3>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                    Fila de 3 cifras que aparece debajo de los botones del hero. Mantén los valores cortos (números o "+N").
+                </p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_1_value" class="form-label">Stat 1 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_1_value" name="hero_stat_1_value"
+                               value="{{ old('hero_stat_1_value', $homeContent['hero_stat_1_value'] ?? '28') }}"
+                               placeholder="28" maxlength="16">
+                        @error('hero_stat_1_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_1_label" class="form-label">Stat 1 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_1_label" name="hero_stat_1_label"
+                               value="{{ old('hero_stat_1_label', $homeContent['hero_stat_1_label'] ?? 'Proyectos en producción') }}"
+                               placeholder="Proyectos en producción" maxlength="64">
+                        @error('hero_stat_1_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_2_value" class="form-label">Stat 2 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_2_value" name="hero_stat_2_value"
+                               value="{{ old('hero_stat_2_value', $homeContent['hero_stat_2_value'] ?? '11') }}"
+                               placeholder="11" maxlength="16">
+                        @error('hero_stat_2_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_2_label" class="form-label">Stat 2 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_2_label" name="hero_stat_2_label"
+                               value="{{ old('hero_stat_2_label', $homeContent['hero_stat_2_label'] ?? 'Países') }}"
+                               placeholder="Países" maxlength="64">
+                        @error('hero_stat_2_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="hero_stat_3_value" class="form-label">Stat 3 · Valor</label>
+                        <input type="text" class="form-control" id="hero_stat_3_value" name="hero_stat_3_value"
+                               value="{{ old('hero_stat_3_value', $homeContent['hero_stat_3_value'] ?? '+5') }}"
+                               placeholder="+5" maxlength="16">
+                        @error('hero_stat_3_value')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                    <div class="form-group">
+                        <label for="hero_stat_3_label" class="form-label">Stat 3 · Etiqueta</label>
+                        <input type="text" class="form-control" id="hero_stat_3_label" name="hero_stat_3_label"
+                               value="{{ old('hero_stat_3_label', $homeContent['hero_stat_3_label'] ?? 'Años desarrollando') }}"
+                               placeholder="Años desarrollando" maxlength="64">
+                        @error('hero_stat_3_label')
+                            <div class="form-text text-danger">{{ $message }}</div>
+                        @enderror
+                    </div>
+                </div>
+            </div>
+
             <!-- Sección de Clientes -->
             <div class="form-section">
                 <h3 class="section-title">
@@ -668,6 +742,290 @@
                             SEO Activo
                         </label>
                     </div>
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 HERO · Botón WhatsApp
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fab fa-whatsapp"></i>
+                    Hero · Botón WhatsApp
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Texto del botón</label>
+                        <input type="text" class="form-control" name="hero_whatsapp_text"
+                               value="{{ old('hero_whatsapp_text', $homeContent['hero_whatsapp_text'] ?? 'Hablemos por WhatsApp') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Número WhatsApp (sin +, ej. 573337246403)</label>
+                        <input type="text" class="form-control" name="hero_whatsapp_number"
+                               value="{{ old('hero_whatsapp_number', $homeContent['hero_whatsapp_number'] ?? '573337246403') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mensaje pre-cargado al abrir el chat</label>
+                    <input type="text" class="form-control" name="hero_whatsapp_message"
+                           value="{{ old('hero_whatsapp_message', $homeContent['hero_whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios') }}">
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 CASOS · Extras
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-briefcase"></i>
+                    Casos en producción · Extras
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">Eyebrow (texto pequeño arriba del título)</label>
+                    <input type="text" class="form-control" name="casos_eyebrow"
+                           value="{{ old('casos_eyebrow', $homeContent['casos_eyebrow'] ?? 'Casos en producción') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Mensaje cuando no hay proyectos cargados</label>
+                    <input type="text" class="form-control" name="casos_empty_message"
+                           value="{{ old('casos_empty_message', $homeContent['casos_empty_message'] ?? 'Pronto: nuestro portafolio completo aquí.') }}">
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 SERVICIOS · Header de sección
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-cogs"></i>
+                    Servicios · Encabezado de sección
+                </h3>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                    Los 6 servicios individuales se editan en
+                    <a href="{{ url('/admin/pages/servicios/edit') }}" target="_blank">/admin/pages/servicios/edit</a>.
+                    Aquí solo se edita el encabezado y bajada de la sección.
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Eyebrow</label>
+                    <input type="text" class="form-control" name="servicios_eyebrow"
+                           value="{{ old('servicios_eyebrow', $homeContent['servicios_eyebrow'] ?? 'Servicios') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título</label>
+                    <input type="text" class="form-control" name="servicios_title"
+                           value="{{ old('servicios_title', $homeContent['servicios_title'] ?? 'Lo que hacemos.') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subtítulo / bajada</label>
+                    <textarea class="form-control" name="servicios_subtitle" rows="2">{{ old('servicios_subtitle', $homeContent['servicios_subtitle'] ?? 'Diseñamos y desarrollamos soluciones digitales a medida para empresas que buscan vender más, automatizar procesos y escalar con tecnología confiable.') }}</textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Texto del link inferior ("Ver detalle de servicios")</label>
+                    <input type="text" class="form-control" name="servicios_link_text"
+                           value="{{ old('servicios_link_text', $homeContent['servicios_link_text'] ?? 'Ver detalle de servicios') }}">
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 PROCESO · Header + 4 pasos
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-route"></i>
+                    Cómo trabajamos · Encabezado
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Eyebrow</label>
+                        <input type="text" class="form-control" name="proceso_eyebrow"
+                               value="{{ old('proceso_eyebrow', $homeContent['proceso_eyebrow'] ?? 'Cómo trabajamos') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Hint mobile (swipe)</label>
+                        <input type="text" class="form-control" name="proceso_swipe_hint"
+                               value="{{ old('proceso_swipe_hint', $homeContent['proceso_swipe_hint'] ?? 'Desliza') }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Título — parte normal</label>
+                        <input type="text" class="form-control" name="proceso_title_main"
+                               value="{{ old('proceso_title_main', $homeContent['proceso_title_main'] ?? 'De una idea a una plataforma en') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Título — palabra destacada (azul)</label>
+                        <input type="text" class="form-control" name="proceso_title_accent"
+                               value="{{ old('proceso_title_accent', $homeContent['proceso_title_accent'] ?? 'producción') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subtítulo / bajada</label>
+                    <textarea class="form-control" name="proceso_subtitle" rows="2">{{ old('proceso_subtitle', $homeContent['proceso_subtitle'] ?? 'Cuatro fases, comunicación constante y entregables claros en cada paso. Así llevamos cada proyecto desde la primera conversación hasta el lanzamiento.') }}</textarea>
+                </div>
+            </div>
+
+            @for($i = 1; $i <= 4; $i++)
+                <div class="form-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-step-forward"></i>
+                        Cómo trabajamos · Paso {{ $i }}
+                    </h3>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Número (ej. 01)</label>
+                            <input type="text" class="form-control" name="proceso_paso_{{ $i }}_num"
+                                   value="{{ old('proceso_paso_'.$i.'_num', $homeContent['proceso_paso_'.$i.'_num'] ?? str_pad($i, 2, '0', STR_PAD_LEFT)) }}" maxlength="8">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Título</label>
+                            <input type="text" class="form-control" name="proceso_paso_{{ $i }}_title"
+                                   value="{{ old('proceso_paso_'.$i.'_title', $homeContent['proceso_paso_'.$i.'_title'] ?? '') }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Lead (1 línea destacada)</label>
+                        <input type="text" class="form-control" name="proceso_paso_{{ $i }}_lead"
+                               value="{{ old('proceso_paso_'.$i.'_lead', $homeContent['proceso_paso_'.$i.'_lead'] ?? '') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Descripción</label>
+                        <textarea class="form-control" name="proceso_paso_{{ $i }}_desc" rows="2">{{ old('proceso_paso_'.$i.'_desc', $homeContent['proceso_paso_'.$i.'_desc'] ?? '') }}</textarea>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tags (separadas por coma)</label>
+                        <input type="text" class="form-control" name="proceso_paso_{{ $i }}_tags"
+                               value="{{ old('proceso_paso_'.$i.'_tags', $homeContent['proceso_paso_'.$i.'_tags'] ?? '') }}"
+                               placeholder="ej. Análisis, Estrategia, Roadmap">
+                    </div>
+                </div>
+            @endfor
+
+            {{-- ===================================================
+                 STACK TECNOLÓGICO · Header
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-layer-group"></i>
+                    Stack tecnológico · Encabezado
+                </h3>
+                <p class="text-muted mb-3" style="font-size: 0.85rem;">
+                    Los 12 logos del stack están definidos en el código (design system, no editables desde aquí).
+                </p>
+                <div class="form-group">
+                    <label class="form-label">Eyebrow</label>
+                    <input type="text" class="form-control" name="stack_eyebrow"
+                           value="{{ old('stack_eyebrow', $homeContent['stack_eyebrow'] ?? 'Tecnologías') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Título</label>
+                    <input type="text" class="form-control" name="stack_title"
+                           value="{{ old('stack_title', $homeContent['stack_title'] ?? 'Stack maduro, probado en producción.') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subtítulo</label>
+                    <textarea class="form-control" name="stack_subtitle" rows="2">{{ old('stack_subtitle', $homeContent['stack_subtitle'] ?? 'Las mismas herramientas que usan Shopify, GitHub y Laravel Forge — escalan a millones de requests sin reescribirlo todo.') }}</textarea>
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 CTA DARK INTERMEDIO
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-bullhorn"></i>
+                    CTA Intermedio (fondo oscuro)
+                </h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Eyebrow</label>
+                        <input type="text" class="form-control" name="cta_eyebrow"
+                               value="{{ old('cta_eyebrow', $homeContent['cta_eyebrow'] ?? '[ Conversemos ]') }}">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Título — parte normal</label>
+                        <input type="text" class="form-control" name="cta_title_main"
+                               value="{{ old('cta_title_main', $homeContent['cta_title_main'] ?? '¿Listo para digitalizar tu') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Título — palabra destacada</label>
+                        <input type="text" class="form-control" name="cta_title_accent"
+                               value="{{ old('cta_title_accent', $homeContent['cta_title_accent'] ?? 'idea') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Subtítulo</label>
+                    <textarea class="form-control" name="cta_subtitle" rows="2">{{ old('cta_subtitle', $homeContent['cta_subtitle'] ?? 'Conversemos sobre tu proyecto y descubre cómo podemos ayudarte a crear la solución perfecta para tu negocio.') }}</textarea>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Botón WhatsApp · Texto</label>
+                        <input type="text" class="form-control" name="cta_whatsapp_text"
+                               value="{{ old('cta_whatsapp_text', $homeContent['cta_whatsapp_text'] ?? 'Hablemos por WhatsApp') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Botón WhatsApp · Número</label>
+                        <input type="text" class="form-control" name="cta_whatsapp_number"
+                               value="{{ old('cta_whatsapp_number', $homeContent['cta_whatsapp_number'] ?? '573337246403') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Botón WhatsApp · Mensaje pre-cargado</label>
+                    <input type="text" class="form-control" name="cta_whatsapp_message"
+                           value="{{ old('cta_whatsapp_message', $homeContent['cta_whatsapp_message'] ?? 'Hola, me interesa conocer más sobre sus servicios de desarrollo web') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Botón secundario · Texto ("Enviar formulario")</label>
+                    <input type="text" class="form-control" name="cta_form_button_text"
+                           value="{{ old('cta_form_button_text', $homeContent['cta_form_button_text'] ?? 'Enviar formulario') }}">
+                </div>
+            </div>
+
+            {{-- ===================================================
+                 FOOTER
+                 =================================================== --}}
+            <div class="form-section">
+                <h3 class="section-title">
+                    <i class="fas fa-shoe-prints"></i>
+                    Footer
+                </h3>
+                <div class="form-group">
+                    <label class="form-label">Texto intro debajo del logo</label>
+                    <input type="text" class="form-control" name="footer_intro"
+                           value="{{ old('footer_intro', $homeContent['footer_intro'] ?? 'Desarrollo web profesional que impulsa tu negocio.') }}">
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label class="form-label">Teléfono comercial</label>
+                        <input type="text" class="form-control" name="footer_phone"
+                               value="{{ old('footer_phone', $homeContent['footer_phone'] ?? '+57 333 724 6403') }}">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Etiqueta del teléfono</label>
+                        <input type="text" class="form-control" name="footer_phone_label"
+                               value="{{ old('footer_phone_label', $homeContent['footer_phone_label'] ?? 'WhatsApp comercial') }}">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL Facebook</label>
+                    <input type="url" class="form-control" name="footer_facebook_url"
+                           value="{{ old('footer_facebook_url', $homeContent['footer_facebook_url'] ?? '') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL Instagram</label>
+                    <input type="url" class="form-control" name="footer_instagram_url"
+                           value="{{ old('footer_instagram_url', $homeContent['footer_instagram_url'] ?? '') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">URL WhatsApp (link directo, ej. https://wa.me/573337246403)</label>
+                    <input type="url" class="form-control" name="footer_whatsapp_url"
+                           value="{{ old('footer_whatsapp_url', $homeContent['footer_whatsapp_url'] ?? '') }}">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Firma final ("Hecho en Bogotá · Colombia")</label>
+                    <input type="text" class="form-control" name="footer_signature"
+                           value="{{ old('footer_signature', $homeContent['footer_signature'] ?? 'Hecho en Bogotá · Colombia') }}">
                 </div>
             </div>
 

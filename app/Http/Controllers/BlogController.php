@@ -37,7 +37,11 @@ class BlogController extends Controller
             ->sortDesc()
             ->take(10);
 
-        return view('blog.index', compact('posts', 'categories', 'allTags'));
+        // Página "blog" (settings) con copy editable + SEO desde BD
+        $page = Page::where('slug', 'blog')->where('type', 'page')->with('seo')->first();
+        $seo  = $page?->seo;
+
+        return view('blog.index', compact('posts', 'categories', 'allTags', 'page', 'seo'));
     }
 
     /**

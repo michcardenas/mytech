@@ -919,84 +919,178 @@ private function createDefaultServicesSection($page)
 public function editServicios()
 {
     $page = Page::where('slug', 'servicios')->first();
-    
+
     // Decodificar el contenido JSON si existe
     $data = [];
     if ($page && $page->content) {
         $data = json_decode($page->content, true) ?? [];
     }
-    
+
     // Obtener datos de SEO
     $seo = null;
     if ($page) {
         $seo = Seo::where('page_id', $page->id)->first();
     }
-    
+
     return view('admin.pages.edit-servicios', compact('page', 'data', 'seo'));
 }
+
+/**
+ * Definición central de los campos editables para la página /servicios.
+ * Cualquier campo nuevo se agrega aquí y queda validado automáticamente.
+ * Los uploads de archivos se manejan aparte (hero_video, servicio_N_image, og_image).
+ */
+private function serviciosContentFields(): array
+{
+    $fields = [
+        // ───── Hero ─────
+        'serv_hero_badge'        => 'nullable|string|max:255',
+        'serv_hero_title'        => 'nullable|string|max:255',
+        'serv_hero_description'  => 'nullable|string|max:1000',
+        'serv_hero_button_text'  => 'nullable|string|max:255',
+        // Legacy hero (compat)
+        'hero_title'             => 'nullable|string|max:255',
+        'hero_description'       => 'nullable|string|max:1000',
+        'hero_video_url'         => 'nullable|string|max:500',
+
+        // ───── Servicios — bloque general ─────
+        'servicios_title'        => 'nullable|string|max:255',
+        'servicios_description'  => 'nullable|string|max:1000',
+
+        // ───── Stack (override de los del home) ─────
+        'serv_stack_eyebrow'     => 'nullable|string|max:255',
+        'serv_stack_title'       => 'nullable|string|max:255',
+        'serv_stack_subtitle'    => 'nullable|string|max:500',
+
+        // ───── Tecnologías legacy (compat con admin existente) ─────
+        'tecnologias_title'       => 'nullable|string|max:255',
+        'tecnologias_description' => 'nullable|string|max:1000',
+
+        // ───── Proceso legacy (compat) ─────
+        'proceso_title'           => 'nullable|string|max:255',
+        'proceso_description'     => 'nullable|string|max:1000',
+
+        // ───── CTA legacy (compat) ─────
+        'cta_title'               => 'nullable|string|max:255',
+        'cta_description'         => 'nullable|string|max:1000',
+        'cta_button_text'         => 'nullable|string|max:255',
+        'whatsapp_number'         => 'nullable|string|max:32',
+        'whatsapp_message'        => 'nullable|string|max:500',
+    ];
+
+    // Campos por servicio (×6)
+    for ($i = 1; $i <= 6; $i++) {
+        $fields["servicio_{$i}_icon"]        = 'nullable|string|max:128';
+        $fields["servicio_{$i}_title"]       = 'nullable|string|max:255';
+        $fields["servicio_{$i}_description"] = 'nullable|string|max:1000';
+        $fields["servicio_{$i}_feature_1"]   = 'nullable|string|max:255';
+        $fields["servicio_{$i}_feature_2"]   = 'nullable|string|max:255';
+        $fields["servicio_{$i}_feature_3"]   = 'nullable|string|max:255';
+        $fields["servicio_{$i}_feature_4"]   = 'nullable|string|max:255';
+        // Nuevos campos del storytelling
+        $fields["servicio_{$i}_lead"]        = 'nullable|string|max:255';
+        $fields["servicio_{$i}_image"]       = 'nullable|string|max:500';
+        $fields["servicio_{$i}_tags"]        = 'nullable|string|max:255';
+        $fields["servicio_{$i}_precio"]      = 'nullable|string|max:64';
+    }
+
+    // Campos por tech (×8, legacy compat)
+    for ($i = 1; $i <= 8; $i++) {
+        $fields["tech_{$i}_icon"] = 'nullable|string|max:128';
+        $fields["tech_{$i}_name"] = 'nullable|string|max:128';
+    }
+
+    // Campos por paso del proceso legacy (×5)
+    for ($i = 1; $i <= 5; $i++) {
+        $fields["proceso_step_{$i}_title"]       = 'nullable|string|max:255';
+        $fields["proceso_step_{$i}_description"] = 'nullable|string|max:1000';
+    }
+
+    return $fields;
+}
+
 public function updateServicios(Request $request)
 {
     $page = Page::where('slug', 'servicios')->first();
-    
-    // Obtener todos los datos del request
-    $data = $request->all();
-    
-    // Separar datos de contenido y datos de SEO
-    $seoFields = [
-        'meta_title', 'meta_description', 'meta_keywords', 'canonical_url', 
-        'robots', 'og_title', 'og_description', 'og_image', 'og_type', 
-        'og_url', 'og_site_name', 'twitter_card', 'twitter_title', 
+
+    $fields = $this->serviciosContentFields();
+
+    // Reglas de validación: todos los campos de contenido + uploads
+    $rules = $fields;
+    $rules['hero_video']  = 'nullable|file|mimetypes:video/mp4,video/webm,video/quicktime|max:51200';
+    $rules['og_image']    = 'nullable|image|max:5120';
+    for ($i = 1; $i <= 6; $i++) {
+        $rules["servicio_{$i}_image_file"] = 'nullable|image|max:5120';
+    }
+    // Campos SEO (validados con reglas básicas)
+    $seoFieldsList = [
+        'meta_title', 'meta_description', 'meta_keywords', 'canonical_url',
+        'robots', 'og_title', 'og_description', 'og_type',
+        'og_url', 'og_site_name', 'twitter_card', 'twitter_title',
         'twitter_description', 'twitter_image', 'twitter_site', 'twitter_creator',
         'schema_markup', 'focus_keyword', 'breadcrumb_title', 'sitemap_include',
-        'sitemap_priority', 'sitemap_changefreq', 'is_active', 'seo_score'
+        'sitemap_priority', 'sitemap_changefreq', 'is_active', 'seo_score',
     ];
-    
-    $seoData = [];
-    $contentData = [];
-    
-    foreach ($data as $key => $value) {
-        if (in_array($key, $seoFields)) {
-            $seoData[$key] = $value;
-        } elseif ($key !== '_token' && $key !== '_method') {
-            $contentData[$key] = $value;
+    foreach ($seoFieldsList as $sf) {
+        $rules[$sf] = 'nullable';
+    }
+    $request->validate($rules);
+
+    // Cargar contenido existente para preservar keys no enviadas
+    $contentData = json_decode($page->content ?? '{}', true) ?: [];
+
+    // Persistir todos los campos definidos en serviciosContentFields()
+    foreach (array_keys($fields) as $key) {
+        if ($request->has($key)) {
+            $contentData[$key] = $request->input($key);
         }
     }
-    
-    // Manejar la subida del video si existe
+
+    // ── Upload: hero_video ──
     if ($request->hasFile('hero_video')) {
         $video = $request->file('hero_video');
         $videoName = 'hero-video-' . time() . '.' . $video->getClientOriginalExtension();
         $video->move(public_path('videos'), $videoName);
         $contentData['hero_video_url'] = 'videos/' . $videoName;
     }
-    
-    // Manejar imagen OG si existe
+
+    // ── Upload: imágenes por servicio (×6) ──
+    for ($i = 1; $i <= 6; $i++) {
+        $fileKey = "servicio_{$i}_image_file";
+        if ($request->hasFile($fileKey)) {
+            $img = $request->file($fileKey);
+            $ext = $img->getClientOriginalExtension();
+            $name = "servicio-{$i}-" . time() . '.' . $ext;
+            $img->move(public_path('images/servicios'), $name);
+            $contentData["servicio_{$i}_image"] = 'images/servicios/' . $name;
+        }
+    }
+
+    // ── SEO data ──
+    $seoData = [];
+    foreach ($seoFieldsList as $sf) {
+        if ($request->has($sf)) {
+            $seoData[$sf] = $request->input($sf);
+        }
+    }
     if ($request->hasFile('og_image')) {
         $image = $request->file('og_image');
         $imageName = 'og-servicios-' . time() . '.' . $image->getClientOriginalExtension();
         $image->move(public_path('images/seo'), $imageName);
         $seoData['og_image'] = 'images/seo/' . $imageName;
     }
-    
-    // Convertir los datos de contenido a JSON
-    $content = json_encode($contentData);
-    
-    // Actualizar la página
+
+    // Guardar
     $page->update([
-        'content' => $content,
-        'updated_at' => now()
+        'content'    => json_encode($contentData, JSON_UNESCAPED_UNICODE),
+        'updated_at' => now(),
     ]);
-    
-    // Actualizar o crear registro de SEO
-    if (!empty($seoData)) {
+
+    if (! empty($seoData)) {
         $seoData['page_id'] = $page->id;
-        
-        Seo::updateOrCreate(
-            ['page_id' => $page->id],
-            $seoData
-        );
+        Seo::updateOrCreate(['page_id' => $page->id], $seoData);
     }
-    
+
     return redirect()->route('admin.pages.servicios.edit')
                     ->with('success', 'Servicios y SEO actualizados correctamente');
 }
