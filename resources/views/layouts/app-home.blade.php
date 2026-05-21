@@ -12,7 +12,7 @@
     @php
         $seoRow            = $seo ?? null;
         $metaTitleVal      = $seoRow->meta_title       ?? 'Agencia de Software a Medida en Colombia | MY Tech Solutions';
-        $metaDescVal       = $seoRow->meta_description ?? 'Software a medida, SaaS y automatizaciones con IA — 28 plataformas vivas en 11 países. Desde Bogotá para empresas en LATAM. Cotiza tu proyecto gratis.';
+        $metaDescVal       = $seoRow->meta_description ?? '37 proyectos en producción en 11 países. Software a medida en Laravel, React e IA para empresas LATAM, USA y EU. Cotiza gratis · respuesta en 24h.';
         $canonicalVal      = $seoRow->canonical_url    ?? 'https://mytechsolutionsco.com/';
         $robotsVal         = $seoRow->robots           ?? 'index,follow';
         $ogTitleVal        = $seoRow->og_title         ?? $metaTitleVal;
@@ -110,6 +110,7 @@
     @vite(['resources/css/home.css', 'resources/js/home/index.js'])
 
     @stack('styles')
+    @stack('head_extras')
 </head>
 <body class="bg-mt-bg text-mt-text antialiased font-sans">
 

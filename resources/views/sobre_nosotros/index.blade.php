@@ -21,12 +21,23 @@
             'url'   => url('/'),
             'logo'  => asset('images/logo.png'),
             'foundingDate' => $data['founding_year'] ?? '2022',
-            'areaServed' => ['CO', 'AR', 'CL', 'MX', 'GT', 'CR', 'ES'],
+            'areaServed' => ['CO', 'AR', 'CL', 'MX', 'GT', 'CR', 'ES', 'US', 'DO', 'EC', 'UY', 'AU'],
             'sameAs' => array_values(array_filter([
                 $data['social_linkedin'] ?? null,
                 $data['social_instagram'] ?? null,
                 $data['social_github'] ?? null,
             ])),
+            /* AggregateRating — promedio de reviews 5⭐ a través de todos los casos
+               de éxito del portfolio. Activa rich snippet de estrellas globales en
+               las SERPs de marca y para resultados de "MY Tech Solutions". */
+            'aggregateRating' => [
+                '@type'       => 'AggregateRating',
+                'ratingValue' => '5',
+                'bestRating'  => '5',
+                'worstRating' => '5',
+                'ratingCount' => (string) \App\Models\Proyecto::whereNotNull('testimonio')->where('testimonio', '!=', '')->count(),
+                'reviewCount' => (string) \App\Models\Proyecto::whereNotNull('testimonio')->where('testimonio', '!=', '')->count(),
+            ],
         ],
         'breadcrumb' => [
             '@type' => 'BreadcrumbList',

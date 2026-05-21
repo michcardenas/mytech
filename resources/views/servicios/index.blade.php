@@ -32,4 +32,7 @@
         }
     @endphp
     @include('partials.home.stack-tecnologico')
+
+    {{-- FAQ + FAQPage schema (activa rich snippet de FAQ en SERPs) --}}
+    @include('partials.servicios.faq')
 @endsection
