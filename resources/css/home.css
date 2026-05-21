@@ -3183,6 +3183,63 @@ html.has-mobile-menu-open .mt-wa-float { display: none; }
 /* Cuando el filter bar es sticky, asegurar que NO tape la primera card */
 .mt-blog-filters[data-blog-filters] {
     margin-bottom: 2.5rem;
+    transition: box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
+                background 350ms ease;
+}
+/* Estado "scrolled" — agregado por JS cuando el grid section pasa el viewport top.
+   Hace que la barra de filtros se sienta "elevated" mientras scrolleas el listado. */
+.mt-blog-filters[data-blog-filters].is-scrolled {
+    box-shadow: 0 12px 28px -16px rgba(15, 23, 42, 0.18),
+                0 4px 8px -4px rgba(15, 23, 42, 0.08);
+}
+
+/* ── Cards: preparar para hover 3D tilt (transform-style preserve) ── */
+.mt-blog-card {
+    transform-style: preserve-3d;
+    transition: box-shadow 400ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.mt-blog-card:hover {
+    box-shadow: 0 24px 50px -18px rgba(15, 23, 42, 0.22),
+                0 8px 16px -8px rgba(15, 23, 42, 0.1);
+    z-index: 2;
+}
+.mt-blog-card-link {
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+.mt-blog-card-media,
+.mt-blog-card-media img,
+.mt-blog-card-media-empty {
+    will-change: transform;
+}
+
+/* ── Watermark: mejor renderizado durante el parallax ── */
+.mt-blog-hero-watermark {
+    will-change: transform, opacity;
+}
+.mt-blog-hero-watermark span {
+    display: block;
+}
+
+/* ── Char animation perspective fix ── */
+[data-blog-hero-title] .char {
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
+
+/* ── Reduced motion guard ── */
+@media (prefers-reduced-motion: reduce) {
+    .mt-blog-card,
+    .mt-blog-card-link,
+    .mt-blog-card-media img {
+        transform: none !important;
+        transition: none !important;
+        will-change: auto !important;
+    }
+    .mt-blog-hero-watermark {
+        opacity: 0.06 !important;
+        transform: none !important;
+    }
 }
 
 .mt-blog-card {
