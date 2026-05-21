@@ -1,11 +1,13 @@
 @php
     use App\Models\Page;
 
-    $cats     = $categories ?? [];
-    $allTags  = $allTags ?? [];
+    $cats       = $categories ?? [];
+    $allTags    = $allTags ?? [];
+    $hideHeader = $hideHeader ?? false;  // las vistas /categoria y /tag lo ponen true
+    $skipFirst  = $skipFirst  ?? true;   // /blog index skipea el featured; categoria/tag muestra todos
 
-    // Si estamos en la página 1, skip el primer post (ya está en featured)
-    $items = $posts->currentPage() === 1
+    // Si estamos en la página 1 Y queremos skipear (default), skip el primer post (ya está en featured)
+    $items = ($skipFirst && $posts->currentPage() === 1)
         ? $posts->slice(1)->values()
         : $posts->getCollection();
 
@@ -27,19 +29,21 @@
 <section class="mt-blog-grid py-12 md:py-20 bg-mt-bg-2 border-t border-mt-border" id="posts" data-blog-grid-section>
     <div class="mt-container">
 
-        {{-- Header --}}
-        <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10" data-animate>
-            <div class="max-w-2xl">
-                <span class="mt-eyebrow-gray">Todos los artículos</span>
-                <h2 class="mt-3 text-section font-display font-bold text-mt-text leading-tight text-balance">
-                    Explora cada
-                    <span class="text-mt-accent italic">guía</span>.
-                </h2>
+        {{-- Header — solo en /blog index, no en /categoria ni /tag (hero ya está arriba en esas vistas) --}}
+        @if(! $hideHeader)
+            <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-10" data-animate>
+                <div class="max-w-2xl">
+                    <span class="mt-eyebrow-gray">Todos los artículos</span>
+                    <h2 class="mt-3 text-section font-display font-bold text-mt-text leading-tight text-balance">
+                        Explora cada
+                        <span class="text-mt-accent italic">guía</span>.
+                    </h2>
+                </div>
+                <div class="font-mono text-[11px] uppercase tracking-[0.22em] text-mt-text-3">
+                    {{ $posts->total() }} {{ $posts->total() === 1 ? 'artículo' : 'artículos' }} · página {{ $posts->currentPage() }} / {{ $posts->lastPage() }}
+                </div>
             </div>
-            <div class="font-mono text-[11px] uppercase tracking-[0.22em] text-mt-text-3">
-                {{ $posts->total() }} {{ $posts->total() === 1 ? 'artículo' : 'artículos' }} · página {{ $posts->currentPage() }} / {{ $posts->lastPage() }}
-            </div>
-        </div>
+        @endif
 
         {{-- Filtros sticky por categoría --}}
         <div class="mt-blog-filters" data-blog-filters>

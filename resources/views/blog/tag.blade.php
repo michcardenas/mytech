@@ -49,9 +49,9 @@
 @section('content')
 
 {{-- HERO tag --}}
-<section class="mt-blog-hero" data-blog-hero style="--cat-tint: {{ $tint }};">
+<section class="mt-blog-hero relative pt-36 pb-20 md:pb-28 overflow-hidden bg-white" data-blog-hero style="--cat-tint: {{ $tint }};">
     <div class="mt-blog-hero-bg" aria-hidden="true"></div>
-    <div class="mt-blog-hero-watermark" aria-hidden="true">TAG</div>
+    <div class="mt-blog-hero-watermark" aria-hidden="true" data-blog-watermark>#{{ strtoupper($tagDisplay) }}</div>
 
     <div class="mt-container relative z-10">
         <nav class="mt-blog-breadcrumb mono" aria-label="Breadcrumb">
@@ -90,7 +90,14 @@
 
 {{-- Grid de posts --}}
 @if($posts->count() > 0)
-    @include('partials.blog.grid', ['posts' => $posts, 'categories' => $categories, 'allTags' => [], 'currentTag' => $tag])
+    @include('partials.blog.grid', [
+        'posts'      => $posts,
+        'categories' => $categories,
+        'allTags'    => [],
+        'currentTag' => $tag,
+        'hideHeader' => true,
+        'skipFirst'  => false,
+    ])
 @else
     <section class="mt-blog-empty py-24 md:py-32 text-center">
         <div class="mt-container">
