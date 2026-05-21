@@ -1,7 +1,7 @@
 @php
     /* /blog/categoria/{category} — Listado filtrado por categoría.
        SEO dinámico basado en la categoría. */
-    $catUrl = route('blog.category', $category);
+    $catUrl     = route('blog.category', $category);
     $totalPosts = $posts->total();
 
     // Colores por categoría (mismo mapping que en /blog)
@@ -45,9 +45,9 @@
             'breadcrumb' => [
                 '@type' => 'BreadcrumbList',
                 'itemListElement' => [
-                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio',       'item' => url('/')],
-                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog',         'item' => route('blog.index')],
-                    ['@type' => 'ListItem', 'position' => 3, 'name' => $categoryName,  'item' => $catUrl],
+                    ['@type' => 'ListItem', 'position' => 1, 'name' => 'Inicio', 'item' => url('/')],
+                    ['@type' => 'ListItem', 'position' => 2, 'name' => 'Blog',   'item' => route('blog.index')],
+                    ['@type' => 'ListItem', 'position' => 3, 'name' => $categoryName, 'item' => $catUrl],
                 ],
             ],
             'mainEntity' => [
@@ -68,46 +68,77 @@
 
 @section('content')
 
-{{-- ════════════════ HERO categoría ════════════════ --}}
-<section class="mt-blog-hero relative pt-36 pb-20 md:pb-28 overflow-hidden bg-white" data-blog-hero style="--cat-tint: {{ $tint }};">
-    <div class="mt-blog-hero-bg" aria-hidden="true"></div>
-    <div class="mt-blog-hero-watermark" aria-hidden="true" data-blog-watermark>{{ strtoupper($categoryName) }}</div>
+{{-- ════════════════ HERO categoría (mismo pattern que /blog index) ════════════════ --}}
+<section class="mt-blog-hero relative pt-36 pb-20 md:pb-28 overflow-hidden bg-white"
+         data-blog-hero
+         style="--cat-tint: {{ $tint }};">
+
+    {{-- Watermark gigante con nombre de categoría --}}
+    <div class="mt-blog-hero-watermark" aria-hidden="true" data-blog-watermark>
+        <span>{{ strtoupper($categoryName) }}</span>
+    </div>
 
     <div class="mt-container relative z-10">
-        <nav class="mt-blog-breadcrumb mono" aria-label="Breadcrumb">
-            <a href="{{ url('/') }}">Inicio</a>
-            <span aria-hidden="true">/</span>
-            <a href="{{ route('blog.index') }}">Blog</a>
-            <span aria-hidden="true">/</span>
-            <span aria-current="page">{{ $categoryName }}</span>
-        </nav>
+        <div class="max-w-5xl">
 
-        <span class="mt-blog-hero-eyebrow" data-animate>
-            <span class="mt-blog-hero-dot" style="background: {{ $tint }};"></span>
-            [ Categoría · {{ strtoupper($categoryName) }} ]
-        </span>
+            {{-- Breadcrumb minimal --}}
+            <nav class="mb-6 font-mono text-[12px] uppercase tracking-[0.16em] text-mt-text-3 flex items-center gap-2 flex-wrap"
+                 aria-label="Breadcrumb"
+                 data-animate>
+                <a href="{{ url('/') }}" class="hover:text-mt-accent transition-colors">Inicio</a>
+                <span aria-hidden="true" class="opacity-40">/</span>
+                <a href="{{ route('blog.index') }}" class="hover:text-mt-accent transition-colors">Blog</a>
+                <span aria-hidden="true" class="opacity-40">/</span>
+                <span class="text-mt-text" aria-current="page">{{ $categoryName }}</span>
+            </nav>
 
-        <h1 class="mt-blog-hero-title text-balance" data-animate>
-            Artículos sobre
-            <span class="italic" style="color: {{ $tint }};">{{ strtolower($categoryName) }}</span>.
-        </h1>
+            {{-- Eyebrow tipo badge con dot del color de la categoría --}}
+            <div data-animate>
+                <span class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full border bg-white font-mono text-[11px] uppercase tracking-[0.18em]"
+                      style="border-color: {{ $tint }}33; color: {{ $tint }}; background: {{ $tint }}0d;">
+                    <span class="w-1.5 h-1.5 rounded-full" style="background: {{ $tint }};"></span>
+                    Categoría · {{ strtoupper($categoryName) }}
+                </span>
+            </div>
 
-        <p class="mt-blog-hero-lead" data-animate>
-            {{ $totalPosts }} {{ $totalPosts === 1 ? 'artículo' : 'artículos' }} en esta categoría — guías técnicas, casos reales y análisis sobre {{ strtolower($categoryName) }} en el contexto del desarrollo de software a medida.
-        </p>
+            {{-- Title gigante con accent color de la categoría --}}
+            <h1 class="mt-7 font-display font-bold text-mt-text leading-[0.95] tracking-tight text-balance
+                       text-[clamp(2.5rem,7vw,6rem)]"
+                data-blog-hero-title>
+                <span class="inline-block">Artículos sobre</span>
+                <span class="inline-block italic font-display"
+                      style="color: {{ $tint }};">{{ strtolower($categoryName) }}</span>.
+            </h1>
 
-        <div class="mt-blog-hero-meta mono" data-animate>
-            <span class="mt-blog-hero-stat">
-                <strong>{{ $totalPosts }}</strong>
-                <em>{{ $totalPosts === 1 ? 'artículo' : 'artículos' }}</em>
-            </span>
-            <span class="mt-blog-hero-stat">
-                <strong>{{ count($categories) }}</strong>
-                <em>categorías totales</em>
-            </span>
-            <a href="{{ route('blog.index') }}" class="mt-blog-hero-stat-link">
-                ← Ver todo el blog
-            </a>
+            {{-- Description --}}
+            <p class="mt-8 max-w-2xl text-base md:text-lg text-mt-text-2 leading-relaxed" data-animate>
+                @if($totalPosts > 0)
+                    {{ $totalPosts === 1 ? '1 publicación en esta categoría' : $totalPosts . ' publicaciones en esta categoría' }}
+                    — guías técnicas, casos reales y análisis sobre {{ strtolower($categoryName) }} aplicado al desarrollo de software a medida.
+                @else
+                    Estamos preparando contenido sobre {{ strtolower($categoryName) }}. Mientras tanto, explora el resto del blog.
+                @endif
+            </p>
+
+            {{-- Meta inline editorial con counts y back link --}}
+            <div class="mt-10 flex flex-wrap items-center gap-x-7 gap-y-3 font-mono text-[11px] uppercase tracking-[0.16em] text-mt-text-3"
+                 data-animate>
+                <span class="inline-flex items-center gap-2">
+                    <span class="w-1 h-1 rounded-full" style="background: {{ $tint }};"></span>
+                    <strong class="text-mt-text font-display text-[14px] font-semibold">{{ $totalPosts }}</strong>
+                    {{ $totalPosts === 1 ? 'artículo' : 'artículos' }}
+                </span>
+                <span class="inline-flex items-center gap-2">
+                    <span class="w-1 h-1 rounded-full" style="background: {{ $tint }};"></span>
+                    <strong class="text-mt-text font-display text-[14px] font-semibold">{{ count($categories) }}</strong>
+                    categorías totales
+                </span>
+                <a href="{{ route('blog.index') }}"
+                   class="inline-flex items-center gap-1.5 text-mt-accent hover:text-mt-text transition-colors normal-case tracking-normal font-sans text-[13px]">
+                    <span aria-hidden="true">←</span> Ver todo el blog
+                </a>
+            </div>
+
         </div>
     </div>
 </section>
@@ -119,23 +150,30 @@
         'categories'      => $categories,
         'allTags'         => [],
         'currentCategory' => $category,
-        'hideHeader'      => true,  // hero ya está arriba, no duplicar
-        'skipFirst'       => false, // no hay featured post en /categoria, mostrar todos
+        'hideHeader'      => true,
+        'skipFirst'       => false,
     ])
 @else
-    <section class="mt-blog-empty py-24 md:py-32 text-center">
+    <section class="py-24 md:py-32 text-center bg-mt-bg-2 border-t border-mt-border">
         <div class="mt-container">
-            <span class="mt-eyebrow-gray">[ Sin contenido aún ]</span>
-            <h2 class="text-section font-display font-bold text-mt-text mt-3 mb-4">
-                Todavía no publicamos en
+            <span class="inline-block font-mono text-[11px] uppercase tracking-[0.22em] text-mt-text-3 mb-4">
+                [ Sin contenido aún ]
+            </span>
+            <h2 class="font-display font-bold text-mt-text leading-tight text-balance text-[clamp(1.75rem,4vw,2.75rem)] mb-5">
+                Estamos preparando contenido sobre
                 <span class="italic" style="color: {{ $tint }};">{{ strtolower($categoryName) }}</span>.
             </h2>
-            <p class="text-mt-text-muted text-lg max-w-xl mx-auto mb-8">
-                Estamos preparando contenido sobre esta categoría. Mientras tanto, explora el resto del blog.
+            <p class="text-mt-text-muted text-base md:text-lg max-w-xl mx-auto mb-8 leading-relaxed">
+                Aún no publicamos en esta categoría. Mientras tanto, explora el resto del blog o cuéntanos qué te interesa que escribamos.
             </p>
-            <a href="{{ route('blog.index') }}" class="mt-btn-primary">
-                Ver todos los artículos <span aria-hidden="true">→</span>
-            </a>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+                <a href="{{ route('blog.index') }}" class="mt-btn-primary">
+                    Ver todos los artículos <span aria-hidden="true">→</span>
+                </a>
+                <a href="{{ route('contacto.index') }}" class="mt-btn-ghost">
+                    Sugerir un tema
+                </a>
+            </div>
         </div>
     </section>
 @endif

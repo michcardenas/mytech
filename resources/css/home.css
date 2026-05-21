@@ -3167,6 +3167,24 @@ html.has-mobile-menu-open .mt-wa-float { display: none; }
 @media (min-width: 640px)  { .mt-blog-grid-list { grid-template-columns: repeat(2, 1fr); } }
 @media (min-width: 1024px) { .mt-blog-grid-list { grid-template-columns: repeat(3, 1fr); gap: 1.5rem; } }
 
+/* Cuando el grid tiene pocos items (1-2), centramos y limitamos ancho para
+   evitar que se vea perdido en columnas vacías. CSS-only via :has(). */
+.mt-blog-grid-list:has(> .mt-blog-card:only-child) {
+    grid-template-columns: minmax(0, 26rem);
+    justify-content: center;
+}
+@media (min-width: 1024px) {
+    .mt-blog-grid-list:has(> .mt-blog-card:nth-last-child(2):first-child) {
+        grid-template-columns: repeat(2, minmax(0, 26rem));
+        justify-content: center;
+    }
+}
+
+/* Cuando el filter bar es sticky, asegurar que NO tape la primera card */
+.mt-blog-filters[data-blog-filters] {
+    margin-bottom: 2.5rem;
+}
+
 .mt-blog-card {
     --post-tint: #2563EB;
     position: relative;
