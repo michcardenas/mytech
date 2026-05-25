@@ -7,6 +7,7 @@ use App\Models\Proyecto;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\Rule;
 
 class ProyectosController extends Controller
 {
@@ -69,7 +70,7 @@ class ProyectosController extends Controller
             'secondary_keywords' => 'nullable|string', // input como CSV, lo convertimos a array
             'excerpt'            => 'nullable|string|max:500',
             'canonical_url'      => 'nullable|url|max:500',
-            'robots'             => 'nullable|in:index,follow,noindex,follow,index,nofollow,noindex,nofollow',
+            'robots'             => ['nullable', Rule::in(['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow'])],
             'meta_title'         => 'nullable|string|max:150',
             'meta_description'   => 'nullable|string|max:300',
             'meta_keywords'      => 'nullable|string|max:255',
