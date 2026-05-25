@@ -856,7 +856,7 @@
                             <div class="image-input-row">
                                 <input type="url" name="og_image" class="form-control" id="og-image-input"
                                        value="{{ old('og_image', $seo->og_image) }}"
-                                       placeholder="https://mytechsolutionsco.com/images/og-image.jpg">
+                                       placeholder="https://mytechsolutionsco.com/images/og-image.png">
                                 @if(count($pageImages) > 0)
                                     <button type="button" class="btn-pick-image" onclick="openImagePicker('og-image-input')">
                                         <i class="fas fa-images"></i> Elegir
