@@ -1863,42 +1863,68 @@ html.has-mobile-menu-open .mt-wa-float { display: none; }
     object-position: center;
     transition: transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-/* Background intermedio: radial gradient blanco→gris neutro.
-   Da contraste tanto a logos oscuros (centro blanco) como claros (bordes gris),
-   y deja visible el tint del proyecto en las esquinas. */
+/* Backdrop blureado: og_image como decoración detrás del logo */
+.mt-proy-card-media-backdrop {
+    position: absolute;
+    inset: -8%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    filter: blur(28px) saturate(1.2);
+    opacity: 0.35;
+    transform: scale(1.15);
+    transition: opacity 600ms ease, transform 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    z-index: 0;
+}
+.mt-proy-card:hover .mt-proy-card-media-backdrop {
+    opacity: 0.55;
+    transform: scale(1.2);
+}
+
+/* Capa de logo: SIEMPRE centrada, encima del backdrop */
 .mt-proy-card-media-bg.is-logo {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background:
+        radial-gradient(circle at center,
+            rgba(255, 255, 255, 0.95) 0%,
+            rgba(255, 255, 255, 0.75) 40%,
+            rgba(243, 244, 246, 0.55) 100%);
+    /* Si NO hay backdrop (sin og_image), fondo más sólido */
+}
+.mt-proy-card-media:not(:has(.mt-proy-card-media-backdrop)) .mt-proy-card-media-bg.is-logo {
     background:
         radial-gradient(circle at center,
             #ffffff 0%,
             #F3F4F6 45%,
-            #D9DBE0 100%),
-        linear-gradient(135deg,
-            color-mix(in srgb, var(--card-tint) 10%, #E5E7EB) 0%,
-            color-mix(in srgb, var(--card-tint) 4%, #F3F4F6) 100%);
-    background-blend-mode: multiply;
+            #E5E7EB 100%);
 }
 .mt-proy-card-media-bg.is-logo img {
-    /* Centrado absoluto perfecto + tamaño contenido */
-    max-width: 48%;
-    max-height: 48%;
+    /* Centrado perfecto vía flex padre + object-position */
+    max-width: 50%;
+    max-height: 50%;
     width: auto;
     height: auto;
     object-fit: contain;
     object-position: center;
-    margin: auto;
+    display: block;
+    margin: 0 auto;
     opacity: 1;
-    /* drop-shadow doble: da definición a logos claros/blancos sobre fondo claro */
+    /* drop-shadow doble: da definición a logos claros/blancos */
     filter:
-        drop-shadow(0 1px 2px rgba(15, 23, 42, 0.08))
-        drop-shadow(0 4px 12px rgba(15, 23, 42, 0.06));
+        drop-shadow(0 1px 3px rgba(15, 23, 42, 0.15))
+        drop-shadow(0 6px 16px rgba(15, 23, 42, 0.10));
     transition: transform 700ms cubic-bezier(0.22, 1, 0.36, 1), filter 500ms ease;
 }
-.mt-proy-card:hover .mt-proy-card-media-bg.is-image img { transform: scale(1.06); }
-.mt-proy-card:hover .mt-proy-card-media-bg.is-logo img  {
-    transform: scale(1.05);
+.mt-proy-card:hover .mt-proy-card-media-bg.is-logo img {
+    transform: scale(1.06);
     filter:
-        drop-shadow(0 2px 4px rgba(15, 23, 42, 0.12))
-        drop-shadow(0 8px 20px rgba(15, 23, 42, 0.10));
+        drop-shadow(0 2px 5px rgba(15, 23, 42, 0.20))
+        drop-shadow(0 10px 24px rgba(15, 23, 42, 0.14));
 }
 
 .mt-proy-card-media-bg.is-empty {

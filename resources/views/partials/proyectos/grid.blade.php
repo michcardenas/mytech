@@ -87,9 +87,10 @@
                         // El CTA de "Visitar sitio" externo vive dentro de la página de detalle.
                         $href = route('proyectos.show', $p->slug);
                         $techs = is_array($p->tecnologias) ? array_slice($p->tecnologias, 0, 4) : [];
-                        // Imagen prominente: og_image > logo
-                        $heroImg = $p->og_image ? asset('storage/' . $p->og_image) : ($p->logo ? PCH::logoUrl($p->logo) : null);
-                        $heroIsLogo = ! $p->og_image && $p->logo;
+                        // Estrategia: SIEMPRE el logo centrado como hero (mejor identidad visual).
+                        // og_image (si existe) va como backdrop blureado decorativo detrás del logo.
+                        $logoUrl    = $p->logo ? PCH::logoUrl($p->logo) : null;
+                        $backdropImg = $p->og_image ? asset('storage/' . $p->og_image) : null;
                     @endphp
 
                     <a href="{{ $href }}"
@@ -98,26 +99,28 @@
                        data-category="{{ $p->categoria }}"
                        style="--card-tint: {{ $tint }}; --estado-color: {{ $estado['color'] }};">
 
-                        {{-- ==== PANEL MEDIA (visible, prominente) ==== --}}
+                        {{-- ==== PANEL MEDIA (logo centrado + backdrop blureado opcional) ==== --}}
                         <div class="mt-proy-card-media" aria-hidden="true">
-                            @if($heroImg)
-                                <div class="mt-proy-card-media-bg {{ $heroIsLogo ? 'is-logo' : 'is-image' }}">
-                                    <img src="{{ $heroImg }}" alt="" loading="lazy" decoding="async">
+                            {{-- Backdrop blureado: og_image si existe, sino solo el gradiente del tint --}}
+                            @if($backdropImg)
+                                <div class="mt-proy-card-media-backdrop"
+                                     style="background-image: url('{{ $backdropImg }}');"></div>
+                            @endif
+
+                            {{-- Logo centrado (hero principal) --}}
+                            @if($logoUrl)
+                                <div class="mt-proy-card-media-bg is-logo">
+                                    <img src="{{ $logoUrl }}" alt="" loading="lazy" decoding="async">
                                 </div>
                             @else
+                                {{-- Fallback: iniciales si no hay logo ni og_image --}}
                                 <div class="mt-proy-card-media-bg is-empty">
                                     <span class="font-display font-bold text-[5rem] leading-none">{{ strtoupper(substr($p->nombre, 0, 2)) }}</span>
                                 </div>
                             @endif
-                            {{-- Overlay sutil con tint --}}
-                            <span class="mt-proy-card-media-overlay"></span>
 
-                            {{-- Logo pill flotante arriba a la izquierda (solo si tiene og_image distinto al logo) --}}
-                            @if($p->og_image && $p->logo)
-                                <span class="mt-proy-card-logo-pill">
-                                    <img src="{{ PCH::logoUrl($p->logo) }}" alt="" loading="lazy">
-                                </span>
-                            @endif
+                            {{-- Overlay sutil con tint (hover) --}}
+                            <span class="mt-proy-card-media-overlay"></span>
 
                             {{-- Badge de estado flotante arriba a la derecha --}}
                             <span class="mt-proy-card-estado-pill">
