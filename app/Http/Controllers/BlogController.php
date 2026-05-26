@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Page;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class BlogController extends Controller
 {
@@ -96,11 +97,30 @@ class BlogController extends Controller
 
     /**
      * Display posts by tag.
+     *
+     * Acepta tanto el slug ("agencia-desarrollo-software-chile") como el tag literal
+     * ("agencia desarrollo software Chile"). Si llega un slug, lo des-slugifica
+     * matcheando contra todos los tags conocidos en BD.
      */
-    public function tag($tag)
+    public function tag(string $tag)
     {
+        // Si la URL tiene espacios codificados o crudos, redirect 301 a versión slug
+        if (Str::slug($tag) !== $tag) {
+            return redirect()->route('blog.tag', Str::slug($tag), 301);
+        }
+
+        // Buscar el tag original en BD que matchee con este slug
+        $matchedTag = Page::blogs()
+            ->whereNotNull('tags')
+            ->pluck('tags')
+            ->flatMap(fn ($tags) => array_map('trim', explode(',', $tags)))
+            ->unique()
+            ->first(fn ($t) => Str::slug($t) === $tag);
+
+        $searchTerm = $matchedTag ?? $tag;
+
         $posts = Page::published()
-            ->where('tags', 'like', '%' . $tag . '%')
+            ->where('tags', 'like', '%' . $searchTerm . '%')
             ->orderBy('published_at', 'desc')
             ->paginate(9);
 

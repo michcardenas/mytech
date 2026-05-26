@@ -152,7 +152,7 @@
                 <ul>
                     @foreach($allTags as $tagName => $tagCount)
                         <li>
-                            <a href="{{ route('blog.tag', $tagName) }}">
+                            <a href="{{ route('blog.tag', \Illuminate\Support\Str::slug($tagName)) }}">
                                 {{ $tagName }}
                                 <span class="mt-blog-tag-count">{{ $tagCount }}</span>
                             </a>

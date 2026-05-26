@@ -44,6 +44,11 @@ Route::get('/landings', [LandingController::class, 'index'])->name('landings.ind
 Route::get('/', [HomeController::class, 'index'])->name('home');
 // Redirect 301 legacy /home-v2 → / por si quedó cacheado en historial o links externos
 Route::permanentRedirect('/home-v2', '/');
+// Redirects 301 legacy e-commerce (proyecto era una tienda antes — Google aún indexó esas URLs)
+Route::permanentRedirect('/inicio',       '/');
+Route::permanentRedirect('/home',         '/');
+Route::permanentRedirect('/categories/{any}', '/proyectos')->where('any', '.*');
+Route::permanentRedirect('/products/{any}',   '/proyectos')->where('any', '.*');
 Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios.index');
 Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'indexproyectos'])->name('proyectos.index');
 Route::get('/proyectos/{slug}', [App\Http\Controllers\ProyectoPublicController::class, 'show'])->name('proyectos.show');

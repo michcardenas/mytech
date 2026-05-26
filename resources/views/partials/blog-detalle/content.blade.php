@@ -73,7 +73,7 @@
                         <ul>
                             @foreach($tags as $tag)
                                 <li>
-                                    <a href="{{ route('blog.tag', $tag) }}">{{ $tag }}</a>
+                                    <a href="{{ route('blog.tag', \Illuminate\Support\Str::slug($tag)) }}">{{ $tag }}</a>
                                 </li>
                             @endforeach
                         </ul>
