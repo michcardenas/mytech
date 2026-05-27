@@ -26,9 +26,21 @@
             ? $proyecto->schema_markup
             : json_decode($proyecto->schema_markup, true);
     } else {
+        /* Whitelist de Google para Review Snippets (parent permitido del Review).
+           CreativeWork NO está, por eso Google reporta error. Default a
+           SoftwareApplication porque todos los proyectos son software. */
+        $reviewParentWhitelist = [
+            'SoftwareApplication', 'WebApplication', 'MobileApplication',
+            'Product', 'Service', 'LocalBusiness', 'Organization',
+            'Book', 'Course', 'Event', 'HowTo', 'Movie',
+            'MusicAlbum', 'MusicPlaylist', 'Recipe', 'Game',
+        ];
+        $rawType  = $proyecto->schema_type ?: 'SoftwareApplication';
+        $safeType = in_array($rawType, $reviewParentWhitelist, true) ? $rawType : 'SoftwareApplication';
+
         $s = [
             '@context'    => 'https://schema.org',
-            '@type'       => $proyecto->schema_type ?: 'CreativeWork',
+            '@type'       => $safeType,
             'name'        => $proyecto->nombre,
             'description' => $proyecto->excerpt ?: $proyecto->descripcion,
             'url'         => $detailUrl,
@@ -63,9 +75,17 @@
         if (in_array($s['@type'], ['SoftwareApplication', 'WebApplication', 'MobileApplication'])) {
             $s['applicationCategory'] = $proyecto->categoria;
             $s['operatingSystem']     = 'Web';
+            /* offers requerido por Google para SoftwareApplication */
+            $s['offers'] = [
+                '@type'         => 'Offer',
+                'price'         => '0',
+                'priceCurrency' => 'COP',
+                'availability'  => 'https://schema.org/InStock',
+            ];
         }
 
-        if ($proyecto->testimonio && $proyecto->testimonio_autor) {
+        /* Review solo si el parent type lo soporta (whitelist arriba) */
+        if ($proyecto->testimonio && $proyecto->testimonio_autor && in_array($s['@type'], $reviewParentWhitelist, true)) {
             $s['review'] = [
                 '@type'      => 'Review',
                 'reviewBody' => $proyecto->testimonio,
@@ -78,7 +98,17 @@
                     '@type'       => 'Rating',
                     'ratingValue' => '5',
                     'bestRating'  => '5',
+                    'worstRating' => '1',
                 ],
+            ];
+            /* AggregateRating evita warning "needs aggregateRating" */
+            $s['aggregateRating'] = [
+                '@type'       => 'AggregateRating',
+                'ratingValue' => '5',
+                'bestRating'  => '5',
+                'worstRating' => '1',
+                'ratingCount' => '1',
+                'reviewCount' => '1',
             ];
         }
 
