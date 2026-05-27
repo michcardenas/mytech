@@ -46,19 +46,19 @@
                 <h4 class="font-mono text-[11px] uppercase tracking-wider text-mt-text-3 mb-5">Guías 2026</h4>
                 <ul class="space-y-2.5">
                     <li>
-                        <a href="{{ url('/software-a-medida-bogota') }}"
+                        <a href="{{ route('blog.show', 'software-a-medida-bogota') }}"
                            class="text-mt-text-2 hover:text-mt-accent transition text-sm leading-snug block">
                             Software a medida<br>en Bogotá
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/cuanto-cuesta-desarrollar-software-colombia-2026') }}"
+                        <a href="{{ route('blog.show', 'cuanto-cuesta-desarrollar-software-colombia-2026') }}"
                            class="text-mt-text-2 hover:text-mt-accent transition text-sm leading-snug block">
                             ¿Cuánto cuesta desarrollar software en Colombia?
                         </a>
                     </li>
                     <li>
-                        <a href="{{ url('/cuanto-cuesta-contratar-agencia-desarrollo-software-colombia-2026') }}"
+                        <a href="{{ route('blog.show', 'cuanto-cuesta-contratar-agencia-desarrollo-software-colombia-2026') }}"
                            class="text-mt-text-2 hover:text-mt-accent transition text-sm leading-snug block">
                             Precios reales: contratar agencia en Colombia
                         </a>
