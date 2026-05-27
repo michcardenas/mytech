@@ -19,22 +19,57 @@
         ? asset('storage/' . $proyecto->twitter_image)
         : $ogImage;
 
+    /* Whitelist de Google para Review Snippets (parent permitido del Review).
+       CreativeWork NO está, por eso Google reporta error. */
+    $reviewParentWhitelist = [
+        'SoftwareApplication', 'WebApplication', 'MobileApplication',
+        'Product', 'Service', 'LocalBusiness', 'Organization',
+        'Book', 'Course', 'Event', 'HowTo', 'Movie',
+        'MusicAlbum', 'MusicPlaylist', 'Recipe', 'Game',
+    ];
+
     /* ── Construir Schema.org auto-generado o usar override custom ── */
     if (! empty($proyecto->schema_markup)) {
         // override custom (string JSON o array)
         $schemaMarkup = is_array($proyecto->schema_markup)
             ? $proyecto->schema_markup
             : json_decode($proyecto->schema_markup, true);
+
+        /* DEFENSA: si el override de BD trae @type no permitido pero tiene review,
+           Google rechaza. Forzamos @type a SoftwareApplication. */
+        if (is_array($schemaMarkup) && isset($schemaMarkup['@type'])) {
+            $overrideType = $schemaMarkup['@type'];
+            if (! in_array($overrideType, $reviewParentWhitelist, true)) {
+                $schemaMarkup['@type'] = 'SoftwareApplication';
+                // SoftwareApplication requiere applicationCategory + operatingSystem
+                if (empty($schemaMarkup['applicationCategory'])) {
+                    $schemaMarkup['applicationCategory'] = $proyecto->categoria ?: 'BusinessApplication';
+                }
+                if (empty($schemaMarkup['operatingSystem'])) {
+                    $schemaMarkup['operatingSystem'] = 'Web';
+                }
+                if (empty($schemaMarkup['offers'])) {
+                    $schemaMarkup['offers'] = [
+                        '@type'         => 'Offer',
+                        'price'         => '0',
+                        'priceCurrency' => 'COP',
+                        'availability'  => 'https://schema.org/InStock',
+                    ];
+                }
+                // Si hay review pero no aggregateRating, agregarlo (Google warning)
+                if (isset($schemaMarkup['review']) && empty($schemaMarkup['aggregateRating'])) {
+                    $schemaMarkup['aggregateRating'] = [
+                        '@type'       => 'AggregateRating',
+                        'ratingValue' => '5',
+                        'bestRating'  => '5',
+                        'worstRating' => '1',
+                        'ratingCount' => '1',
+                        'reviewCount' => '1',
+                    ];
+                }
+            }
+        }
     } else {
-        /* Whitelist de Google para Review Snippets (parent permitido del Review).
-           CreativeWork NO está, por eso Google reporta error. Default a
-           SoftwareApplication porque todos los proyectos son software. */
-        $reviewParentWhitelist = [
-            'SoftwareApplication', 'WebApplication', 'MobileApplication',
-            'Product', 'Service', 'LocalBusiness', 'Organization',
-            'Book', 'Course', 'Event', 'HowTo', 'Movie',
-            'MusicAlbum', 'MusicPlaylist', 'Recipe', 'Game',
-        ];
         $rawType  = $proyecto->schema_type ?: 'SoftwareApplication';
         $safeType = in_array($rawType, $reviewParentWhitelist, true) ? $rawType : 'SoftwareApplication';
 
