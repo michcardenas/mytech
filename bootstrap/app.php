@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        //
+        // Headers de seguridad en TODAS las respuestas (web + api)
+        $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
     })
     ->withSchedule(function (Schedule $schedule) {
         // Regenerar sitemap diariamente a las 2:00 AM
