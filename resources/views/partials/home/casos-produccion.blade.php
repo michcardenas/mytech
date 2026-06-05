@@ -102,9 +102,9 @@
                                 <div class="flex-1 flex items-center gap-2 px-3 py-1 rounded-md bg-white border border-mt-border min-w-0">
                                     {{-- Favicon: logo de BD si existe, candado por defecto --}}
                                     @if($hasLogo)
-                                        <span class="flex-shrink-0 w-4 h-4 rounded-[3px] bg-white border border-mt-border overflow-hidden flex items-center justify-center">
+                                        <span class="flex-shrink-0 w-4 h-4 rounded-[3px] bg-white border border-mt-border overflow-hidden flex items-center justify-center" aria-hidden="true">
                                             <img src="{{ PCH::logoUrl($p->logo) }}"
-                                                 alt=""
+                                                 alt="Favicon {{ $p->nombre }}"
                                                  class="w-full h-full object-contain"
                                                  loading="lazy">
                                         </span>

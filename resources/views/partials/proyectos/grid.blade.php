@@ -110,7 +110,7 @@
                             {{-- Logo centrado (hero principal) --}}
                             @if($logoUrl)
                                 <div class="mt-proy-card-media-bg is-logo">
-                                    <img src="{{ $logoUrl }}" alt="" loading="lazy" decoding="async">
+                                    <img src="{{ $logoUrl }}" alt="Logo {{ $p->nombre }} - proyecto {{ $p->badge_text ?? $p->categoria }}" loading="lazy" decoding="async">
                                 </div>
                             @else
                                 {{-- Fallback: iniciales si no hay logo ni og_image --}}
