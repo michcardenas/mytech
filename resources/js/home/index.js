@@ -18,6 +18,7 @@ import { initBlogStorytelling }              from './blog-storytelling.js';
 import { initBlogDetalleStorytelling }       from './blog-detalle-storytelling.js';
 import { initContacto }                      from './contacto.js';
 import { initSobreNosotros }                 from './sobre-nosotros.js';
+import { initHeroVideo }                     from './hero-video.js';
 
 function boot() {
     initLenis();
@@ -33,6 +34,7 @@ function boot() {
     initBlogDetalleStorytelling();       // guarded — solo en /blog/{slug}
     initContacto();                      // guarded — solo en /contacto
     initSobreNosotros();                 // guarded — solo en /sobre-nosotros
+    initHeroVideo();                     // lazy load del video hero (desktop only, post-LCP)
 
     // Navbar scroll effect
     const navbar = document.querySelector('[data-home-navbar]');

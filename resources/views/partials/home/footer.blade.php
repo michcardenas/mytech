@@ -24,7 +24,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-mt-border">
 
             <div>
-                <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions" class="h-9 w-auto mb-4">
+                <img src="{{ asset('images/logo.png') }}" alt="MY Tech Solutions" width="500" height="251" loading="lazy" decoding="async" class="h-9 w-auto mb-4">
                 <p class="text-mt-text-2 text-sm leading-relaxed">
                     {{ $intro }}
                 </p>

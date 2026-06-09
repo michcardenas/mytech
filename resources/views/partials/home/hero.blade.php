@@ -39,13 +39,26 @@
 
 <section class="relative min-h-screen flex items-center pt-36 pb-28 md:pb-36 overflow-hidden bg-white">
 
-    {{-- Fondo --}}
+    {{-- Fondo — performance optimized.
+         Mobile (<1024px): no carga el video (ahorra 8MB).
+         Desktop: video con preload="none", inicia tras window.onload (post LCP). --}}
     @if($heroMediaUrl)
-        <div class="hero-video-bg">
+        <div class="hero-video-bg" data-hero-bg>
             @if($heroMediaIsVideo)
-                <video src="{{ $heroMediaUrl }}" autoplay muted loop playsinline preload="auto"></video>
+                {{-- En desktop, el video se inyecta via JS post-load. Sólo el wrapper queda inicialmente
+                     con un gradient de fondo para evitar flash. --}}
+                <div class="hero-video-poster" aria-hidden="true"></div>
+                <video
+                    data-hero-video
+                    data-src="{{ $heroMediaUrl }}"
+                    muted
+                    loop
+                    playsinline
+                    preload="none"
+                    class="hidden lg:block"
+                    aria-hidden="true"></video>
             @else
-                <img src="{{ $heroMediaUrl }}" alt="">
+                <img src="{{ $heroMediaUrl }}" alt="" fetchpriority="high" decoding="async">
             @endif
         </div>
     @endif

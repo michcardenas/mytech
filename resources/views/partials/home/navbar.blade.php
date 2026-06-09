@@ -35,6 +35,8 @@
                aria-label="MY Tech Solutions">
                 <img src="{{ asset('images/logo.png') }}"
                      alt="MY Tech Solutions"
+                     width="500" height="251"
+                     fetchpriority="high"
                      class="nav-logo h-11 md:h-12 w-auto transition-all duration-500">
             </a>
 

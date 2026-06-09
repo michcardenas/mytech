@@ -197,6 +197,25 @@
     height: 100%;
     object-fit: cover;
 }
+/* Poster gradient — pintado instantáneo mientras el video carga (o no carga en mobile).
+   Usa los tintes de la marca para look cohesivo. */
+.hero-video-poster {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+        radial-gradient(ellipse 80% 60% at 30% 40%, rgba(37, 99, 235, 0.08) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 75% 30%, rgba(16, 185, 129, 0.06) 0%, transparent 65%),
+        linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%);
+}
+/* Video fade-in cuando JS lo activa (evita flash bruto al cargar el src) */
+.hero-video-bg video {
+    opacity: 0;
+    transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.hero-video-bg video.is-ready {
+    opacity: 1;
+}
 /* Overlay del video — vertical suave para "fundirse" con la sección siguiente */
 .hero-video-bg::after {
     content: '';
