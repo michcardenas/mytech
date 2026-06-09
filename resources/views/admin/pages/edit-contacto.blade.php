@@ -410,7 +410,7 @@
                                 </div>
                                 <div class="form-group">
                                     <label class="form-label">Email</label>
-                                    <input type="email" class="form-control" name="method_3_email" value="{{ $data['method_3_email'] ?? 'contacto@mytechsolutions.com' }}" required>
+                                    <input type="email" class="form-control" name="method_3_email" value="{{ $data['method_3_email'] ?? 'contacto@mytechsolutionsco.com' }}" required>
                                 </div>
                             </div>
                             <div class="col-md-6">
@@ -465,7 +465,7 @@
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Email de Destino</label>
-                                <input type="email" class="form-control" name="form_email_to" value="{{ $data['form_email_to'] ?? 'contacto@mytechsolutions.com' }}" required>
+                                <input type="email" class="form-control" name="form_email_to" value="{{ $data['form_email_to'] ?? 'contacto@mytechsolutionsco.com' }}" required>
                             </div>
                         </div>
                     </div>
