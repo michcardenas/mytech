@@ -362,7 +362,7 @@
                 <form action="{{ route('admin.internal-projects.payments.store', $project) }}" method="POST">
                     @csrf
                     <div class="add-row">
-                        <div class="add-field"><label>Monto *</label><input type="number" name="monto" required step="0.01" min="0.01" placeholder="0.00"></div>
+                        <div class="add-field"><label>Monto *</label><input type="text" inputmode="decimal" name="monto" required class="js-money-input" placeholder="0"></div>
                         <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>
                         <div class="add-field">
                             <label>Metodo</label>
@@ -378,7 +378,7 @@
                                 <option value="Efectivo">Efectivo</option>
                             </select>
                         </div>
-                        <div class="add-field"><label>Recibido COP <small>(neto)</small></label><input type="number" name="monto_recibido_cop" step="0.01" min="0" placeholder="Despues de impuestos"></div>
+                        <div class="add-field"><label>Recibido COP <small>(neto)</small></label><input type="text" inputmode="decimal" name="monto_recibido_cop" class="js-money-input" placeholder="Despues de impuestos"></div>
                         <div class="add-field"><label>Referencia</label><input type="text" name="referencia" placeholder="# transaccion"></div>
                         <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-plus"></i> Registrar</button></div>
                     </div>
@@ -436,7 +436,7 @@
                 <form action="{{ route('admin.internal-projects.developer-payments.store', $project) }}" method="POST">
                     @csrf
                     <div class="add-row">
-                        <div class="add-field"><label>Monto *</label><input type="number" name="monto" required step="0.01" min="0.01" placeholder="0.00"></div>
+                        <div class="add-field"><label>Monto *</label><input type="text" inputmode="decimal" name="monto" required class="js-money-input" placeholder="0"></div>
                         <div class="add-field">
                             <label>Moneda</label>
                             <select name="moneda">
@@ -568,8 +568,9 @@
                         <div class="add-row">
                             <div class="add-field">
                                 <label>Monto *</label>
-                                <input type="number" name="monto" required step="0.01" min="0.01"
-                                       placeholder="0.00" value="{{ $saldoGest > 0 ? number_format($saldoGest, 2, '.', '') : '' }}">
+                                <input type="text" inputmode="decimal" name="monto" required
+                                       class="js-money-input"
+                                       placeholder="0" value="{{ $saldoGest > 0 ? number_format($saldoGest, 0, '.', '') : '' }}">
                             </div>
                             <div class="add-field">
                                 <label>Moneda</label>
@@ -666,7 +667,7 @@
                                 <option value="Otro">Otro</option>
                             </select>
                         </div>
-                        <div class="add-field"><label>Monto *</label><input type="number" name="monto" required step="0.01" min="0.01" placeholder="0.00"></div>
+                        <div class="add-field"><label>Monto *</label><input type="text" inputmode="decimal" name="monto" required class="js-money-input" placeholder="0"></div>
                         <div class="add-field">
                             <label>Moneda</label>
                             <select name="moneda">
@@ -739,5 +740,61 @@
             document.getElementById('tab-' + tab).classList.add('active');
         });
     });
+
+    /* ──────────────────────────────────────────────────────────────────
+       Money input formatting: puntos de miles mientras escribís.
+       1.234.567 visual → 1234567 al backend (limpio antes de submit).
+       Acepta coma decimal opcional (1.234,50 → 1234.50).
+       ────────────────────────────────────────────────────────────────── */
+    (function () {
+        const nf = new Intl.NumberFormat('es-CO', { maximumFractionDigits: 2 });
+
+        const cleanRaw = (str) => {
+            // Quita todo lo que no sea dígito o coma decimal
+            return String(str || '').replace(/[^\d,]/g, '');
+        };
+
+        const formatVisual = (raw) => {
+            if (!raw) return '';
+            const parts = raw.split(',');
+            const intPart = parts[0].replace(/^0+(?=\d)/, ''); // sin ceros a la izquierda
+            const intFormatted = intPart === '' ? '' : nf.format(parseInt(intPart, 10) || 0);
+            if (parts.length > 1) {
+                return intFormatted + ',' + parts[1].slice(0, 2);
+            }
+            return intFormatted;
+        };
+
+        const toBackendValue = (visual) => {
+            // "1.234.567,89" → "1234567.89"
+            return String(visual || '').replace(/\./g, '').replace(',', '.');
+        };
+
+        const init = (input) => {
+            // Si trae value precargado (ej: saldo gestión), formatearlo
+            if (input.value) {
+                const num = parseFloat(input.value.replace(',', '.'));
+                if (!isNaN(num)) {
+                    input.value = nf.format(num);
+                }
+            }
+            input.addEventListener('input', (e) => {
+                const raw = cleanRaw(e.target.value);
+                e.target.value = formatVisual(raw);
+            });
+            // Limpia antes de submit
+            const form = input.closest('form');
+            if (form && !form.dataset.moneyHookAttached) {
+                form.dataset.moneyHookAttached = '1';
+                form.addEventListener('submit', () => {
+                    form.querySelectorAll('.js-money-input').forEach(el => {
+                        el.value = toBackendValue(el.value);
+                    });
+                });
+            }
+        };
+
+        document.querySelectorAll('.js-money-input').forEach(init);
+    })();
 </script>
 @endsection
