@@ -191,14 +191,15 @@
     overflow: hidden;
     z-index: 0;
 }
-.hero-video-bg video,
 .hero-video-bg img {
+    position: absolute;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
 }
 /* Poster gradient — pintado instantáneo mientras el video carga (o no carga en mobile).
-   Usa los tintes de la marca para look cohesivo. */
+   Z-index 0 (la capa de base). */
 .hero-video-poster {
     position: absolute;
     inset: 0;
@@ -208,10 +209,23 @@
         radial-gradient(ellipse 70% 50% at 75% 30%, rgba(16, 185, 129, 0.06) 0%, transparent 65%),
         linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%);
 }
-/* Video fade-in cuando JS lo activa (evita flash bruto al cargar el src) */
+/* Video — siempre position absolute encima del poster con z-index 1.
+   Display none en mobile vía CSS puro (más estable que `hidden lg:block` durante resize). */
 .hero-video-bg video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
     opacity: 0;
-    transition: opacity 800ms cubic-bezier(0.22, 1, 0.36, 1);
+    display: none;
+    transition: opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+@media (min-width: 1024px) {
+    .hero-video-bg video {
+        display: block;
+    }
 }
 .hero-video-bg video.is-ready {
     opacity: 1;

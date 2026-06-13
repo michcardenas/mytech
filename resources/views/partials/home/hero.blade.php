@@ -55,7 +55,6 @@
                     loop
                     playsinline
                     preload="none"
-                    class="hidden lg:block"
                     aria-hidden="true"></video>
             @else
                 <img src="{{ $heroMediaUrl }}" alt="" fetchpriority="high" decoding="async">
