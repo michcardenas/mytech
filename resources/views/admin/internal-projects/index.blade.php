@@ -537,6 +537,13 @@
     </div>
 
     {{-- Stats financieros --}}
+    @if(!empty($stats['dev_filtro']))
+        <div style="background: #FFF8E1; border-left: 4px solid #F59E0B; padding: 10px 16px; margin-bottom: 14px; border-radius: 6px; font-size: 13px;">
+            <i class="fas fa-filter" style="color: #B45309;"></i>
+            Las cifras financieras se muestran <strong>solo para {{ $stats['dev_filtro'] }}</strong> · <a href="{{ route('admin.internal-projects.index') }}" style="margin-left: 8px;">Quitar filtro</a>
+        </div>
+    @endif
+
     <div class="ip-stats-fin">
         <div class="ip-fin-card cobrar">
             <i class="fas fa-hand-holding-usd ip-fin-icon"></i>
@@ -552,9 +559,16 @@
         </div>
         <div class="ip-fin-card utilidad {{ $stats['utilidad_mes'] < 0 ? 'negative' : '' }}">
             <i class="fas fa-chart-line ip-fin-icon"></i>
-            <div class="ip-fin-label"><i class="fas fa-coins"></i> Utilidad del mes</div>
+            <div class="ip-fin-label"><i class="fas fa-coins"></i> Utilidad del mes (neta)</div>
             <div class="ip-fin-value">{{ $fmtCop($stats['utilidad_mes']) }}</div>
-            <div class="ip-fin-meta">Ingresos: {{ $fmtCop($stats['ingresos_mes']) }} · {{ $stats['proyectos_mes'] }} proyectos activos</div>
+            <div class="ip-fin-meta" style="line-height: 1.5;">
+                <span style="color: #16a34a;">+ Ingresos: {{ $fmtCop($stats['ingresos_mes']) }}</span><br>
+                <span style="color: #dc2626;">− Devs: {{ $fmtCop($stats['pagos_dev_mes']) }}</span> ·
+                <span style="color: #dc2626;">Gestión: {{ $fmtCop($stats['pagos_gestion_mes']) }}</span>
+                @if($stats['gastos_mes'] > 0)
+                    · <span style="color: #dc2626;">Gastos: {{ $fmtCop($stats['gastos_mes']) }}</span>
+                @endif
+            </div>
         </div>
     </div>
 
@@ -619,11 +633,12 @@
                 <option value="USD" {{ request('moneda') == 'USD' ? 'selected' : '' }}>USD</option>
             </select>
             <select name="orden" aria-label="Ordenar por">
+                <option value="prioridad" {{ (request('orden', 'prioridad') == 'prioridad') ? 'selected' : '' }}>⚡ Prioridad (activos primero)</option>
+                <option value="fecha_entrega" {{ request('orden') == 'fecha_entrega' ? 'selected' : '' }}>Próxima entrega</option>
                 <option value="reciente" {{ request('orden') == 'reciente' ? 'selected' : '' }}>Más recientes</option>
                 <option value="mayor_saldo_cliente" {{ request('orden') == 'mayor_saldo_cliente' ? 'selected' : '' }}>Mayor saldo cliente</option>
                 <option value="mayor_deuda_dev" {{ request('orden') == 'mayor_deuda_dev' ? 'selected' : '' }}>Mayor deuda dev</option>
                 <option value="mayor_precio" {{ request('orden') == 'mayor_precio' ? 'selected' : '' }}>Mayor precio</option>
-                <option value="fecha_entrega" {{ request('orden') == 'fecha_entrega' ? 'selected' : '' }}>Próxima entrega</option>
             </select>
             <input type="hidden" name="per_page" value="{{ request('per_page', 15) }}">
             <button type="submit" class="btn-filter"><i class="fas fa-search"></i> Aplicar</button>

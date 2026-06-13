@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\InternalProject;
 use App\Models\ProjectPayment;
 use App\Models\DeveloperPayment;
+use App\Models\GestionPayment;
 use App\Models\ProjectExpense;
 use App\Models\Client;
 use App\Models\Developer;
@@ -118,12 +119,17 @@ class InternalProjectController extends Controller
             });
         }
 
-        match ($request->get('orden', 'reciente')) {
+        match ($request->get('orden', 'prioridad')) {
             'mayor_saldo_cliente' => $query->orderByRaw('(precio - COALESCE((SELECT SUM(monto) FROM project_payments WHERE project_payments.internal_project_id = internal_projects.id),0)) DESC'),
             'mayor_deuda_dev' => $query->orderByRaw('(COALESCE(desarrollador_pago,0) - COALESCE((SELECT SUM(monto) FROM developer_payments WHERE developer_payments.internal_project_id = internal_projects.id),0)) DESC'),
             'mayor_precio' => $query->orderBy('precio', 'desc'),
             'fecha_entrega' => $query->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC'),
-            default => $query->orderBy('created_at', 'desc'),
+            'reciente' => $query->orderBy('created_at', 'desc'),
+            // PRIORIDAD (default): en_progreso/cotizado primero (por fecha_entrega ASC), pausados, completados al final
+            default => $query
+                ->orderByRaw("FIELD(estado, 'en_progreso', 'cotizado', 'pausado', 'completado', 'cancelado')")
+                ->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC')
+                ->orderBy('created_at', 'desc'),
         };
 
         $perPage = (int) $request->get('per_page', 15);
@@ -133,16 +139,23 @@ class InternalProjectController extends Controller
 
         $projects = $query->paginate($perPage)->withQueryString();
 
-        // Stats operacionales
-        $totalCount = InternalProject::count();
-        $activosCount = InternalProject::whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])->count();
-        $completadosCount = InternalProject::where('estado', 'completado')->count();
-        $sinDevCount = InternalProject::whereNull('desarrollador_nombre')
-            ->whereIn('estado', ['en_progreso', 'cotizado'])
-            ->count();
+        // Si hay filtro por desarrollador, todas las stats financieras se recalculan sólo para ese dev
+        $devFiltro = $request->filled('desarrollador') ? $request->desarrollador : null;
 
-        // Stats financieros: cargamos los proyectos activos con sums y calculamos en PHP
-        $activos = InternalProject::whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
+        // Stats operacionales (con o sin filtro de dev)
+        $baseProjectsQuery = fn() => InternalProject::query()
+            ->when($devFiltro, fn($q) => $q->where('desarrollador_nombre', $devFiltro));
+
+        $totalCount = $baseProjectsQuery()->count();
+        $activosCount = $baseProjectsQuery()->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])->count();
+        $completadosCount = $baseProjectsQuery()->where('estado', 'completado')->count();
+        $sinDevCount = $devFiltro
+            ? 0  // Si filtra por dev no tiene sentido contar "sin desarrollador"
+            : InternalProject::whereNull('desarrollador_nombre')->whereIn('estado', ['en_progreso', 'cotizado'])->count();
+
+        // Stats financieros: proyectos activos del dev filtrado (o todos)
+        $activos = $baseProjectsQuery()
+            ->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
             ->withSum('payments', 'monto')
             ->withSum('developerPayments as developer_payments_sum_monto', 'monto')
             ->get();
@@ -167,30 +180,47 @@ class InternalProjectController extends Controller
             }
         }
 
-        // Utilidad del mes: flujo de caja neto del mes actual
+        // Utilidad del mes: flujo de caja neto. Si filtra por dev, sólo cuenta proyectos de ese dev.
         $ini = now()->startOfMonth();
         $fin = now()->endOfMonth();
 
+        // IDs de proyectos del dev filtrado (para scopear los pagos del mes)
+        $projectIdsScope = $devFiltro
+            ? InternalProject::where('desarrollador_nombre', $devFiltro)->pluck('id')->all()
+            : null;
+
         $ingresosMes = ProjectPayment::with('project:id,moneda')
             ->whereBetween('fecha', [$ini, $fin])
+            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
             ->sum(function ($p) use ($usdCop) {
-                if ($p->monto_recibido_cop) return (float) $p->monto_recibido_cop;
+                if ($p->monto_recibido_cop) {
+                    return (float) $p->monto_recibido_cop;
+                }
                 $moneda = optional($p->project)->moneda ?? 'COP';
                 return $moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto;
             });
 
         $pagosDevMes = DeveloperPayment::whereBetween('fecha', [$ini, $fin])
+            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
             ->sum(fn($p) => $p->moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
 
+        $pagosGestionMes = GestionPayment::whereBetween('fecha', [$ini, $fin])
+            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
+            ->get()
+            ->sum(fn($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
+
         $gastosMes = ProjectExpense::whereBetween('fecha', [$ini, $fin])
+            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
             ->sum(fn($e) => ($e->moneda ?? 'COP') === 'USD' ? (float) $e->monto * $usdCop : (float) $e->monto);
 
-        $utilidadMes = $ingresosMes - $pagosDevMes - $gastosMes;
+        // Utilidad neta = ingresos − pagos a desarrolladores − pagos a gestión − otros gastos
+        $utilidadMes = $ingresosMes - $pagosDevMes - $pagosGestionMes - $gastosMes;
 
-        $proyectosMesCount = InternalProject::whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
+        $proyectosMesCount = $baseProjectsQuery()
+            ->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
             ->where(function ($q) use ($ini, $fin) {
                 $q->whereBetween('fecha_inicio', [$ini, $fin])
                   ->orWhereBetween('created_at', [$ini, $fin])
@@ -209,7 +239,11 @@ class InternalProjectController extends Controller
             'devs_con_saldo' => $devsConSaldo,
             'utilidad_mes' => $utilidadMes,
             'ingresos_mes' => $ingresosMes,
+            'pagos_dev_mes' => $pagosDevMes,
+            'pagos_gestion_mes' => $pagosGestionMes,
+            'gastos_mes' => $gastosMes,
             'proyectos_mes' => $proyectosMesCount,
+            'dev_filtro' => $devFiltro,
         ];
 
         $desarrolladores = InternalProject::whereNotNull('desarrollador_nombre')
