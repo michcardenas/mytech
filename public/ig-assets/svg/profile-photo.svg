@@ -1,39 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1080" width="1080" height="1080">
   <defs>
-    <radialGradient id="bg" cx="50%" cy="45%" r="65%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
+    <radialGradient id="profileBg" cx="50%" cy="46%" r="68%">
+      <stop offset="0%"  stop-color="#FFFFFF"/>
       <stop offset="55%" stop-color="#FAFAF7"/>
-      <stop offset="100%" stop-color="#F1F5F9"/>
+      <stop offset="100%" stop-color="#E8E4DD"/>
     </radialGradient>
-    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
-      <stop offset="0%" stop-color="#2563EB"/>
-      <stop offset="100%" stop-color="#3B82F6"/>
-    </linearGradient>
+    <radialGradient id="profileHalo" cx="50%" cy="50%" r="40%">
+      <stop offset="0%"  stop-color="#2563EB" stop-opacity="0.10"/>
+      <stop offset="60%" stop-color="#2563EB" stop-opacity="0.04"/>
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
+    </radialGradient>
   </defs>
-
-  <!-- Fondo cream con halo radial -->
-  <rect width="1080" height="1080" fill="url(#bg)"/>
-
-  <!-- Wordmark "MY Tech" centered -->
-  <g transform="translate(540, 510)">
-    <!-- MY en mayúsculas grandes -->
-    <text x="0" y="0" text-anchor="middle"
-          font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
-          font-size="280" font-weight="800" letter-spacing="-10"
-          fill="#0F172A">MY</text>
-    <!-- Tech debajo en azul accent -->
-    <text x="0" y="220" text-anchor="middle"
-          font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
-          font-size="280" font-weight="800" letter-spacing="-10"
-          fill="url(#accent)">Tech</text>
-  </g>
-
-  <!-- Underline accent thin -->
-  <rect x="490" y="760" width="100" height="6" rx="3" fill="#2563EB"/>
-
-  <!-- SOLUTIONS en mono pequeño abajo -->
-  <text x="540" y="830" text-anchor="middle"
-        font-family="'JetBrains Mono', 'Courier New', monospace"
-        font-size="40" font-weight="500" letter-spacing="8"
-        fill="#64748B">SOLUTIONS</text>
+  <rect width="1080" height="1080" fill="url(#profileBg)"/>
+  <circle cx="540" cy="540" r="420" fill="url(#profileHalo)"/>
 </svg>

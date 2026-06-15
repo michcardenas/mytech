@@ -1,26 +1,80 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
   <defs>
-    <radialGradient id="bgF" cx="50%" cy="50%" r="65%">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="60%" stop-color="#2563EB"/>
+    <!-- Fondo blue accent con vignette -->
+    <radialGradient id="bgFAQ" cx="50%" cy="48%" r="75%">
+      <stop offset="0%"  stop-color="#3B82F6"/>
+      <stop offset="40%" stop-color="#2563EB"/>
       <stop offset="100%" stop-color="#1D4ED8"/>
+    </radialGradient>
+    <filter id="grainF" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="4" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0"/>
+    </filter>
+    <radialGradient id="iconGlowF" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#FFFFFF" stop-opacity="0.20"/>
+      <stop offset="60%" stop-color="#FFFFFF" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="1080" height="1920" fill="url(#bgF)"/>
+  <rect width="1080" height="1920" fill="url(#bgFAQ)"/>
+  <rect width="1080" height="1920" filter="url(#grainF)"/>
 
-  <!-- Signo ? editorial gigante — safe zone center 540,960 -->
+  <!-- Marco editorial -->
+  <g stroke="#FAFAF7" stroke-width="2" opacity="0.20" fill="none">
+    <line x1="80"   y1="80"   x2="180"  y2="80"/>
+    <line x1="80"   y1="80"   x2="80"   y2="180"/>
+    <line x1="900"  y1="80"   x2="1000" y2="80"/>
+    <line x1="1000" y1="80"   x2="1000" y2="180"/>
+    <line x1="80"   y1="1740" x2="80"   y2="1840"/>
+    <line x1="80"   y1="1840" x2="180"  y2="1840"/>
+    <line x1="1000" y1="1740" x2="1000" y2="1840"/>
+    <line x1="900"  y1="1840" x2="1000" y2="1840"/>
+  </g>
+
+  <!-- Number marker -->
+  <g transform="translate(540, 360)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="32" font-weight="500"
+          letter-spacing="6" fill="#FAFAF7" opacity="0.65">04 / 05</text>
+    <line x1="-40" y1="36" x2="40" y2="36" stroke="#FAFAF7" stroke-width="3" opacity="0.55"/>
+  </g>
+
+  <!-- Glow background detrás del ? -->
+  <circle cx="540" cy="960" r="340" fill="url(#iconGlowF)"/>
+
+  <!-- Símbolo ? editorial serif gigante -->
   <g transform="translate(540, 960)">
-    <!-- Círculo de fondo (subtle white halo) -->
-    <circle cx="0" cy="0" r="250" fill="none" stroke="#FAFAF7" stroke-width="14" opacity="0.25"/>
+    <!-- Anillo decorativo detrás -->
+    <circle cx="0" cy="0" r="290" fill="none" stroke="#FAFAF7" stroke-width="3" opacity="0.18"/>
+    <circle cx="0" cy="0" r="290" stroke-dasharray="2 14" fill="none" stroke="#FAFAF7" stroke-width="2" opacity="0.30"/>
 
-    <!-- Signo de interrogación gigante -->
-    <text x="0" y="155" text-anchor="middle"
-          font-family="'Inter Tight', 'Inter', 'Georgia', serif"
-          font-size="500" font-weight="800" letter-spacing="-10"
-          fill="#FAFAF7">?</text>
+    <!-- ? gigante serif -->
+    <text x="0" y="160" text-anchor="middle"
+          font-family="'Georgia', 'Inter Tight', serif" font-size="480" font-weight="800"
+          letter-spacing="-8" fill="#FAFAF7">?</text>
 
-    <!-- Dot accent verde (highlight) -->
-    <circle cx="180" cy="-180" r="20" fill="#10B981"/>
+    <!-- Emerald accent dot offset -->
+    <circle cx="200" cy="-200" r="20" fill="#10B981"/>
+    <circle cx="200" cy="-200" r="20" fill="none" stroke="#1D4ED8" stroke-width="4"/>
+  </g>
+
+  <!-- Subtítulo arriba del título principal -->
+  <g transform="translate(540, 1340)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#FAFAF7" opacity="0.55">PREGUNTAS FRECUENTES</text>
+  </g>
+
+  <!-- Título sparse -->
+  <g transform="translate(540, 1460)" text-anchor="middle">
+    <text font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
+          font-size="120" font-weight="800" letter-spacing="-5"
+          fill="#FAFAF7">FAQ</text>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(540, 1780)" text-anchor="middle">
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#FAFAF7" stroke-width="2" opacity="0.30"/>
+    <text y="20" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#FAFAF7" opacity="0.65">MY TECH · 2026</text>
   </g>
 </svg>

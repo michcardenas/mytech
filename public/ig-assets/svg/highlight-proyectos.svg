@@ -1,30 +1,78 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
   <defs>
-    <radialGradient id="bgP" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="60%" stop-color="#FAFAF7"/>
-      <stop offset="100%" stop-color="#E8E4DD"/>
+    <!-- Fondo cream warm con vignette -->
+    <radialGradient id="bgProy" cx="50%" cy="50%" r="70%">
+      <stop offset="0%"  stop-color="#FDFCF8"/>
+      <stop offset="60%" stop-color="#F5F2EB"/>
+      <stop offset="100%" stop-color="#E8E1D2"/>
     </radialGradient>
+    <!-- Grano sutil para textura editorial -->
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="1" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    </filter>
+    <!-- Sombra editorial suave -->
+    <filter id="softShadow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="18"/>
+      <feOffset dx="0" dy="12"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.18"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <rect width="1080" height="1920" fill="url(#bgP)"/>
+  <rect width="1080" height="1920" fill="url(#bgProy)"/>
+  <rect width="1080" height="1920" filter="url(#grain)"/>
 
-  <!-- Stack of 3 cards (proyectos) — safe zone center 540,960 -->
-  <g transform="translate(540, 960)">
-    <!-- Card de atrás -->
-    <rect x="-200" y="-100" width="400" height="260" rx="32" ry="32"
-          fill="none" stroke="#2563EB" stroke-width="10" opacity="0.4"/>
-    <!-- Card del medio -->
-    <rect x="-180" y="-80" width="400" height="260" rx="32" ry="32"
-          fill="none" stroke="#2563EB" stroke-width="10" opacity="0.7"/>
-    <!-- Card del frente (sólida) -->
-    <rect x="-160" y="-60" width="400" height="260" rx="32" ry="32"
-          fill="#2563EB"/>
-    <!-- Líneas dentro de la card del frente (representan contenido) -->
-    <rect x="-110" y="0" width="200" height="14" rx="7" fill="#FFFFFF" opacity="0.95"/>
-    <rect x="-110" y="40" width="280" height="14" rx="7" fill="#FFFFFF" opacity="0.7"/>
-    <rect x="-110" y="80" width="160" height="14" rx="7" fill="#FFFFFF" opacity="0.55"/>
-    <!-- Dot accent -->
-    <circle cx="170" cy="-25" r="14" fill="#10B981"/>
+  <!-- Marco editorial — hairlines en esquinas -->
+  <g stroke="#0F172A" stroke-width="2" opacity="0.15" fill="none">
+    <line x1="80"   y1="80"   x2="180"  y2="80"/>
+    <line x1="80"   y1="80"   x2="80"   y2="180"/>
+    <line x1="900"  y1="80"   x2="1000" y2="80"/>
+    <line x1="1000" y1="80"   x2="1000" y2="180"/>
+    <line x1="80"   y1="1740" x2="80"   y2="1840"/>
+    <line x1="80"   y1="1840" x2="180"  y2="1840"/>
+    <line x1="1000" y1="1740" x2="1000" y2="1840"/>
+    <line x1="900"  y1="1840" x2="1000" y2="1840"/>
+  </g>
+
+  <!-- Number marker arriba — "01 / 05" -->
+  <g transform="translate(540, 360)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="32" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.55">01 / 05</text>
+    <line x1="-40" y1="36" x2="40" y2="36" stroke="#2563EB" stroke-width="3"/>
+  </g>
+
+  <!-- Icono central: stack de 3 cards con sombra editorial -->
+  <g transform="translate(540, 960)" filter="url(#softShadow)">
+    <!-- Card trasera (más clara) -->
+    <rect x="-220" y="-130" width="380" height="240" rx="22" ry="22"
+          fill="#FFFFFF" stroke="#0F172A" stroke-width="2" opacity="0.55"/>
+    <!-- Card media -->
+    <rect x="-190" y="-100" width="380" height="240" rx="22" ry="22"
+          fill="#FFFFFF" stroke="#0F172A" stroke-width="2" opacity="0.80"/>
+    <!-- Card frontal — sólida azul -->
+    <rect x="-160" y="-70" width="380" height="240" rx="22" ry="22" fill="#2563EB"/>
+    <!-- Contenido dentro de la card frontal -->
+    <rect x="-110" y="-30" width="180" height="12" rx="6" fill="#FFFFFF"/>
+    <rect x="-110" y="10"  width="280" height="12" rx="6" fill="#FFFFFF" opacity="0.75"/>
+    <rect x="-110" y="50"  width="220" height="12" rx="6" fill="#FFFFFF" opacity="0.55"/>
+    <rect x="-110" y="90"  width="140" height="12" rx="6" fill="#FFFFFF" opacity="0.40"/>
+    <!-- Emerald accent dot -->
+    <circle cx="190" cy="-50" r="18" fill="#10B981"/>
+    <circle cx="190" cy="-50" r="18" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+  </g>
+
+  <!-- Título sparse abajo -->
+  <g transform="translate(540, 1450)" text-anchor="middle">
+    <text font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
+          font-size="108" font-weight="800" letter-spacing="-3"
+          fill="#0F172A">Proyectos</text>
+  </g>
+
+  <!-- Wordmark cohesion abajo — "MY Tech ·" -->
+  <g transform="translate(540, 1780)" text-anchor="middle">
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#0F172A" stroke-width="2" opacity="0.25"/>
+    <text y="20" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.60">MY TECH · 2026</text>
   </g>
 </svg>

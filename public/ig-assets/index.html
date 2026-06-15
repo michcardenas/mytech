@@ -134,7 +134,7 @@
 <div class="grid" id="grid"></div>
 
 <div class="download-all">
-  <button id="downloadAll">⬇ Descargar todos los PNG (6 archivos)</button>
+  <button id="downloadAll">⬇ Descargar todos los PNG (7 archivos)</button>
 </div>
 
 <div class="ig-tip">
@@ -147,13 +147,16 @@
 </div>
 
 <script>
+const LOGO_URL = '/images/logo.png';   // 500x251 ratio 1.99:1
+
 const assets = [
-  { name: 'profile-photo',         label: 'Foto de Perfil',  dim: '1080 × 1080', isSquare: true  },
-  { name: 'highlight-proyectos',   label: 'Proyectos',       dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-servicios',   label: 'Servicios',       dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-precios',     label: 'Precios',         dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-faq',         label: 'FAQ',             dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-contacto',    label: 'Contacto',        dim: '1080 × 1920', isSquare: false },
+  { name: 'profile-photo',      label: 'Foto Perfil · v1 (espaciada)',   dim: '1080 × 1080', isSquare: true, logoSize: 0.74 },
+  { name: 'profile-photo-v2',   label: 'Foto Perfil · v2 (logo grande)', dim: '1080 × 1080', isSquare: true, logoSize: 0.91 },
+  { name: 'highlight-proyectos', label: 'Proyectos',  dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-servicios', label: 'Servicios',  dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-precios',   label: 'Precios',    dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-faq',       label: 'FAQ',        dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-contacto',  label: 'Contacto',   dim: '1080 × 1920', isSquare: false },
 ];
 
 const grid = document.getElementById('grid');
@@ -161,44 +164,114 @@ const grid = document.getElementById('grid');
 assets.forEach(a => {
   const card = document.createElement('div');
   card.className = 'card';
+  card.dataset.asset = a.name;
   card.innerHTML = `
     <div class="preview ${a.isSquare ? 'square' : ''}">
-      <img src="svg/${a.name}.svg" alt="${a.label}">
+      <canvas data-preview></canvas>
     </div>
     <div class="info">
       <div class="name">${a.label}</div>
       <div class="dim">${a.dim} · PNG</div>
     </div>
     <div class="actions">
-      <button data-name="${a.name}" data-square="${a.isSquare}">Descargar PNG</button>
+      <button data-name="${a.name}" data-square="${a.isSquare}" data-logo-size="${a.logoSize || ''}">Descargar PNG</button>
     </div>
   `;
   grid.appendChild(card);
 });
 
-async function svgToPng(svgUrl, width, height) {
-  const res = await fetch(svgUrl);
-  const svgText = await res.text();
-  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
-  const url = URL.createObjectURL(blob);
-
-  return new Promise((resolve, reject) => {
+// Carga la imagen del logo una sola vez (cacheada)
+let logoImagePromise = null;
+function getLogoImage() {
+  if (logoImagePromise) return logoImagePromise;
+  logoImagePromise = new Promise((resolve, reject) => {
     const img = new Image();
-    img.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
-      URL.revokeObjectURL(url);
-      canvas.toBlob(b => resolve(b), 'image/png', 1.0);
-    };
-    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG load failed')); };
-    img.src = url;
+    img.crossOrigin = 'anonymous';
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error('Logo load failed'));
+    img.src = LOGO_URL;
   });
+  return logoImagePromise;
 }
+
+// Renderiza un SVG a Image
+function loadSvgAsImage(svgUrl) {
+  return fetch(svgUrl)
+    .then(r => r.text())
+    .then(svgText => {
+      const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => { URL.revokeObjectURL(url); resolve(img); };
+        img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG load failed')); };
+        img.src = url;
+      });
+    });
+}
+
+// Compone el PNG final: fondo SVG + (si es profile) logo encima
+async function composePng(assetName, width, height, logoSize) {
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  // 1) Dibujar el SVG de fondo
+  const svgImg = await loadSvgAsImage(`svg/${assetName}.svg`);
+  ctx.drawImage(svgImg, 0, 0, width, height);
+
+  // 2) Si es foto de perfil, encima dibujar el logo
+  if (assetName.startsWith('profile-photo')) {
+    const logo = await getLogoImage();
+    // El logo es 500x251 (ratio 1.99:1). Mantener ratio.
+    const logoAspect = logo.naturalWidth / logo.naturalHeight; // ~1.99
+    const targetWidth = width * (logoSize || 0.74);
+    const targetHeight = targetWidth / logoAspect;
+    const x = (width - targetWidth) / 2;
+    const y = (height - targetHeight) / 2;
+    ctx.drawImage(logo, x, y, targetWidth, targetHeight);
+  }
+
+  return new Promise(resolve => canvas.toBlob(b => resolve(b), 'image/png', 1.0));
+}
+
+// Renderiza las previews de cada card al cargar (low-res para no quemar memoria)
+async function renderPreviews() {
+  const cards = document.querySelectorAll('.card');
+  for (const card of cards) {
+    const assetName = card.dataset.asset;
+    const asset = assets.find(a => a.name === assetName);
+    const previewCanvas = card.querySelector('canvas[data-preview]');
+    // Preview a baja resolución para que el grid sea rápido
+    const previewW = asset.isSquare ? 400 : 400;
+    const previewH = asset.isSquare ? 400 : 711;
+    previewCanvas.width = previewW;
+    previewCanvas.height = previewH;
+    previewCanvas.style.width = '100%';
+    previewCanvas.style.height = '100%';
+    previewCanvas.style.display = 'block';
+    try {
+      const ctx = previewCanvas.getContext('2d');
+      const svgImg = await loadSvgAsImage(`svg/${assetName}.svg`);
+      ctx.drawImage(svgImg, 0, 0, previewW, previewH);
+      if (assetName.startsWith('profile-photo')) {
+        const logo = await getLogoImage();
+        const logoAspect = logo.naturalWidth / logo.naturalHeight;
+        const tw = previewW * (asset.logoSize || 0.74);
+        const th = tw / logoAspect;
+        const x = (previewW - tw) / 2;
+        const y = (previewH - th) / 2;
+        ctx.drawImage(logo, x, y, tw, th);
+      }
+    } catch (e) {
+      console.error(`Preview ${assetName}:`, e);
+    }
+  }
+}
+renderPreviews();
 
 function triggerDownload(blob, filename) {
   const a = document.createElement('a');
@@ -217,12 +290,13 @@ document.getElementById('grid').addEventListener('click', async (e) => {
   if (!btn) return;
   const name = btn.dataset.name;
   const isSquare = btn.dataset.square === 'true';
+  const logoSize = btn.dataset.logoSize ? parseFloat(btn.dataset.logoSize) : null;
   btn.disabled = true;
   btn.textContent = 'Generando...';
   try {
     const w = 1080;
     const h = isSquare ? 1080 : 1920;
-    const blob = await svgToPng(`svg/${name}.svg`, w, h);
+    const blob = await composePng(name, w, h, logoSize);
     triggerDownload(blob, `${name}.png`);
     btn.textContent = '✓ Descargado';
     setTimeout(() => { btn.textContent = 'Descargar PNG'; btn.disabled = false; }, 1500);
@@ -241,7 +315,7 @@ document.getElementById('downloadAll').addEventListener('click', async (e) => {
     const w = 1080;
     const h = a.isSquare ? 1080 : 1920;
     try {
-      const blob = await svgToPng(`svg/${a.name}.svg`, w, h);
+      const blob = await composePng(a.name, w, h, a.logoSize);
       triggerDownload(blob, `${a.name}.png`);
       await new Promise(r => setTimeout(r, 400));
     } catch (err) {
@@ -250,7 +324,7 @@ document.getElementById('downloadAll').addEventListener('click', async (e) => {
   }
   btn.textContent = '✓ Todos descargados';
   setTimeout(() => {
-    btn.textContent = '⬇ Descargar todos los PNG (6 archivos)';
+    btn.textContent = '⬇ Descargar todos los PNG (7 archivos)';
     btn.disabled = false;
   }, 2000);
 });

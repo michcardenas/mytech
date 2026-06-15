@@ -1,26 +1,83 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
   <defs>
-    <radialGradient id="bgPr" cx="50%" cy="50%" r="60%">
-      <stop offset="0%" stop-color="#FFFFFF"/>
-      <stop offset="60%" stop-color="#FAFAF7"/>
-      <stop offset="100%" stop-color="#E8E4DD"/>
+    <radialGradient id="bgPrec" cx="50%" cy="50%" r="70%">
+      <stop offset="0%"  stop-color="#FDFCF8"/>
+      <stop offset="60%" stop-color="#F5F2EB"/>
+      <stop offset="100%" stop-color="#E8E1D2"/>
     </radialGradient>
+    <filter id="grainP" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="3" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    </filter>
+    <filter id="softShadowP" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14"/>
+      <feOffset dx="0" dy="10"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.20"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
   </defs>
 
-  <rect width="1080" height="1920" fill="url(#bgPr)"/>
+  <rect width="1080" height="1920" fill="url(#bgPrec)"/>
+  <rect width="1080" height="1920" filter="url(#grainP)"/>
 
-  <!-- Símbolo $ tipográfico editorial gigante — safe zone center 540,960 -->
+  <!-- Marco editorial -->
+  <g stroke="#0F172A" stroke-width="2" opacity="0.15" fill="none">
+    <line x1="80"   y1="80"   x2="180"  y2="80"/>
+    <line x1="80"   y1="80"   x2="80"   y2="180"/>
+    <line x1="900"  y1="80"   x2="1000" y2="80"/>
+    <line x1="1000" y1="80"   x2="1000" y2="180"/>
+    <line x1="80"   y1="1740" x2="80"   y2="1840"/>
+    <line x1="80"   y1="1840" x2="180"  y2="1840"/>
+    <line x1="1000" y1="1740" x2="1000" y2="1840"/>
+    <line x1="900"  y1="1840" x2="1000" y2="1840"/>
+  </g>
+
+  <!-- Number marker -->
+  <g transform="translate(540, 360)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="32" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.55">03 / 05</text>
+    <line x1="-40" y1="36" x2="40" y2="36" stroke="#2563EB" stroke-width="3"/>
+  </g>
+
+  <!-- Card editorial central con $ -->
   <g transform="translate(540, 960)">
-    <!-- Círculo de fondo (subtle accent) -->
-    <circle cx="0" cy="0" r="250" fill="none" stroke="#2563EB" stroke-width="14" opacity="0.18"/>
+    <!-- Card de fondo cream con sombra -->
+    <rect x="-280" y="-280" width="560" height="560" rx="40" ry="40"
+          fill="#FFFFFF" stroke="#0F172A" stroke-width="2" opacity="0.85"
+          filter="url(#softShadowP)"/>
+    <!-- Etiqueta arriba mono -->
+    <text x="0" y="-180" text-anchor="middle"
+          font-family="'JetBrains Mono', monospace" font-size="28" font-weight="500"
+          letter-spacing="5" fill="#64748B">USD · COP</text>
+    <line x1="-50" y1="-145" x2="50" y2="-145" stroke="#2563EB" stroke-width="2"/>
 
-    <!-- Símbolo $ -->
-    <text x="0" y="135" text-anchor="middle"
-          font-family="'Inter Tight', 'Inter', 'Georgia', serif"
-          font-size="420" font-weight="800" letter-spacing="-15"
-          fill="#2563EB">$</text>
+    <!-- Símbolo $ editorial serif -->
+    <text x="0" y="105" text-anchor="middle"
+          font-family="'Georgia', 'Inter Tight', serif" font-size="380" font-weight="800"
+          letter-spacing="-15" fill="#2563EB">$</text>
 
-    <!-- Dot accent verde (highlight) -->
-    <circle cx="190" cy="-180" r="20" fill="#10B981"/>
+    <!-- Footer en la card -->
+    <line x1="-180" y1="180" x2="180" y2="180" stroke="#0F172A" stroke-width="1.5" opacity="0.20"/>
+    <text x="0" y="230" text-anchor="middle"
+          font-family="'JetBrains Mono', monospace" font-size="22" font-weight="500"
+          letter-spacing="4" fill="#0F172A" opacity="0.55">DESDE $4.5M COP</text>
+
+    <!-- Emerald accent dot offset -->
+    <circle cx="240" cy="-240" r="20" fill="#10B981"/>
+    <circle cx="240" cy="-240" r="20" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+  </g>
+
+  <!-- Título sparse -->
+  <g transform="translate(540, 1450)" text-anchor="middle">
+    <text font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
+          font-size="108" font-weight="800" letter-spacing="-3"
+          fill="#0F172A">Precios</text>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(540, 1780)" text-anchor="middle">
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#0F172A" stroke-width="2" opacity="0.25"/>
+    <text y="20" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.60">MY TECH · 2026</text>
   </g>
 </svg>

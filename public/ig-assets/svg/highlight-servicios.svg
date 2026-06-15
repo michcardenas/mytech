@@ -1,35 +1,88 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
   <defs>
-    <radialGradient id="bgS" cx="50%" cy="50%" r="65%">
-      <stop offset="0%" stop-color="#3B82F6"/>
-      <stop offset="60%" stop-color="#2563EB"/>
-      <stop offset="100%" stop-color="#1D4ED8"/>
+    <!-- Fondo midnight con glow azul -->
+    <radialGradient id="bgServ" cx="50%" cy="48%" r="75%">
+      <stop offset="0%"  stop-color="#1E3A8A"/>
+      <stop offset="40%" stop-color="#162A6E"/>
+      <stop offset="100%" stop-color="#0B1532"/>
+    </radialGradient>
+    <filter id="grainS" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="2" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.05 0"/>
+    </filter>
+    <!-- Glow azul detrás del icono -->
+    <radialGradient id="iconGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#3B82F6" stop-opacity="0.55"/>
+      <stop offset="60%" stop-color="#2563EB" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#2563EB" stop-opacity="0"/>
     </radialGradient>
   </defs>
 
-  <rect width="1080" height="1920" fill="url(#bgS)"/>
+  <rect width="1080" height="1920" fill="url(#bgServ)"/>
+  <rect width="1080" height="1920" filter="url(#grainS)"/>
 
-  <!-- Engranaje minimalista — safe zone center 540,960 -->
+  <!-- Marco editorial -->
+  <g stroke="#FAFAF7" stroke-width="2" opacity="0.18" fill="none">
+    <line x1="80"   y1="80"   x2="180"  y2="80"/>
+    <line x1="80"   y1="80"   x2="80"   y2="180"/>
+    <line x1="900"  y1="80"   x2="1000" y2="80"/>
+    <line x1="1000" y1="80"   x2="1000" y2="180"/>
+    <line x1="80"   y1="1740" x2="80"   y2="1840"/>
+    <line x1="80"   y1="1840" x2="180"  y2="1840"/>
+    <line x1="1000" y1="1740" x2="1000" y2="1840"/>
+    <line x1="900"  y1="1840" x2="1000" y2="1840"/>
+  </g>
+
+  <!-- Number marker -->
+  <g transform="translate(540, 360)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="32" font-weight="500"
+          letter-spacing="6" fill="#FAFAF7" opacity="0.55">02 / 05</text>
+    <line x1="-40" y1="36" x2="40" y2="36" stroke="#3B82F6" stroke-width="3"/>
+  </g>
+
+  <!-- Glow background -->
+  <circle cx="540" cy="960" r="320" fill="url(#iconGlow)"/>
+
+  <!-- Engranaje elegante con outline + fill -->
   <g transform="translate(540, 960)">
-    <!-- Outer gear shape via 8 trapezoidal teeth -->
-    <g fill="#FAFAF7">
-      <!-- Body circle -->
-      <circle cx="0" cy="0" r="180"/>
-      <!-- 8 dientes equidistantes (rotación cada 45°) -->
-      <g>
-        <rect x="-30" y="-235" width="60" height="55" rx="6"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(45)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(90)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(135)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(180)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(225)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(270)"/>
-        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(315)"/>
-      </g>
+    <!-- Tornillos/dots alrededor (12 puntos) representando dientes -->
+    <g fill="#FAFAF7" opacity="0.95">
+      <circle cx="0"   cy="-260" r="14"/>
+      <circle cx="130" cy="-225" r="14"/>
+      <circle cx="225" cy="-130" r="14"/>
+      <circle cx="260" cy="0"    r="14"/>
+      <circle cx="225" cy="130"  r="14"/>
+      <circle cx="130" cy="225"  r="14"/>
+      <circle cx="0"   cy="260"  r="14"/>
+      <circle cx="-130" cy="225" r="14"/>
+      <circle cx="-225" cy="130" r="14"/>
+      <circle cx="-260" cy="0"   r="14"/>
+      <circle cx="-225" cy="-130" r="14"/>
+      <circle cx="-130" cy="-225" r="14"/>
     </g>
-    <!-- Inner hole (center) -->
-    <circle cx="0" cy="0" r="75" fill="#2563EB"/>
-    <!-- Inner dot -->
-    <circle cx="0" cy="0" r="30" fill="#FAFAF7"/>
+    <!-- Anillo principal — hairline -->
+    <circle cx="0" cy="0" r="195" fill="none" stroke="#FAFAF7" stroke-width="4"/>
+    <!-- Anillo interno -->
+    <circle cx="0" cy="0" r="130" fill="none" stroke="#FAFAF7" stroke-width="4" opacity="0.55"/>
+    <!-- Centro -->
+    <circle cx="0" cy="0" r="55" fill="#FAFAF7"/>
+    <circle cx="0" cy="0" r="22" fill="#162A6E"/>
+    <!-- Emerald accent dot offset -->
+    <circle cx="195" cy="-195" r="18" fill="#10B981"/>
+    <circle cx="195" cy="-195" r="18" fill="none" stroke="#0B1532" stroke-width="4"/>
+  </g>
+
+  <!-- Título sparse -->
+  <g transform="translate(540, 1450)" text-anchor="middle">
+    <text font-family="'Inter Tight', 'Inter', system-ui, sans-serif"
+          font-size="108" font-weight="800" letter-spacing="-3"
+          fill="#FAFAF7">Servicios</text>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(540, 1780)" text-anchor="middle">
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#FAFAF7" stroke-width="2" opacity="0.25"/>
+    <text y="20" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#FAFAF7" opacity="0.60">MY TECH · 2026</text>
   </g>
 </svg>
