@@ -12,11 +12,13 @@
     $robots     = $proyecto->robots ?: 'index,follow';
 
     $ogImage    = $proyecto->og_image
-        ? asset('storage/' . $proyecto->og_image)
-        : ($proyecto->logo ? asset('storage/' . $proyecto->logo) : asset('images/default-og.jpg'));
+        ? (\Illuminate\Support\Str::startsWith($proyecto->og_image, ['http://', 'https://']) ? $proyecto->og_image : asset('storage/' . $proyecto->og_image))
+        : ($proyecto->logo
+            ? (\Illuminate\Support\Str::startsWith($proyecto->logo, ['http://', 'https://']) ? $proyecto->logo : asset('storage/' . $proyecto->logo))
+            : asset('images/og-image.png'));
 
     $twImage    = $proyecto->twitter_image
-        ? asset('storage/' . $proyecto->twitter_image)
+        ? (\Illuminate\Support\Str::startsWith($proyecto->twitter_image, ['http://', 'https://']) ? $proyecto->twitter_image : asset('storage/' . $proyecto->twitter_image))
         : $ogImage;
 
     /* Whitelist de Google para Review Snippets (parent permitido del Review).
@@ -28,12 +30,65 @@
         'MusicAlbum', 'MusicPlaylist', 'Recipe', 'Game',
     ];
 
+    /* Google solo acepta estos valores para applicationCategory.
+       Nuestras categorias internas ("admin", "booking", "ecommerce", etc) NO son válidas. */
+    $googleAppCategories = [
+        'BusinessApplication', 'CommunicationApplication', 'DesignApplication',
+        'DeveloperApplication', 'EducationalApplication', 'FinanceApplication',
+        'GameApplication', 'HealthApplication', 'LifestyleApplication',
+        'MultimediaApplication', 'NetworkingApplication', 'ReferenceApplication',
+        'SecurityApplication', 'ShoppingApplication', 'SocialNetworkingApplication',
+        'SportsApplication', 'TravelApplication', 'UtilitiesApplication',
+    ];
+    /* Mapping de nuestras categorias a las de Google */
+    $categoryMap = [
+        'admin'        => 'BusinessApplication',
+        'erp'          => 'BusinessApplication',
+        'crm'          => 'BusinessApplication',
+        'saas'         => 'BusinessApplication',
+        'gestion'      => 'BusinessApplication',
+        'fintech'      => 'FinanceApplication',
+        'finanzas'     => 'FinanceApplication',
+        'ecommerce'    => 'ShoppingApplication',
+        'tienda'       => 'ShoppingApplication',
+        'marketplace'  => 'ShoppingApplication',
+        'booking'      => 'TravelApplication',
+        'travel'       => 'TravelApplication',
+        'reservas'     => 'TravelApplication',
+        'educacion'    => 'EducationalApplication',
+        'salud'        => 'HealthApplication',
+        'fitness'      => 'HealthApplication',
+        'inmobiliaria' => 'BusinessApplication',
+        'logistica'    => 'BusinessApplication',
+        'restaurant'   => 'LifestyleApplication',
+        'gastronomia'  => 'LifestyleApplication',
+        'social'       => 'SocialNetworkingApplication',
+        'comunicacion' => 'CommunicationApplication',
+        'whatsapp'     => 'CommunicationApplication',
+        'automatizacion' => 'BusinessApplication',
+        'ia'           => 'BusinessApplication',
+    ];
+    $mapAppCategory = function ($raw) use ($googleAppCategories, $categoryMap) {
+        if (! $raw) return 'BusinessApplication';
+        // Si ya es válida (ej: alguien metió "BusinessApplication" en BD), pasala
+        if (in_array($raw, $googleAppCategories, true)) return $raw;
+        // Normaliza para matching
+        $key = strtolower(trim($raw));
+        return $categoryMap[$key] ?? 'BusinessApplication';
+    };
+
     /* ── Construir Schema.org auto-generado o usar override custom ── */
     if (! empty($proyecto->schema_markup)) {
         // override custom (string JSON o array)
         $schemaMarkup = is_array($proyecto->schema_markup)
             ? $proyecto->schema_markup
             : json_decode($proyecto->schema_markup, true);
+
+        /* DEFENSA universal: si el override trae applicationCategory inválido lo sanitizamos
+           siempre, sin importar el @type (BD puede tener legacy "admin", "booking", etc). */
+        if (is_array($schemaMarkup) && isset($schemaMarkup['applicationCategory'])) {
+            $schemaMarkup['applicationCategory'] = $mapAppCategory($schemaMarkup['applicationCategory']);
+        }
 
         /* DEFENSA: si el override de BD trae @type no permitido pero tiene review,
            Google rechaza. Forzamos @type a SoftwareApplication. */
@@ -42,9 +97,8 @@
             if (! in_array($overrideType, $reviewParentWhitelist, true)) {
                 $schemaMarkup['@type'] = 'SoftwareApplication';
                 // SoftwareApplication requiere applicationCategory + operatingSystem
-                if (empty($schemaMarkup['applicationCategory'])) {
-                    $schemaMarkup['applicationCategory'] = $proyecto->categoria ?: 'BusinessApplication';
-                }
+                // SIEMPRE re-mapeamos para garantizar valor válido de Google (override del BD)
+                $schemaMarkup['applicationCategory'] = $mapAppCategory($schemaMarkup['applicationCategory'] ?? $proyecto->categoria);
                 if (empty($schemaMarkup['operatingSystem'])) {
                     $schemaMarkup['operatingSystem'] = 'Web';
                 }
@@ -108,7 +162,7 @@
         if ($proyecto->industria) $s['about'] = $proyecto->industria;
 
         if (in_array($s['@type'], ['SoftwareApplication', 'WebApplication', 'MobileApplication'])) {
-            $s['applicationCategory'] = $proyecto->categoria;
+            $s['applicationCategory'] = $mapAppCategory($proyecto->categoria);
             $s['operatingSystem']     = 'Web';
             /* offers requerido por Google para SoftwareApplication */
             $s['offers'] = [

@@ -70,15 +70,51 @@
         'og_description'      => $postSeo->og_description ?? $seoDesc,
         'og_url'              => $postUrl,
         'og_type'             => 'article',
-        'og_image'            => $postSeo->og_image ? asset('storage/'.$postSeo->og_image) : $featuredAsset,
+        'og_image'            => $postSeo->og_image
+            ? (\Illuminate\Support\Str::startsWith($postSeo->og_image, ['http://', 'https://']) ? $postSeo->og_image : asset('storage/'.$postSeo->og_image))
+            : $featuredAsset,
         'og_site_name'        => 'MY Tech Solutions',
         'twitter_card'        => $postSeo->twitter_card ?? 'summary_large_image',
         'twitter_title'       => $postSeo->twitter_title ?? $seoTitle,
         'twitter_description' => $postSeo->twitter_description ?? $seoDesc,
-        'twitter_image'       => $postSeo->twitter_image ? asset('storage/'.$postSeo->twitter_image) : $featuredAsset,
-        'schema_markup'       => (! empty($postSeo->schema_markup))
-            ? (is_array($postSeo->schema_markup) ? $postSeo->schema_markup : json_decode($postSeo->schema_markup, true))
-            : $autoSchema,
+        'twitter_image'       => $postSeo->twitter_image
+            ? (\Illuminate\Support\Str::startsWith($postSeo->twitter_image, ['http://', 'https://']) ? $postSeo->twitter_image : asset('storage/'.$postSeo->twitter_image))
+            : $featuredAsset,
+        'schema_markup'       => (function () use ($postSeo, $autoSchema, $postUrl, $post) {
+            if (empty($postSeo->schema_markup)) {
+                return $autoSchema;
+            }
+            $sm = is_array($postSeo->schema_markup)
+                ? $postSeo->schema_markup
+                : json_decode($postSeo->schema_markup, true);
+
+            // DEFENSA: si BD trae @type "Article", forzar BlogPosting (Google premia más para blog)
+            if (is_array($sm) && isset($sm['@type']) && $sm['@type'] === 'Article') {
+                $sm['@type'] = 'BlogPosting';
+            }
+
+            // DEFENSA: corregir URLs malformadas en BD (sin /blog/ prefix).
+            // Si url, @id, mainEntityOfPage.@id apuntan a URLs sin /blog/, las forzamos al canonical.
+            if (is_array($sm)) {
+                $sm['url'] = $postUrl;
+                if (isset($sm['mainEntityOfPage'])) {
+                    if (is_array($sm['mainEntityOfPage'])) {
+                        $sm['mainEntityOfPage']['@id'] = $postUrl;
+                    } else {
+                        $sm['mainEntityOfPage'] = $postUrl;
+                    }
+                }
+                // Si hay breadcrumb con item del post (último position), forzar al postUrl correcto
+                if (isset($sm['breadcrumb']['itemListElement']) && is_array($sm['breadcrumb']['itemListElement'])) {
+                    $lastIdx = count($sm['breadcrumb']['itemListElement']) - 1;
+                    if ($lastIdx >= 0 && isset($sm['breadcrumb']['itemListElement'][$lastIdx]['item'])) {
+                        $sm['breadcrumb']['itemListElement'][$lastIdx]['item'] = $postUrl;
+                    }
+                }
+            }
+
+            return $sm;
+        })(),
     ];
 @endphp
 

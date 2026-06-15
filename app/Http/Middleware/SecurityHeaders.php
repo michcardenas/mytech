@@ -61,6 +61,25 @@ class SecurityHeaders
         // Aislamiento básico — same-origin permite que la página acceda a su propio context
         $response->headers->set('Cross-Origin-Opener-Policy', 'same-origin');
 
+        // Remover headers que exponen tecnología (footprint reduction)
+        $response->headers->remove('X-Powered-By');
+        $response->headers->remove('Server');
+
+        // Cache-Control para HTML público (GET 200): permite cache pública de 5 min en CDN/proxies.
+        // Páginas autenticadas (admin, dashboard) o non-GET mantienen no-cache.
+        if (
+            $request->isMethod('GET')
+            && $response->getStatusCode() === 200
+            && ! $request->is('admin/*', 'dashboard*', 'portal/*', 'pages/*')
+            && ! $request->user()
+            && ! $response->headers->has('Cache-Control-Locked')
+        ) {
+            $ct = $response->headers->get('Content-Type', '');
+            if (str_contains($ct, 'text/html')) {
+                $response->headers->set('Cache-Control', 'public, max-age=300, s-maxage=600, stale-while-revalidate=86400');
+            }
+        }
+
         return $response;
     }
 }

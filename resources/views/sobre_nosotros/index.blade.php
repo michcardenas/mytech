@@ -34,7 +34,7 @@
                 '@type'       => 'AggregateRating',
                 'ratingValue' => '5',
                 'bestRating'  => '5',
-                'worstRating' => '5',
+                'worstRating' => '1',
                 'ratingCount' => (string) \App\Models\Proyecto::whereNotNull('testimonio')->where('testimonio', '!=', '')->count(),
                 'reviewCount' => (string) \App\Models\Proyecto::whereNotNull('testimonio')->where('testimonio', '!=', '')->count(),
             ],
@@ -57,12 +57,16 @@
         'og_description'      => $seo->og_description ?? $seoDesc,
         'og_url'              => $aboutUrl,
         'og_type'             => 'website',
-        'og_image'            => $seo->og_image ? asset('storage/'.$seo->og_image) : asset('images/logo.png'),
+        'og_image'            => $seo->og_image
+            ? (\Illuminate\Support\Str::startsWith($seo->og_image, ['http://', 'https://']) ? $seo->og_image : asset('storage/'.$seo->og_image))
+            : asset('images/og-image.png'),
         'og_site_name'        => 'MY Tech Solutions',
         'twitter_card'        => $seo->twitter_card ?? 'summary_large_image',
         'twitter_title'       => $seo->twitter_title ?? $seoTitle,
         'twitter_description' => $seo->twitter_description ?? $seoDesc,
-        'twitter_image'       => $seo->twitter_image ? asset('storage/'.$seo->twitter_image) : asset('images/logo.png'),
+        'twitter_image'       => $seo->twitter_image
+            ? (\Illuminate\Support\Str::startsWith($seo->twitter_image, ['http://', 'https://']) ? $seo->twitter_image : asset('storage/'.$seo->twitter_image))
+            : asset('images/og-image.png'),
         'schema_markup'       => $autoSchema,
     ];
 @endphp

@@ -69,6 +69,21 @@
                 'url'      => 'https://mytechsolutionsco.com',
                 'logo'     => 'https://mytechsolutionsco.com/images/icon.png',
             ];
+
+        /* DEFENSA anti FAQPage duplicado: si algún partial inyecta su propio FAQPage
+           vía @push('head_extras'), removemos cualquier FAQPage embebido en el schema
+           principal para evitar duplicación en la SERP. */
+        if (is_array($schemaPayload)) {
+            // Caso 1: @graph con FAQPage adentro
+            if (isset($schemaPayload['@graph']) && is_array($schemaPayload['@graph'])) {
+                $schemaPayload['@graph'] = array_values(array_filter(
+                    $schemaPayload['@graph'],
+                    fn($n) => ! (is_array($n) && isset($n['@type']) && $n['@type'] === 'FAQPage')
+                ));
+            }
+            // Caso 2: el schema principal ES un FAQPage (no aplica acá, pero por defensa)
+            // No tocamos si el principal es FAQPage standalone — eso significa que el partial NO está activo.
+        }
     @endphp
     <script type="application/ld+json">
 {!! json_encode($schemaPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
