@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <radialGradient id="bgP" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#FAFAF7"/>
+      <stop offset="100%" stop-color="#E8E4DD"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgP)"/>
+
+  <!-- Stack of 3 cards (proyectos) — safe zone center 540,960 -->
+  <g transform="translate(540, 960)">
+    <!-- Card de atrás -->
+    <rect x="-200" y="-100" width="400" height="260" rx="32" ry="32"
+          fill="none" stroke="#2563EB" stroke-width="10" opacity="0.4"/>
+    <!-- Card del medio -->
+    <rect x="-180" y="-80" width="400" height="260" rx="32" ry="32"
+          fill="none" stroke="#2563EB" stroke-width="10" opacity="0.7"/>
+    <!-- Card del frente (sólida) -->
+    <rect x="-160" y="-60" width="400" height="260" rx="32" ry="32"
+          fill="#2563EB"/>
+    <!-- Líneas dentro de la card del frente (representan contenido) -->
+    <rect x="-110" y="0" width="200" height="14" rx="7" fill="#FFFFFF" opacity="0.95"/>
+    <rect x="-110" y="40" width="280" height="14" rx="7" fill="#FFFFFF" opacity="0.7"/>
+    <rect x="-110" y="80" width="160" height="14" rx="7" fill="#FFFFFF" opacity="0.55"/>
+    <!-- Dot accent -->
+    <circle cx="170" cy="-25" r="14" fill="#10B981"/>
+  </g>
+</svg>

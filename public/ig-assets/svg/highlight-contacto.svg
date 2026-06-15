@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <radialGradient id="bgC" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#FAFAF7"/>
+      <stop offset="100%" stop-color="#E8E4DD"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgC)"/>
+
+  <!-- Burbuja de chat editorial — safe zone center 540,960 -->
+  <g transform="translate(540, 960)">
+    <!-- Burbuja principal (rounded rectangle con tail) -->
+    <path d="M -220 -150
+             L 220 -150
+             Q 270 -150 270 -100
+             L 270 80
+             Q 270 130 220 130
+             L -90 130
+             L -160 200
+             L -130 130
+             L -220 130
+             Q -270 130 -270 80
+             L -270 -100
+             Q -270 -150 -220 -150 Z"
+          fill="#2563EB"/>
+
+    <!-- 3 dots dentro de la burbuja -->
+    <circle cx="-80" cy="-10" r="22" fill="#FAFAF7"/>
+    <circle cx="0" cy="-10" r="22" fill="#FAFAF7"/>
+    <circle cx="80" cy="-10" r="22" fill="#FAFAF7"/>
+
+    <!-- Dot accent verde (notification) -->
+    <circle cx="250" cy="-170" r="22" fill="#10B981"/>
+  </g>
+</svg>

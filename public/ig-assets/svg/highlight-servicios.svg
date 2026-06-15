@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <radialGradient id="bgS" cx="50%" cy="50%" r="65%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="60%" stop-color="#2563EB"/>
+      <stop offset="100%" stop-color="#1D4ED8"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgS)"/>
+
+  <!-- Engranaje minimalista — safe zone center 540,960 -->
+  <g transform="translate(540, 960)">
+    <!-- Outer gear shape via 8 trapezoidal teeth -->
+    <g fill="#FAFAF7">
+      <!-- Body circle -->
+      <circle cx="0" cy="0" r="180"/>
+      <!-- 8 dientes equidistantes (rotación cada 45°) -->
+      <g>
+        <rect x="-30" y="-235" width="60" height="55" rx="6"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(45)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(90)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(135)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(180)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(225)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(270)"/>
+        <rect x="-30" y="-235" width="60" height="55" rx="6" transform="rotate(315)"/>
+      </g>
+    </g>
+    <!-- Inner hole (center) -->
+    <circle cx="0" cy="0" r="75" fill="#2563EB"/>
+    <!-- Inner dot -->
+    <circle cx="0" cy="0" r="30" fill="#FAFAF7"/>
+  </g>
+</svg>

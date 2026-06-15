@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <radialGradient id="bgPr" cx="50%" cy="50%" r="60%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="60%" stop-color="#FAFAF7"/>
+      <stop offset="100%" stop-color="#E8E4DD"/>
+    </radialGradient>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgPr)"/>
+
+  <!-- Símbolo $ tipográfico editorial gigante — safe zone center 540,960 -->
+  <g transform="translate(540, 960)">
+    <!-- Círculo de fondo (subtle accent) -->
+    <circle cx="0" cy="0" r="250" fill="none" stroke="#2563EB" stroke-width="14" opacity="0.18"/>
+
+    <!-- Símbolo $ -->
+    <text x="0" y="135" text-anchor="middle"
+          font-family="'Inter Tight', 'Inter', 'Georgia', serif"
+          font-size="420" font-weight="800" letter-spacing="-15"
+          fill="#2563EB">$</text>
+
+    <!-- Dot accent verde (highlight) -->
+    <circle cx="190" cy="-180" r="20" fill="#10B981"/>
+  </g>
+</svg>

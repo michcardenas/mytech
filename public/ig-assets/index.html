@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>MY Tech · Instagram Assets</title>
+<style>
+  :root {
+    --cream: #FAFAF7;
+    --accent: #2563EB;
+    --text: #0F172A;
+    --text2: #64748B;
+    --border: #E5E7EB;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter Tight', 'Inter', system-ui, sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    padding: 40px 24px;
+    min-height: 100vh;
+  }
+  header {
+    max-width: 1100px;
+    margin: 0 auto 40px;
+    text-align: center;
+  }
+  h1 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
+  .sub { color: var(--text2); font-size: 16px; max-width: 640px; margin: 0 auto; line-height: 1.5; }
+  .grid {
+    max-width: 1100px;
+    margin: 0 auto;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 24px;
+  }
+  .card {
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    overflow: hidden;
+    transition: transform .2s, box-shadow .2s;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 10px 30px rgba(0,0,0,.08);
+  }
+  .preview {
+    aspect-ratio: 9/16;
+    background: #f6f6f4;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .preview.square { aspect-ratio: 1/1; }
+  .preview img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .info {
+    padding: 18px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .name {
+    font-size: 15px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .dim {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 1px;
+  }
+  .actions {
+    padding: 0 20px 18px;
+    display: flex;
+    gap: 8px;
+  }
+  button {
+    flex: 1;
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .15s;
+    font-family: inherit;
+  }
+  button:hover { background: #1d4ed8; }
+  button.alt {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+  button.alt:hover { background: var(--cream); }
+  .download-all {
+    max-width: 1100px;
+    margin: 32px auto 0;
+    text-align: center;
+  }
+  .download-all button {
+    background: var(--text);
+    padding: 16px 32px;
+    font-size: 15px;
+    border-radius: 12px;
+    flex: 0;
+    display: inline-block;
+  }
+  .ig-tip {
+    max-width: 720px;
+    margin: 48px auto 0;
+    background: white;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px 28px;
+  }
+  .ig-tip h3 { font-size: 18px; margin-bottom: 12px; }
+  .ig-tip ol { padding-left: 22px; line-height: 1.7; color: var(--text2); font-size: 14px; }
+  .ig-tip li { margin-bottom: 6px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Instagram Assets · MY Tech Solutions</h1>
+  <p class="sub">Foto de perfil + 5 portadas para Highlights. Hacé click en cada "Descargar PNG" o usá el botón final para bajar todo de una.</p>
+</header>
+
+<div class="grid" id="grid"></div>
+
+<div class="download-all">
+  <button id="downloadAll">⬇ Descargar todos los PNG (6 archivos)</button>
+</div>
+
+<div class="ig-tip">
+  <h3>📲 Cómo aplicarlos en Instagram (desde tu celular)</h3>
+  <ol>
+    <li><strong>Foto de perfil:</strong> Editar perfil → Cambiar foto → subí <code>profile-photo.png</code>.</li>
+    <li><strong>Highlights:</strong> Tu perfil → tocá el highlight (Proyectos, Servicios, etc.) → Más opciones → Editar destacada → Editar portada → Subí la imagen.</li>
+    <li>Si todavía no tenés los 5 highlights, créalos primero (subí 1 story dummy para cada uno y archivala como destacada).</li>
+  </ol>
+</div>
+
+<script>
+const assets = [
+  { name: 'profile-photo',         label: 'Foto de Perfil',  dim: '1080 × 1080', isSquare: true  },
+  { name: 'highlight-proyectos',   label: 'Proyectos',       dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-servicios',   label: 'Servicios',       dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-precios',     label: 'Precios',         dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-faq',         label: 'FAQ',             dim: '1080 × 1920', isSquare: false },
+  { name: 'highlight-contacto',    label: 'Contacto',        dim: '1080 × 1920', isSquare: false },
+];
+
+const grid = document.getElementById('grid');
+
+assets.forEach(a => {
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="preview ${a.isSquare ? 'square' : ''}">
+      <img src="svg/${a.name}.svg" alt="${a.label}">
+    </div>
+    <div class="info">
+      <div class="name">${a.label}</div>
+      <div class="dim">${a.dim} · PNG</div>
+    </div>
+    <div class="actions">
+      <button data-name="${a.name}" data-square="${a.isSquare}">Descargar PNG</button>
+    </div>
+  `;
+  grid.appendChild(card);
+});
+
+async function svgToPng(svgUrl, width, height) {
+  const res = await fetch(svgUrl);
+  const svgText = await res.text();
+  const blob = new Blob([svgText], { type: 'image/svg+xml;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
+      ctx.drawImage(img, 0, 0, width, height);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(b => resolve(b), 'image/png', 1.0);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('SVG load failed')); };
+    img.src = url;
+  });
+}
+
+function triggerDownload(blob, filename) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => {
+    URL.revokeObjectURL(a.href);
+    a.remove();
+  }, 100);
+}
+
+document.getElementById('grid').addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-name]');
+  if (!btn) return;
+  const name = btn.dataset.name;
+  const isSquare = btn.dataset.square === 'true';
+  btn.disabled = true;
+  btn.textContent = 'Generando...';
+  try {
+    const w = 1080;
+    const h = isSquare ? 1080 : 1920;
+    const blob = await svgToPng(`svg/${name}.svg`, w, h);
+    triggerDownload(blob, `${name}.png`);
+    btn.textContent = '✓ Descargado';
+    setTimeout(() => { btn.textContent = 'Descargar PNG'; btn.disabled = false; }, 1500);
+  } catch (err) {
+    btn.textContent = 'Error';
+    console.error(err);
+    setTimeout(() => { btn.textContent = 'Descargar PNG'; btn.disabled = false; }, 2000);
+  }
+});
+
+document.getElementById('downloadAll').addEventListener('click', async (e) => {
+  const btn = e.target;
+  btn.disabled = true;
+  for (const a of assets) {
+    btn.textContent = `Generando ${a.label}...`;
+    const w = 1080;
+    const h = a.isSquare ? 1080 : 1920;
+    try {
+      const blob = await svgToPng(`svg/${a.name}.svg`, w, h);
+      triggerDownload(blob, `${a.name}.png`);
+      await new Promise(r => setTimeout(r, 400));
+    } catch (err) {
+      console.error(`Error ${a.name}:`, err);
+    }
+  }
+  btn.textContent = '✓ Todos descargados';
+  setTimeout(() => {
+    btn.textContent = '⬇ Descargar todos los PNG (6 archivos)';
+    btn.disabled = false;
+  }, 2000);
+});
+</script>
+
+</body>
+</html>
