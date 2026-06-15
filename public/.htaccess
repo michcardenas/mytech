@@ -27,3 +27,38 @@
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# ===================================================
+# Security & Performance Headers (LiteSpeed / Apache)
+# ===================================================
+<IfModule mod_headers.c>
+    # Remover headers que exponen tecnología (LiteSpeed los reinyecta tras PHP)
+    Header always unset X-Powered-By
+    Header always unset Server
+    Header unset X-Powered-By
+    Header unset Server
+
+    # Cache pública para assets estáticos (1 año) — improves repeat visits
+    <FilesMatch "\.(jpg|jpeg|png|gif|webp|avif|svg|ico|woff|woff2|ttf|eot|otf|mp4|webm|css|js)$">
+        Header set Cache-Control "public, max-age=31536000, immutable"
+    </FilesMatch>
+
+    # Cache HTML público (5 min CDN, stale-while-revalidate 1 día)
+    <FilesMatch "\.(html|htm)$">
+        Header set Cache-Control "public, max-age=300, s-maxage=600, stale-while-revalidate=86400"
+    </FilesMatch>
+</IfModule>
+
+# ==============================================================
+# PHP — desactivar expose_php para que no envíe X-Powered-By
+# (requiere que Hostinger permita .user.ini / php_value override)
+# ==============================================================
+<IfModule mod_php.c>
+    php_value expose_php Off
+</IfModule>
+
+# Compresión Gzip / Brotli para texto
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json application/xml text/plain text/xml application/xhtml+xml image/svg+xml
+</IfModule>
+
