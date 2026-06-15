@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1080 1920" width="1080" height="1920">
+  <defs>
+    <radialGradient id="bgKer" cx="50%" cy="50%" r="75%">
+      <stop offset="0%"  stop-color="#FDFCF8"/>
+      <stop offset="60%" stop-color="#F5F2EB"/>
+      <stop offset="100%" stop-color="#E8E1D2"/>
+    </radialGradient>
+    <filter id="grainKer" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="2" seed="15" stitchTiles="stitch"/>
+      <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.06 0"/>
+    </filter>
+    <filter id="softShadowKer" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur in="SourceAlpha" stdDeviation="14"/>
+      <feOffset dx="0" dy="10"/>
+      <feComponentTransfer><feFuncA type="linear" slope="0.16"/></feComponentTransfer>
+      <feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1080" height="1920" fill="url(#bgKer)"/>
+  <rect width="1080" height="1920" filter="url(#grainKer)"/>
+
+  <g stroke="#0F172A" stroke-width="2" opacity="0.15" fill="none">
+    <line x1="80" y1="80" x2="180" y2="80"/>
+    <line x1="80" y1="80" x2="80" y2="180"/>
+    <line x1="900" y1="80" x2="1000" y2="80"/>
+    <line x1="1000" y1="80" x2="1000" y2="180"/>
+    <line x1="80" y1="1740" x2="80" y2="1840"/>
+    <line x1="80" y1="1840" x2="180" y2="1840"/>
+    <line x1="1000" y1="1740" x2="1000" y2="1840"/>
+    <line x1="900" y1="1840" x2="1000" y2="1840"/>
+  </g>
+
+  <g transform="translate(540, 280)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="30" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.55">CASO 05 / 05</text>
+    <line x1="-50" y1="36" x2="50" y2="36" stroke="#10B981" stroke-width="3"/>
+    <text y="110" font-family="'Inter Tight', system-ui, sans-serif" font-size="56" font-weight="500"
+          fill="#0F172A" opacity="0.75">🇩🇴 República Dominicana</text>
+  </g>
+
+  <g transform="translate(540, 960)" filter="url(#softShadowKer)">
+    <rect x="-410" y="-340" width="820" height="680" rx="36" ry="36"
+          fill="#FFFFFF" stroke="#0F172A" stroke-width="2" opacity="0.95"/>
+
+    <text x="0" y="-240" text-anchor="middle"
+          font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="5" fill="#10B981">APP MÓVIL · iOS · ANDROID</text>
+    <line x1="-50" y1="-210" x2="50" y2="-210" stroke="#10B981" stroke-width="2" opacity="0.6"/>
+
+    <text x="0" y="-90" text-anchor="middle"
+          font-family="'Inter Tight', system-ui, sans-serif" font-size="120" font-weight="800"
+          letter-spacing="-4" fill="#0F172A">Keriva</text>
+
+    <text x="0" y="-25" text-anchor="middle"
+          font-family="'Inter Tight', system-ui, sans-serif" font-size="32" font-weight="500"
+          fill="#475569">Farmacias de turno y precios</text>
+
+    <g transform="translate(0, 80)">
+      <rect x="-240" y="-40" width="480" height="100" rx="16" ry="16" fill="#10B981"/>
+      <text x="0" y="-5" text-anchor="middle"
+            font-family="'JetBrains Mono', monospace" font-size="22" font-weight="500"
+            letter-spacing="4" fill="#FFFFFF" opacity="0.85">PUBLICADA EN</text>
+      <text x="0" y="42" text-anchor="middle"
+            font-family="'Inter Tight', system-ui, sans-serif" font-size="44" font-weight="800"
+            letter-spacing="-1" fill="#FFFFFF">APP STORE · PLAY</text>
+    </g>
+
+    <text x="0" y="240" text-anchor="middle"
+          font-family="'JetBrains Mono', monospace" font-size="22" font-weight="500"
+          letter-spacing="4" fill="#64748B">EXPO · REACT NATIVE · SUPABASE</text>
+
+    <circle cx="360" cy="-300" r="18" fill="#2563EB"/>
+    <circle cx="360" cy="-300" r="18" fill="none" stroke="#FFFFFF" stroke-width="4"/>
+  </g>
+
+  <g transform="translate(540, 1500)" text-anchor="middle">
+    <text font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="5" fill="#0F172A" opacity="0.65">EXPLORAR PROYECTO ↗</text>
+  </g>
+
+  <g transform="translate(540, 1780)" text-anchor="middle">
+    <line x1="-60" y1="-30" x2="60" y2="-30" stroke="#0F172A" stroke-width="2" opacity="0.25"/>
+    <text y="20" font-family="'JetBrains Mono', monospace" font-size="26" font-weight="500"
+          letter-spacing="6" fill="#0F172A" opacity="0.60">MY TECH · 2026</text>
+  </g>
+</svg>

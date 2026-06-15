@@ -27,11 +27,26 @@
   h1 { font-size: 38px; font-weight: 800; letter-spacing: -1px; margin-bottom: 12px; }
   .sub { color: var(--text2); font-size: 16px; max-width: 640px; margin: 0 auto; line-height: 1.5; }
   .grid {
-    max-width: 1100px;
+    max-width: 1200px;
     margin: 0 auto;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
     gap: 24px;
+  }
+  .section { max-width: 1200px; margin: 56px auto 0; }
+  .section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 18px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: -0.3px;
+  }
+  .section-meta {
+    font-weight: 400;
+    color: var(--text2);
+    font-size: 13px;
+    font-family: 'JetBrains Mono', monospace;
   }
   .card {
     background: white;
@@ -128,21 +143,41 @@
 
 <header>
   <h1>Instagram Assets · MY Tech Solutions</h1>
-  <p class="sub">Foto de perfil + 5 portadas para Highlights. Hacé click en cada "Descargar PNG" o usá el botón final para bajar todo de una.</p>
+  <p class="sub">Foto de perfil + 5 portadas para Highlights + 5 slides de proyectos destacados. Cliqueá "Descargar PNG" por individual, o el botón final para bajar los 12.</p>
 </header>
 
-<div class="grid" id="grid"></div>
+<section class="section">
+  <h2 class="section-title">Foto de Perfil</h2>
+  <div class="grid" data-group="profile"></div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Portadas de Highlights</h2>
+  <div class="grid" data-group="covers"></div>
+</section>
+
+<section class="section">
+  <h2 class="section-title">Slides del Highlight "Proyectos" <span class="section-meta">— para postear como stories y archivar en el highlight Proyectos</span></h2>
+  <div class="grid" data-group="projects"></div>
+</section>
 
 <div class="download-all">
-  <button id="downloadAll">⬇ Descargar todos los PNG (7 archivos)</button>
+  <button id="downloadAll">⬇ Descargar todos los PNG (12 archivos)</button>
 </div>
 
 <div class="ig-tip">
   <h3>📲 Cómo aplicarlos en Instagram (desde tu celular)</h3>
   <ol>
-    <li><strong>Foto de perfil:</strong> Editar perfil → Cambiar foto → subí <code>profile-photo.png</code>.</li>
-    <li><strong>Highlights:</strong> Tu perfil → tocá el highlight (Proyectos, Servicios, etc.) → Más opciones → Editar destacada → Editar portada → Subí la imagen.</li>
-    <li>Si todavía no tenés los 5 highlights, créalos primero (subí 1 story dummy para cada uno y archivala como destacada).</li>
+    <li><strong>Foto de perfil:</strong> Editar perfil → Cambiar foto → subí <code>profile-photo.png</code> (o <code>profile-photo-v2.png</code>).</li>
+    <li><strong>Portadas de Highlights:</strong> Tu perfil → tocá el highlight (Proyectos, Servicios, etc) → Más opciones → Editar destacada → Editar portada → subí la imagen <code>highlight-XXX.png</code>.</li>
+    <li><strong>Slides del highlight "Proyectos":</strong>
+      <ul>
+        <li>Subí cada <code>proyecto-0X-XXX.png</code> como una <strong>story</strong> (no como post de feed).</li>
+        <li>Una vez subidas las 5 stories, las archivás dentro del highlight "Proyectos" en orden 01 → 05.</li>
+        <li>Cuando alguien tap "Proyectos" → ve los 5 casos como slideshow editorial.</li>
+      </ul>
+    </li>
+    <li>Si todavía no tenés los 5 highlights creados, hacé primero las stories dummy de cada uno y archivalas como destacadas.</li>
   </ol>
 </div>
 
@@ -150,16 +185,25 @@
 const LOGO_URL = '/images/logo.png';   // 500x251 ratio 1.99:1
 
 const assets = [
-  { name: 'profile-photo',      label: 'Foto Perfil · v1 (espaciada)',   dim: '1080 × 1080', isSquare: true, logoSize: 0.74 },
-  { name: 'profile-photo-v2',   label: 'Foto Perfil · v2 (logo grande)', dim: '1080 × 1080', isSquare: true, logoSize: 0.91 },
-  { name: 'highlight-proyectos', label: 'Proyectos',  dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-servicios', label: 'Servicios',  dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-precios',   label: 'Precios',    dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-faq',       label: 'FAQ',        dim: '1080 × 1920', isSquare: false },
-  { name: 'highlight-contacto',  label: 'Contacto',   dim: '1080 × 1920', isSquare: false },
+  { name: 'profile-photo',      label: 'Foto Perfil · v1 (espaciada)',   dim: '1080 × 1080', isSquare: true, logoSize: 0.74, group: 'profile' },
+  { name: 'profile-photo-v2',   label: 'Foto Perfil · v2 (logo grande)', dim: '1080 × 1080', isSquare: true, logoSize: 0.91, group: 'profile' },
+  { name: 'highlight-proyectos', label: 'Proyectos',  dim: '1080 × 1920', isSquare: false, group: 'covers' },
+  { name: 'highlight-servicios', label: 'Servicios',  dim: '1080 × 1920', isSquare: false, group: 'covers' },
+  { name: 'highlight-precios',   label: 'Precios',    dim: '1080 × 1920', isSquare: false, group: 'covers' },
+  { name: 'highlight-faq',       label: 'FAQ',        dim: '1080 × 1920', isSquare: false, group: 'covers' },
+  { name: 'highlight-contacto',  label: 'Contacto',   dim: '1080 × 1920', isSquare: false, group: 'covers' },
+  { name: 'proyecto-01-calendarix',  label: '01 · Calendarix',  dim: '1080 × 1920', isSquare: false, group: 'projects' },
+  { name: 'proyecto-02-miracle',     label: '02 · Miracle',     dim: '1080 × 1920', isSquare: false, group: 'projects' },
+  { name: 'proyecto-03-bos-metrics', label: '03 · Bos Metrics', dim: '1080 × 1920', isSquare: false, group: 'projects' },
+  { name: 'proyecto-04-sur-alpine',  label: '04 · Sur Alpine',  dim: '1080 × 1920', isSquare: false, group: 'projects' },
+  { name: 'proyecto-05-keriva',      label: '05 · Keriva',      dim: '1080 × 1920', isSquare: false, group: 'projects' },
 ];
 
-const grid = document.getElementById('grid');
+const grids = {
+  profile:  document.querySelector('[data-group="profile"]'),
+  covers:   document.querySelector('[data-group="covers"]'),
+  projects: document.querySelector('[data-group="projects"]'),
+};
 
 assets.forEach(a => {
   const card = document.createElement('div');
@@ -177,7 +221,7 @@ assets.forEach(a => {
       <button data-name="${a.name}" data-square="${a.isSquare}" data-logo-size="${a.logoSize || ''}">Descargar PNG</button>
     </div>
   `;
-  grid.appendChild(card);
+  (grids[a.group] || grids.covers).appendChild(card);
 });
 
 // Carga la imagen del logo una sola vez (cacheada)
@@ -240,7 +284,7 @@ async function composePng(assetName, width, height, logoSize) {
 
 // Renderiza las previews de cada card al cargar (low-res para no quemar memoria)
 async function renderPreviews() {
-  const cards = document.querySelectorAll('.card');
+  const cards = document.querySelectorAll('.grid .card');
   for (const card of cards) {
     const assetName = card.dataset.asset;
     const asset = assets.find(a => a.name === assetName);
@@ -285,8 +329,8 @@ function triggerDownload(blob, filename) {
   }, 100);
 }
 
-document.getElementById('grid').addEventListener('click', async (e) => {
-  const btn = e.target.closest('button[data-name]');
+document.body.addEventListener('click', async (e) => {
+  const btn = e.target.closest('.grid button[data-name]');
   if (!btn) return;
   const name = btn.dataset.name;
   const isSquare = btn.dataset.square === 'true';
@@ -324,7 +368,7 @@ document.getElementById('downloadAll').addEventListener('click', async (e) => {
   }
   btn.textContent = '✓ Todos descargados';
   setTimeout(() => {
-    btn.textContent = '⬇ Descargar todos los PNG (7 archivos)';
+    btn.textContent = '⬇ Descargar todos los PNG (12 archivos)';
     btn.disabled = false;
   }, 2000);
 });
