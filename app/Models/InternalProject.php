@@ -11,6 +11,8 @@ class InternalProject extends Model
         'client_id',
         'developer_id',
         'vendedor_id',
+        'comercial_user_id',
+        'lead_id',
         'comision_tipo',
         'comision_valor',
         'cliente_nombre',
@@ -54,6 +56,16 @@ class InternalProject extends Model
     public function vendedor()
     {
         return $this->belongsTo(Vendedor::class);
+    }
+
+    public function comercial()
+    {
+        return $this->belongsTo(User::class, 'comercial_user_id');
+    }
+
+    public function lead()
+    {
+        return $this->belongsTo(Lead::class);
     }
 
     public function gestionPayments()

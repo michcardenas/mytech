@@ -15,6 +15,11 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
 
+        // La ejecutiva comercial trabaja desde el pipeline
+        if ($user->hasRole('comercial') && ! $user->hasRole('admin')) {
+            return redirect()->route('pipeline.index');
+        }
+
         if ($user->hasRole('admin')) {
             // Estadísticas de páginas (excluye blogs)
             $totalPages = Page::where('type', '!=', 'blog')->count();

@@ -22,6 +22,10 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'google_calendar_token',
+        'google_calendar_refresh_token',
+        'google_calendar_expires_at',
+        'google_calendar_email',
     ];
 
     /**
@@ -44,6 +48,15 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'google_calendar_token' => 'encrypted',
+            'google_calendar_refresh_token' => 'encrypted',
+            'google_calendar_expires_at' => 'datetime',
         ];
+    }
+
+    /** ¿Tiene el calendario de Google conectado? */
+    public function hasGoogleCalendar(): bool
+    {
+        return ! empty($this->google_calendar_refresh_token);
     }
 }

@@ -282,6 +282,63 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 //         ->name('pages.contacto.update');
 // });
 
+/* ====================================================================
+   PIPELINE COMERCIAL (CRM-lite)
+   - comercial: solo sus propios leads/propuestas/reuniones (scoped)
+   - admin: visibilidad total + conversión + comisiones
+   ==================================================================== */
+Route::middleware(['auth', 'role:admin|comercial'])->prefix('pipeline')->name('pipeline.')->group(function () {
+    Route::get('/', [\App\Http\Controllers\Pipeline\PipelineController::class, 'index'])->name('index');
+    Route::post('leads/{lead}/stage', [\App\Http\Controllers\Pipeline\PipelineController::class, 'updateStage'])->name('leads.stage');
+
+    Route::get('pendientes', [\App\Http\Controllers\Pipeline\LeadController::class, 'pendientes'])->name('pendientes');
+    Route::get('perdidos', [\App\Http\Controllers\Pipeline\LeadController::class, 'perdidos'])->name('perdidos');
+    Route::post('leads', [\App\Http\Controllers\Pipeline\LeadController::class, 'store'])->name('leads.store');
+    Route::get('leads/{lead}', [\App\Http\Controllers\Pipeline\LeadController::class, 'show'])->name('leads.show');
+    Route::put('leads/{lead}', [\App\Http\Controllers\Pipeline\LeadController::class, 'update'])->name('leads.update');
+    Route::delete('leads/{lead}', [\App\Http\Controllers\Pipeline\LeadController::class, 'destroy'])->name('leads.destroy');
+    Route::post('leads/{lead}/ganado', [\App\Http\Controllers\Pipeline\LeadController::class, 'marcarGanado'])->name('leads.ganado');
+    Route::post('leads/{lead}/perdido', [\App\Http\Controllers\Pipeline\LeadController::class, 'marcarPerdido'])->name('leads.perdido');
+
+    Route::post('leads/{lead}/activities', [\App\Http\Controllers\Pipeline\LeadActivityController::class, 'store'])->name('activities.store');
+
+    Route::post('leads/{lead}/proposals', [\App\Http\Controllers\Pipeline\ProposalController::class, 'store'])->name('proposals.store');
+    Route::put('proposals/{proposal}', [\App\Http\Controllers\Pipeline\ProposalController::class, 'update'])->name('proposals.update');
+    Route::delete('proposals/{proposal}', [\App\Http\Controllers\Pipeline\ProposalController::class, 'destroy'])->name('proposals.destroy');
+
+    Route::get('reuniones', [\App\Http\Controllers\Pipeline\MeetingController::class, 'index'])->name('meetings.index');
+    Route::post('leads/{lead}/meetings', [\App\Http\Controllers\Pipeline\MeetingController::class, 'store'])->name('meetings.store');
+    Route::put('meetings/{meeting}', [\App\Http\Controllers\Pipeline\MeetingController::class, 'update'])->name('meetings.update');
+    Route::delete('meetings/{meeting}', [\App\Http\Controllers\Pipeline\MeetingController::class, 'destroy'])->name('meetings.destroy');
+
+    Route::get('mis-resultados', [\App\Http\Controllers\Pipeline\MyResultsController::class, 'index'])->name('my-results');
+
+    // Agendamiento contra el calendario del admin
+    Route::get('disponibilidad', [\App\Http\Controllers\Pipeline\SchedulingController::class, 'availability'])->name('availability');
+    Route::post('leads/{lead}/agendar-cierre', [\App\Http\Controllers\Pipeline\SchedulingController::class, 'book'])->name('leads.book');
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('pipeline')->name('pipeline.')->group(function () {
+    Route::post('leads/{lead}/convertir', [\App\Http\Controllers\Pipeline\ConversionController::class, 'convert'])->name('leads.convert');
+    Route::get('dashboard', [\App\Http\Controllers\Pipeline\CommercialDashboardController::class, 'index'])->name('dashboard');
+    Route::get('comisiones', [\App\Http\Controllers\Pipeline\CommissionController::class, 'index'])->name('commissions');
+    Route::put('comisiones', [\App\Http\Controllers\Pipeline\CommissionController::class, 'update'])->name('commissions.update');
+
+    // Google Calendar (conexión del admin)
+    Route::get('calendar', [\App\Http\Controllers\Pipeline\CalendarController::class, 'index'])->name('calendar');
+    Route::get('calendar/connect', [\App\Http\Controllers\Pipeline\CalendarController::class, 'connect'])->name('calendar.connect');
+    Route::get('calendar/callback', [\App\Http\Controllers\Pipeline\CalendarController::class, 'callback'])->name('calendar.callback');
+    Route::delete('calendar/disconnect', [\App\Http\Controllers\Pipeline\CalendarController::class, 'disconnect'])->name('calendar.disconnect');
+});
+
+/* ---------- Gestión de usuarios / equipo (solo admin) ---------- */
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::resource('usuarios', \App\Http\Controllers\Admin\UserController::class)
+        ->parameters(['usuarios' => 'user'])
+        ->names('admin.users')
+        ->except('show');
+});
+
 require __DIR__.'/auth.php';
 
 /* ---------- Ruta catch-all para Landing Pages (DEBE IR AL FINAL ABSOLUTO) ---------- */

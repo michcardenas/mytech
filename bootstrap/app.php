@@ -14,6 +14,13 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware) {
         // Headers de seguridad en TODAS las respuestas (web + api)
         $middleware->append(\App\Http\Middleware\SecurityHeaders::class);
+
+        // Aliases de Spatie Permission para proteger rutas (role/permission)
+        $middleware->alias([
+            'role'               => \Spatie\Permission\Middleware\RoleMiddleware::class,
+            'permission'         => \Spatie\Permission\Middleware\PermissionMiddleware::class,
+            'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
+        ]);
     })
     ->withSchedule(function (Schedule $schedule) {
         // Regenerar sitemap diariamente a las 2:00 AM

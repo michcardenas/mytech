@@ -46,4 +46,10 @@ return [
         'conversion_label' => env('GOOGLE_ADS_CONVERSION_LABEL'),
     ],
 
+    'google_calendar' => [
+        'client_id'     => env('GOOGLE_CALENDAR_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CALENDAR_CLIENT_SECRET'),
+        'redirect'      => env('GOOGLE_CALENDAR_REDIRECT', env('APP_URL') . '/pipeline/calendar/callback'),
+    ],
+
 ];
