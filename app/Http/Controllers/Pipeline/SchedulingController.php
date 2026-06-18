@@ -36,7 +36,7 @@ class SchedulingController extends Controller
         }
 
         try {
-            $days = $this->google->availableSlots($host);
+            $days = $this->google->availableSlots($host, 35);
         } catch (\Throwable $e) {
             return response()->json([
                 'connected' => true,

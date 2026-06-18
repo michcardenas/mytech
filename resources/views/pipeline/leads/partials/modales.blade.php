@@ -87,17 +87,35 @@
     </div>
 </div>
 
-{{-- ===== Modal: agendar reunión de cierre (calendario del admin) ===== --}}
+{{-- ===== Modal: agendar reunión de cierre (calendario interactivo) ===== --}}
 <div class="modal fade" id="agendarCierreModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
         <div class="modal-content" style="border:none;border-radius:16px;">
             <div class="modal-header"><h5 class="modal-title fw-bold"><i class="fas fa-calendar-plus text-primary me-2"></i>Agendar reunión de cierre</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
-            <div class="modal-body" style="max-height:65vh;overflow-y:auto">
-                <div id="cierreSlotsLoading" class="text-center text-muted py-4">
+            <div class="modal-body">
+                <div id="cierreLoading" class="text-center text-muted py-4">
                     <div class="spinner-border spinner-border-sm me-2"></div> Cargando disponibilidad…
                 </div>
-                <div id="cierreSlotsContent"></div>
+                <div id="cierreMsg"></div>
+                <div id="cierreWrap" style="display:none">
+                    <p class="text-muted small mb-3">Disponibilidad de <strong id="cierreHost">el admin</strong>. Elige un día y un horario; se crea el evento con Google Meet.</p>
+                    <div class="cal-grid">
+                        <div class="cal-left">
+                            <div class="cal-head">
+                                <button type="button" id="calPrev" class="cal-nav">‹</button>
+                                <span id="calMonth"></span>
+                                <button type="button" id="calNext" class="cal-nav">›</button>
+                            </div>
+                            <div class="cal-dow"><span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span></div>
+                            <div id="calDays" class="cal-days"></div>
+                        </div>
+                        <div class="cal-right">
+                            <div id="calDayLabel" class="fw-bold mb-2 text-muted">Elige un día</div>
+                            <div id="calSlots" class="cal-slots"></div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -106,57 +124,114 @@
     @csrf
     <input type="hidden" name="scheduled_at" id="cierreScheduledAt">
 </form>
+<style>
+    .cal-grid { display:grid; grid-template-columns:1fr 1fr; gap:1.5rem; }
+    @media (max-width:600px){ .cal-grid{ grid-template-columns:1fr; } }
+    .cal-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:.6rem; }
+    .cal-head span { font-weight:800; color:#0F172A; text-transform:capitalize; }
+    .cal-nav { border:1px solid #E5E7EB; background:#fff; border-radius:8px; width:30px; height:30px; cursor:pointer; color:#334155; line-height:1; font-size:1.1rem; }
+    .cal-nav:hover:not(:disabled){ background:#F1F5F9; }
+    .cal-nav:disabled { opacity:.35; cursor:not-allowed; }
+    .cal-dow { display:grid; grid-template-columns:repeat(7,1fr); text-align:center; font-size:.68rem; font-weight:700; color:#94A3B8; margin-bottom:.35rem; }
+    .cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:5px; }
+    .cal-day { aspect-ratio:1; display:flex; align-items:center; justify-content:center; border-radius:9px; font-size:.85rem; color:#CBD5E1; }
+    .cal-day.av { background:#EFF6FF; color:#1D4ED8; font-weight:700; cursor:pointer; }
+    .cal-day.av:hover { background:#DBEAFE; }
+    .cal-day.sel { background:#2563EB; color:#fff; }
+    .cal-slots { display:flex; flex-wrap:wrap; gap:.4rem; max-height:280px; overflow-y:auto; align-content:flex-start; }
+    .cal-slot { border:1px solid #BFDBFE; background:#fff; color:#1D4ED8; border-radius:8px; padding:.35rem .6rem; font-size:.83rem; font-weight:600; cursor:pointer; }
+    .cal-slot:hover { background:#2563EB; color:#fff; border-color:#2563EB; }
+    .cal-slot.busy { border-color:#E5E7EB; background:#F8FAFC; color:#CBD5E1; cursor:not-allowed; text-decoration:line-through; }
+    .cal-empty { color:#94A3B8; font-size:.85rem; padding:1rem 0; }
+</style>
 <script>
 (function () {
     const modal = document.getElementById('agendarCierreModal');
     if (!modal) return;
-    const loading = document.getElementById('cierreSlotsLoading');
-    const content = document.getElementById('cierreSlotsContent');
+    const loading = document.getElementById('cierreLoading');
+    const msg     = document.getElementById('cierreMsg');
+    const wrap    = document.getElementById('cierreWrap');
     const form    = document.getElementById('cierreBookForm');
     const input   = document.getElementById('cierreScheduledAt');
+    const calDays = document.getElementById('calDays');
+    const calMonth = document.getElementById('calMonth');
+    const calSlots = document.getElementById('calSlots');
+    const calDayLabel = document.getElementById('calDayLabel');
+    const btnPrev = document.getElementById('calPrev');
+    const btnNext = document.getElementById('calNext');
+    const MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+    const DIAS  = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+    let availMap = {}, viewYear, viewMonth, minYM, maxYM, selectedDate = null;
+
+    const ym = (y, m) => y + '-' + String(m + 1).padStart(2, '0');
+    const hasFree = (date) => (availMap[date] || []).some(s => s.free);
+
+    function renderCalendar() {
+        calMonth.textContent = MESES[viewMonth] + ' ' + viewYear;
+        const offset = (new Date(viewYear, viewMonth, 1).getDay() + 6) % 7;
+        const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+        let html = '';
+        for (let i = 0; i < offset; i++) html += '<div class="cal-day"></div>';
+        for (let d = 1; d <= daysInMonth; d++) {
+            const ds = ym(viewYear, viewMonth) + '-' + String(d).padStart(2, '0');
+            const cls = hasFree(ds) ? 'cal-day av' + (ds === selectedDate ? ' sel' : '') : 'cal-day';
+            html += '<div class="' + cls + '" data-date="' + ds + '">' + d + '</div>';
+        }
+        calDays.innerHTML = html;
+        calDays.querySelectorAll('.cal-day.av').forEach(c => c.addEventListener('click', () => selectDay(c.getAttribute('data-date'))));
+        btnPrev.disabled = ym(viewYear, viewMonth) <= minYM;
+        btnNext.disabled = ym(viewYear, viewMonth) >= maxYM;
+    }
+
+    function selectDay(date) {
+        selectedDate = date;
+        renderCalendar();
+        const slots = availMap[date] || [];
+        const dObj = new Date(date + 'T00:00:00');
+        const txt = DIAS[dObj.getDay()] + ' ' + dObj.getDate() + ' de ' + MESES[dObj.getMonth()];
+        calDayLabel.textContent = txt.charAt(0).toUpperCase() + txt.slice(1);
+        calDayLabel.classList.remove('text-muted');
+        if (!slots.length) { calSlots.innerHTML = '<div class="cal-empty">Sin horarios este día.</div>'; return; }
+        let html = '';
+        slots.forEach(s => {
+            html += s.free
+                ? '<button type="button" class="cal-slot" data-start="' + s.start + '">' + s.label + '</button>'
+                : '<span class="cal-slot busy" title="Ocupado">' + s.label + '</span>';
+        });
+        calSlots.innerHTML = html;
+        calSlots.querySelectorAll('.cal-slot[data-start]').forEach(b => b.addEventListener('click', () => {
+            input.value = b.getAttribute('data-start');
+            calSlots.querySelectorAll('.cal-slot').forEach(x => x.style.pointerEvents = 'none');
+            b.innerHTML = '…';
+            form.submit();
+        }));
+    }
+
+    btnPrev.addEventListener('click', () => { if (viewMonth === 0) { viewMonth = 11; viewYear--; } else viewMonth--; renderCalendar(); });
+    btnNext.addEventListener('click', () => { if (viewMonth === 11) { viewMonth = 0; viewYear++; } else viewMonth++; renderCalendar(); });
 
     modal.addEventListener('show.bs.modal', function () {
-        loading.style.display = 'block';
-        content.innerHTML = '';
+        loading.style.display = 'block'; msg.innerHTML = ''; wrap.style.display = 'none'; selectedDate = null;
         fetch("{{ route('pipeline.availability') }}", { headers: { 'Accept': 'application/json' } })
             .then(r => r.json())
             .then(data => {
                 loading.style.display = 'none';
-                if (!data.connected) {
-                    content.innerHTML = '<div class="alert alert-warning mb-0">' + (data.message || 'El admin no ha conectado su calendario.') + '</div>';
-                    return;
-                }
-                if (!data.days || !data.days.length) {
-                    content.innerHTML = '<div class="alert alert-info mb-0">No hay horarios libres en los próximos días.</div>';
-                    return;
-                }
-                let html = '<p class="text-muted small mb-1">Disponibilidad de <strong>' + (data.host || 'el admin') + '</strong>, cada 15 min. Elige un horario libre y se crea el evento con Google Meet.</p>';
-                html += '<div class="small mb-3" style="color:#94A3B8"><span class="badge" style="background:#2563EB">Libre</span> = clic para agendar &nbsp;·&nbsp; <span class="badge" style="background:#E5E7EB;color:#64748B">Ocupado</span> = no disponible</div>';
-                data.days.forEach(function (day) {
-                    html += '<div class="mb-3"><div class="fw-bold small text-capitalize mb-1">' + day.label + '</div><div class="d-flex flex-wrap gap-1">';
-                    day.slots.forEach(function (s) {
-                        if (s.free) {
-                            html += '<button type="button" class="btn btn-sm btn-outline-primary cierre-slot" data-start="' + s.start + '">' + s.label + '</button>';
-                        } else {
-                            html += '<span class="btn btn-sm disabled" style="background:#F1F5F9;color:#94A3B8;border:1px solid #E5E7EB;cursor:not-allowed" title="Ocupado">' + s.label + '</span>';
-                        }
-                    });
-                    html += '</div></div>';
-                });
-                content.innerHTML = html;
-                content.querySelectorAll('.cierre-slot').forEach(function (b) {
-                    b.addEventListener('click', function () {
-                        input.value = b.getAttribute('data-start');
-                        content.querySelectorAll('.cierre-slot').forEach(x => x.disabled = true);
-                        b.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
-                        form.submit();
-                    });
-                });
+                if (!data.connected) { msg.innerHTML = '<div class="alert alert-warning mb-0">' + (data.message || 'El admin no ha conectado su calendario.') + '</div>'; return; }
+                if (!data.days || !data.days.length) { msg.innerHTML = '<div class="alert alert-info mb-0">No hay horarios disponibles en los próximos días.</div>'; return; }
+                document.getElementById('cierreHost').textContent = data.host || 'el admin';
+                availMap = {};
+                data.days.forEach(d => { availMap[d.date] = d.slots; });
+                const fechas = data.days.map(d => d.date).sort();
+                const firstFree = data.days.find(d => d.slots.some(s => s.free)) || data.days[0];
+                const fd = new Date(firstFree.date + 'T00:00:00');
+                viewYear = fd.getFullYear(); viewMonth = fd.getMonth();
+                minYM = fechas[0].slice(0, 7); maxYM = fechas[fechas.length - 1].slice(0, 7);
+                wrap.style.display = 'block';
+                renderCalendar();
+                selectDay(firstFree.date);
             })
-            .catch(function () {
-                loading.style.display = 'none';
-                content.innerHTML = '<div class="alert alert-danger mb-0">No se pudo cargar la disponibilidad.</div>';
-            });
+            .catch(() => { loading.style.display = 'none'; msg.innerHTML = '<div class="alert alert-danger mb-0">No se pudo cargar la disponibilidad.</div>'; });
     });
 })();
 </script>
