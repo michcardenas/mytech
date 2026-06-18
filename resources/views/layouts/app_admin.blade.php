@@ -272,6 +272,7 @@
             request()->routeIs('pipeline.meetings.*')        => 'Reuniones',
             request()->routeIs('pipeline.my-results')        => 'Mis resultados',
             request()->routeIs('pipeline.calendar*')         => 'Mi calendario',
+            request()->routeIs('pipeline.correos.*')         => 'Correos',
             request()->routeIs('pipeline.*')                 => 'Pipeline',
             default                                          => 'Panel',
         };
@@ -331,6 +332,9 @@
                 <a href="{{ route('pipeline.calendar') }}" class="mtadmin-link {{ request()->routeIs('pipeline.calendar') ? 'is-active' : '' }}">
                     <i class="fas fa-calendar-days"></i> Mi calendario
                 </a>
+                <a href="{{ route('pipeline.correos.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.correos.*') ? 'is-active' : '' }}">
+                    <i class="fas fa-envelope"></i> Correos
+                </a>
             @endrole
 
             @role('comercial')
@@ -346,6 +350,9 @@
                 </a>
                 <a href="{{ route('pipeline.meetings.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.meetings.*') ? 'is-active' : '' }}">
                     <i class="fas fa-calendar-check"></i> Reuniones
+                </a>
+                <a href="{{ route('pipeline.correos.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.correos.*') ? 'is-active' : '' }}">
+                    <i class="fas fa-envelope"></i> Correos
                 </a>
 
                 <div class="mtadmin-group-label">Resultados</div>

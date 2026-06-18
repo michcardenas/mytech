@@ -29,6 +29,16 @@ return Application::configure(basePath: dirname(__DIR__))
             ->at('02:00')
             ->withoutOverlapping()
             ->onOneServer();
+
+        // Enviar tandas de correos pendientes (anti-spam: ~10/min)
+        $schedule->command('emails:send-pending')
+            ->everyMinute()
+            ->withoutOverlapping();
+
+        // Sincronizar la bandeja de entrada (IMAP -> BD) cada 10 minutos
+        $schedule->command('emails:sync-inbox')
+            ->everyTenMinutes()
+            ->withoutOverlapping();
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

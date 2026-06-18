@@ -316,6 +316,14 @@ Route::middleware(['auth', 'role:admin|comercial'])->prefix('pipeline')->name('p
     // Agendamiento contra el calendario del admin
     Route::get('disponibilidad', [\App\Http\Controllers\Pipeline\SchedulingController::class, 'availability'])->name('availability');
     Route::post('leads/{lead}/agendar-cierre', [\App\Http\Controllers\Pipeline\SchedulingController::class, 'book'])->name('leads.book');
+
+    // Correos (mail marketing) — enviar + bandeja
+    Route::get('correos', [\App\Http\Controllers\Pipeline\CorreosController::class, 'index'])->name('correos.index');
+    Route::post('correos', [\App\Http\Controllers\Pipeline\CorreosController::class, 'send'])->name('correos.send');
+    Route::get('correos/bandeja', [\App\Http\Controllers\Pipeline\CorreosController::class, 'bandeja'])->name('correos.bandeja');
+    Route::post('correos/sincronizar', [\App\Http\Controllers\Pipeline\CorreosController::class, 'sincronizar'])->name('correos.sincronizar');
+    Route::get('correos/bandeja/{uid}', [\App\Http\Controllers\Pipeline\CorreosController::class, 'leer'])->whereNumber('uid')->name('correos.leer');
+    Route::post('correos/responder', [\App\Http\Controllers\Pipeline\CorreosController::class, 'responder'])->name('correos.responder');
 });
 
 Route::middleware(['auth', 'role:admin'])->prefix('pipeline')->name('pipeline.')->group(function () {
