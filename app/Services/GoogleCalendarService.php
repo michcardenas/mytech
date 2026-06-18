@@ -245,7 +245,7 @@ class GoogleCalendarService
             if ($slots) {
                 $result[] = [
                     'date'  => $day->toDateString(),
-                    'label' => ucfirst($day->translatedFormat('D d M')),
+                    'label' => ucfirst($day->locale('es')->translatedFormat('D d M')),
                     'slots' => $slots,
                 ];
             }
