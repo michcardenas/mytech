@@ -55,9 +55,10 @@ class ClientesImportController extends Controller
             'identificacion' => trim((string) ($f[0] ?? '')),
             'nombre' => trim((string) ($f[1] ?? '')),
             'empresa' => trim((string) ($f[2] ?? '')),
-            'telefono' => trim((string) ($f[3] ?? '')),
-            'telefono2' => trim((string) ($f[4] ?? '')),
-            'descripcion' => trim((string) ($f[5] ?? '')),
+            'email' => trim((string) ($f[3] ?? '')),
+            'telefono' => trim((string) ($f[4] ?? '')),
+            'telefono2' => trim((string) ($f[5] ?? '')),
+            'descripcion' => trim((string) ($f[6] ?? '')),
         ])->filter(fn ($c) => $c['nombre'] !== '')->values();
 
         if ($clientes->isEmpty()) {
@@ -70,6 +71,7 @@ class ClientesImportController extends Controller
             'identificacion' => $c['identificacion'] ?: null,
             'nombre' => $c['nombre'],
             'empresa' => $c['empresa'] ?: null,
+            'email' => $c['email'] ?: null,
             'telefono' => $c['telefono'] ?: null,
             'telefono2' => $c['telefono2'] ?: null,
             'descripcion' => $c['descripcion'] ?: null,
@@ -119,6 +121,7 @@ class ClientesImportController extends Controller
                     'nombre' => $cli->nombre,
                     'identificacion' => $cli->identificacion,
                     'empresa' => $cli->empresa,
+                    'email' => $cli->email,
                     'telefono' => $cli->telefono,
                     'telefono2' => $cli->telefono2,
                     'descripcion' => $cli->descripcion,
