@@ -25,6 +25,7 @@
     <div class="co-tabs">
         <a href="{{ route('pipeline.correos.index') }}" class="co-tab"><i class="fas fa-paper-plane me-1"></i> Redactar</a>
         <a href="{{ route('pipeline.correos.bandeja') }}" class="co-tab active"><i class="fas fa-inbox me-1"></i> Bandeja de entrada @if($sinLeer)<span class="badge bg-primary ms-1">{{ $sinLeer }}</span>@endif</a>
+        @role('admin')<a href="{{ route('pipeline.correos.reporte') }}" class="co-tab"><i class="fas fa-chart-column me-1"></i> Reporte por comercial</a>@endrole
     </div>
 
     @if(session('success'))<div class="alert alert-success py-2">{{ session('success') }}</div>@endif

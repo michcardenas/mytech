@@ -332,6 +332,15 @@ Route::middleware(['auth', 'role:admin'])->prefix('pipeline')->name('pipeline.')
     Route::get('comisiones', [\App\Http\Controllers\Pipeline\CommissionController::class, 'index'])->name('commissions');
     Route::put('comisiones', [\App\Http\Controllers\Pipeline\CommissionController::class, 'update'])->name('commissions.update');
 
+    // Reporte de correos enviados por comercial (auditoría)
+    Route::get('correos/reporte', [\App\Http\Controllers\Pipeline\CorreosController::class, 'reporte'])->name('correos.reporte');
+
+    // Importación masiva de clientes + reparto aleatorio a comerciales
+    Route::get('clientes/importar', [\App\Http\Controllers\Pipeline\ClientesImportController::class, 'index'])->name('clientes.importar');
+    Route::get('clientes/plantilla', [\App\Http\Controllers\Pipeline\ClientesImportController::class, 'plantilla'])->name('clientes.plantilla');
+    Route::post('clientes/cargar', [\App\Http\Controllers\Pipeline\ClientesImportController::class, 'importar'])->name('clientes.cargar');
+    Route::post('clientes/repartir', [\App\Http\Controllers\Pipeline\ClientesImportController::class, 'repartir'])->name('clientes.repartir');
+
     // Google Calendar (conexión del admin)
     Route::get('calendar', [\App\Http\Controllers\Pipeline\CalendarController::class, 'index'])->name('calendar');
     Route::get('calendar/connect', [\App\Http\Controllers\Pipeline\CalendarController::class, 'connect'])->name('calendar.connect');

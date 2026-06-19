@@ -272,7 +272,9 @@
             request()->routeIs('pipeline.meetings.*')        => 'Reuniones',
             request()->routeIs('pipeline.my-results')        => 'Mis resultados',
             request()->routeIs('pipeline.calendar*')         => 'Mi calendario',
+            request()->routeIs('pipeline.correos.reporte')   => 'Reporte de correos',
             request()->routeIs('pipeline.correos.*')         => 'Correos',
+            request()->routeIs('pipeline.clientes.*')        => 'Importar clientes',
             request()->routeIs('pipeline.*')                 => 'Pipeline',
             default                                          => 'Panel',
         };
@@ -332,8 +334,14 @@
                 <a href="{{ route('pipeline.calendar') }}" class="mtadmin-link {{ request()->routeIs('pipeline.calendar') ? 'is-active' : '' }}">
                     <i class="fas fa-calendar-days"></i> Mi calendario
                 </a>
-                <a href="{{ route('pipeline.correos.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.correos.*') ? 'is-active' : '' }}">
+                <a href="{{ route('pipeline.correos.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.correos.*') && ! request()->routeIs('pipeline.correos.reporte') ? 'is-active' : '' }}">
                     <i class="fas fa-envelope"></i> Correos
+                </a>
+                <a href="{{ route('pipeline.correos.reporte') }}" class="mtadmin-link {{ request()->routeIs('pipeline.correos.reporte') ? 'is-active' : '' }}">
+                    <i class="fas fa-chart-column"></i> Reporte de correos
+                </a>
+                <a href="{{ route('pipeline.clientes.importar') }}" class="mtadmin-link {{ request()->routeIs('pipeline.clientes.*') ? 'is-active' : '' }}">
+                    <i class="fas fa-users-rectangle"></i> Importar clientes
                 </a>
             @endrole
 

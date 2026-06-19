@@ -13,46 +13,49 @@ class Lead extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'nombre', 'empresa', 'fuente', 'fuente_url', 'descripcion',
-        'email', 'telefono', 'valor_estimado', 'moneda', 'etapa', 'estado',
+        'user_id', 'nombre', 'identificacion', 'empresa', 'fuente', 'fuente_url', 'descripcion',
+        'email', 'telefono', 'telefono2', 'valor_estimado', 'moneda', 'etapa', 'estado',
         'motivo_perdido', 'proxima_accion_at', 'proxima_accion_nota', 'orden',
-        'won_at', 'lost_at', 'internal_project_id',
+        'won_at', 'lost_at', 'internal_project_id', 'lote_importacion',
     ];
 
     protected function casts(): array
     {
         return [
-            'valor_estimado'    => 'decimal:2',
+            'valor_estimado' => 'decimal:2',
             'proxima_accion_at' => 'datetime',
-            'won_at'            => 'datetime',
-            'lost_at'           => 'datetime',
+            'won_at' => 'datetime',
+            'lost_at' => 'datetime',
         ];
     }
 
     /** Etapas del kanban en orden, con etiqueta y color. */
     public const ETAPAS = [
-        'prospecto'  => ['label' => 'Prospecto',  'color' => '#6B7280'],
+        'prospecto' => ['label' => 'Prospecto',  'color' => '#6B7280'],
         'contactado' => ['label' => 'Contactado', 'color' => '#6366F1'],
-        'propuesta'  => ['label' => 'Propuesta',  'color' => '#F59E0B'],
-        'reunion'    => ['label' => 'Reunión',    'color' => '#06B6D4'],
-        'cierre'     => ['label' => 'Cierre',     'color' => '#8B5CF6'],
-        'ganado'     => ['label' => 'Ganado',     'color' => '#16A34A'],
+        'propuesta' => ['label' => 'Propuesta',  'color' => '#F59E0B'],
+        'reunion' => ['label' => 'Reunión',    'color' => '#06B6D4'],
+        'cierre' => ['label' => 'Cierre',     'color' => '#8B5CF6'],
+        'ganado' => ['label' => 'Ganado',     'color' => '#16A34A'],
     ];
 
     /** Fuentes de prospección, con etiqueta e ícono FontAwesome. */
     public const FUENTES = [
-        'workana'   => ['label' => 'Workana',   'icon' => 'fas fa-briefcase',     'color' => '#2563EB'],
-        'facebook'  => ['label' => 'Facebook',  'icon' => 'fab fa-facebook-f',    'color' => '#1877F2'],
+        'workana' => ['label' => 'Workana',   'icon' => 'fas fa-briefcase',     'color' => '#2563EB'],
+        'facebook' => ['label' => 'Facebook',  'icon' => 'fab fa-facebook-f',    'color' => '#1877F2'],
         'instagram' => ['label' => 'Instagram', 'icon' => 'fab fa-instagram',     'color' => '#E1306C'],
-        'linkedin'  => ['label' => 'LinkedIn',  'icon' => 'fab fa-linkedin-in',   'color' => '#0A66C2'],
-        'referido'  => ['label' => 'Referido',  'icon' => 'fas fa-user-group',    'color' => '#16A34A'],
-        'whatsapp'  => ['label' => 'WhatsApp',  'icon' => 'fab fa-whatsapp',      'color' => '#25D366'],
-        'web'       => ['label' => 'Sitio web', 'icon' => 'fas fa-globe',         'color' => '#0EA5E9'],
-        'otro'      => ['label' => 'Otro',      'icon' => 'fas fa-tag',           'color' => '#6B7280'],
+        'linkedin' => ['label' => 'LinkedIn',  'icon' => 'fab fa-linkedin-in',   'color' => '#0A66C2'],
+        'referido' => ['label' => 'Referido',  'icon' => 'fas fa-user-group',    'color' => '#16A34A'],
+        'whatsapp' => ['label' => 'WhatsApp',  'icon' => 'fab fa-whatsapp',      'color' => '#25D366'],
+        'web' => ['label' => 'Sitio web', 'icon' => 'fas fa-globe',         'color' => '#0EA5E9'],
+        'importado' => ['label' => 'Importado', 'icon' => 'fas fa-file-import',   'color' => '#7C3AED'],
+        'otro' => ['label' => 'Otro',      'icon' => 'fas fa-tag',           'color' => '#6B7280'],
     ];
 
     public const ESTADO_ABIERTO = 'abierto';
-    public const ESTADO_GANADO  = 'ganado';
+
+    public const ESTADO_GANADO = 'ganado';
+
     public const ESTADO_PERDIDO = 'perdido';
 
     // ---------- Relaciones ----------
@@ -157,7 +160,7 @@ class Lead extends Model
         }
         $simbolo = $this->moneda === 'USD' ? 'US$' : '$';
 
-        return $simbolo . number_format((float) $this->valor_estimado, 0, ',', '.');
+        return $simbolo.number_format((float) $this->valor_estimado, 0, ',', '.');
     }
 
     public static function etapasTablero(): array

@@ -26,6 +26,7 @@
     <div style="display:flex;gap:.4rem;margin:.3rem 0 1rem;border-bottom:1px solid #E5E7EB">
         <a href="{{ route('pipeline.correos.index') }}" style="padding:.55rem 1rem;font-weight:600;font-size:.9rem;color:#2563EB;text-decoration:none;border-bottom:2px solid #2563EB"><i class="fas fa-paper-plane me-1"></i> Redactar</a>
         <a href="{{ route('pipeline.correos.bandeja') }}" style="padding:.55rem 1rem;font-weight:600;font-size:.9rem;color:#64748B;text-decoration:none"><i class="fas fa-inbox me-1"></i> Bandeja de entrada</a>
+        @role('admin')<a href="{{ route('pipeline.correos.reporte') }}" style="padding:.55rem 1rem;font-weight:600;font-size:.9rem;color:#64748B;text-decoration:none"><i class="fas fa-chart-column me-1"></i> Reporte por comercial</a>@endrole
     </div>
     <p class="co-sub">Envía correos desde <strong>{{ $remitente }}</strong>. Se mandan en tandas de 10 por minuto para no caer en spam.</p>
 

@@ -104,6 +104,83 @@ class CorreosController extends Controller
                 $email->fresh()->estado === 'enviado' ? 'Respuesta enviada a '.$data['para'] : 'No se pudo enviar: '.$email->fresh()->error);
     }
 
+    /** Reporte de correos enviados por comercial (solo admin). */
+    public function reporte(Request $request)
+    {
+        $comercialId = $request->integer('comercial') ?: null;
+        $dias = max(7, min(90, $request->integer('dias') ?: 30));
+        $desde = now()->subDays($dias - 1)->startOfDay();
+
+        $hoyStr = now()->toDateString();
+        $semanaStr = now()->startOfWeek()->toDateTimeString();
+        $mesStr = now()->startOfMonth()->toDateTimeString();
+
+        $scoped = fn () => Email::query()->when($comercialId, fn ($q) => $q->where('user_id', $comercialId));
+
+        $kpis = [
+            'hoy' => $scoped()->where('estado', 'enviado')->whereDate('sent_at', $hoyStr)->count(),
+            'semana' => $scoped()->where('estado', 'enviado')->where('sent_at', '>=', $semanaStr)->count(),
+            'mes' => $scoped()->where('estado', 'enviado')->where('sent_at', '>=', $mesStr)->count(),
+            'enviados' => $scoped()->where('estado', 'enviado')->count(),
+            'fallidos' => $scoped()->where('estado', 'fallido')->count(),
+            'pendientes' => $scoped()->where('estado', 'pendiente')->count(),
+        ];
+
+        $agg = Email::query()
+            ->selectRaw(
+                'user_id,
+                COUNT(*) as total,
+                SUM(estado = ?) as enviados,
+                SUM(estado = ?) as fallidos,
+                SUM(estado = ? AND DATE(sent_at) = ?) as hoy,
+                SUM(estado = ? AND sent_at >= ?) as semana,
+                SUM(estado = ? AND sent_at >= ?) as mes,
+                MAX(sent_at) as ultimo',
+                ['enviado', 'fallido', 'enviado', $hoyStr, 'enviado', $semanaStr, 'enviado', $mesStr]
+            )
+            ->groupBy('user_id')->get()->keyBy('user_id');
+
+        $usuarios = \App\Models\User::role(['admin', 'comercial'])->orderBy('name')->get()
+            ->map(function ($u) use ($agg) {
+                $a = $agg->get($u->id);
+
+                return (object) [
+                    'name' => $u->name,
+                    'email' => $u->email,
+                    'rol' => $u->getRoleNames()->first() ?? '—',
+                    'hoy' => (int) ($a->hoy ?? 0),
+                    'semana' => (int) ($a->semana ?? 0),
+                    'mes' => (int) ($a->mes ?? 0),
+                    'enviados' => (int) ($a->enviados ?? 0),
+                    'fallidos' => (int) ($a->fallidos ?? 0),
+                    'total' => (int) ($a->total ?? 0),
+                    'ultimo' => $a->ultimo ?? null,
+                ];
+            })->sortByDesc('enviados')->values();
+
+        $porDiaRaw = $scoped()->where('estado', 'enviado')->where('sent_at', '>=', $desde)
+            ->selectRaw('DATE(sent_at) as dia, COUNT(*) as n')->groupBy('dia')->pluck('n', 'dia');
+
+        $porDia = collect();
+        for ($i = $dias - 1; $i >= 0; $i--) {
+            $d = now()->subDays($i)->toDateString();
+            $porDia->push((object) ['dia' => $d, 'n' => (int) ($porDiaRaw[$d] ?? 0)]);
+        }
+
+        $detalle = $scoped()->with('user')->latest('id')->limit(150)->get();
+
+        return view('pipeline.correos.reporte', [
+            'kpis' => $kpis,
+            'usuarios' => $usuarios,
+            'porDia' => $porDia,
+            'detalle' => $detalle,
+            'comerciales' => \App\Models\User::role(['admin', 'comercial'])->orderBy('name')->get(['id', 'name']),
+            'comercialId' => $comercialId,
+            'dias' => $dias,
+            'pageTitle' => 'Reporte de correos',
+        ]);
+    }
+
     /** Redactar + registro de enviados. */
     public function index()
     {
