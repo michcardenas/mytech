@@ -10,6 +10,7 @@ use App\Models\Lead;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Maatwebsite\Excel\Facades\Excel;
@@ -38,6 +39,52 @@ class ClientesImportController extends Controller
         return Excel::download(new PlantillaClientesExport, 'plantilla-clientes.xlsx');
     }
 
+    /**
+     * Detecta el índice de cada columna por el NOMBRE del encabezado, no por su posición,
+     * para que la importación no se rompa si se reordenan o agregan columnas.
+     *
+     * @return array<string, int>
+     */
+    private function mapearColumnas(Collection $encabezado): array
+    {
+        $normalizar = fn ($s) => strtolower(strtr(trim((string) $s), [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ñ' => 'n',
+            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u', 'Ñ' => 'n',
+        ]));
+
+        $idx = [];
+        foreach ($encabezado as $i => $titulo) {
+            $h = $normalizar($titulo);
+            if ($h === '') {
+                continue;
+            }
+
+            $asignar = function (string $campo) use (&$idx, $i): void {
+                if (! isset($idx[$campo])) {
+                    $idx[$campo] = $i;
+                }
+            };
+
+            if (str_contains($h, 'identif') || str_contains($h, 'cedula') || str_contains($h, 'documento') || str_contains($h, 'nit')) {
+                $asignar('identificacion');
+            } elseif (str_contains($h, 'empresa') || str_contains($h, 'compania')) {
+                $asignar('empresa');
+            } elseif (str_contains($h, 'pais')) {
+                $asignar('pais');
+            } elseif (str_contains($h, 'correo') || str_contains($h, 'email') || str_contains($h, 'mail')) {
+                $asignar('email');
+            } elseif (str_contains($h, 'telefono') || str_contains($h, 'celular') || str_contains($h, 'movil') || str_contains($h, 'whatsapp')) {
+                $asignar(str_contains($h, '2') || str_contains($h, 'secundario') ? 'telefono2' : 'telefono');
+            } elseif (str_contains($h, 'descrip') || str_contains($h, 'nota') || str_contains($h, 'observ') || str_contains($h, 'coment')) {
+                $asignar('descripcion');
+            } elseif (str_contains($h, 'nombre') || str_contains($h, 'contacto') || str_contains($h, 'cliente')) {
+                $asignar('nombre');
+            }
+        }
+
+        return $idx;
+    }
+
     /** PASO 1: carga el archivo a la bolsa de clientes "sin repartir". */
     public function importar(Request $request): RedirectResponse
     {
@@ -51,15 +98,26 @@ class ClientesImportController extends Controller
         $import = new ClientesImport;
         Excel::import($import, $request->file('archivo'));
 
-        $clientes = $import->filas->slice(1)->map(fn ($f) => [
-            'identificacion' => trim((string) ($f[0] ?? '')),
-            'nombre' => trim((string) ($f[1] ?? '')),
-            'empresa' => trim((string) ($f[2] ?? '')),
-            'pais' => trim((string) ($f[3] ?? '')),
-            'email' => trim((string) ($f[4] ?? '')),
-            'telefono' => trim((string) ($f[5] ?? '')),
-            'telefono2' => trim((string) ($f[6] ?? '')),
-            'descripcion' => trim((string) ($f[7] ?? '')),
+        $filas = $import->filas;
+        $idx = $this->mapearColumnas($filas->first() ?? collect());
+
+        // Respaldo posicional si el archivo no trae encabezados reconocibles.
+        if (! isset($idx['nombre'])) {
+            $idx = ['identificacion' => 0, 'nombre' => 1, 'empresa' => 2, 'pais' => 3, 'email' => 4, 'telefono' => 5, 'telefono2' => 6, 'descripcion' => 7];
+        }
+
+        $valor = fn ($fila, $campo) => isset($idx[$campo]) ? trim((string) ($fila[$idx[$campo]] ?? '')) : '';
+
+        // Se omite la primera fila (encabezados de la plantilla).
+        $clientes = $filas->slice(1)->map(fn ($f) => [
+            'identificacion' => $valor($f, 'identificacion'),
+            'nombre' => $valor($f, 'nombre'),
+            'empresa' => $valor($f, 'empresa'),
+            'pais' => $valor($f, 'pais'),
+            'email' => $valor($f, 'email'),
+            'telefono' => $valor($f, 'telefono'),
+            'telefono2' => $valor($f, 'telefono2'),
+            'descripcion' => $valor($f, 'descripcion'),
         ])->filter(fn ($c) => $c['nombre'] !== '')->values();
 
         if ($clientes->isEmpty()) {

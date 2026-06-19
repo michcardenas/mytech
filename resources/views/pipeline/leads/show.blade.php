@@ -151,26 +151,36 @@
                 <h3><i class="fas fa-address-card text-primary"></i> Datos del lead
                     <a class="count" data-bs-toggle="collapse" href="#editLead" role="button" style="cursor:pointer"><i class="fas fa-pen"></i> Editar</a>
                 </h3>
-                @if($lead->valor_estimado)<div class="ld-field"><i class="fas fa-dollar-sign"></i> <strong>{{ $lead->valor_formateado }}</strong> <span class="text-muted">({{ $lead->moneda }})</span></div>@endif
+                @if($lead->identificacion)<div class="ld-field"><i class="fas fa-id-card"></i> <span><span class="text-muted">Identificación:</span> {{ $lead->identificacion }}</span></div>@endif
+                @if($lead->empresa)<div class="ld-field"><i class="fas fa-building"></i> {{ $lead->empresa }}</div>@endif
+                @if($lead->pais)<div class="ld-field"><i class="fas fa-earth-americas"></i> {{ $lead->pais }}</div>@endif
                 @if($lead->email)<div class="ld-field"><i class="fas fa-envelope"></i> <a href="mailto:{{ $lead->email }}">{{ $lead->email }}</a></div>@endif
-                @if($lead->telefono)<div class="ld-field"><i class="fab fa-whatsapp"></i> {{ $lead->telefono }}</div>@endif
+                @if($lead->telefono)<div class="ld-field"><i class="fab fa-whatsapp"></i> <a href="https://wa.me/{{ preg_replace('/\D/', '', $lead->telefono) }}" target="_blank">{{ $lead->telefono }}</a> <span class="text-muted">(Tel. 1)</span></div>@endif
+                @if($lead->telefono2)<div class="ld-field"><i class="fas fa-phone"></i> {{ $lead->telefono2 }} <span class="text-muted">(Tel. 2)</span></div>@endif
+                @if($lead->valor_estimado)<div class="ld-field"><i class="fas fa-dollar-sign"></i> <strong>{{ $lead->valor_formateado }}</strong> <span class="text-muted">({{ $lead->moneda }})</span></div>@endif
                 @if($lead->fuente_url)<div class="ld-field"><i class="fas fa-link"></i> <a href="{{ $lead->fuente_url }}" target="_blank">{{ \Illuminate\Support\Str::limit($lead->fuente_url, 38) }}</a></div>@endif
                 @if($lead->descripcion)<div class="ld-field"><i class="fas fa-align-left"></i> <span>{{ $lead->descripcion }}</span></div>@endif
+                @unless($lead->identificacion || $lead->empresa || $lead->pais || $lead->email || $lead->telefono || $lead->telefono2 || $lead->descripcion)
+                    <p class="text-muted small mb-0">Este lead no tiene datos de contacto. Pulsa «Editar» para agregarlos.</p>
+                @endunless
 
                 <div class="collapse mt-3" id="editLead">
                     <form method="POST" action="{{ route('pipeline.leads.update', $lead) }}">
                         @csrf @method('PUT')
                         <div class="row g-2">
                             <div class="col-12"><input name="nombre" class="form-control form-control-sm" value="{{ $lead->nombre }}" placeholder="Nombre" required></div>
-                            <div class="col-12"><input name="empresa" class="form-control form-control-sm" value="{{ $lead->empresa }}" placeholder="Empresa"></div>
+                            <div class="col-6"><input name="identificacion" class="form-control form-control-sm" value="{{ $lead->identificacion }}" placeholder="Identificación"></div>
+                            <div class="col-6"><input name="empresa" class="form-control form-control-sm" value="{{ $lead->empresa }}" placeholder="Empresa"></div>
+                            <div class="col-6"><input name="pais" class="form-control form-control-sm" value="{{ $lead->pais }}" placeholder="País"></div>
                             <div class="col-6">
                                 <select name="fuente" class="form-select form-select-sm">
                                     @foreach($fuentes as $k => $f)<option value="{{ $k }}" @selected($lead->fuente===$k)>{{ $f['label'] }}</option>@endforeach
                                 </select>
                             </div>
-                            <div class="col-6"><input name="fuente_url" class="form-control form-control-sm" value="{{ $lead->fuente_url }}" placeholder="Enlace"></div>
+                            <div class="col-12"><input name="fuente_url" class="form-control form-control-sm" value="{{ $lead->fuente_url }}" placeholder="Enlace"></div>
                             <div class="col-6"><input name="email" class="form-control form-control-sm" value="{{ $lead->email }}" placeholder="Email"></div>
-                            <div class="col-6"><input name="telefono" class="form-control form-control-sm" value="{{ $lead->telefono }}" placeholder="Teléfono"></div>
+                            <div class="col-6"><input name="telefono" class="form-control form-control-sm" value="{{ $lead->telefono }}" placeholder="Teléfono 1"></div>
+                            <div class="col-6"><input name="telefono2" class="form-control form-control-sm" value="{{ $lead->telefono2 }}" placeholder="Teléfono 2"></div>
                             <div class="col-7"><input type="number" step="0.01" name="valor_estimado" class="form-control form-control-sm" value="{{ $lead->valor_estimado }}" placeholder="Valor"></div>
                             <div class="col-5">
                                 <select name="moneda" class="form-select form-select-sm">

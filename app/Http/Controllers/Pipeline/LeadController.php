@@ -26,16 +26,16 @@ class LeadController extends Controller
             $data['user_id'] = $user->id;
         }
 
-        $data['etapa']  = $data['etapa'] ?? 'prospecto';
+        $data['etapa'] = $data['etapa'] ?? 'prospecto';
         $data['estado'] = Lead::ESTADO_ABIERTO;
 
         $lead = Lead::create($data);
 
         LeadActivity::create([
-            'lead_id'     => $lead->id,
-            'user_id'     => $user->id,
-            'tipo'        => 'sistema',
-            'descripcion' => 'Lead creado desde ' . $lead->fuente_label,
+            'lead_id' => $lead->id,
+            'user_id' => $user->id,
+            'tipo' => 'sistema',
+            'descripcion' => 'Lead creado desde '.$lead->fuente_label,
         ]);
 
         return redirect()->route('pipeline.leads.show', $lead)
@@ -50,15 +50,15 @@ class LeadController extends Controller
         $lead->load(['activities.user', 'proposals.user', 'meetings.user', 'user', 'internalProject']);
 
         return view('pipeline.leads.show', [
-            'lead'             => $lead,
-            'etapas'           => Lead::ETAPAS,
-            'fuentes'          => Lead::FUENTES,
-            'tiposActividad'   => \App\Models\LeadActivity::TIPOS,
+            'lead' => $lead,
+            'etapas' => Lead::ETAPAS,
+            'fuentes' => Lead::FUENTES,
+            'tiposActividad' => \App\Models\LeadActivity::TIPOS,
             'estadosPropuesta' => \App\Models\Proposal::ESTADOS,
-            'tiposReunion'     => \App\Models\Meeting::TIPOS,
-            'estadosReunion'   => \App\Models\Meeting::ESTADOS,
-            'isAdmin'          => Auth::user()->hasRole('admin'),
-            'pageTitle'        => $lead->nombre,
+            'tiposReunion' => \App\Models\Meeting::TIPOS,
+            'estadosReunion' => \App\Models\Meeting::ESTADOS,
+            'isAdmin' => Auth::user()->hasRole('admin'),
+            'pageTitle' => $lead->nombre,
         ]);
     }
 
@@ -93,7 +93,7 @@ class LeadController extends Controller
         $this->authorize('update', $lead);
 
         $lead->update([
-            'etapa'  => 'ganado',
+            'etapa' => 'ganado',
             'estado' => Lead::ESTADO_GANADO,
             'won_at' => now(),
             'lost_at' => null,
@@ -116,16 +116,16 @@ class LeadController extends Controller
         $request->validate(['motivo_perdido' => 'nullable|string|max:255']);
 
         $lead->update([
-            'estado'         => Lead::ESTADO_PERDIDO,
-            'lost_at'        => now(),
-            'won_at'         => null,
+            'estado' => Lead::ESTADO_PERDIDO,
+            'lost_at' => now(),
+            'won_at' => null,
             'motivo_perdido' => $request->input('motivo_perdido'),
         ]);
 
         LeadActivity::create([
             'lead_id' => $lead->id, 'user_id' => Auth::id(),
             'tipo' => 'sistema',
-            'descripcion' => 'Lead marcado como PERDIDO' . ($request->filled('motivo_perdido') ? ': ' . $request->input('motivo_perdido') : ''),
+            'descripcion' => 'Lead marcado como PERDIDO'.($request->filled('motivo_perdido') ? ': '.$request->input('motivo_perdido') : ''),
         ]);
 
         return back()->with('success', 'Lead marcado como perdido.');
@@ -156,11 +156,11 @@ class LeadController extends Controller
     /** Listado de leads perdidos (admin: todos / filtrable; comercial: los suyos). */
     public function perdidos(Request $request)
     {
-        $user    = Auth::user();
+        $user = Auth::user();
         $isAdmin = $user->hasRole('admin');
 
         $comerciales = $isAdmin ? User::role('comercial')->orderBy('name')->get() : collect();
-        $filtro      = $isAdmin ? $request->integer('comercial') : null;
+        $filtro = $isAdmin ? $request->integer('comercial') : null;
 
         $leads = Lead::query()
             ->where('estado', Lead::ESTADO_PERDIDO)
@@ -172,12 +172,12 @@ class LeadController extends Controller
         $valorPerdido = $leads->sum('valor_estimado');
 
         return view('pipeline.perdidos', [
-            'leads'        => $leads,
-            'comerciales'  => $comerciales,
-            'filtro'       => $filtro,
-            'isAdmin'      => $isAdmin,
+            'leads' => $leads,
+            'comerciales' => $comerciales,
+            'filtro' => $filtro,
+            'isAdmin' => $isAdmin,
             'valorPerdido' => $valorPerdido,
-            'pageTitle'    => 'Perdidos',
+            'pageTitle' => 'Perdidos',
         ]);
     }
 
@@ -185,17 +185,20 @@ class LeadController extends Controller
     private function validateLead(Request $request): array
     {
         return $request->validate([
-            'nombre'              => 'required|string|max:255',
-            'empresa'             => 'nullable|string|max:255',
-            'fuente'              => 'required|string|in:' . implode(',', array_keys(Lead::FUENTES)),
-            'fuente_url'          => 'nullable|url|max:500',
-            'descripcion'         => 'nullable|string|max:2000',
-            'email'               => 'nullable|email|max:255',
-            'telefono'            => 'nullable|string|max:50',
-            'valor_estimado'      => 'nullable|numeric|min:0',
-            'moneda'              => 'required|in:COP,USD',
-            'etapa'               => 'nullable|string|in:' . implode(',', array_keys(Lead::ETAPAS)),
-            'proxima_accion_at'   => 'nullable|date',
+            'nombre' => 'required|string|max:255',
+            'identificacion' => 'nullable|string|max:100',
+            'empresa' => 'nullable|string|max:255',
+            'pais' => 'nullable|string|max:100',
+            'fuente' => 'required|string|in:'.implode(',', array_keys(Lead::FUENTES)),
+            'fuente_url' => 'nullable|url|max:500',
+            'descripcion' => 'nullable|string|max:2000',
+            'email' => 'nullable|email|max:255',
+            'telefono' => 'nullable|string|max:50',
+            'telefono2' => 'nullable|string|max:50',
+            'valor_estimado' => 'nullable|numeric|min:0',
+            'moneda' => 'required|in:COP,USD',
+            'etapa' => 'nullable|string|in:'.implode(',', array_keys(Lead::ETAPAS)),
+            'proxima_accion_at' => 'nullable|date',
             'proxima_accion_nota' => 'nullable|string|max:255',
         ]);
     }
