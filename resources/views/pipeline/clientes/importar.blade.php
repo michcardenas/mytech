@@ -52,6 +52,7 @@
             <span class="imp-col">Identificación</span>
             <span class="imp-col">Nombre *</span>
             <span class="imp-col">Empresa</span>
+            <span class="imp-col">País</span>
             <span class="imp-col">Correo electrónico</span>
             <span class="imp-col">Teléfono 1</span>
             <span class="imp-col">Teléfono 2</span>
@@ -87,10 +88,10 @@
             {{-- vista previa --}}
             <div class="table-responsive" style="max-height:230px;overflow-y:auto">
                 <table class="prev-table">
-                    <thead><tr><th>Nombre</th><th>Empresa</th><th>Correo</th><th>Identificación</th><th>Teléfono</th></tr></thead>
+                    <thead><tr><th>Nombre</th><th>Empresa</th><th>País</th><th>Correo</th><th>Identificación</th><th>Teléfono</th></tr></thead>
                     <tbody>
                         @foreach($pendientes->take(10) as $c)
-                            <tr><td>{{ $c->nombre }}</td><td>{{ $c->empresa ?: '—' }}</td><td>{{ $c->email ?: '—' }}</td><td>{{ $c->identificacion ?: '—' }}</td><td>{{ $c->telefono ?: '—' }}</td></tr>
+                            <tr><td>{{ $c->nombre }}</td><td>{{ $c->empresa ?: '—' }}</td><td>{{ $c->pais ?: '—' }}</td><td>{{ $c->email ?: '—' }}</td><td>{{ $c->identificacion ?: '—' }}</td><td>{{ $c->telefono ?: '—' }}</td></tr>
                         @endforeach
                     </tbody>
                 </table>

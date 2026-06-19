@@ -13,7 +13,7 @@ class Lead extends Model
     use SoftDeletes;
 
     protected $fillable = [
-        'user_id', 'nombre', 'identificacion', 'empresa', 'fuente', 'fuente_url', 'descripcion',
+        'user_id', 'nombre', 'identificacion', 'empresa', 'pais', 'fuente', 'fuente_url', 'descripcion',
         'email', 'telefono', 'telefono2', 'valor_estimado', 'moneda', 'etapa', 'estado',
         'motivo_perdido', 'proxima_accion_at', 'proxima_accion_nota', 'orden',
         'won_at', 'lost_at', 'internal_project_id', 'lote_importacion',

@@ -15,7 +15,7 @@ class PlantillaClientesExport implements FromArray, ShouldAutoSize, WithHeadings
      */
     public function headings(): array
     {
-        return ['Identificacion', 'Nombre', 'Empresa', 'Correo electronico', 'Telefono 1', 'Telefono 2', 'Descripcion'];
+        return ['Identificacion', 'Nombre', 'Empresa', 'Pais', 'Correo electronico', 'Telefono 1', 'Telefono 2', 'Descripcion'];
     }
 
     /**
@@ -26,8 +26,8 @@ class PlantillaClientesExport implements FromArray, ShouldAutoSize, WithHeadings
     public function array(): array
     {
         return [
-            ['1020304050', 'Juan Pérez', 'Acme S.A.S.', 'juan@acme.com', '3001234567', '6012345678', 'Interesado en página web'],
-            ['', '', '', '', '', '', ''],
+            ['1020304050', 'Juan Pérez', 'Acme S.A.S.', 'Colombia', 'juan@acme.com', '3001234567', '6012345678', 'Interesado en página web'],
+            ['', '', '', '', '', '', '', ''],
         ];
     }
 
