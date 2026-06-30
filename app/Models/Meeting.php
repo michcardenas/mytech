@@ -9,7 +9,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class Meeting extends Model
 {
     protected $fillable = [
-        'lead_id', 'user_id', 'titulo', 'tipo', 'scheduled_at', 'estado', 'resultado', 'notas',
+        'lead_id', 'user_id', 'host_user_id', 'titulo', 'tipo', 'scheduled_at', 'estado', 'resultado', 'notas',
+        'google_event_id', 'meet_link',
     ];
 
     protected function casts(): array
@@ -21,15 +22,15 @@ class Meeting extends Model
 
     public const TIPOS = [
         'descubrimiento' => ['label' => 'Descubrimiento', 'color' => '#2563EB'],
-        'seguimiento'    => ['label' => 'Seguimiento',    'color' => '#06B6D4'],
-        'cierre'         => ['label' => 'Cierre',         'color' => '#8B5CF6'],
+        'seguimiento' => ['label' => 'Seguimiento',    'color' => '#06B6D4'],
+        'cierre' => ['label' => 'Cierre',         'color' => '#8B5CF6'],
     ];
 
     public const ESTADOS = [
-        'agendada'  => ['label' => 'Agendada',  'color' => '#2563EB'],
+        'agendada' => ['label' => 'Agendada',  'color' => '#2563EB'],
         'realizada' => ['label' => 'Realizada', 'color' => '#16A34A'],
         'cancelada' => ['label' => 'Cancelada', 'color' => '#6B7280'],
-        'no_show'   => ['label' => 'No asistió', 'color' => '#DC2626'],
+        'no_show' => ['label' => 'No asistió', 'color' => '#DC2626'],
     ];
 
     public function lead(): BelongsTo

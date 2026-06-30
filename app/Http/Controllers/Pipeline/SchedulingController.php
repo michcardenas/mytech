@@ -30,25 +30,31 @@ class SchedulingController extends Controller
         if (! $host) {
             return response()->json([
                 'connected' => false,
-                'message'   => 'El administrador aún no ha conectado su calendario.',
-                'days'      => [],
+                'message' => 'El administrador aún no ha conectado su calendario.',
+                'days' => [],
             ]);
         }
 
         try {
             $days = $this->google->availableSlots($host, 35);
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::warning('Calendario: no se pudo leer la disponibilidad', [
+                'host_id' => $host->id,
+                'error' => $e->getMessage(),
+            ]);
+
             return response()->json([
                 'connected' => true,
-                'message'   => 'No se pudo leer la disponibilidad en este momento.',
-                'days'      => [],
+                'reauth' => true,
+                'message' => 'El calendario del administrador perdió la conexión con Google y debe reconectarse. Avísale al administrador para volver a vincularlo.',
+                'days' => [],
             ], 200);
         }
 
         return response()->json([
             'connected' => true,
-            'host'      => $host->name,
-            'days'      => $days,
+            'host' => $host->name,
+            'days' => $days,
         ]);
     }
 
@@ -67,34 +73,34 @@ class SchedulingController extends Controller
         }
 
         $start = Carbon::parse($data['scheduled_at'], config('app.timezone'));
-        $end   = $start->copy()->addMinutes(30);
+        $end = $start->copy()->addMinutes(30);
 
         $meeting = Meeting::create([
-            'lead_id'      => $lead->id,
-            'user_id'      => Auth::id(),
+            'lead_id' => $lead->id,
+            'user_id' => Auth::id(),
             'host_user_id' => $host->id,
-            'titulo'       => 'Cierre: ' . $lead->nombre,
-            'tipo'         => 'cierre',
+            'titulo' => 'Cierre: '.$lead->nombre,
+            'tipo' => 'cierre',
             'scheduled_at' => $start,
-            'estado'       => 'agendada',
+            'estado' => 'agendada',
         ]);
 
         $aviso = null;
         try {
             $event = $this->google->createEvent($host, [
-                'summary'     => 'Cierre: ' . $lead->nombre . ($lead->empresa ? ' (' . $lead->empresa . ')' : ''),
-                'description' => "Reunión de cierre.\nLead: {$lead->nombre}\nComercial: " . Auth::user()->name
-                    . ($lead->fuente_url ? "\nOrigen: {$lead->fuente_url}" : ''),
-                'start'       => $start,
-                'end'         => $end,
-                'attendees'   => array_filter([Auth::user()->email, $lead->email]),
+                'summary' => 'Cierre: '.$lead->nombre.($lead->empresa ? ' ('.$lead->empresa.')' : ''),
+                'description' => "Reunión de cierre.\nLead: {$lead->nombre}\nComercial: ".Auth::user()->name
+                    .($lead->fuente_url ? "\nOrigen: {$lead->fuente_url}" : ''),
+                'start' => $start,
+                'end' => $end,
+                'attendees' => array_filter([Auth::user()->email, $lead->email]),
             ]);
             $meeting->update([
                 'google_event_id' => $event['id'],
-                'meet_link'       => $event['meet'],
+                'meet_link' => $event['meet'],
             ]);
         } catch (\Throwable $e) {
-            $aviso = 'La reunión se guardó, pero no se pudo crear el evento en Google Calendar: ' . $e->getMessage();
+            $aviso = 'La reunión se guardó, pero no se pudo crear el evento en Google Calendar: '.$e->getMessage();
         }
 
         if ($lead->estado === Lead::ESTADO_ABIERTO) {
@@ -103,8 +109,8 @@ class SchedulingController extends Controller
 
         LeadActivity::create([
             'lead_id' => $lead->id, 'user_id' => Auth::id(), 'tipo' => 'reunion',
-            'descripcion' => 'Reunión de cierre agendada con ' . $host->name . ' para ' . $start->format('d/m/Y H:i')
-                . ($meeting->meet_link ? ' (Meet generado)' : ''),
+            'descripcion' => 'Reunión de cierre agendada con '.$host->name.' para '.$start->format('d/m/Y H:i')
+                .($meeting->meet_link ? ' (Meet generado)' : ''),
         ]);
 
         return back()->with($aviso ? 'error' : 'success', $aviso ?: 'Reunión de cierre agendada. Se creó el evento con Google Meet y te llegará la invitación.');

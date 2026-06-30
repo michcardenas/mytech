@@ -218,6 +218,7 @@
             .then(data => {
                 loading.style.display = 'none';
                 if (!data.connected) { msg.innerHTML = '<div class="alert alert-warning mb-0">' + (data.message || 'El admin no ha conectado su calendario.') + '</div>'; return; }
+                if (data.reauth) { msg.innerHTML = '<div class="alert alert-warning mb-0">' + (data.message || 'El calendario del administrador necesita reconectarse con Google.') + '</div>'; return; }
                 if (!data.days || !data.days.length) { msg.innerHTML = '<div class="alert alert-info mb-0">No hay horarios disponibles en los próximos días.</div>'; return; }
                 document.getElementById('cierreHost').textContent = data.host || 'el admin';
                 availMap = {};
