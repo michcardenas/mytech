@@ -2,32 +2,33 @@
  * Hero video lazy loader.
  *
  * Estrategia:
- *  - Mobile (<1024px): NO carga video (clase hidden lg:block en el tag).
- *  - Desktop: espera a window.load (post LCP), luego setea src y reproduce.
+ *  - El video se muestra en TODOS los tamaños, pero nunca bloquea el render:
+ *    se carga después de window.load (post LCP), así el hero pinta al instante
+ *    con el poster degradado y el video entra con fade cuando ya está listo.
+ *  - Mobile: si existe una versión ligera (data-src-mobile) se usa esa.
  *  - Si el usuario tiene "prefers-reduced-motion" no autoplay.
- *  - Connection saver: si saveData o efectivo <= "2g", no carga video.
- *
- * Ahorra ~8 MB de bandwidth en mobile + ~5s de LCP en mobile.
+ *  - Connection saver: si saveData o conexión lenta, no carga video.
+ *    En mobile somos más estrictos (también se salta en 3g) para cuidar datos.
  */
 export function initHeroVideo() {
     const video = document.querySelector('video[data-hero-video]');
     if (! video) return;
 
-    // No cargues en mobile (tag tiene hidden en mobile via Tailwind, pero defensa extra)
-    if (window.matchMedia('(max-width: 1023px)').matches) return;
-
     // Respeta prefers-reduced-motion
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
-    // Respeta data saver / 2g
+    const isMobile = window.matchMedia('(max-width: 1023px)').matches;
+
+    // Respeta data saver / conexiones lentas.
     const conn = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
     if (conn) {
         if (conn.saveData) return;
-        if (['slow-2g', '2g'].includes(conn.effectiveType)) return;
+        const slow = isMobile ? ['slow-2g', '2g', '3g'] : ['slow-2g', '2g'];
+        if (slow.includes(conn.effectiveType)) return;
     }
 
     const loadVideo = () => {
-        const src = video.dataset.src;
+        const src = (isMobile && video.dataset.srcMobile) ? video.dataset.srcMobile : video.dataset.src;
         if (! src || video.src) return;
         video.src = src;
         video.load();

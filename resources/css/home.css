@@ -210,7 +210,8 @@
         linear-gradient(135deg, #F8FAFC 0%, #FFFFFF 50%, #F1F5F9 100%);
 }
 /* Video — siempre position absolute encima del poster con z-index 1.
-   Display none en mobile vía CSS puro (más estable que `hidden lg:block` durante resize). */
+   Se muestra también en mobile; la carga real la decide el JS (post-LCP,
+   respetando data-saver / conexión lenta) para no penalizar rendimiento. */
 .hero-video-bg video {
     position: absolute;
     inset: 0;
@@ -219,13 +220,8 @@
     object-fit: cover;
     z-index: 1;
     opacity: 0;
-    display: none;
+    display: block;
     transition: opacity 1000ms cubic-bezier(0.22, 1, 0.36, 1);
-}
-@media (min-width: 1024px) {
-    .hero-video-bg video {
-        display: block;
-    }
 }
 .hero-video-bg video.is-ready {
     opacity: 1;

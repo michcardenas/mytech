@@ -398,6 +398,48 @@
                         @endif
                     </div>
                 </div>
+
+                @php
+                    $heroMediaMobile = $homeContent['hero_media_mobile'] ?? null;
+                @endphp
+                @if($heroIsVideo)
+                    <div style="margin-top:1.5rem; padding-top:1.5rem; border-top:1px dashed #e2e8f0;">
+                        <label class="form-label" style="font-weight:600;">
+                            <i class="fas fa-mobile-alt" style="color:#2563eb;"></i>
+                            Video ligero para celular <span style="font-weight:400; color:#64748b;">(opcional)</span>
+                        </label>
+                        <p class="form-text" style="margin:0.25rem 0 0.75rem;">
+                            Versión más liviana (menor resolución/peso) que se usará solo en móviles para ahorrar datos.
+                            Si no subes nada, en móvil se usa el video principal.
+                        </p>
+
+                        @if($heroMediaMobile)
+                            <div class="hero-image-preview has-image" style="max-width:220px; margin-bottom:0.75rem;">
+                                <video src="{{ asset('storage/' . $heroMediaMobile) }}" autoplay muted loop playsinline
+                                       style="width:100%; height:100%; object-fit:cover;"></video>
+                            </div>
+                        @endif
+
+                        <label class="file-drop" for="hero_media_mobile">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="file-drop-title">{{ $heroMediaMobile ? 'Cambiar video móvil' : 'Subir video móvil' }}</div>
+                            <div class="file-drop-hint">Video: MP4/WEBM/MOV · máx 5MB · recomendado 540p, ~10s, sin audio</div>
+                            <div class="file-selected" id="hero-mobile-file-name"></div>
+                            <input type="file" id="hero_media_mobile" name="hero_media_mobile" accept="video/mp4,video/webm,video/quicktime">
+                        </label>
+                        @error('hero_media_mobile')
+                            <div class="form-text text-danger" style="margin-top:0.5rem;">{{ $message }}</div>
+                        @enderror
+
+                        @if($heroMediaMobile)
+                            <label class="remove-image-row">
+                                <input type="checkbox" name="remove_hero_media_mobile" value="1">
+                                <i class="fas fa-trash-alt"></i>
+                                Quitar video móvil al guardar
+                            </label>
+                        @endif
+                    </div>
+                @endif
             </div>
 
             <!-- Beneficios -->
@@ -1091,6 +1133,17 @@
                 }
             });
         }
+    })();
+
+    (function () {
+        const mobileInput = document.getElementById('hero_media_mobile');
+        const mobileName = document.getElementById('hero-mobile-file-name');
+        if (!mobileInput || !mobileName) return;
+        mobileInput.addEventListener('change', function () {
+            if (!mobileInput.files || !mobileInput.files[0]) return;
+            const file = mobileInput.files[0];
+            mobileName.textContent = 'Seleccionado: ' + file.name + ' (' + (file.size / 1024 / 1024).toFixed(1) + ' MB)';
+        });
     })();
 </script>
 @endsection

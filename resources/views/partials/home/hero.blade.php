@@ -13,6 +13,11 @@
     $heroMediaIsVideo = in_array($heroMediaExt, ['mp4', 'webm', 'mov']);
     $heroMediaUrl = $heroMedia ? asset('storage/' . $heroMedia) : null;
 
+    // Opcional: versión ligera del video para mobile (menor resolución/peso).
+    // Si se sube y se guarda en 'hero_media_mobile', el JS la usa en pantallas < 1024px.
+    $heroMediaMobile = $homeContent['hero_media_mobile'] ?? null;
+    $heroMediaMobileUrl = $heroMediaMobile ? asset('storage/' . $heroMediaMobile) : null;
+
     // Fallback: detección automática de videos en /public/videos/ (cacheada — usa
     // `php artisan cache:clear` si subes un nuevo video manualmente al folder).
     if (!$heroMediaUrl) {
@@ -40,17 +45,20 @@
 <section class="relative min-h-screen flex items-center pt-36 pb-28 md:pb-36 overflow-hidden bg-white">
 
     {{-- Fondo — performance optimized.
-         Mobile (<1024px): no carga el video (ahorra 8MB).
-         Desktop: video con preload="none", inicia tras window.onload (post LCP). --}}
+         El video se muestra en todos los tamaños, pero SIEMPRE se carga vía JS
+         tras window.load (post LCP) con preload="none", así el hero pinta al
+         instante con el poster y el video no compite con el LCP. En mobile el JS
+         respeta data-saver / conexión lenta y usa la versión ligera si existe. --}}
     @if($heroMediaUrl)
         <div class="hero-video-bg" data-hero-bg>
             @if($heroMediaIsVideo)
-                {{-- En desktop, el video se inyecta via JS post-load. Sólo el wrapper queda inicialmente
-                     con un gradient de fondo para evitar flash. --}}
+                {{-- El src real se inyecta via JS post-load. El wrapper queda inicialmente
+                     con un gradient de fondo (poster) para evitar flash. --}}
                 <div class="hero-video-poster" aria-hidden="true"></div>
                 <video
                     data-hero-video
                     data-src="{{ $heroMediaUrl }}"
+                    @if($heroMediaMobileUrl) data-src-mobile="{{ $heroMediaMobileUrl }}" @endif
                     muted
                     loop
                     playsinline
