@@ -5,8 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Proyecto;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class ProyectosController extends Controller
@@ -18,6 +18,7 @@ class ProyectosController extends Controller
     public function index()
     {
         $proyectos = Proyecto::orderBy('orden')->paginate(15);
+
         return view('admin.proyectos.index', compact('proyectos'));
     }
 
@@ -50,80 +51,87 @@ class ProyectosController extends Controller
 
         return [
             // ── Básicos ─────────────────────────────────
-            'nombre'          => 'required|string|max:255',
-            'slug'            => $slugRule,
-            'pais'            => 'required|string|max:100',
-            'bandera_emoji'   => 'required|string|max:10',
-            'categoria'       => 'required|string|max:64',
-            'badge_text'      => 'required|string|max:255',
-            'descripcion'     => 'required|string',
-            'url'             => 'nullable|url|max:500',
-            'logo'            => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'tecnologias'     => 'required|string',
-            'estado'          => 'required|in:en_vivo,en_desarrollo,pausado',
-            'destacado'       => 'nullable|boolean',
-            'orden'           => 'nullable|integer',
-            'activo'          => 'nullable|boolean',
+            'nombre' => 'required|string|max:255',
+            'slug' => $slugRule,
+            'pais' => 'required|string|max:100',
+            'bandera_emoji' => 'required|string|max:10',
+            'categoria' => 'required|string|max:64',
+            'badge_text' => 'required|string|max:255',
+            'descripcion' => 'required|string',
+            'url' => 'nullable|url|max:500',
+            'logo' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'tecnologias' => 'required|string',
+            'estado' => 'required|in:en_vivo,en_desarrollo,pausado',
+            'destacado' => 'nullable|boolean',
+            'orden' => 'nullable|integer',
+            'activo' => 'nullable|boolean',
 
             // ── SEO Esencial ────────────────────────────
-            'focus_keyword'      => 'nullable|string|max:120',
+            'focus_keyword' => 'nullable|string|max:120',
             'secondary_keywords' => 'nullable|string', // input como CSV, lo convertimos a array
-            'excerpt'            => 'nullable|string|max:500',
-            'canonical_url'      => 'nullable|url|max:500',
-            'robots'             => ['nullable', Rule::in(['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow'])],
-            'meta_title'         => 'nullable|string|max:150',
-            'meta_description'   => 'nullable|string|max:300',
-            'meta_keywords'      => 'nullable|string|max:255',
+            'excerpt' => 'nullable|string|max:500',
+            'canonical_url' => 'nullable|url|max:500',
+            'robots' => ['nullable', Rule::in(['index,follow', 'noindex,follow', 'index,nofollow', 'noindex,nofollow'])],
+            'meta_title' => 'nullable|string|max:150',
+            'meta_description' => 'nullable|string|max:300',
+            'meta_keywords' => 'nullable|string|max:255',
 
             // ── Open Graph ──────────────────────────────
-            'og_image'       => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
-            'og_title'       => 'nullable|string|max:150',
+            'og_image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'og_title' => 'nullable|string|max:150',
             'og_description' => 'nullable|string|max:300',
-            'og_type'        => 'nullable|string|max:50',
+            'og_type' => 'nullable|string|max:50',
 
             // ── Twitter Cards ───────────────────────────
-            'twitter_card'        => 'nullable|in:summary,summary_large_image,app,player',
-            'twitter_title'       => 'nullable|string|max:150',
+            'twitter_card' => 'nullable|in:summary,summary_large_image,app,player',
+            'twitter_title' => 'nullable|string|max:150',
             'twitter_description' => 'nullable|string|max:300',
-            'twitter_image'       => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
+            'twitter_image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:5120',
 
             // ── Schema.org ──────────────────────────────
-            'schema_type'    => 'nullable|string|max:50',
-            'schema_markup'  => 'nullable|string',
+            'schema_type' => 'nullable|string|max:50',
+            'schema_markup' => 'nullable|string',
 
             // ── Metadata avanzada ───────────────────────
             'breadcrumb_title' => 'nullable|string|max:120',
-            'author'           => 'nullable|string|max:120',
-            'reading_time'     => 'nullable|integer|min:1|max:120',
-            'alt_logo'         => 'nullable|string|max:255',
-            'alt_og_image'     => 'nullable|string|max:255',
-            'publicado_en'     => 'nullable|date',
+            'author' => 'nullable|string|max:120',
+            'reading_time' => 'nullable|integer|min:1|max:120',
+            'alt_logo' => 'nullable|string|max:255',
+            'alt_og_image' => 'nullable|string|max:255',
+            'publicado_en' => 'nullable|date',
 
             // ── Clasificación cliente ───────────────────
-            'industria'   => 'nullable|string|max:120',
+            'industria' => 'nullable|string|max:120',
             'client_size' => 'nullable|in:startup,pyme,empresa,enterprise',
 
             // ── Recursos externos ───────────────────────
             'case_study_url' => 'nullable|url|max:500',
-            'video_url'      => 'nullable|url|max:500',
+            'video_url' => 'nullable|url|max:500',
 
             // ── Contenido extendido ─────────────────────
             'descripcion_extendida' => 'nullable|string',
-            'desafio'               => 'nullable|string',
-            'solucion'              => 'nullable|string',
-            'resultados'            => 'nullable|string',
-            'galeria.*'             => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'desafio' => 'nullable|string',
+            'solucion' => 'nullable|string',
+            'resultados' => 'nullable|string',
+            'galeria.*' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'galeria_alts' => 'nullable|string', // textarea: un alt por línea, en orden
+
+            // ── FAQ (schema FAQPage) ────────────────────
+            'faq_pregunta' => 'nullable|array',
+            'faq_pregunta.*' => 'nullable|string|max:300',
+            'faq_respuesta' => 'nullable|array',
+            'faq_respuesta.*' => 'nullable|string|max:2000',
 
             // ── Testimonios ─────────────────────────────
-            'testimonio'        => 'nullable|string',
-            'testimonio_autor'  => 'nullable|string|max:255',
-            'testimonio_cargo'  => 'nullable|string|max:255',
+            'testimonio' => 'nullable|string',
+            'testimonio_autor' => 'nullable|string|max:255',
+            'testimonio_cargo' => 'nullable|string|max:255',
 
             // ── Métricas del proyecto ───────────────────
             'duracion_desarrollo' => 'nullable|string|max:100',
-            'equipo_size'         => 'nullable|integer|min:1',
-            'fecha_lanzamiento'   => 'nullable|date',
-            'visitas_mensuales'   => 'nullable|integer|min:0',
+            'equipo_size' => 'nullable|integer|min:1',
+            'fecha_lanzamiento' => 'nullable|date',
+            'visitas_mensuales' => 'nullable|integer|min:0',
         ];
     }
 
@@ -149,9 +157,33 @@ class ProyectosController extends Controller
             $validated['secondary_keywords'] = null;
         }
 
+        // FAQs: arrays paralelos faq_pregunta[]/faq_respuesta[] → [['pregunta','respuesta'], ...]
+        $preguntas = $request->input('faq_pregunta', []);
+        $respuestas = $request->input('faq_respuesta', []);
+        $faqs = [];
+        foreach ($preguntas as $i => $pregunta) {
+            $pregunta = trim((string) $pregunta);
+            $respuesta = trim((string) ($respuestas[$i] ?? ''));
+            if ($pregunta !== '' && $respuesta !== '') {
+                $faqs[] = ['pregunta' => $pregunta, 'respuesta' => $respuesta];
+            }
+        }
+        $validated['faqs'] = $faqs ?: null;
+
+        // Galería alts: textarea (un alt por línea, en orden). Se preserva la posición.
+        if ($request->filled('galeria_alts')) {
+            $lines = array_map('trim', preg_split('/\r\n|\r|\n/', $request->galeria_alts));
+            while (! empty($lines) && end($lines) === '') {
+                array_pop($lines);
+            }
+            $validated['galeria_alts'] = $lines ?: null;
+        } else {
+            $validated['galeria_alts'] = null;
+        }
+
         // Booleans
         $validated['destacado'] = $request->boolean('destacado');
-        $validated['activo']    = $request->boolean('activo');
+        $validated['activo'] = $request->boolean('activo');
 
         return $validated;
     }
@@ -287,7 +319,7 @@ class ProyectosController extends Controller
         return response()->json([
             'success' => true,
             'message' => "Proyecto {$status} exitosamente.",
-            'activo'  => $proyecto->activo,
+            'activo' => $proyecto->activo,
         ]);
     }
 }

@@ -213,10 +213,28 @@
         $schemaMarkup = $s;
     }
 
+    /* ── Keywords: fusiona focus + secundarias + tecnologías (dedup) ── */
+    $keywordsList = collect([$proyecto->focus_keyword])
+        ->merge(is_array($proyecto->secondary_keywords) ? $proyecto->secondary_keywords : [])
+        ->merge($proyecto->meta_keywords ? array_map('trim', explode(',', $proyecto->meta_keywords)) : [])
+        ->filter()
+        ->map(fn ($k) => trim($k))
+        ->unique()
+        ->values();
+
+    /* ── Tags de article: tecnologías + keywords secundarias ── */
+    $articleTags = collect(is_array($proyecto->tecnologias) ? $proyecto->tecnologias : [])
+        ->merge(is_array($proyecto->secondary_keywords) ? $proyecto->secondary_keywords : [])
+        ->filter()->unique()->values()->all();
+
+    $ogImageAlt = $proyecto->alt_og_image ?: ($proyecto->nombre . ' — caso de éxito MY Tech Solutions');
+
     /* ── Objeto $seo plug-and-play para el layout app-home ── */
     $seo = (object) [
         'meta_title'          => $seoTitle,
         'meta_description'    => $seoDesc,
+        'meta_keywords'       => $keywordsList->isNotEmpty() ? $keywordsList->implode(', ') : null,
+        'author'              => $proyecto->author ?: 'MY Tech Solutions',
         'canonical_url'       => $canonical,
         'robots'              => $robots,
         'og_title'            => $proyecto->og_title ?: $seoTitle,
@@ -224,11 +242,21 @@
         'og_url'              => $detailUrl,
         'og_type'             => $proyecto->og_type ?: 'article',
         'og_image'            => $ogImage,
+        'og_image_alt'        => $ogImageAlt,
+        'og_image_width'      => config('seo.og_image_width'),
+        'og_image_height'     => config('seo.og_image_height'),
         'og_site_name'        => 'MY Tech Solutions',
         'twitter_card'        => $proyecto->twitter_card ?: 'summary_large_image',
         'twitter_title'       => $proyecto->twitter_title ?: ($proyecto->og_title ?: $seoTitle),
         'twitter_description' => $proyecto->twitter_description ?: ($proyecto->og_description ?: $seoDesc),
         'twitter_image'       => $twImage,
+        'twitter_image_alt'   => $ogImageAlt,
+        // article:* — solo se emiten si og:type = article (el layout lo controla)
+        'article_published_time' => $proyecto->publicado_en ? $proyecto->publicado_en->toIso8601String() : ($proyecto->created_at ? $proyecto->created_at->toIso8601String() : null),
+        'article_modified_time'  => $proyecto->updated_at ? $proyecto->updated_at->toIso8601String() : null,
+        'article_author'         => $proyecto->author ?: 'MY Tech Solutions',
+        'article_section'        => $proyecto->industria ?: ucfirst($proyecto->categoria),
+        'article_tags'           => $articleTags,
         'schema_markup'       => $schemaMarkup,
     ];
 @endphp
@@ -241,6 +269,7 @@
     @include('partials.proyecto-detalle.galeria')
     @include('partials.proyecto-detalle.stack')
     @include('partials.proyecto-detalle.testimonio')
+    @include('partials.proyecto-detalle.faq')
     @include('partials.proyecto-detalle.metricas')
     @include('partials.proyecto-detalle.relacionados')
 

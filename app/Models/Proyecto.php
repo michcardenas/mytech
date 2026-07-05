@@ -38,7 +38,7 @@ class Proyecto extends Model
         'case_study_url', 'video_url',
 
         // ── Contenido extendido ─────────────────────────
-        'descripcion_extendida', 'desafio', 'solucion', 'resultados', 'galeria',
+        'descripcion_extendida', 'desafio', 'solucion', 'resultados', 'galeria', 'galeria_alts', 'faqs',
 
         // ── Testimonios ─────────────────────────────────
         'testimonio', 'testimonio_autor', 'testimonio_cargo',
@@ -48,16 +48,18 @@ class Proyecto extends Model
     ];
 
     protected $casts = [
-        'tecnologias'         => 'array',
-        'secondary_keywords'  => 'array',
-        'galeria'             => 'array',
-        'destacado'           => 'boolean',
-        'activo'              => 'boolean',
-        'fecha_lanzamiento'   => 'date',
-        'publicado_en'        => 'date',
-        'equipo_size'         => 'integer',
-        'visitas_mensuales'   => 'integer',
-        'reading_time'        => 'integer',
+        'tecnologias' => 'array',
+        'secondary_keywords' => 'array',
+        'galeria' => 'array',
+        'galeria_alts' => 'array',
+        'faqs' => 'array',
+        'destacado' => 'boolean',
+        'activo' => 'boolean',
+        'fecha_lanzamiento' => 'date',
+        'publicado_en' => 'date',
+        'equipo_size' => 'integer',
+        'visitas_mensuales' => 'integer',
+        'reading_time' => 'integer',
     ];
 
     protected static function boot()
@@ -91,7 +93,7 @@ class Proyecto extends Model
 
     public function getEstadoTextAttribute()
     {
-        return match($this->estado) {
+        return match ($this->estado) {
             'en_vivo' => 'En Vivo',
             'en_desarrollo' => 'En Desarrollo',
             'pausado' => 'Pausado',
@@ -101,7 +103,7 @@ class Proyecto extends Model
 
     public function getEstadoColorAttribute()
     {
-        return match($this->estado) {
+        return match ($this->estado) {
             'en_vivo' => 'success',
             'en_desarrollo' => 'warning',
             'pausado' => 'secondary',
@@ -111,6 +113,6 @@ class Proyecto extends Model
 
     public function getCategoriaClassAttribute()
     {
-        return 'cat-' . $this->categoria;
+        return 'cat-'.$this->categoria;
     }
 }

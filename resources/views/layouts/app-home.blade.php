@@ -25,11 +25,33 @@
         $twTitleVal        = $seoRow->twitter_title    ?? $ogTitleVal;
         $twDescVal         = $seoRow->twitter_description ?? $ogDescVal;
         $twImageVal        = $seoRow->twitter_image    ?? $ogImageVal;
+
+        // ── Extras SEO (recuperan campos capturados pero antes no renderizados) ──
+        $keywordsVal       = $seoRow->meta_keywords    ?? null;
+        $authorVal         = $seoRow->author           ?? null;
+        $ogImageAltVal     = $seoRow->og_image_alt     ?? $ogTitleVal;
+        $ogImageWidthVal   = $seoRow->og_image_width   ?? config('seo.og_image_width');
+        $ogImageHeightVal  = $seoRow->og_image_height  ?? config('seo.og_image_height');
+        $twImageAltVal     = $seoRow->twitter_image_alt ?? $ogImageAltVal;
+        $twitterHandle     = config('seo.twitter_handle');
+
+        // article:* (solo tienen sentido cuando og:type = article)
+        $articlePublished  = $seoRow->article_published_time ?? null;
+        $articleModified   = $seoRow->article_modified_time  ?? null;
+        $articleAuthor     = $seoRow->article_author         ?? $authorVal;
+        $articleSection    = $seoRow->article_section        ?? null;
+        $articleTags       = $seoRow->article_tags           ?? [];
     @endphp
 
     <title>{{ $metaTitleVal }}</title>
     <meta name="description" content="{{ $metaDescVal }}">
     <meta name="robots" content="{{ $robotsVal }},max-image-preview:large">
+    @if($keywordsVal)
+    <meta name="keywords" content="{{ $keywordsVal }}">
+    @endif
+    @if($authorVal)
+    <meta name="author" content="{{ $authorVal }}">
+    @endif
 
     <link rel="canonical" href="{{ $canonicalVal }}">
     <meta name="google-site-verification" content="Yk8ILwU3yKtRTW0Zspxa9tKAFR3mRyI3idT0SpNvSIo">
@@ -42,10 +64,25 @@
     <meta property="og:url" content="{{ $ogUrlVal }}">
     <meta property="og:type" content="{{ $ogTypeVal }}">
     <meta property="og:image" content="{{ $ogImageVal }}">
+    <meta property="og:image:alt" content="{{ $ogImageAltVal }}">
+    <meta property="og:image:width" content="{{ $ogImageWidthVal }}">
+    <meta property="og:image:height" content="{{ $ogImageHeightVal }}">
+    @if($ogTypeVal === 'article')
+        @if($articlePublished)<meta property="article:published_time" content="{{ $articlePublished }}">@endif
+        @if($articleModified)<meta property="article:modified_time" content="{{ $articleModified }}">@endif
+        @if($articleAuthor)<meta property="article:author" content="{{ $articleAuthor }}">@endif
+        @if($articleSection)<meta property="article:section" content="{{ $articleSection }}">@endif
+        @foreach($articleTags as $tag)<meta property="article:tag" content="{{ $tag }}">@endforeach
+    @endif
     <meta name="twitter:card" content="{{ $twCardVal }}">
+    @if($twitterHandle)
+    <meta name="twitter:site" content="{{ $twitterHandle }}">
+    <meta name="twitter:creator" content="{{ $twitterHandle }}">
+    @endif
     <meta name="twitter:title" content="{{ $twTitleVal }}">
     <meta name="twitter:description" content="{{ $twDescVal }}">
     <meta name="twitter:image" content="{{ $twImageVal }}">
+    <meta name="twitter:image:alt" content="{{ $twImageAltVal }}">
 
     {{-- Fonts --}}
     <link rel="preconnect" href="https://fonts.bunny.net">

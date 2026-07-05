@@ -468,7 +468,17 @@
                     @endif
                     <input type="file" class="form-control" id="galeria" name="galeria[]" accept="image/*" multiple>
                 </div>
+
+                <div class="mt-3">
+                    <label for="galeria_alts">🔤 Alt text de galería <span class="seo-badge">SEO Imágenes</span></label>
+                    <textarea class="form-control" id="galeria_alts" name="galeria_alts" rows="3"
+                              placeholder="Un alt por línea, en el mismo orden que las imágenes.">{{ old('galeria_alts', is_array($proyecto->galeria_alts) ? implode("\n", $proyecto->galeria_alts) : '') }}</textarea>
+                    <span class="hint">Describe cada imagen (una por línea) para Google Imágenes. El orden debe coincidir con la galería.</span>
+                </div>
             </div>
+
+            {{-- 10.5. FAQ (FAQPage schema) --}}
+            @include('admin.proyectos._faq_fields', ['faqData' => old('faq_pregunta') ? collect(old('faq_pregunta'))->map(fn($p, $i) => ['pregunta' => $p, 'respuesta' => old('faq_respuesta')[$i] ?? ''])->all() : ($proyecto->faqs ?? [])])
 
             {{-- 11. TESTIMONIO --}}
             <div class="form-section">

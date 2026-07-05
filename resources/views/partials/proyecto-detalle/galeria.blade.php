@@ -1,5 +1,6 @@
 @php
-    $gallery = is_array($proyecto->galeria) ? $proyecto->galeria : [];
+    $gallery     = is_array($proyecto->galeria) ? $proyecto->galeria : [];
+    $galleryAlts = is_array($proyecto->galeria_alts) ? $proyecto->galeria_alts : [];
 @endphp
 
 @if(count($gallery) > 0)
@@ -33,7 +34,7 @@
                         data-src="{{ asset('storage/'.$img) }}"
                         aria-label="Ampliar imagen {{ $i + 1 }}">
                     <img src="{{ asset('storage/'.$img) }}"
-                         alt="Captura {{ $i + 1 }} de {{ $proyecto->nombre }}"
+                         alt="{{ (! empty($galleryAlts[$i])) ? $galleryAlts[$i] : 'Captura '.($i + 1).' de '.$proyecto->nombre }}"
                          loading="lazy"
                          decoding="async">
                     <span class="mt-pd-gallery-zoom" aria-hidden="true">

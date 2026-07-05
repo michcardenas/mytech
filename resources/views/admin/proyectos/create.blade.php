@@ -527,7 +527,19 @@
                     <input type="file" class="form-control" id="galeria" name="galeria[]" accept="image/*" multiple>
                     <span class="hint">Selecciona varias imágenes para mostrar capturas/mockups del proyecto.</span>
                 </div>
+
+                <div class="mt-3">
+                    <label for="galeria_alts">🔤 Alt text de galería <span class="seo-badge">SEO Imágenes</span></label>
+                    <textarea class="form-control" id="galeria_alts" name="galeria_alts" rows="3"
+                              placeholder="Un alt por línea, EN EL MISMO ORDEN que subiste las imágenes.&#10;Ej línea 1: Dashboard de Vinko mostrando el mapa de profesionales&#10;Ej línea 2: Pantalla de perfil del profesional en la app">{{ old('galeria_alts') }}</textarea>
+                    <span class="hint">Describe cada imagen para posicionar en Google Imágenes. Si dejas una línea vacía, usa un alt genérico.</span>
+                </div>
             </div>
+
+            {{-- ===========================================================
+                 10.5. FAQ (FAQPage schema)
+                 =========================================================== --}}
+            @include('admin.proyectos._faq_fields', ['faqData' => old('faq_pregunta') ? collect(old('faq_pregunta'))->map(fn($p, $i) => ['pregunta' => $p, 'respuesta' => old('faq_respuesta')[$i] ?? ''])->all() : []])
 
             {{-- ===========================================================
                  11. TESTIMONIO
