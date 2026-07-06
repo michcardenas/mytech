@@ -1,6 +1,4 @@
 @php
-    use App\Support\ProjectCardHelper as PCH;
-
     $pc = [];
     if (isset($page) && $page && $page->content) {
         $pc = json_decode($page->content, true) ?? [];
@@ -11,17 +9,6 @@
     $titleAccent   = $pc['proy_hero_title_accent'] ?? 'ya operan';
     $description   = $pc['proy_hero_description']  ?? 'Desde marketplaces en producción hasta SaaS multi-tenant, automatizaciones con IA y herramientas internas.';
     $watermark     = $pc['proy_hero_watermark']    ?? 'BUILT';
-    $clientsLabel  = $pc['proy_hero_clients_label'] ?? 'Trabajamos con';
-
-    // Mini-fila de logos: destacados con logo, fallback a primeros con logo. Max 6.
-    $heroLogos = collect();
-    if (isset($proyectos)) {
-        $heroLogos = $proyectos
-            ->filter(fn($p) => ! empty($p->logo))
-            ->sortByDesc('destacado')
-            ->take(6)
-            ->values();
-    }
 @endphp
 
 <section class="mt-proy-hero relative min-h-[88vh] flex items-center pt-36 pb-24 overflow-hidden bg-white"
@@ -63,34 +50,6 @@
                     Iniciar mi proyecto
                 </a>
             </div>
-
-            {{-- Mini-fila de logos clientes destacados (prueba social sin números) --}}
-            @if($heroLogos->count() > 0)
-                <div class="mt-proy-hero-clients" data-animate>
-                    <span class="mt-proy-hero-clients-label">
-                        <span class="mt-proy-hero-clients-line" aria-hidden="true"></span>
-                        {{ $clientsLabel }}
-                    </span>
-                    <ul class="mt-proy-hero-clients-list">
-                        @foreach($heroLogos as $client)
-                            <li title="{{ $client->nombre }}">
-                                @if($client->url)
-                                    <a href="{{ $client->url }}" target="_blank" rel="noopener"
-                                       aria-label="Ver {{ $client->nombre }}">
-                                        <img src="{{ PCH::logoUrl($client->logo) }}"
-                                             alt="{{ $client->nombre }}"
-                                             loading="eager" decoding="async">
-                                    </a>
-                                @else
-                                    <img src="{{ PCH::logoUrl($client->logo) }}"
-                                         alt="{{ $client->nombre }}"
-                                         loading="eager" decoding="async">
-                                @endif
-                            </li>
-                        @endforeach
-                    </ul>
-                </div>
-            @endif
 
         </div>
     </div>
