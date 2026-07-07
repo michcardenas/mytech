@@ -1,22 +1,21 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ProfileController;
-use App\Http\Controllers\ShopController;
-use App\Http\Controllers\CartController;
-use App\Http\Controllers\Admin\ProductController; // <-- NUEVO
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\HomeController;
 use App\Http\Controllers\Admin\LocationController;
-use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\ContactController;
-use App\Http\Controllers\WholesaleController;
 use App\Http\Controllers\Admin\PageController;
 use App\Http\Controllers\Admin\PagesController;
-use App\Http\Controllers\ServiciosController;
+use App\Http\Controllers\Admin\ProductController;
+use App\Http\Controllers\BlogController; // <-- NUEVO
+use App\Http\Controllers\CartController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ContactController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LandingController;
-use App\Http\Controllers\BlogController;
-
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ServiciosController;
+use App\Http\Controllers\ShopController;
+use App\Http\Controllers\WholesaleController;
+use Illuminate\Support\Facades\Route;
 
 /* ---------- SEO Routes ---------- */
 Route::get('/sitemap.xml', [App\Http\Controllers\SitemapController::class, 'index'])->name('sitemap');
@@ -45,10 +44,10 @@ Route::get('/', [HomeController::class, 'index'])->name('home');
 // Redirect 301 legacy /home-v2 → / por si quedó cacheado en historial o links externos
 Route::permanentRedirect('/home-v2', '/');
 // Redirects 301 legacy e-commerce (proyecto era una tienda antes — Google aún indexó esas URLs)
-Route::permanentRedirect('/inicio',       '/');
-Route::permanentRedirect('/home',         '/');
+Route::permanentRedirect('/inicio', '/');
+Route::permanentRedirect('/home', '/');
 Route::permanentRedirect('/categories/{any}', '/proyectos')->where('any', '.*');
-Route::permanentRedirect('/products/{any}',   '/proyectos')->where('any', '.*');
+Route::permanentRedirect('/products/{any}', '/proyectos')->where('any', '.*');
 Route::get('/servicios', [ServiciosController::class, 'index'])->name('servicios.index');
 Route::get('/proyectos', [App\Http\Controllers\ServiciosController::class, 'indexproyectos'])->name('proyectos.index');
 Route::get('/proyectos/{slug}', [App\Http\Controllers\ProyectoPublicController::class, 'show'])->name('proyectos.show');
@@ -59,6 +58,8 @@ Route::get('/gracias', [ServiciosController::class, 'gracias'])->name('contacto.
 
 /* ---------- Blog Routes ---------- */
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
+// Redirect 301: post renombrado - preserva el ranking (4014 impresiones / pos 5 en Google)
+Route::permanentRedirect('/blog/cuanto-cuesta-contratar-agencia-desarrollo-software-colombia-2026', '/blog/cuanto-cuesta-una-agencia-de-software-en-colombia-2026');
 Route::get('/blog/categoria/{category}', [BlogController::class, 'category'])->name('blog.category');
 Route::get('/blog/tag/{tag}', [BlogController::class, 'tag'])->name('blog.tag');
 Route::get('/blog/{slug}', [BlogController::class, 'show'])->name('blog.show');
@@ -137,7 +138,6 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Route::resource('categories', CategoryController::class);
 
-
 // // routes/web.php - SOLO cambia las rutas de páginas
 
 // Route::prefix('admin')->group(function () {
@@ -152,76 +152,76 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 //     Route::delete('/cities/{id}', [LocationController::class, 'citiesDestroy'])->name('admin.cities.destroy');
 
 //     // === RUTAS ESPECÍFICAS PARA PÁGINAS ===
-    
+
 //     // Lista general de páginas - COMENTADO PARA NUEVA IMPLEMENTACIÓN
-    // Route::get('pages', [App\Http\Controllers\Admin\PageController::class, 'index'])->name('admin.pages.index');
+// Route::get('pages', [App\Http\Controllers\Admin\PageController::class, 'index'])->name('admin.pages.index');
 
-    // === NUEVAS RUTAS PARA GESTIÓN DE PÁGINAS ===
-    Route::resource('pages', PagesController::class, ['as' => 'admin']);
+// === NUEVAS RUTAS PARA GESTIÓN DE PÁGINAS ===
+Route::resource('pages', PagesController::class, ['as' => 'admin']);
 
-    // Rutas adicionales para secciones
-    Route::get('pages/{page}/sections', [PagesController::class, 'sections'])->name('admin.pages.sections');
-    Route::post('pages/{page}/sections', [PagesController::class, 'storeSection'])->name('admin.pages.sections.store');
-    Route::put('pages/{page}/sections/{section}', [PagesController::class, 'updateSection'])->name('admin.pages.sections.update');
-    Route::delete('pages/{page}/sections/{section}', [PagesController::class, 'destroySection'])->name('admin.pages.sections.destroy');
-    Route::patch('pages/{page}/sections/{section}/toggle', [PagesController::class, 'toggleSection'])->name('admin.pages.sections.toggle');
+// Rutas adicionales para secciones
+Route::get('pages/{page}/sections', [PagesController::class, 'sections'])->name('admin.pages.sections');
+Route::post('pages/{page}/sections', [PagesController::class, 'storeSection'])->name('admin.pages.sections.store');
+Route::put('pages/{page}/sections/{section}', [PagesController::class, 'updateSection'])->name('admin.pages.sections.update');
+Route::delete('pages/{page}/sections/{section}', [PagesController::class, 'destroySection'])->name('admin.pages.sections.destroy');
+Route::patch('pages/{page}/sections/{section}/toggle', [PagesController::class, 'toggleSection'])->name('admin.pages.sections.toggle');
 
-    // === RUTAS PARA GESTIÓN DE PROYECTOS ===
-    Route::resource('admin-proyectos', App\Http\Controllers\Admin\ProyectosController::class)
-        ->parameters(['admin-proyectos' => 'proyecto'])
-        ->names([
-            'index' => 'admin.proyectos.index',
-            'create' => 'admin.proyectos.create',
-            'store' => 'admin.proyectos.store',
-            'show' => 'admin.proyectos.show',
-            'edit' => 'admin.proyectos.edit',
-            'update' => 'admin.proyectos.update',
-            'destroy' => 'admin.proyectos.destroy',
-        ]);
-    Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\ProyectosController::class, 'toggleActivo'])->name('admin.proyectos.toggle');
+// === RUTAS PARA GESTIÓN DE PROYECTOS ===
+Route::resource('admin-proyectos', App\Http\Controllers\Admin\ProyectosController::class)
+    ->parameters(['admin-proyectos' => 'proyecto'])
+    ->names([
+        'index' => 'admin.proyectos.index',
+        'create' => 'admin.proyectos.create',
+        'store' => 'admin.proyectos.store',
+        'show' => 'admin.proyectos.show',
+        'edit' => 'admin.proyectos.edit',
+        'update' => 'admin.proyectos.update',
+        'destroy' => 'admin.proyectos.destroy',
+    ]);
+Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\ProyectosController::class, 'toggleActivo'])->name('admin.proyectos.toggle');
 
-    // === CLIENTES (usados desde proyectos internos) ===
-    Route::post('clients', [App\Http\Controllers\Admin\ClientController::class, 'store'])->name('admin.clients.store');
+// === CLIENTES (usados desde proyectos internos) ===
+Route::post('clients', [App\Http\Controllers\Admin\ClientController::class, 'store'])->name('admin.clients.store');
 
-    // === DESARROLLADORES (usados desde proyectos internos) ===
-    Route::post('developers', [App\Http\Controllers\Admin\DeveloperController::class, 'store'])->name('admin.developers.store');
+// === DESARROLLADORES (usados desde proyectos internos) ===
+Route::post('developers', [App\Http\Controllers\Admin\DeveloperController::class, 'store'])->name('admin.developers.store');
 
-    // === VENDEDORES / GESTORES ===
-    Route::post('vendedores', [App\Http\Controllers\Admin\VendedorController::class, 'store'])->name('admin.vendedores.store');
+// === VENDEDORES / GESTORES ===
+Route::post('vendedores', [App\Http\Controllers\Admin\VendedorController::class, 'store'])->name('admin.vendedores.store');
 
-    // === PROYECTOS INTERNOS (GESTION INTERNA) ===
-    Route::get('internal-projects/stats/export', [App\Http\Controllers\Admin\InternalProjectController::class, 'statsExport'])->name('admin.internal-projects.stats.export');
-    Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
-    Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
-    Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
-        ->names('admin.internal-projects');
-    Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
-    Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
-    Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
-    Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
-    Route::post('internal-projects/{internal_project}/gestion-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeGestionPayment'])->name('admin.internal-projects.gestion-payments.store');
-    Route::delete('internal-projects/{internal_project}/gestion-payments/{gestionPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyGestionPayment'])->name('admin.internal-projects.gestion-payments.destroy');
-    Route::post('internal-projects/{internal_project}/expenses', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeExpense'])->name('admin.internal-projects.expenses.store');
-    Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
-    Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
-    Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
+// === PROYECTOS INTERNOS (GESTION INTERNA) ===
+Route::get('internal-projects/stats/export', [App\Http\Controllers\Admin\InternalProjectController::class, 'statsExport'])->name('admin.internal-projects.stats.export');
+Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
+Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
+Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
+    ->names('admin.internal-projects');
+Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
+Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
+Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
+Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
+Route::post('internal-projects/{internal_project}/gestion-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeGestionPayment'])->name('admin.internal-projects.gestion-payments.store');
+Route::delete('internal-projects/{internal_project}/gestion-payments/{gestionPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyGestionPayment'])->name('admin.internal-projects.gestion-payments.destroy');
+Route::post('internal-projects/{internal_project}/expenses', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeExpense'])->name('admin.internal-projects.expenses.store');
+Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
+Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
+Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
 
 //     // Página INICIO
 //     Route::get('pages/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('admin.pages.edit-inicio');
 //     Route::put('pages/inicio', [App\Http\Controllers\Admin\PageController::class, 'updateInicio'])->name('admin.pages.update-inicio');
-    
+
 //     // Página QUIÉNES SOMOS
 //     Route::get('pages/quienes-somos/edit', [App\Http\Controllers\Admin\PageController::class, 'editQuienesSomos'])->name('admin.pages.edit-quienes-somos');
 //     Route::put('pages/quienes-somos', [App\Http\Controllers\Admin\PageController::class, 'updateQuienesSomos'])->name('admin.pages.update-quienes-somos');
-    
+
 //     // Página SERVICIOS
 //     Route::get('pages/servicios/edit', [App\Http\Controllers\Admin\PageController::class, 'editServicios'])->name('admin.pages.edit-servicios');
 //     Route::put('pages/servicios', [App\Http\Controllers\Admin\PageController::class, 'updateServicios'])->name('admin.pages.update-servicios');
-    
+
 //     // Página CONTACTO
 //     Route::get('pages/contacto/edit', [App\Http\Controllers\Admin\PageController::class, 'editContacto'])->name('admin.pages.edit-contacto');
 //     Route::put('pages/contacto', [App\Http\Controllers\Admin\PageController::class, 'updateContacto'])->name('admin.pages.update-contacto');
-    
+
 //     // Eliminar imágenes (funciona para todas las páginas)
 //     Route::delete('pages/{page}/image', [App\Http\Controllers\Admin\PageController::class, 'deleteImage'])->name('admin.pages.delete-image');
 
@@ -244,12 +244,12 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 //     Route::patch('/{rowId}', [CartController::class, 'update'])->name('update');
 //     Route::delete('/{rowId}', [CartController::class, 'remove'])->name('remove');
 //     Route::delete('/', [CartController::class, 'clear'])->name('clear');
-    
+
 //     // Rutas AJAX
 //     Route::get('/count', [CartController::class, 'count'])->name('count');
 //     Route::get('/info', [CartController::class, 'info'])->name('info');
 //     Route::post('/check-stock', [CartController::class, 'checkStock'])->name('check-stock');
-    
+
 //     // Rutas de descuentos
 //     Route::post('/discount', [CartController::class, 'applyDiscount'])->name('apply-discount');
 //     Route::delete('/discount', [CartController::class, 'removeDiscount'])->name('remove-discount');
@@ -257,20 +257,18 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 
 // Route::prefix('admin/pages')->name('admin.pages.')->group(function () {
 //     Route::get('/', [App\Http\Controllers\Admin\PageController::class, 'index'])->name('index');
-    
+
 //     // Rutas que redirigen a secciones
 //     Route::get('/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('edit-inicio');
 //     Route::get('/quienes-somos/edit', [App\Http\Controllers\Admin\PageController::class, 'editQuienesSomos'])->name('edit-quienes-somos');
 //     Route::get('/servicios/edit', [App\Http\Controllers\Admin\PageController::class, 'editServicios'])->name('edit-servicios');
 //     Route::get('/contacto/edit', [App\Http\Controllers\Admin\PageController::class, 'editContacto'])->name('edit-contacto');
-    
+
 //     // NUEVAS RUTAS PARA SECCIONES
 //     Route::get('/{page}/sections', [App\Http\Controllers\Admin\PageController::class, 'manageSections'])->name('sections');
 //     // Route::put('/{page}/sections/{section}', [App\Http\Controllers\Admin\PageController::class, 'updateSection'])->name('sections.update');
 //     Route::delete('/{page}/sections/{section}/images', [App\Http\Controllers\Admin\PageController::class, 'deleteSectionImage'])->name('sections.delete-image');
 // });
-
-
 
 // Route::prefix('admin')->name('admin.')->group(function () {
 //     // Vista de edición
