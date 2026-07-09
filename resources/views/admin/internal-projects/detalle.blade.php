@@ -422,8 +422,8 @@
                                 if ($p->comision_tipo === 'monto') {
                                     $comisionCop = (float) $p->comision_valor;
                                 } else {
-                                    $baseCop = max($ingresoCopBase - $pagoDevCopBase, 0);
-                                    $comisionCop = $baseCop * ((float) $p->comision_valor / 100);
+                                    $precioCop = $p->moneda === 'USD' ? (float) $p->precio * $usdCop : (float) $p->precio;
+                                    $comisionCop = $precioCop * ((float) $p->comision_valor / 100);
                                 }
                             }
                             $comision = $comisionCop; // ya está en COP

@@ -17,6 +17,7 @@ class PortalVendedorController extends Controller
         if ($request->session()->get('portal_vendedor_id')) {
             return redirect()->route('portal.vendedor.dashboard');
         }
+
         return view('portal.login', [
             'role' => 'vendedor',
             'titulo' => 'Portal de gestores',
@@ -38,30 +39,36 @@ class PortalVendedorController extends Controller
         $normalized = $this->normalizePhone($request->telefono);
         if (strlen($normalized) < 7) {
             $this->recordAttempt($request, 'vendedor');
+
             return back()->withErrors(['telefono' => 'Número inválido.'])->withInput();
         }
 
         $vendedores = Vendedor::whereNotNull('telefono')->get();
         $match = $vendedores->first(fn ($v) => $this->normalizePhone($v->telefono) === $normalized);
 
-        if (!$match) {
+        if (! $match) {
             $this->recordAttempt($request, 'vendedor');
+
             return back()->withErrors(['telefono' => 'No encontramos un gestor con ese número.'])->withInput();
         }
 
         $this->clearAttempts($request, 'vendedor');
         $request->session()->put('portal_vendedor_id', $match->id);
+
         return redirect()->route('portal.vendedor.dashboard');
     }
 
     public function dashboard(Request $request)
     {
         $vendId = $request->session()->get('portal_vendedor_id');
-        if (!$vendId) return redirect()->route('portal.vendedor.login.show');
+        if (! $vendId) {
+            return redirect()->route('portal.vendedor.login.show');
+        }
 
         $vendedor = Vendedor::find($vendId);
-        if (!$vendedor) {
+        if (! $vendedor) {
             $request->session()->forget('portal_vendedor_id');
+
             return redirect()->route('portal.vendedor.login.show');
         }
 
@@ -90,8 +97,8 @@ class PortalVendedorController extends Controller
                 if ($p->comision_tipo === 'monto') {
                     $comision = (float) $p->comision_valor;
                 } else {
-                    $base = max($ingresoCopBase - $pagoDevCop, 0);
-                    $comision = $base * ((float) $p->comision_valor / 100);
+                    $precioCop = $p->moneda === 'USD' ? (float) $p->precio * $usdCop : (float) $p->precio;
+                    $comision = $precioCop * ((float) $p->comision_valor / 100);
                 }
             }
             $abonado = (float) ($p->gestion_payments_sum ?? 0);
@@ -150,6 +157,7 @@ class PortalVendedorController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget('portal_vendedor_id');
+
         return redirect()->route('portal.vendedor.login.show')->with('success', 'Sesión cerrada.');
     }
 }

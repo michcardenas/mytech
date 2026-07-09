@@ -86,12 +86,11 @@ class InternalProject extends Model
     /**
      * Comisión calculada del vendedor, en la moneda del proyecto.
      * Si tipo = 'monto' → devuelve el valor tal cual.
-     * Si tipo = 'porcentaje' → calcula % sobre (precio − pago_dev).
-     *   Cuando el dev está en moneda distinta, se usa la tasa USD_COP de config.
+     * Si tipo = 'porcentaje' → calcula % sobre el precio total del proyecto.
      */
     public function getComisionCalculadaAttribute(): float
     {
-        if (!$this->comision_tipo || !$this->comision_valor) {
+        if (! $this->comision_tipo || ! $this->comision_valor) {
             return 0.0;
         }
 
@@ -99,19 +98,7 @@ class InternalProject extends Model
             return (float) $this->comision_valor;
         }
 
-        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
-        $pagoDev = (float) ($this->desarrollador_pago ?? 0);
-        $devMoneda = $this->desarrollador_moneda ?? 'COP';
-
-        // Normalizar pago del dev a la moneda del proyecto antes de restar
-        if ($devMoneda !== $this->moneda) {
-            $pagoDev = $devMoneda === 'USD' && $this->moneda === 'COP'
-                ? $pagoDev * $usdCop
-                : ($devMoneda === 'COP' && $this->moneda === 'USD' ? $pagoDev / $usdCop : $pagoDev);
-        }
-
-        $base = max((float) $this->precio - $pagoDev, 0);
-        return round($base * ((float) $this->comision_valor / 100), 2);
+        return round((float) $this->precio * ((float) $this->comision_valor / 100), 2);
     }
 
     public function payments()
@@ -173,7 +160,10 @@ class InternalProject extends Model
 
     public function getPorcentajePagadoAttribute()
     {
-        if ($this->precio <= 0) return 0;
+        if ($this->precio <= 0) {
+            return 0;
+        }
+
         return round(($this->total_pagado / $this->precio) * 100);
     }
 

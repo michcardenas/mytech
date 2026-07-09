@@ -110,9 +110,9 @@ class InternalProjectController extends Controller
                             $sub->where('comision_tipo', 'monto')
                                 ->whereColumn('comision_valor', '>', DB::raw('(SELECT COALESCE(SUM(monto),0) FROM gestion_payments WHERE gestion_payments.internal_project_id = internal_projects.id)'));
                         })->orWhere(function ($sub) {
-                            // Porcentaje → (precio − pago_dev) × % > abonado
+                            // Porcentaje → precio × % > abonado
                             $sub->where('comision_tipo', 'porcentaje')
-                                ->whereRaw('((precio - COALESCE(desarrollador_pago,0)) * comision_valor / 100) > (SELECT COALESCE(SUM(monto),0) FROM gestion_payments WHERE gestion_payments.internal_project_id = internal_projects.id)');
+                                ->whereRaw('(precio * comision_valor / 100) > (SELECT COALESCE(SUM(monto),0) FROM gestion_payments WHERE gestion_payments.internal_project_id = internal_projects.id)');
                         });
                     }),
                 default => null,
@@ -467,14 +467,14 @@ class InternalProjectController extends Controller
                 : $cobrado;
             $pagoDevCopBase = $devMoneda === 'USD' ? $pagoDev * $usdCop : $pagoDev;
 
-            // Comisión de gestión — siempre en COP
+            // Comisión de gestión — siempre en COP, sobre el precio total del proyecto
             $comision = 0;
             if ($p->comision_tipo && $p->comision_valor) {
                 if ($p->comision_tipo === 'monto') {
                     $comision = (float) $p->comision_valor;
-                } else { // porcentaje sobre ingreso_real − pago_dev (en COP)
-                    $baseCop = max($ingresoCopBase - $pagoDevCopBase, 0);
-                    $comision = $baseCop * ((float) $p->comision_valor / 100);
+                } else {
+                    $precioCop = $moneda === 'USD' ? (float) $p->precio * $usdCop : (float) $p->precio;
+                    $comision = $precioCop * ((float) $p->comision_valor / 100);
                 }
             }
             $abonadoGestion = (float) ($p->gestion_payments_sum ?? 0);

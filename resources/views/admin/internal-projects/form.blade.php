@@ -980,24 +980,13 @@
                     }
 
                     const precio = window.moneyRaw ? window.moneyRaw(precioInput) : (parseFloat(precioInput.value) || 0);
-                    const pagoDev = window.moneyRaw ? window.moneyRaw(pagoDevInput) : (parseFloat(pagoDevInput?.value) || 0);
                     if (precio <= 0) { preview.style.display = 'none'; return; }
 
-                    // Normalizar pago dev a moneda del proyecto
-                    let pagoDevEnMoneda = pagoDev;
-                    const devM = monedaDevInput?.value || 'COP';
                     const projM = monedaInput.value;
-                    if (devM !== projM) {
-                        if (devM === 'USD' && projM === 'COP') pagoDevEnMoneda = pagoDev * USD_COP;
-                        else if (devM === 'COP' && projM === 'USD') pagoDevEnMoneda = pagoDev / USD_COP;
-                    }
-                    const base = Math.max(precio - pagoDevEnMoneda, 0);
-                    const comision = base * (val / 100);
+                    const comision = precio * (val / 100);
 
                     montoTxt.textContent = fmt(comision, projM);
-                    detalle.innerHTML = '<strong>' + val + '%</strong> de ' + fmt(base, projM)
-                        + '<br><span style="opacity:0.8;">(precio ' + fmt(precio, projM)
-                        + ' − pago dev ' + fmt(pagoDevEnMoneda, projM) + ')</span>';
+                    detalle.innerHTML = '<strong>' + val + '%</strong> del precio ' + fmt(precio, projM);
                     preview.style.display = 'block';
                 }
 
@@ -1005,8 +994,6 @@
                 valor.addEventListener('input', calcular);
                 precioInput?.addEventListener('input', calcular);
                 monedaInput?.addEventListener('change', calcular);
-                pagoDevInput?.addEventListener('input', calcular);
-                monedaDevInput?.addEventListener('change', calcular);
 
                 // Sugerir % default al elegir vendedor
                 select.addEventListener('change', () => {

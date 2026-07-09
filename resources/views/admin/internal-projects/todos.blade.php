@@ -625,8 +625,8 @@
                 if ($tieneGestion) {
                     if ($project->comision_tipo === 'monto') {
                         $comCalc = (float) $project->comision_valor;
-                    } else { // porcentaje
-                        $comCalc = max((float) $project->precio - (float) ($project->desarrollador_pago ?? 0), 0) * ((float) $project->comision_valor / 100);
+                    } else { // porcentaje sobre precio total
+                        $comCalc = (float) $project->precio * ((float) $project->comision_valor / 100);
                     }
                 }
                 $abonadoGestion = (float) ($project->gestion_payments_sum_monto ?? 0);
