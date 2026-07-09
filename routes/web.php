@@ -125,7 +125,7 @@ Route::put('/admin/seo/{page}', [App\Http\Controllers\Admin\SeoController::class
 // })->name('terms.conditions');
 // /* ---------- Dashboard y perfil ---------- */
 // Route::middleware(['auth', 'verified'])->group(function () {
-Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->middleware('auth')->name('dashboard');
 
 //     Route::get('/profile',    [ProfileController::class, 'edit'])->name('profile.edit');
 //     Route::patch('/profile',  [ProfileController::class, 'update'])->name('profile.update');
@@ -190,21 +190,24 @@ Route::post('developers', [App\Http\Controllers\Admin\DeveloperController::class
 Route::post('vendedores', [App\Http\Controllers\Admin\VendedorController::class, 'store'])->name('admin.vendedores.store');
 
 // === PROYECTOS INTERNOS (GESTION INTERNA) ===
-Route::get('internal-projects/stats/export', [App\Http\Controllers\Admin\InternalProjectController::class, 'statsExport'])->name('admin.internal-projects.stats.export');
-Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
-Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
-Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
-    ->names('admin.internal-projects');
-Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
-Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
-Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
-Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
-Route::post('internal-projects/{internal_project}/gestion-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeGestionPayment'])->name('admin.internal-projects.gestion-payments.store');
-Route::delete('internal-projects/{internal_project}/gestion-payments/{gestionPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyGestionPayment'])->name('admin.internal-projects.gestion-payments.destroy');
-Route::post('internal-projects/{internal_project}/expenses', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeExpense'])->name('admin.internal-projects.expenses.store');
-Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
-Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
-Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
+Route::middleware('auth')->group(function () {
+    Route::get('internal-projects/stats/export', [App\Http\Controllers\Admin\InternalProjectController::class, 'statsExport'])->name('admin.internal-projects.stats.export');
+    Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
+    Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
+    Route::get('internal-projects/todos', [App\Http\Controllers\Admin\InternalProjectController::class, 'todos'])->name('admin.internal-projects.todos');
+    Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
+        ->names('admin.internal-projects');
+    Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
+    Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
+    Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
+    Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
+    Route::post('internal-projects/{internal_project}/gestion-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeGestionPayment'])->name('admin.internal-projects.gestion-payments.store');
+    Route::delete('internal-projects/{internal_project}/gestion-payments/{gestionPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyGestionPayment'])->name('admin.internal-projects.gestion-payments.destroy');
+    Route::post('internal-projects/{internal_project}/expenses', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeExpense'])->name('admin.internal-projects.expenses.store');
+    Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
+    Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
+    Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
+});
 
 //     // Página INICIO
 //     Route::get('pages/inicio/edit', [App\Http\Controllers\Admin\PageController::class, 'editInicio'])->name('admin.pages.edit-inicio');

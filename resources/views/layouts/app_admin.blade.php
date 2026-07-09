@@ -46,7 +46,7 @@
             background: var(--mt-sidebar-bg);
             display: flex;
             flex-direction: column;
-            z-index: 1050;
+            z-index: 1060;
             transition: var(--mt-transition);
             overflow: hidden;
         }
@@ -253,7 +253,7 @@
 
     @php
         $mtUser     = auth()->user();
-        $mtUserName = $mtUser->name ?? 'Usuario';
+        $mtUserName = $mtUser?->name ?: 'Usuario';
         $mtInitials = collect(explode(' ', trim($mtUserName)))->take(2)->map(fn($p) => mb_substr($p, 0, 1))->implode('');
 
         // Título del topbar derivado de la ruta activa (sin tocar cada vista)
@@ -409,6 +409,9 @@
             @yield('content')
         </main>
     </div>
+
+    {{-- Modals / overlays de cada vista (evita que queden anidados dentro de .mtadmin-main) --}}
+    @stack('modals')
 
     {{-- Formulario oculto para logout --}}
     <form id="mtadmin-logout-form" action="{{ route('logout') }}" method="POST" style="display:none;">

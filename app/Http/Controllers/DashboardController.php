@@ -2,18 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Http\Request;
+use App\Models\InternalProject;
 use App\Models\Order;
 use App\Models\Page;
 use App\Models\Proyecto;
-use App\Models\InternalProject;
+use Illuminate\Support\Facades\Auth;
 
 class DashboardController extends Controller
 {
     public function index()
     {
         $user = Auth::user();
+
+        if (! $user) {
+            return redirect()->route('login');
+        }
 
         // La ejecutiva comercial trabaja desde el pipeline
         if ($user->hasRole('comercial') && ! $user->hasRole('admin')) {
