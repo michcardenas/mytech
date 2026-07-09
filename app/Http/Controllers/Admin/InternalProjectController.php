@@ -920,8 +920,29 @@ class InternalProjectController extends Controller
             'isEdit' => false,
             'clients' => Client::orderBy('nombre')->get(),
             'developers' => Developer::orderBy('nombre')->get(),
-            'vendedores' => Vendedor::orderBy('nombre')->get(),
+            'vendedores' => $this->vendedoresParaSelect(),
         ]);
+    }
+
+    /**
+     * Devuelve los vendedores disponibles para el select del form, incluyendo
+     * automáticamente a los usuarios con rol "comercial" (los sincroniza como
+     * Vendedor si aún no existen, por email o nombre).
+     */
+    private function vendedoresParaSelect()
+    {
+        \App\Models\User::role('comercial')->get()->each(function (\App\Models\User $u) {
+            $criteria = $u->email
+                ? ['email' => $u->email]
+                : ['nombre' => $u->name];
+
+            Vendedor::firstOrCreate($criteria, [
+                'nombre' => $u->name,
+                'email' => $u->email,
+            ]);
+        });
+
+        return Vendedor::orderBy('nombre')->get();
     }
 
     public function store(Request $request)
@@ -1011,7 +1032,7 @@ class InternalProjectController extends Controller
             'isEdit' => true,
             'clients' => Client::orderBy('nombre')->get(),
             'developers' => Developer::orderBy('nombre')->get(),
-            'vendedores' => Vendedor::orderBy('nombre')->get(),
+            'vendedores' => $this->vendedoresParaSelect(),
         ]);
     }
 

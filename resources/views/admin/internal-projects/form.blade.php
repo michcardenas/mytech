@@ -796,10 +796,10 @@
             <div class="form-section-body">
                 <div class="field-row">
                     <div class="field-group">
-                        <div class="field-label"><i class="fas fa-user-tie"></i> Vendedor / gestor</div>
+                        <div class="field-label"><i class="fas fa-user-tie"></i> Comercial / gestor</div>
                         <div style="display:flex; gap:0.5rem; align-items:stretch;">
                             <select name="vendedor_id" id="vendedor_id" class="form-select @error('vendedor_id') is-invalid @enderror" style="flex:1;">
-                                <option value="">— Sin vendedor —</option>
+                                <option value="">— Sin comercial asignado —</option>
                                 @foreach($vendedores as $v)
                                     <option value="{{ $v->id }}"
                                             data-comision-default="{{ $v->comision_porcentaje_default }}"
@@ -813,6 +813,7 @@
                                 <i class="fas fa-plus"></i> Nuevo
                             </button>
                         </div>
+                        <div class="field-hint">Incluye vendedores externos y usuarios con rol comercial del sistema.</div>
                         @error('vendedor_id') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
                     </div>
 
