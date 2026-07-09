@@ -526,7 +526,7 @@
                         <div class="price-group">
                             <div class="money-wrap">
                                 <span class="money-prefix" data-money-prefix-for="moneda">$</span>
-                                <input type="text" inputmode="decimal" id="precio" name="precio"
+                                <input type="text" inputmode="numeric" id="precio" name="precio"
                                        class="form-control js-money-input @error('precio') is-invalid @enderror"
                                        value="{{ old('precio', $project->precio) }}" required placeholder="0">
                             </div>
@@ -600,7 +600,7 @@
                         <div class="price-group">
                             <div class="money-wrap">
                                 <span class="money-prefix" data-money-prefix-for="desarrollador_moneda">$</span>
-                                <input type="text" inputmode="decimal" name="desarrollador_pago" id="desarrollador_pago"
+                                <input type="text" inputmode="numeric" name="desarrollador_pago" id="desarrollador_pago"
                                        class="form-control js-money-input"
                                        value="{{ old('desarrollador_pago', $project->desarrollador_pago) }}" placeholder="0">
                             </div>
@@ -653,7 +653,7 @@
                     <div style="margin-bottom:1.5rem; display:grid; grid-template-columns: 2fr 1fr; gap:0.6rem;">
                         <div>
                             <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Tarifa por defecto</label>
-                            <input type="text" inputmode="decimal" id="nuevoDevPago" class="js-money-input" placeholder="0"
+                            <input type="text" inputmode="numeric" id="nuevoDevPago" class="js-money-input" placeholder="0"
                                    style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
                         </div>
                         <div>
@@ -839,7 +839,7 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-money-bill"></i> Valor de la comisión</div>
                         <div style="position:relative;">
-                            <input type="text" inputmode="decimal" name="comision_valor" id="comision_valor"
+                            <input type="text" inputmode="numeric" name="comision_valor" id="comision_valor"
                                    class="form-control js-money-input"
                                    value="{{ old('comision_valor', $project->comision_valor) }}" placeholder="Ej: 25">
                             <span id="comisionUnidad" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:#666; font-weight:600; pointer-events:none;">%</span>
@@ -1130,78 +1130,77 @@
     })();
 </script>
 
-{{-- Máscara de miles (1.500.000,50) para inputs .js-money-input.
-     Al enviar el form se convierten a formato numérico plano para el backend. --}}
+{{-- Máscara de miles ENTERA (1.500.000) para inputs .js-money-input.
+     Sin decimales. Al enviar el form se manda el número plano (1500000). --}}
 <script>
     (function () {
         const inputs = document.querySelectorAll('.js-money-input');
         if (!inputs.length) return;
         const form = inputs[0].closest('form');
 
-        function toFormatted(v) {
+        // Agrupa una cadena de dígitos con puntos de miles.
+        function groupThousands(digits) {
+            digits = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+            if (digits === '') return '';
+            return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+        }
+
+        // Valor inicial del backend (ej "3200000.00", "25.00", "15") → entero con puntos.
+        function formatInitial(v) {
             if (v === '' || v == null) return '';
-            let clean = String(v).replace(/\s/g, '');
-            // Si vino del backend (ej: "1500000.50"), normalizar: cambiar punto decimal por coma temporal
-            if (/^-?\d+(\.\d+)?$/.test(clean)) {
-                clean = clean.replace('.', ',');
-            }
-            clean = clean.replace(/\./g, '').replace(/[^\d,]/g, '');
-            // solo una coma
-            const firstComma = clean.indexOf(',');
-            if (firstComma !== -1) {
-                clean = clean.slice(0, firstComma + 1) + clean.slice(firstComma + 1).replace(/,/g, '');
-            }
-            let [int, dec] = clean.split(',');
-            if (int === undefined) int = '';
-            int = int.replace(/^0+(?=\d)/, ''); // quita ceros a la izquierda
-            int = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-            if (dec !== undefined) dec = dec.slice(0, 2); // máx 2 decimales
-            return dec !== undefined ? `${int || '0'},${dec}` : int;
+            const num = Math.round(parseFloat(String(v).replace(/\s/g, '')));
+            if (isNaN(num)) return '';
+            return groupThousands(String(num));
         }
 
-        function toRaw(v) {
-            return String(v || '').replace(/\./g, '').replace(',', '.');
-        }
-
-        // Expuesto para que otros scripts de la vista (cálculo de comisión, etc.)
-        // puedan leer el valor numérico de un input con máscara.
+        // Lee el valor numérico plano (sin puntos) de un input enmascarado.
         window.moneyRaw = function (input) {
             if (!input) return 0;
-            const n = parseFloat(toRaw(input.value));
+            const n = parseInt(String(input.value).replace(/\D/g, ''), 10);
             return isNaN(n) ? 0 : n;
         };
 
-        // Escribe un valor y dispara el reformat de la máscara.
+        // Escribe un valor (backend numérico) y lo formatea.
         window.moneySet = function (input, value) {
             if (!input) return;
-            input.value = value == null ? '' : String(value);
-            input.dispatchEvent(new Event('input', { bubbles: true }));
+            input.value = formatInitial(value);
         };
 
         inputs.forEach(inp => {
             // Formatear valor inicial (edición)
-            if (inp.value !== '') inp.value = toFormatted(inp.value);
+            if (inp.value !== '') inp.value = formatInitial(inp.value);
 
             inp.addEventListener('input', () => {
-                const beforeLen = inp.value.length;
+                const oldValue = inp.value;
                 const caret = inp.selectionStart;
-                const formatted = toFormatted(inp.value);
+                // dígitos que hay antes del cursor (para reposicionarlo después)
+                const digitsBefore = oldValue.slice(0, caret).replace(/\D/g, '').length;
+
+                const formatted = groupThousands(oldValue);
                 inp.value = formatted;
-                // reajustar caret manteniendo diferencia
-                const diff = formatted.length - beforeLen;
-                const newPos = Math.max(0, Math.min(formatted.length, caret + diff));
-                try { inp.setSelectionRange(newPos, newPos); } catch (e) {}
+
+                // reposicionar el cursor tras la misma cantidad de dígitos
+                let pos = 0, count = 0;
+                if (digitsBefore > 0) {
+                    for (let i = 0; i < formatted.length; i++) {
+                        if (/\d/.test(formatted[i])) count++;
+                        if (count === digitsBefore) { pos = i + 1; break; }
+                    }
+                    if (count < digitsBefore) pos = formatted.length;
+                }
+                try { inp.setSelectionRange(pos, pos); } catch (e) {}
             });
 
-            // Bloquear letras
+            // Solo dígitos (sin decimales ni comas)
             inp.addEventListener('keypress', (e) => {
-                if (!/[0-9,]/.test(e.key)) e.preventDefault();
+                if (e.ctrlKey || e.metaKey) return;
+                if (!/[0-9]/.test(e.key)) e.preventDefault();
             });
         });
 
         if (form) {
             form.addEventListener('submit', () => {
-                inputs.forEach(inp => { inp.value = toRaw(inp.value); });
+                inputs.forEach(inp => { inp.value = String(inp.value).replace(/\D/g, ''); });
             });
         }
     })();
