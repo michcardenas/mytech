@@ -3,14 +3,14 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\InternalProject;
-use App\Models\ProjectPayment;
-use App\Models\DeveloperPayment;
-use App\Models\GestionPayment;
-use App\Models\ProjectExpense;
 use App\Models\Client;
 use App\Models\Developer;
+use App\Models\DeveloperPayment;
+use App\Models\GestionPayment;
+use App\Models\InternalProject;
+use App\Models\ProjectExpense;
 use App\Models\ProjectFile;
+use App\Models\ProjectPayment;
 use App\Models\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -20,7 +20,16 @@ use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InternalProjectController extends Controller
 {
+    /**
+     * Vista principal: agrupada por desarrollador.
+     * La lista clásica con filtros avanzados vive en {@see self::todos()}.
+     */
     public function index(Request $request)
+    {
+        return $this->porDesarrollador($request);
+    }
+
+    public function todos(Request $request)
     {
         $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
 
@@ -54,15 +63,15 @@ class InternalProjectController extends Controller
             match ($request->periodo) {
                 'mes_actual' => $query->where(function ($q) use ($now) {
                     $q->whereBetween('fecha_inicio', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
-                      ->orWhereBetween('created_at', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
-                      ->orWhereHas('payments', fn($p) => $p->whereBetween('fecha', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()]));
+                        ->orWhereBetween('created_at', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()])
+                        ->orWhereHas('payments', fn ($p) => $p->whereBetween('fecha', [$now->copy()->startOfMonth(), $now->copy()->endOfMonth()]));
                 }),
                 'mes_anterior' => $query->where(function ($q) use ($now) {
                     $ini = $now->copy()->subMonth()->startOfMonth();
                     $fin = $now->copy()->subMonth()->endOfMonth();
                     $q->whereBetween('fecha_inicio', [$ini, $fin])
-                      ->orWhereBetween('created_at', [$ini, $fin])
-                      ->orWhereHas('payments', fn($p) => $p->whereBetween('fecha', [$ini, $fin]));
+                        ->orWhereBetween('created_at', [$ini, $fin])
+                        ->orWhereHas('payments', fn ($p) => $p->whereBetween('fecha', [$ini, $fin]));
                 }),
                 'este_anio' => $query->whereYear('created_at', $now->year),
                 default => null,
@@ -114,8 +123,8 @@ class InternalProjectController extends Controller
             $search = $request->buscar;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('cliente_nombre', 'like', "%{$search}%")
-                  ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
+                    ->orWhere('cliente_nombre', 'like', "%{$search}%")
+                    ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
             });
         }
 
@@ -133,7 +142,7 @@ class InternalProjectController extends Controller
         };
 
         $perPage = (int) $request->get('per_page', 15);
-        if (!in_array($perPage, [10, 15, 25, 50])) {
+        if (! in_array($perPage, [10, 15, 25, 50])) {
             $perPage = 15;
         }
 
@@ -143,8 +152,8 @@ class InternalProjectController extends Controller
         $devFiltro = $request->filled('desarrollador') ? $request->desarrollador : null;
 
         // Stats operacionales (con o sin filtro de dev)
-        $baseProjectsQuery = fn() => InternalProject::query()
-            ->when($devFiltro, fn($q) => $q->where('desarrollador_nombre', $devFiltro));
+        $baseProjectsQuery = fn () => InternalProject::query()
+            ->when($devFiltro, fn ($q) => $q->where('desarrollador_nombre', $devFiltro));
 
         $totalCount = $baseProjectsQuery()->count();
         $activosCount = $baseProjectsQuery()->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])->count();
@@ -191,30 +200,31 @@ class InternalProjectController extends Controller
 
         $ingresosMes = ProjectPayment::with('project:id,moneda')
             ->whereBetween('fecha', [$ini, $fin])
-            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
+            ->when($projectIdsScope, fn ($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
             ->sum(function ($p) use ($usdCop) {
                 if ($p->monto_recibido_cop) {
                     return (float) $p->monto_recibido_cop;
                 }
                 $moneda = optional($p->project)->moneda ?? 'COP';
+
                 return $moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto;
             });
 
         $pagosDevMes = DeveloperPayment::whereBetween('fecha', [$ini, $fin])
-            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
+            ->when($projectIdsScope, fn ($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
-            ->sum(fn($p) => $p->moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
+            ->sum(fn ($p) => $p->moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
 
         $pagosGestionMes = GestionPayment::whereBetween('fecha', [$ini, $fin])
-            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
+            ->when($projectIdsScope, fn ($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
-            ->sum(fn($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
+            ->sum(fn ($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
 
         $gastosMes = ProjectExpense::whereBetween('fecha', [$ini, $fin])
-            ->when($projectIdsScope, fn($q) => $q->whereIn('internal_project_id', $projectIdsScope))
+            ->when($projectIdsScope, fn ($q) => $q->whereIn('internal_project_id', $projectIdsScope))
             ->get()
-            ->sum(fn($e) => ($e->moneda ?? 'COP') === 'USD' ? (float) $e->monto * $usdCop : (float) $e->monto);
+            ->sum(fn ($e) => ($e->moneda ?? 'COP') === 'USD' ? (float) $e->monto * $usdCop : (float) $e->monto);
 
         // Utilidad neta = ingresos − pagos a desarrolladores − pagos a gestión − otros gastos
         $utilidadMes = $ingresosMes - $pagosDevMes - $pagosGestionMes - $gastosMes;
@@ -223,8 +233,8 @@ class InternalProjectController extends Controller
             ->whereIn('estado', ['en_progreso', 'cotizado', 'pausado'])
             ->where(function ($q) use ($ini, $fin) {
                 $q->whereBetween('fecha_inicio', [$ini, $fin])
-                  ->orWhereBetween('created_at', [$ini, $fin])
-                  ->orWhereHas('payments', fn($p) => $p->whereBetween('fecha', [$ini, $fin]));
+                    ->orWhereBetween('created_at', [$ini, $fin])
+                    ->orWhereHas('payments', fn ($p) => $p->whereBetween('fecha', [$ini, $fin]));
             })
             ->count();
 
@@ -252,7 +262,7 @@ class InternalProjectController extends Controller
             ->orderBy('desarrollador_nombre')
             ->pluck('desarrollador_nombre');
 
-        return view('admin.internal-projects.index', compact('projects', 'stats', 'desarrolladores', 'usdCop'));
+        return view('admin.internal-projects.todos', compact('projects', 'stats', 'desarrolladores', 'usdCop'));
     }
 
     public function stats(Request $request)
@@ -283,8 +293,8 @@ class InternalProjectController extends Controller
             $search = $request->buscar;
             $query->where(function ($q) use ($search) {
                 $q->where('nombre', 'like', "%{$search}%")
-                  ->orWhere('cliente_nombre', 'like', "%{$search}%")
-                  ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
+                    ->orWhere('cliente_nombre', 'like', "%{$search}%")
+                    ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
             });
         }
 
@@ -314,7 +324,9 @@ class InternalProjectController extends Controller
         };
 
         $perPage = (int) $request->get('per_page', 30);
-        if (!in_array($perPage, [15, 30, 50, 100])) $perPage = 30;
+        if (! in_array($perPage, [15, 30, 50, 100])) {
+            $perPage = 30;
+        }
         $projects = $query->paginate($perPage)->withQueryString();
 
         $desarrolladores = InternalProject::whereNotNull('desarrollador_nombre')
@@ -339,7 +351,10 @@ class InternalProjectController extends Controller
 
         foreach ($allProjects as $p) {
             $ingresos = $p->payments->sum(function ($pay) use ($p, $toCop) {
-                if ($pay->monto_recibido_cop) return (float) $pay->monto_recibido_cop;
+                if ($pay->monto_recibido_cop) {
+                    return (float) $pay->monto_recibido_cop;
+                }
+
                 return $toCop($pay->monto, $p->moneda);
             });
             $pagadoDev = $p->developerPayments->sum(fn ($d) => $toCop($d->monto, $d->moneda ?? 'COP'));
@@ -352,12 +367,16 @@ class InternalProjectController extends Controller
             $totalGastos += $gastos;
             $totalContratado += $contratado;
 
-            if (!in_array($p->estado, ['cancelado'])) {
+            if (! in_array($p->estado, ['cancelado'])) {
                 $saldoCli = $contratado - $ingresos;
-                if ($saldoCli > 0) $porCobrar += $saldoCli;
+                if ($saldoCli > 0) {
+                    $porCobrar += $saldoCli;
+                }
 
                 $saldoDev = $toCop($p->desarrollador_pago ?? 0, $p->desarrollador_moneda ?? 'COP') - $pagadoDev;
-                if ($saldoDev > 0) $porPagarDev += $saldoDev;
+                if ($saldoDev > 0) {
+                    $porPagarDev += $saldoDev;
+                }
             }
 
             if ($proyectoTop === null || $utilidadProj > $proyectoTop['utilidad']) {
@@ -491,6 +510,89 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.detalle', compact('projects', 'companyTotals', 'pageTotals', 'filters', 'desarrolladores', 'vendedores', 'usdCop'));
     }
 
+    /**
+     * Vista rápida agrupada por desarrollador: valor del proyecto, pago al dev y fecha de entrega.
+     * Completados quedan colapsados por dev; proyectos sin dev asignado se muestran arriba destacados.
+     */
+    public function porDesarrollador(Request $request)
+    {
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+
+        $query = InternalProject::query()
+            ->withSum('payments', 'monto')
+            ->withSum('developerPayments as developer_payments_sum_monto', 'monto');
+
+        if ($request->filled('buscar')) {
+            $search = $request->buscar;
+            $query->where(function ($q) use ($search) {
+                $q->where('nombre', 'like', "%{$search}%")
+                    ->orWhere('cliente_nombre', 'like', "%{$search}%")
+                    ->orWhere('desarrollador_nombre', 'like', "%{$search}%");
+            });
+        }
+
+        $projects = $query->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        $activos = ['en_progreso', 'cotizado', 'pausado'];
+        $sinDevKey = '__sin_dev__';
+
+        $grupos = $projects->groupBy(fn ($p) => $p->desarrollador_nombre ?: $sinDevKey)
+            ->map(function ($items, $key) use ($activos, $usdCop, $sinDevKey) {
+                $activosItems = $items->filter(fn ($p) => in_array($p->estado, $activos))->values();
+                $completadosItems = $items->filter(fn ($p) => in_array($p->estado, ['completado', 'cancelado']))->values();
+
+                $porPagarDevCop = 0;
+                $porCobrarCop = 0;
+                $proximaEntrega = null;
+
+                foreach ($activosItems as $p) {
+                    $saldoDev = max((float) ($p->desarrollador_pago ?? 0) - (float) ($p->developer_payments_sum_monto ?? 0), 0);
+                    if ($saldoDev > 0) {
+                        $porPagarDevCop += ($p->desarrollador_moneda ?? 'COP') === 'USD' ? $saldoDev * $usdCop : $saldoDev;
+                    }
+
+                    $saldoCliente = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
+                    if ($saldoCliente > 0) {
+                        $porCobrarCop += $p->moneda === 'USD' ? $saldoCliente * $usdCop : $saldoCliente;
+                    }
+
+                    if ($p->fecha_entrega && (! $proximaEntrega || $p->fecha_entrega < $proximaEntrega)) {
+                        $proximaEntrega = $p->fecha_entrega;
+                    }
+                }
+
+                return [
+                    'nombre' => $key === $sinDevKey ? null : $key,
+                    'activos' => $activosItems,
+                    'completados' => $completadosItems,
+                    'por_pagar_dev_cop' => $porPagarDevCop,
+                    'por_cobrar_cop' => $porCobrarCop,
+                    'proxima_entrega' => $proximaEntrega,
+                    'is_sin_dev' => $key === $sinDevKey,
+                ];
+            })
+            ->sortBy(function ($grupo) {
+                if ($grupo['is_sin_dev']) {
+                    return '000_'.uniqid();
+                }
+
+                return $grupo['activos']->isEmpty() ? '999_'.$grupo['nombre'] : '100_'.strtolower($grupo['nombre']);
+            })
+            ->values();
+
+        $resumen = [
+            'devs_activos' => $grupos->filter(fn ($g) => ! $g['is_sin_dev'] && $g['activos']->isNotEmpty())->count(),
+            'proyectos_activos' => $projects->whereIn('estado', $activos)->count(),
+            'sin_dev' => $projects->whereIn('estado', $activos)->whereNull('desarrollador_nombre')->count(),
+            'por_pagar_dev_cop' => $grupos->sum('por_pagar_dev_cop'),
+            'por_cobrar_cop' => $grupos->sum('por_cobrar_cop'),
+        ];
+
+        return view('admin.internal-projects.index', compact('grupos', 'resumen', 'usdCop'));
+    }
+
     public function statsExport(Request $request): StreamedResponse
     {
         $data = $this->buildStatsData($request, includeAllMovimientos: true);
@@ -498,11 +600,11 @@ class InternalProjectController extends Controller
         $start = $data['rango']['start'];
         $end = $data['rango']['end'];
 
-        $filename = 'reporte_' . $start->format('Ymd') . '_' . $end->format('Ymd') . '.csv';
+        $filename = 'reporte_'.$start->format('Ymd').'_'.$end->format('Ymd').'.csv';
 
         return response()->streamDownload(function () use ($movimientos) {
             $out = fopen('php://output', 'w');
-            fputs($out, "\xEF\xBB\xBF");
+            fwrite($out, "\xEF\xBB\xBF");
             fputcsv($out, ['Fecha', 'Tipo', 'Proyecto', 'Cliente', 'Concepto', 'Monto', 'Moneda', 'Monto COP']);
             foreach ($movimientos as $m) {
                 fputcsv($out, [
@@ -554,63 +656,66 @@ class InternalProjectController extends Controller
                 ->whereBetween('fecha', [$start, $end])
                 ->orderBy('fecha', 'desc')
         )->get()->map(function ($p) use ($toCop) {
-                $moneda = optional($p->project)->moneda ?? 'COP';
-                $cop = $p->monto_recibido_cop ? (float) $p->monto_recibido_cop : $toCop($p->monto, $moneda);
-                return [
-                    'fecha' => $p->fecha,
-                    'tipo' => 'Ingreso',
-                    'proyecto_id' => optional($p->project)->id,
-                    'proyecto' => optional($p->project)->nombre ?? '—',
-                    'cliente' => optional($p->project)->cliente_nombre ?? '—',
-                    'metodo' => $p->metodo,
-                    'referencia' => $p->referencia,
-                    'nota' => $p->nota,
-                    'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
-                    'monto' => (float) $p->monto,
-                    'moneda' => $moneda,
-                    'monto_cop' => $cop,
-                ];
-            });
+            $moneda = optional($p->project)->moneda ?? 'COP';
+            $cop = $p->monto_recibido_cop ? (float) $p->monto_recibido_cop : $toCop($p->monto, $moneda);
+
+            return [
+                'fecha' => $p->fecha,
+                'tipo' => 'Ingreso',
+                'proyecto_id' => optional($p->project)->id,
+                'proyecto' => optional($p->project)->nombre ?? '—',
+                'cliente' => optional($p->project)->cliente_nombre ?? '—',
+                'metodo' => $p->metodo,
+                'referencia' => $p->referencia,
+                'nota' => $p->nota,
+                'concepto' => trim(($p->metodo ?? '').($p->referencia ? ' · '.$p->referencia : '')) ?: ($p->nota ?? ''),
+                'monto' => (float) $p->monto,
+                'moneda' => $moneda,
+                'monto_cop' => $cop,
+            ];
+        });
 
         $pagosDev = $applyDevScope(
             DeveloperPayment::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
                 ->whereBetween('fecha', [$start, $end])
                 ->orderBy('fecha', 'desc')
         )->get()->map(function ($p) use ($toCop) {
-                $moneda = $p->moneda ?? 'COP';
-                return [
-                    'fecha' => $p->fecha,
-                    'tipo' => 'Pago dev',
-                    'proyecto_id' => optional($p->project)->id,
-                    'proyecto' => optional($p->project)->nombre ?? '—',
-                    'cliente' => optional($p->project)->desarrollador_nombre ?? '—',
-                    'desarrollador' => optional($p->project)->desarrollador_nombre ?? '—',
-                    'metodo' => $p->metodo,
-                    'referencia' => $p->referencia,
-                    'nota' => $p->nota,
-                    'concepto' => trim(($p->metodo ?? '') . ($p->referencia ? ' · ' . $p->referencia : '')) ?: ($p->nota ?? ''),
-                    'monto' => (float) $p->monto,
-                    'moneda' => $moneda,
-                    'monto_cop' => $toCop($p->monto, $moneda),
-                ];
-            });
+            $moneda = $p->moneda ?? 'COP';
+
+            return [
+                'fecha' => $p->fecha,
+                'tipo' => 'Pago dev',
+                'proyecto_id' => optional($p->project)->id,
+                'proyecto' => optional($p->project)->nombre ?? '—',
+                'cliente' => optional($p->project)->desarrollador_nombre ?? '—',
+                'desarrollador' => optional($p->project)->desarrollador_nombre ?? '—',
+                'metodo' => $p->metodo,
+                'referencia' => $p->referencia,
+                'nota' => $p->nota,
+                'concepto' => trim(($p->metodo ?? '').($p->referencia ? ' · '.$p->referencia : '')) ?: ($p->nota ?? ''),
+                'monto' => (float) $p->monto,
+                'moneda' => $moneda,
+                'monto_cop' => $toCop($p->monto, $moneda),
+            ];
+        });
 
         $gastos = $applyDevScope(
             ProjectExpense::with('project:id,nombre,cliente_nombre,desarrollador_nombre')
                 ->whereBetween('fecha', [$start, $end])
         )->get()->map(function ($e) use ($toCop) {
-                $moneda = $e->moneda ?? 'COP';
-                return [
-                    'fecha' => $e->fecha,
-                    'tipo' => 'Gasto',
-                    'proyecto' => optional($e->project)->nombre ?? '—',
-                    'cliente' => optional($e->project)->cliente_nombre ?? '—',
-                    'concepto' => $e->concepto ?? $e->categoria ?? '',
-                    'monto' => (float) $e->monto,
-                    'moneda' => $moneda,
-                    'monto_cop' => $toCop($e->monto, $moneda),
-                ];
-            });
+            $moneda = $e->moneda ?? 'COP';
+
+            return [
+                'fecha' => $e->fecha,
+                'tipo' => 'Gasto',
+                'proyecto' => optional($e->project)->nombre ?? '—',
+                'cliente' => optional($e->project)->cliente_nombre ?? '—',
+                'concepto' => $e->concepto ?? $e->categoria ?? '',
+                'monto' => (float) $e->monto,
+                'moneda' => $moneda,
+                'monto_cop' => $toCop($e->monto, $moneda),
+            ];
+        });
 
         $movimientos = $pagos->concat($pagosDev)->concat($gastos)
             ->sortByDesc(fn ($m) => $m['fecha']->timestamp)
@@ -665,17 +770,24 @@ class InternalProjectController extends Controller
                 'week' => $fecha->format('o-W'),
                 'month' => $fecha->format('Y-m'),
             };
+
             return isset($buckets[$key]) ? $key : null;
         };
 
         foreach ($pagos as $p) {
-            if ($k = $assign($p['fecha'], $buckets)) $buckets[$k]['ing'] += $p['monto_cop'];
+            if ($k = $assign($p['fecha'], $buckets)) {
+                $buckets[$k]['ing'] += $p['monto_cop'];
+            }
         }
         foreach ($pagosDev as $p) {
-            if ($k = $assign($p['fecha'], $buckets)) $buckets[$k]['egr'] += $p['monto_cop'];
+            if ($k = $assign($p['fecha'], $buckets)) {
+                $buckets[$k]['egr'] += $p['monto_cop'];
+            }
         }
         foreach ($gastos as $g) {
-            if ($k = $assign($g['fecha'], $buckets)) $buckets[$k]['egr'] += $g['monto_cop'];
+            if ($k = $assign($g['fecha'], $buckets)) {
+                $buckets[$k]['egr'] += $g['monto_cop'];
+            }
         }
 
         $serieLabels = array_values(array_map(fn ($b) => $b['label'], $buckets));
@@ -700,6 +812,7 @@ class InternalProjectController extends Controller
             ->map(function ($p) use ($toCop, $hoy) {
                 $saldo = max((float) $p->precio - (float) ($p->pagado_total ?? 0), 0);
                 $diasRest = $hoy->diffInDays($p->fecha_entrega, false);
+
                 return [
                     'id' => $p->id,
                     'nombre' => $p->nombre,
@@ -754,6 +867,7 @@ class InternalProjectController extends Controller
                     $devMoneda = $p->desarrollador_moneda ?? 'COP';
                     $asignado = (float) ($p->desarrollador_pago ?? 0);
                     $pagado = (float) ($p->dev_pagado ?? 0);
+
                     return [
                         'id' => $p->id,
                         'nombre' => $p->nombre,
@@ -802,7 +916,7 @@ class InternalProjectController extends Controller
     public function create()
     {
         return view('admin.internal-projects.form', [
-            'project' => new InternalProject(),
+            'project' => new InternalProject,
             'isEdit' => false,
             'clients' => Client::orderBy('nombre')->get(),
             'developers' => Developer::orderBy('nombre')->get(),
@@ -843,7 +957,7 @@ class InternalProjectController extends Controller
             $validated['comision_valor'] = null;
         }
 
-        if (!empty($validated['client_id'])) {
+        if (! empty($validated['client_id'])) {
             $client = Client::find($validated['client_id']);
             if ($client) {
                 $validated['cliente_nombre'] = $client->nombre;
@@ -853,7 +967,7 @@ class InternalProjectController extends Controller
             }
         }
 
-        if (!empty($validated['developer_id'])) {
+        if (! empty($validated['developer_id'])) {
             $dev = Developer::find($validated['developer_id']);
             if ($dev) {
                 $validated['desarrollador_nombre'] = $dev->nombre;
@@ -877,10 +991,10 @@ class InternalProjectController extends Controller
     public function show(InternalProject $internal_project)
     {
         $internal_project->load([
-            'payments' => fn($q) => $q->orderBy('fecha', 'desc'),
-            'developerPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
-            'gestionPayments' => fn($q) => $q->orderBy('fecha', 'desc'),
-            'expenses' => fn($q) => $q->orderBy('fecha', 'desc'),
+            'payments' => fn ($q) => $q->orderBy('fecha', 'desc'),
+            'developerPayments' => fn ($q) => $q->orderBy('fecha', 'desc'),
+            'gestionPayments' => fn ($q) => $q->orderBy('fecha', 'desc'),
+            'expenses' => fn ($q) => $q->orderBy('fecha', 'desc'),
             'files',
             'vendedor',
         ]);
@@ -934,7 +1048,7 @@ class InternalProjectController extends Controller
             $validated['comision_valor'] = null;
         }
 
-        if (!empty($validated['client_id'])) {
+        if (! empty($validated['client_id'])) {
             $client = Client::find($validated['client_id']);
             if ($client) {
                 $validated['cliente_nombre'] = $client->nombre;
@@ -944,7 +1058,7 @@ class InternalProjectController extends Controller
             }
         }
 
-        if (!empty($validated['developer_id'])) {
+        if (! empty($validated['developer_id'])) {
             $dev = Developer::find($validated['developer_id']);
             if ($dev) {
                 $validated['desarrollador_nombre'] = $dev->nombre;
@@ -992,9 +1106,40 @@ class InternalProjectController extends Controller
         ]);
 
         $internal_project->payments()->create($validated);
+        $autoCompletado = $this->autoCompletarSiPagado($internal_project);
+
+        $mensaje = $autoCompletado
+            ? 'Pago registrado. El proyecto quedó pagado en su totalidad y se marcó como completado.'
+            : 'Pago registrado exitosamente.';
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
-            ->with('success', 'Pago registrado exitosamente.');
+            ->with('success', $mensaje);
+    }
+
+    /**
+     * Marca el proyecto como completado si el total pagado alcanza o supera el precio.
+     * No aplica a recurrentes (no "terminan") ni a proyectos ya cerrados (completado/cancelado).
+     */
+    private function autoCompletarSiPagado(InternalProject $project): bool
+    {
+        if ($project->es_recurrente) {
+            return false;
+        }
+        if (in_array($project->estado, ['completado', 'cancelado'], true)) {
+            return false;
+        }
+        if ((float) $project->precio <= 0) {
+            return false;
+        }
+
+        $totalPagado = (float) $project->payments()->sum('monto');
+        if ($totalPagado + 0.005 < (float) $project->precio) {
+            return false;
+        }
+
+        $project->update(['estado' => 'completado']);
+
+        return true;
     }
 
     public function destroyPayment(InternalProject $internal_project, ProjectPayment $payment)
@@ -1096,7 +1241,7 @@ class InternalProjectController extends Controller
         ]);
 
         $file = $request->file('archivo');
-        $path = $file->store('internal-projects/' . $internal_project->id, 'public');
+        $path = $file->store('internal-projects/'.$internal_project->id, 'public');
 
         $internal_project->files()->create([
             'nombre' => $request->nombre,

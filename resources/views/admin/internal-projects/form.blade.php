@@ -15,10 +15,10 @@
     }
 
     .form-container {
-        background: var(--light-gray);
-        max-width: 900px;
+        background: #F6F7F9;
+        max-width: 960px;
         margin: 0 auto;
-        padding: 2rem;
+        padding: 1.5rem 1.75rem 3rem;
         min-height: 80vh;
     }
 
@@ -27,40 +27,57 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1.5rem;
-        padding: 1.5rem 2rem;
-        background: var(--gradient-blue);
+        padding: 1.5rem 1.75rem;
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
         border-radius: 16px;
-        color: white;
+        color: #fff;
         flex-wrap: wrap;
         gap: 1rem;
     }
-
     .form-header h1 {
-        font-size: 1.4rem;
-        font-weight: 700;
+        font-size: 1.35rem;
+        font-weight: 800;
         margin: 0;
-        color: white;
+        color: #fff;
         display: flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
+        letter-spacing: -0.02em;
     }
+    .form-header .icon { display:inline-flex; width:36px; height:36px; border-radius:10px; background:rgba(59,130,246,.2); align-items:center; justify-content:center; color:#93C5FD; }
+    .form-header p { margin: 0.2rem 0 0; opacity: 0.75; font-size: 0.82rem; }
 
     .btn-back {
-        background: rgba(255,255,255,0.2);
-        border: 2px solid rgba(255,255,255,0.4);
-        color: white;
-        padding: 0.55rem 1.1rem;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.14);
+        color: #E2E8F0;
+        padding: 0.55rem 1rem;
         border-radius: 10px;
         font-weight: 600;
         text-decoration: none;
-        transition: var(--transition);
+        transition: all 0.15s;
         display: inline-flex;
         align-items: center;
         gap: 0.4rem;
-        font-size: 0.85rem;
+        font-size: 0.83rem;
     }
+    .btn-back:hover { background: rgba(255,255,255,0.16); color: #fff; text-decoration: none; }
 
-    .btn-back:hover { background: rgba(255,255,255,0.35); color: white; text-decoration: none; }
+    /* Money input con prefijo */
+    .money-wrap { position: relative; flex: 1; }
+    .money-wrap .money-prefix {
+        position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
+        font-weight: 700; color: #94A3B8; font-size: 0.85rem;
+        pointer-events: none; z-index: 2;
+        font-variant-numeric: tabular-nums;
+    }
+    .money-wrap input.form-control {
+        padding-left: 44px !important;
+        font-variant-numeric: tabular-nums;
+        font-weight: 600;
+    }
+    .money-wrap.compact .money-prefix { left: 10px; font-size: 0.8rem; }
+    .money-wrap.compact input.form-control { padding-left: 34px !important; }
 
     /* Form Section */
     .form-section {
@@ -217,10 +234,13 @@
 
 <div class="form-container">
     <div class="form-header">
-        <h1>
-            <i class="fas fa-{{ $isEdit ? 'edit' : 'plus-circle' }}"></i>
-            {{ $isEdit ? 'Editar Proyecto' : 'Nuevo Proyecto' }}
-        </h1>
+        <div>
+            <h1>
+                <span class="icon"><i class="fas fa-{{ $isEdit ? 'pen' : 'plus-circle' }}"></i></span>
+                {{ $isEdit ? 'Editar proyecto' : 'Nuevo proyecto' }}
+            </h1>
+            <p>{{ $isEdit ? 'Actualiza precio, dev, gestión y demás datos del proyecto.' : 'Registra el proyecto interno: cliente, precio, dev asignado y comisión.' }}</p>
+        </div>
         <a href="{{ route('admin.internal-projects.index') }}" class="btn-back">
             <i class="fas fa-arrow-left"></i> Volver
         </a>
@@ -504,8 +524,12 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-dollar-sign"></i> Precio <span class="required">*</span></div>
                         <div class="price-group">
-                            <input type="number" id="precio" name="precio" class="form-control @error('precio') is-invalid @enderror"
-                                   value="{{ old('precio', $project->precio) }}" required step="0.01" min="0" placeholder="0.00">
+                            <div class="money-wrap">
+                                <span class="money-prefix" data-money-prefix-for="moneda">$</span>
+                                <input type="text" inputmode="decimal" id="precio" name="precio"
+                                       class="form-control js-money-input @error('precio') is-invalid @enderror"
+                                       value="{{ old('precio', $project->precio) }}" required placeholder="0">
+                            </div>
                             <select name="moneda" id="moneda" class="form-select">
                                 <option value="COP" {{ old('moneda', $project->moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('moneda', $project->moneda) == 'USD' ? 'selected' : '' }}>USD</option>
@@ -574,8 +598,12 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-hand-holding-usd"></i> Pago al Desarrollador</div>
                         <div class="price-group">
-                            <input type="number" name="desarrollador_pago" id="desarrollador_pago" class="form-control"
-                                   value="{{ old('desarrollador_pago', $project->desarrollador_pago) }}" step="0.01" min="0" placeholder="0.00">
+                            <div class="money-wrap">
+                                <span class="money-prefix" data-money-prefix-for="desarrollador_moneda">$</span>
+                                <input type="text" inputmode="decimal" name="desarrollador_pago" id="desarrollador_pago"
+                                       class="form-control js-money-input"
+                                       value="{{ old('desarrollador_pago', $project->desarrollador_pago) }}" placeholder="0">
+                            </div>
                             <select name="desarrollador_moneda" id="desarrollador_moneda" class="form-select">
                                 <option value="COP" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'USD' ? 'selected' : '' }}>USD</option>
@@ -625,7 +653,7 @@
                     <div style="margin-bottom:1.5rem; display:grid; grid-template-columns: 2fr 1fr; gap:0.6rem;">
                         <div>
                             <label style="display:block; font-weight:600; font-size:0.85rem; color:var(--dark-text); margin-bottom:0.35rem;">Tarifa por defecto</label>
-                            <input type="number" id="nuevoDevPago" placeholder="0.00" step="0.01" min="0"
+                            <input type="text" inputmode="decimal" id="nuevoDevPago" class="js-money-input" placeholder="0"
                                    style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
                         </div>
                         <div>
@@ -690,10 +718,13 @@
                     }
                     hiddenNombre.value = opt.textContent.trim();
                     if (opt.dataset.email && !emailInput.value) emailInput.value = opt.dataset.email;
-                    if (opt.dataset.pago && (!pagoInput.value || pagoInput.value === '0' || pagoInput.value === '0.00')) {
-                        pagoInput.value = opt.dataset.pago;
+                    const pagoActual = window.moneyRaw ? window.moneyRaw(pagoInput) : parseFloat(pagoInput.value || 0);
+                    if (opt.dataset.pago && !pagoActual) {
+                        if (window.moneySet) window.moneySet(pagoInput, opt.dataset.pago);
+                        else pagoInput.value = opt.dataset.pago;
                     }
                     if (opt.dataset.moneda) monedaSelect.value = opt.dataset.moneda;
+                    if (monedaSelect) monedaSelect.dispatchEvent(new Event('change', { bubbles: true }));
                 }
                 select.addEventListener('change', () => syncFromDev(true));
                 syncFromDev(false);
@@ -724,7 +755,7 @@
                                 nombre,
                                 telefono: f.telefono.value.trim() || null,
                                 email: f.email.value.trim() || null,
-                                pago_default: f.pago.value ? parseFloat(f.pago.value) : null,
+                                pago_default: window.moneyRaw ? (window.moneyRaw(f.pago) || null) : (f.pago.value ? parseFloat(f.pago.value) : null),
                                 moneda_default: f.moneda.value,
                             }),
                         });
@@ -808,8 +839,9 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-money-bill"></i> Valor de la comisión</div>
                         <div style="position:relative;">
-                            <input type="number" name="comision_valor" id="comision_valor" class="form-control"
-                                   value="{{ old('comision_valor', $project->comision_valor) }}" step="0.01" min="0" placeholder="Ej: 25">
+                            <input type="text" inputmode="decimal" name="comision_valor" id="comision_valor"
+                                   class="form-control js-money-input"
+                                   value="{{ old('comision_valor', $project->comision_valor) }}" placeholder="Ej: 25">
                             <span id="comisionUnidad" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:#666; font-weight:600; pointer-events:none;">%</span>
                         </div>
                         <div class="field-hint">
@@ -936,7 +968,7 @@
 
                 function calcular() {
                     syncUnidad();
-                    const val = parseFloat(valor.value) || 0;
+                    const val = window.moneyRaw ? window.moneyRaw(valor) : (parseFloat(valor.value) || 0);
                     if (val <= 0) { preview.style.display = 'none'; return; }
 
                     if (getTipo() === 'monto') {
@@ -946,8 +978,8 @@
                         return;
                     }
 
-                    const precio = parseFloat(precioInput.value) || 0;
-                    const pagoDev = parseFloat(pagoDevInput?.value) || 0;
+                    const precio = window.moneyRaw ? window.moneyRaw(precioInput) : (parseFloat(precioInput.value) || 0);
+                    const pagoDev = window.moneyRaw ? window.moneyRaw(pagoDevInput) : (parseFloat(pagoDevInput?.value) || 0);
                     if (precio <= 0) { preview.style.display = 'none'; return; }
 
                     // Normalizar pago dev a moneda del proyecto
@@ -1095,6 +1127,98 @@
 
         checkbox.addEventListener('change', sync);
         sync();
+    })();
+</script>
+
+{{-- Máscara de miles (1.500.000,50) para inputs .js-money-input.
+     Al enviar el form se convierten a formato numérico plano para el backend. --}}
+<script>
+    (function () {
+        const inputs = document.querySelectorAll('.js-money-input');
+        if (!inputs.length) return;
+        const form = inputs[0].closest('form');
+
+        function toFormatted(v) {
+            if (v === '' || v == null) return '';
+            let clean = String(v).replace(/\s/g, '');
+            // Si vino del backend (ej: "1500000.50"), normalizar: cambiar punto decimal por coma temporal
+            if (/^-?\d+(\.\d+)?$/.test(clean)) {
+                clean = clean.replace('.', ',');
+            }
+            clean = clean.replace(/\./g, '').replace(/[^\d,]/g, '');
+            // solo una coma
+            const firstComma = clean.indexOf(',');
+            if (firstComma !== -1) {
+                clean = clean.slice(0, firstComma + 1) + clean.slice(firstComma + 1).replace(/,/g, '');
+            }
+            let [int, dec] = clean.split(',');
+            if (int === undefined) int = '';
+            int = int.replace(/^0+(?=\d)/, ''); // quita ceros a la izquierda
+            int = int.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+            if (dec !== undefined) dec = dec.slice(0, 2); // máx 2 decimales
+            return dec !== undefined ? `${int || '0'},${dec}` : int;
+        }
+
+        function toRaw(v) {
+            return String(v || '').replace(/\./g, '').replace(',', '.');
+        }
+
+        // Expuesto para que otros scripts de la vista (cálculo de comisión, etc.)
+        // puedan leer el valor numérico de un input con máscara.
+        window.moneyRaw = function (input) {
+            if (!input) return 0;
+            const n = parseFloat(toRaw(input.value));
+            return isNaN(n) ? 0 : n;
+        };
+
+        // Escribe un valor y dispara el reformat de la máscara.
+        window.moneySet = function (input, value) {
+            if (!input) return;
+            input.value = value == null ? '' : String(value);
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        };
+
+        inputs.forEach(inp => {
+            // Formatear valor inicial (edición)
+            if (inp.value !== '') inp.value = toFormatted(inp.value);
+
+            inp.addEventListener('input', () => {
+                const beforeLen = inp.value.length;
+                const caret = inp.selectionStart;
+                const formatted = toFormatted(inp.value);
+                inp.value = formatted;
+                // reajustar caret manteniendo diferencia
+                const diff = formatted.length - beforeLen;
+                const newPos = Math.max(0, Math.min(formatted.length, caret + diff));
+                try { inp.setSelectionRange(newPos, newPos); } catch (e) {}
+            });
+
+            // Bloquear letras
+            inp.addEventListener('keypress', (e) => {
+                if (!/[0-9,]/.test(e.key)) e.preventDefault();
+            });
+        });
+
+        if (form) {
+            form.addEventListener('submit', () => {
+                inputs.forEach(inp => { inp.value = toRaw(inp.value); });
+            });
+        }
+    })();
+</script>
+
+{{-- Prefijo dinámico según moneda (COP: $, USD: US$) --}}
+<script>
+    (function () {
+        document.querySelectorAll('.money-prefix').forEach(pref => {
+            const selectId = pref.dataset.moneyPrefixFor;
+            if (!selectId) return;
+            const sel = document.getElementById(selectId);
+            if (!sel) return;
+            const sync = () => { pref.textContent = sel.value === 'USD' ? 'US$' : '$'; };
+            sel.addEventListener('change', sync);
+            sync();
+        });
     })();
 </script>
 @endsection
