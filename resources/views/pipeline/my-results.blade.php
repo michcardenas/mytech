@@ -113,7 +113,7 @@
                         @endphp
                         <tr>
                             <td class="fw-semibold">{{ \Illuminate\Support\Str::limit($p->nombre,32) }}</td>
-                            <td>{{ $p->created_at->format('d/m/Y') }}</td>
+                            <td>{{ ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $p->moneda==='USD'?'US$':'$' }}{{ number_format((float)$p->precio,0,',','.') }}</td>
                             <td>
                                 <div class="mr-pct">

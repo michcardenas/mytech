@@ -37,10 +37,13 @@ class MyResultsController extends Controller
                 }
             })
             ->with(['gestionPayments', 'payments'])
-            ->orderByDesc('created_at')->get();
+            ->orderByRaw('COALESCE(fecha_inicio, created_at) DESC')->get();
 
-        $mesActual = $todosProyectos->filter(fn ($p) => $p->created_at->between($inicioMesActual, $finMesActual));
-        $mesAnterior = $todosProyectos->filter(fn ($p) => $p->created_at->between($inicioMesAnterior, $finMesAnterior));
+        // Fecha de "cierre" = fecha_inicio del proyecto; fallback a created_at si es null.
+        $fechaCierre = fn ($p) => $p->fecha_inicio ?? $p->created_at;
+
+        $mesActual = $todosProyectos->filter(fn ($p) => $fechaCierre($p)->between($inicioMesActual, $finMesActual));
+        $mesAnterior = $todosProyectos->filter(fn ($p) => $fechaCierre($p)->between($inicioMesAnterior, $finMesAnterior));
 
         $cierresMesActual = [
             'count' => $mesActual->count(),
