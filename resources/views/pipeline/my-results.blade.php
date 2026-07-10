@@ -5,13 +5,13 @@
     .mr-wrap { padding:1.5rem 1.75rem; max-width:1000px; }
     .mr-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 .15rem; }
     .mr-sub { color:#64748B; font-size:.9rem; margin:0 0 1.4rem; }
-    .mr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:.9rem; margin-bottom:1.4rem; }
+    .mr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.9rem; margin-bottom:1.4rem; }
     .mr-stat { border-radius:14px; padding:1.15rem 1.25rem; color:#fff; }
     .mr-stat .n { font-size:1.6rem; font-weight:800; line-height:1; }
     .mr-stat .l { font-size:.76rem; text-transform:uppercase; letter-spacing:.03em; opacity:.9; font-weight:700; margin-top:.35rem; }
     .mr-stat.light { background:#fff; color:#0F172A; border:1px solid #E5E7EB; }
     .mr-stat.light .l { color:#94A3B8; }
-    /* Cierres por mes: número grande + valor abajo, mismo card */
+    /* Cierres / comisión por mes: número grande + valor abajo, mismo card */
     .mr-stat.month { display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap; }
     .mr-stat.month .head { display:flex; align-items:baseline; gap:.55rem; }
     .mr-stat.month .n { font-size:1.9rem; font-weight:800; line-height:1; letter-spacing:-.02em; }
@@ -20,24 +20,27 @@
     .mr-stat.month .l { width:100%; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; opacity:.85; font-weight:700; margin-top:.15rem; }
     .mr-stat.month.zero { opacity:.7; }
     .mr-card { background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:1.25rem 1.4rem; }
-    .mr-card h3 { font-size:1rem; font-weight:800; color:#0F172A; margin:0 0 1rem; }
-    .mr-table { width:100%; font-size:.86rem; }
+    .mr-card-head { display:flex; justify-content:space-between; align-items:center; gap:1rem; flex-wrap:wrap; margin-bottom:1rem; }
+    .mr-card-head h3 { font-size:1rem; font-weight:800; color:#0F172A; margin:0; }
+    .mr-filter { display:inline-flex; gap:.3rem; padding:.25rem; background:#F1F5F9; border-radius:999px; }
+    .mr-filter a { padding:.35rem .85rem; border-radius:999px; font-size:.78rem; font-weight:700; color:#64748B; text-decoration:none; transition:all .12s; }
+    .mr-filter a.active { background:#0F172A; color:#fff; }
+    .mr-filter a:not(.active):hover { color:#0F172A; }
+    .mr-table { width:100%; font-size:.86rem; font-variant-numeric:tabular-nums; }
     .mr-table th { font-size:.72rem; text-transform:uppercase; color:#94A3B8; font-weight:700; border-bottom:2px solid #EEF2F7; padding:.5rem .6rem; text-align:left; }
-    .mr-table td { padding:.6rem .6rem; border-bottom:1px solid #F1F5F9; }
+    .mr-table td { padding:.6rem .6rem; border-bottom:1px solid #F1F5F9; vertical-align:middle; }
+    /* barra % pagado */
+    .mr-pct { display:flex; align-items:center; gap:.5rem; min-width:110px; }
+    .mr-pct-bar { flex:1; height:6px; border-radius:999px; background:#F1F5F9; overflow:hidden; }
+    .mr-pct-bar > span { display:block; height:100%; border-radius:999px; transition:width .3s; }
+    .mr-pct-txt { font-size:.75rem; font-weight:700; color:#0F172A; min-width:34px; text-align:right; }
 </style>
 
 <div class="mr-wrap">
     <h1 class="mr-title">Mis resultados</h1>
-    <p class="mr-sub">Tu desempeño: lo que has cerrado y tu comisión generada.</p>
+    <p class="mr-sub">Cierres y comisión generada por mes.</p>
 
-    <div class="mr-grid">
-        <div class="mr-stat" style="background:linear-gradient(135deg,#0F172A,#1E293B)"><div class="n">${{ number_format((float)$valorCerrado,0,',','.') }}</div><div class="l">Total cerrado por ti</div></div>
-        <div class="mr-stat" style="background:linear-gradient(135deg,#2563EB,#1D4ED8)"><div class="n">${{ number_format((float)$comisionTotal,0,',','.') }}</div><div class="l">Comisión generada</div></div>
-        <div class="mr-stat" style="background:linear-gradient(135deg,#16A34A,#15803D)"><div class="n">${{ number_format((float)$comisionPagada,0,',','.') }}</div><div class="l">Comisión pagada</div></div>
-        <div class="mr-stat" style="background:linear-gradient(135deg,#F59E0B,#D97706)"><div class="n">${{ number_format((float)$comisionPendiente,0,',','.') }}</div><div class="l">Por cobrar</div></div>
-    </div>
-
-    {{-- Cierres del mes actual y del mes anterior --}}
+    {{-- Badges: cierres y comisión por mes --}}
     <div class="mr-grid">
         <div class="mr-stat month {{ $cierresMesActual['count'] === 0 ? 'zero' : '' }}"
              style="background:linear-gradient(135deg,#0EA5E9,#0284C7); color:#fff;">
@@ -55,8 +58,23 @@
             </div>
             <div class="l"><i class="far fa-calendar"></i> Cerrados mes pasado · {{ now()->subMonth()->translatedFormat('F') }}</div>
         </div>
+        <div class="mr-stat month {{ $comisionMesActual == 0 ? 'zero' : '' }}"
+             style="background:linear-gradient(135deg,#16A34A,#15803D); color:#fff;">
+            <div class="head">
+                <span class="n">${{ number_format((float) $comisionMesActual, 0, ',', '.') }}</span>
+            </div>
+            <div class="l"><i class="fas fa-hand-holding-usd"></i> Comisión {{ now()->translatedFormat('F') }}</div>
+        </div>
+        <div class="mr-stat month {{ $comisionMesAnterior == 0 ? 'zero' : '' }}"
+             style="background:linear-gradient(135deg,#7C3AED,#5B21B6); color:#fff;">
+            <div class="head">
+                <span class="n">${{ number_format((float) $comisionMesAnterior, 0, ',', '.') }}</span>
+            </div>
+            <div class="l"><i class="fas fa-hand-holding-usd"></i> Comisión {{ now()->subMonth()->translatedFormat('F') }}</div>
+        </div>
     </div>
 
+    {{-- KPIs de leads --}}
     <div class="mr-grid">
         <div class="mr-stat light"><div class="n">{{ $ganados }}</div><div class="l">Leads ganados</div></div>
         <div class="mr-stat light"><div class="n">{{ $abiertos }}</div><div class="l">Leads abiertos</div></div>
@@ -64,20 +82,50 @@
     </div>
 
     <div class="mr-card">
-        <h3>Mis proyectos cerrados</h3>
+        <div class="mr-card-head">
+            <h3>Mis proyectos cerrados</h3>
+            <div class="mr-filter">
+                <a href="{{ route('pipeline.my-results') }}" class="{{ $mesFiltro === null ? 'active' : '' }}">Todos</a>
+                <a href="{{ route('pipeline.my-results', ['mes' => 'actual']) }}" class="{{ $mesFiltro === 'actual' ? 'active' : '' }}">Mes en curso</a>
+                <a href="{{ route('pipeline.my-results', ['mes' => 'anterior']) }}" class="{{ $mesFiltro === 'anterior' ? 'active' : '' }}">Mes anterior</a>
+            </div>
+        </div>
         <div class="table-responsive">
             <table class="mr-table">
-                <thead><tr><th>Proyecto</th><th>Cerrado</th><th>Precio</th><th>Mi comisión</th><th>Estado pago</th></tr></thead>
+                <thead>
+                    <tr>
+                        <th>Proyecto</th>
+                        <th>Cerrado</th>
+                        <th>Precio</th>
+                        <th style="min-width:150px;">% pagado</th>
+                        <th>Mi comisión</th>
+                        <th>Estado pago comisión</th>
+                    </tr>
+                </thead>
                 <tbody>
                     @forelse($proyectos as $p)
-                        @php $com=(float)$p->comision_calculada; $pag=(float)$p->total_pagado_gestion; $pend=max($com-$pag,0); @endphp
+                        @php
+                            $com = (float) $p->comision_calculada;
+                            $pag = (float) $p->total_pagado_gestion;
+                            $pend = max($com - $pag, 0);
+                            $pct = (int) $p->porcentaje_pagado;
+                            $pctColor = $pct >= 100 ? '#16A34A' : ($pct >= 50 ? '#2563EB' : ($pct > 0 ? '#F59E0B' : '#CBD5E1'));
+                        @endphp
                         <tr>
                             <td class="fw-semibold">{{ \Illuminate\Support\Str::limit($p->nombre,32) }}</td>
                             <td>{{ $p->created_at->format('d/m/Y') }}</td>
                             <td>{{ $p->moneda==='USD'?'US$':'$' }}{{ number_format((float)$p->precio,0,',','.') }}</td>
+                            <td>
+                                <div class="mr-pct">
+                                    <div class="mr-pct-bar"><span style="width:{{ min($pct, 100) }}%; background:{{ $pctColor }};"></span></div>
+                                    <span class="mr-pct-txt">{{ $pct }}%</span>
+                                </div>
+                            </td>
                             <td class="fw-semibold">${{ number_format($com,0,',','.') }}</td>
                             <td>
-                                @if($pend <= 0)
+                                @if($com <= 0)
+                                    <span class="badge bg-light text-muted">Sin comisión</span>
+                                @elseif($pend <= 0)
                                     <span class="badge bg-success">Pagada</span>
                                 @elseif($pag > 0)
                                     <span class="badge bg-warning text-dark">Parcial · falta ${{ number_format($pend,0,',','.') }}</span>
@@ -87,7 +135,13 @@
                             </td>
                         </tr>
                     @empty
-                        <tr><td colspan="5" class="text-center text-muted py-3">Aún no tienes proyectos cerrados. ¡A cerrar leads! 💪</td></tr>
+                        <tr><td colspan="6" class="text-center text-muted py-3">
+                            @if($mesFiltro)
+                                No tienes proyectos cerrados en {{ $mesFiltro === 'actual' ? now()->translatedFormat('F') : now()->subMonth()->translatedFormat('F') }}.
+                            @else
+                                Aún no tienes proyectos cerrados. ¡A cerrar leads! 💪
+                            @endif
+                        </td></tr>
                     @endforelse
                 </tbody>
             </table>
