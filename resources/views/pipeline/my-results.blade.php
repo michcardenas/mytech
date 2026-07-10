@@ -11,6 +11,14 @@
     .mr-stat .l { font-size:.76rem; text-transform:uppercase; letter-spacing:.03em; opacity:.9; font-weight:700; margin-top:.35rem; }
     .mr-stat.light { background:#fff; color:#0F172A; border:1px solid #E5E7EB; }
     .mr-stat.light .l { color:#94A3B8; }
+    /* Cierres por mes: número grande + valor abajo, mismo card */
+    .mr-stat.month { display:flex; align-items:baseline; gap:.7rem; flex-wrap:wrap; }
+    .mr-stat.month .head { display:flex; align-items:baseline; gap:.55rem; }
+    .mr-stat.month .n { font-size:1.9rem; font-weight:800; line-height:1; letter-spacing:-.02em; }
+    .mr-stat.month .n small { font-size:.7rem; font-weight:700; opacity:.85; margin-left:.15rem; text-transform:uppercase; letter-spacing:.05em; }
+    .mr-stat.month .val { font-size:1rem; font-weight:700; opacity:.95; font-variant-numeric:tabular-nums; }
+    .mr-stat.month .l { width:100%; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; opacity:.85; font-weight:700; margin-top:.15rem; }
+    .mr-stat.month.zero { opacity:.7; }
     .mr-card { background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:1.25rem 1.4rem; }
     .mr-card h3 { font-size:1rem; font-weight:800; color:#0F172A; margin:0 0 1rem; }
     .mr-table { width:100%; font-size:.86rem; }
@@ -27,6 +35,26 @@
         <div class="mr-stat" style="background:linear-gradient(135deg,#2563EB,#1D4ED8)"><div class="n">${{ number_format((float)$comisionTotal,0,',','.') }}</div><div class="l">Comisión generada</div></div>
         <div class="mr-stat" style="background:linear-gradient(135deg,#16A34A,#15803D)"><div class="n">${{ number_format((float)$comisionPagada,0,',','.') }}</div><div class="l">Comisión pagada</div></div>
         <div class="mr-stat" style="background:linear-gradient(135deg,#F59E0B,#D97706)"><div class="n">${{ number_format((float)$comisionPendiente,0,',','.') }}</div><div class="l">Por cobrar</div></div>
+    </div>
+
+    {{-- Cierres del mes actual y del mes anterior --}}
+    <div class="mr-grid">
+        <div class="mr-stat month {{ $cierresMesActual['count'] === 0 ? 'zero' : '' }}"
+             style="background:linear-gradient(135deg,#0EA5E9,#0284C7); color:#fff;">
+            <div class="head">
+                <span class="n">{{ $cierresMesActual['count'] }}<small>{{ $cierresMesActual['count'] === 1 ? ' cierre' : ' cierres' }}</small></span>
+                <span class="val">${{ number_format((float) $cierresMesActual['valor_cop'], 0, ',', '.') }}</span>
+            </div>
+            <div class="l"><i class="far fa-calendar-check"></i> Cerrados este mes · {{ now()->translatedFormat('F') }}</div>
+        </div>
+        <div class="mr-stat month {{ $cierresMesAnterior['count'] === 0 ? 'zero' : '' }}"
+             style="background:linear-gradient(135deg,#64748B,#475569); color:#fff;">
+            <div class="head">
+                <span class="n">{{ $cierresMesAnterior['count'] }}<small>{{ $cierresMesAnterior['count'] === 1 ? ' cierre' : ' cierres' }}</small></span>
+                <span class="val">${{ number_format((float) $cierresMesAnterior['valor_cop'], 0, ',', '.') }}</span>
+            </div>
+            <div class="l"><i class="far fa-calendar"></i> Cerrados mes pasado · {{ now()->subMonth()->translatedFormat('F') }}</div>
+        </div>
     </div>
 
     <div class="mr-grid">
