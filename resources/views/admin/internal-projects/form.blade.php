@@ -846,7 +846,7 @@
                             <span id="comisionUnidad" style="position:absolute; right:1rem; top:50%; transform:translateY(-50%); color:#666; font-weight:600; pointer-events:none;">%</span>
                         </div>
                         <div class="field-hint">
-                            Porcentaje → se aplica sobre (precio − pago dev). Monto fijo → se paga tal cual.
+                            Porcentaje → se aplica sobre el precio total del proyecto. Monto fijo → se paga tal cual.
                         </div>
                     </div>
                 </div>

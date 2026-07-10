@@ -29,11 +29,10 @@
     .mr-table { width:100%; font-size:.86rem; font-variant-numeric:tabular-nums; }
     .mr-table th { font-size:.72rem; text-transform:uppercase; color:#94A3B8; font-weight:700; border-bottom:2px solid #EEF2F7; padding:.5rem .6rem; text-align:left; }
     .mr-table td { padding:.6rem .6rem; border-bottom:1px solid #F1F5F9; vertical-align:middle; }
-    /* barra % pagado */
-    .mr-pct { display:flex; align-items:center; gap:.5rem; min-width:110px; }
-    .mr-pct-bar { flex:1; height:6px; border-radius:999px; background:#F1F5F9; overflow:hidden; }
-    .mr-pct-bar > span { display:block; height:100%; border-radius:999px; transition:width .3s; }
-    .mr-pct-txt { font-size:.75rem; font-weight:700; color:#0F172A; min-width:34px; text-align:right; }
+    /* pill % comisión */
+    .mr-com-pct { display:inline-flex; align-items:center; padding:.2rem .6rem; border-radius:999px; font-size:.78rem; font-weight:700; font-variant-numeric:tabular-nums; }
+    .mr-com-pct.pct { background:#DBEAFE; color:#1D4ED8; }
+    .mr-com-pct.fijo { background:#EDE9FE; color:#6D28D9; font-size:.7rem; text-transform:uppercase; letter-spacing:.03em; }
 </style>
 
 <div class="mr-wrap">
@@ -97,7 +96,7 @@
                         <th>Proyecto</th>
                         <th>Cerrado</th>
                         <th>Precio</th>
-                        <th style="min-width:150px;">% pagado</th>
+                        <th>% comisión</th>
                         <th>Mi comisión</th>
                         <th>Estado pago comisión</th>
                     </tr>
@@ -108,18 +107,19 @@
                             $com = (float) $p->comision_calculada;
                             $pag = (float) $p->total_pagado_gestion;
                             $pend = max($com - $pag, 0);
-                            $pct = (int) $p->porcentaje_pagado;
-                            $pctColor = $pct >= 100 ? '#16A34A' : ($pct >= 50 ? '#2563EB' : ($pct > 0 ? '#F59E0B' : '#CBD5E1'));
                         @endphp
                         <tr>
                             <td class="fw-semibold">{{ \Illuminate\Support\Str::limit($p->nombre,32) }}</td>
                             <td>{{ ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y') }}</td>
                             <td>{{ $p->moneda==='USD'?'US$':'$' }}{{ number_format((float)$p->precio,0,',','.') }}</td>
                             <td>
-                                <div class="mr-pct">
-                                    <div class="mr-pct-bar"><span style="width:{{ min($pct, 100) }}%; background:{{ $pctColor }};"></span></div>
-                                    <span class="mr-pct-txt">{{ $pct }}%</span>
-                                </div>
+                                @if($p->comision_tipo === 'porcentaje' && $p->comision_valor > 0)
+                                    <span class="mr-com-pct pct">{{ rtrim(rtrim(number_format((float) $p->comision_valor, 2, ',', '.'), '0'), ',') }}%</span>
+                                @elseif($p->comision_tipo === 'monto' && $p->comision_valor > 0)
+                                    <span class="mr-com-pct fijo">Monto fijo</span>
+                                @else
+                                    <span class="text-muted">—</span>
+                                @endif
                             </td>
                             <td class="fw-semibold">${{ number_format($com,0,',','.') }}</td>
                             <td>
