@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pipeline;
 use App\Http\Controllers\Controller;
 use App\Models\InternalProject;
 use App\Models\Lead;
+use App\Models\Vendedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -22,7 +23,19 @@ class MyResultsController extends Controller
         $inicioMesAnterior = now()->subMonth()->startOfMonth();
         $finMesAnterior = now()->subMonth()->endOfMonth();
 
-        $todosProyectos = InternalProject::where('comercial_user_id', $user->id)
+        // Cuenta como "mío" cualquier proyecto donde soy comercial_user_id (venido del pipeline)
+        // o el vendedor de gestión coincide con mi email (asignado desde el form del proyecto).
+        $vendedorIds = $user->email
+            ? Vendedor::where('email', $user->email)->pluck('id')->all()
+            : [];
+
+        $todosProyectos = InternalProject::query()
+            ->where(function ($q) use ($user, $vendedorIds) {
+                $q->where('comercial_user_id', $user->id);
+                if (! empty($vendedorIds)) {
+                    $q->orWhereIn('vendedor_id', $vendedorIds);
+                }
+            })
             ->with(['gestionPayments', 'payments'])
             ->orderByDesc('created_at')->get();
 
