@@ -1202,6 +1202,7 @@ class InternalProjectController extends Controller
     public function cuentaCobro(Request $request, InternalProject $internal_project)
     {
         $esRecurrente = (bool) $internal_project->es_recurrente;
+        $internal_project->load('client');
 
         if ($esRecurrente) {
             try {

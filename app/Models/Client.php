@@ -11,6 +11,12 @@ class Client extends Model
         'telefono',
         'empresa',
         'identificacion',
+        'email',
+        'direccion',
+        'ciudad',
+        'pais',
+        'web',
+        'cargo_contacto',
     ];
 
     public function internalProjects()
