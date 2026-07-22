@@ -1,18 +1,15 @@
 @php
     $simbolo = fn ($moneda) => $moneda === 'USD' ? 'US$' : ($moneda === 'EUR' ? '€' : '$');
     $fmt = fn ($val) => number_format((float) $val, 0, ',', '.');
+    $fmtDec = fn ($val, $dec = 2) => number_format((float) $val, $dec, '.', ',');
 
-    /** Convierte un entero a letras en español (para hasta 999 millones). */
     $numeroEnLetras = function (int $num): string {
-        if ($num === 0) {
-            return 'CERO';
-        }
+        if ($num === 0) return 'CERO';
         $unidades = ['', 'UNO', 'DOS', 'TRES', 'CUATRO', 'CINCO', 'SEIS', 'SIETE', 'OCHO', 'NUEVE'];
         $decenas10 = ['DIEZ', 'ONCE', 'DOCE', 'TRECE', 'CATORCE', 'QUINCE', 'DIECISEIS', 'DIECISIETE', 'DIECIOCHO', 'DIECINUEVE'];
         $decenas = ['', '', 'VEINTE', 'TREINTA', 'CUARENTA', 'CINCUENTA', 'SESENTA', 'SETENTA', 'OCHENTA', 'NOVENTA'];
         $centenas = ['', 'CIENTO', 'DOSCIENTOS', 'TRESCIENTOS', 'CUATROCIENTOS', 'QUINIENTOS', 'SEISCIENTOS', 'SETECIENTOS', 'OCHOCIENTOS', 'NOVECIENTOS'];
-
-        $convertirCentena = function (int $n) use (&$convertirCentena, $unidades, $decenas10, $decenas, $centenas): string {
+        $convertirCentena = function (int $n) use ($unidades, $decenas10, $decenas, $centenas): string {
             if ($n === 0) return '';
             if ($n === 100) return 'CIEN';
             $c = intdiv($n, 100);
@@ -23,208 +20,225 @@
             if ($r < 20) return trim($out.' '.$decenas10[$r - 10]);
             $d = intdiv($r, 10);
             $u = $r % 10;
-            if ($d === 2 && $u > 0) {
-                return trim($out.' VEINTI'.strtolower($unidades[$u]));
-            }
+            if ($d === 2 && $u > 0) return trim($out.' VEINTI'.strtolower($unidades[$u]));
             $tail = $decenas[$d];
             if ($u > 0) $tail .= ' Y '.$unidades[$u];
             return trim($out.' '.$tail);
         };
-
         $millones = intdiv($num, 1000000);
         $miles = intdiv($num % 1000000, 1000);
         $resto = $num % 1000;
-
         $partes = [];
-        if ($millones > 0) {
-            $partes[] = ($millones === 1 ? 'UN MILLON' : $convertirCentena($millones).' MILLONES');
-        }
-        if ($miles > 0) {
-            $partes[] = ($miles === 1 ? 'MIL' : $convertirCentena($miles).' MIL');
-        }
-        if ($resto > 0) {
-            $partes[] = $convertirCentena($resto);
-        }
-
+        if ($millones > 0) $partes[] = ($millones === 1 ? 'UN MILLON' : $convertirCentena($millones).' MILLONES');
+        if ($miles > 0) $partes[] = ($miles === 1 ? 'MIL' : $convertirCentena($miles).' MIL');
+        if ($resto > 0) $partes[] = $convertirCentena($resto);
         return strtoupper(implode(' ', $partes));
     };
 
+    $prefijoMoneda = match ($project->moneda) { 'USD' => 'DÓLARES AMERICANOS', 'EUR' => 'EUROS', default => 'PESOS COLOMBIANOS' };
     $montoEntero = (int) round((float) $payment->monto);
     $letras = $numeroEnLetras($montoEntero);
-    $prefijoMoneda = match ($project->moneda) { 'USD' => 'DÓLARES AMERICANOS', 'EUR' => 'EUROS', default => 'PESOS COLOMBIANOS' };
-    $numeroRecibo = str_pad((string) $payment->id, 6, '0', STR_PAD_LEFT);
+    $numeroRecibo = 'RC-'.$payment->fecha->format('Ym').'-'.str_pad((string) $payment->id, 4, '0', STR_PAD_LEFT);
+
+    // Datos del cliente (empresa si tiene, si no nombre de persona)
+    $client = $project->client;
+    $nombreEmpresa = $client?->empresa ?: $project->cliente_nombre;
+    $contactoPersonal = $client?->empresa ? ($client->nombre ?: $project->cliente_nombre) : null;
+    $cargoContacto = $client?->cargo_contacto;
+    $direccion = $client?->direccion;
+    $ciudad = $client?->ciudad;
+    $pais = $client?->pais;
+    $webCliente = $client?->web;
+    $emailCliente = $client?->email ?: $project->cliente_email;
+    $telCliente = $client?->telefono ?: $project->cliente_contacto;
+    $identCliente = $client?->identificacion;
+
+    $backUrl = $backUrl ?? route('admin.internal-projects.show', $project);
+
+    // Equivalente de moneda para USD/EUR
+    $eurUsd = (float) config('services.eur_usd', env('EUR_USD_RATE', 1.17));
+    $equivalente = null;
+    if ($project->moneda === 'USD') {
+        $equivalente = ['moneda' => 'EUR', 'simbolo' => '€', 'valor' => (float) $payment->monto / $eurUsd];
+    } elseif ($project->moneda === 'EUR') {
+        $equivalente = ['moneda' => 'USD', 'simbolo' => 'US$', 'valor' => (float) $payment->monto * $eurUsd];
+    }
 @endphp
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Recibo #{{ $numeroRecibo }} · {{ $project->cliente_nombre }}</title>
+    <title>Recibo {{ $numeroRecibo }} · {{ $nombreEmpresa }}</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { background: #F5F5F5; font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #1F2937; }
+        html, body { background: #F5F5F5; font-family: 'Segoe UI', Roboto, Arial, sans-serif; color: #333; font-size: 13px; line-height: 1.5; }
 
         .page {
             width: 21cm; min-height: 29.7cm;
             margin: 20px auto;
             background: #fff;
-            padding: 2.2cm 2cm 2cm;
-            position: relative;
+            padding: 1.8cm 1.6cm 1.4cm;
             box-shadow: 0 8px 40px rgba(0,0,0,.08);
         }
 
-        /* Barra de acciones flotante — sólo pantalla */
         .actions {
             position: fixed; top: 16px; right: 16px; z-index: 100;
             display: flex; gap: .5rem;
         }
         .actions button, .actions a {
             padding: .55rem 1rem; border-radius: 10px; border: none;
-            font-weight: 600; font-size: .85rem; cursor: pointer; text-decoration: none;
+            font-weight: 600; font-size: 13px; cursor: pointer; text-decoration: none;
             display: inline-flex; align-items: center; gap: .4rem;
-            transition: all .15s;
         }
         .actions .print { background: #2563EB; color: #fff; }
         .actions .print:hover { background: #1D4ED8; }
-        .actions .back { background: #fff; color: #334155; border: 1px solid #E2E8F0; }
-        .actions .back:hover { background: #F1F5F9; color: #0F172A; }
+        .actions .back { background: #fff; color: #333; border: 1px solid #E2E8F0; }
+        .actions .back:hover { background: #F1F5F9; }
 
-        /* MEMBRETE */
-        .membrete {
-            display: flex; align-items: center; gap: 1.2rem;
-            padding-bottom: 1rem;
-            border-bottom: 3px solid #0F172A;
-            margin-bottom: 1.6rem;
+        /* Header 2 columnas */
+        .cols {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+            margin-bottom: 1.5rem;
         }
-        .membrete img { height: 74px; width: auto; flex-shrink: 0; }
-        .membrete .brand h1 {
-            font-size: 1.4rem; font-weight: 800; color: #0F172A;
-            letter-spacing: -.02em; margin: 0;
+        .col-title {
+            font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
+            color: #1D4ED8; margin-bottom: 8px;
         }
-        .membrete .brand .tag {
-            font-size: .82rem; color: #64748B; font-weight: 500;
+        .col-body { font-size: 12.5px; line-height: 1.65; color: #333; }
+        .col-body .name { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; text-transform: uppercase; }
+        .col-body .att { color: #555; margin-bottom: 3px; }
+        .col-body strong { color: #1a1a1a; font-weight: 600; }
+        .col-body .logo-line { display:flex; align-items:center; gap:10px; margin-bottom:8px; }
+        .col-body .logo-line img { height: 42px; width: auto; }
+
+        .barra-azul { height: 4px; background: #1D4ED8; margin-bottom: 1.5rem; }
+
+        /* Meta info */
+        .meta-row {
+            display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px;
+            padding: 12px 0; margin-bottom: 2rem;
+            border-bottom: 1px solid #E5E7EB;
         }
-        .membrete .accent { flex: 1; }
-        .membrete .doc {
-            text-align: right;
+        .meta-item .lbl { font-size: 9.5px; letter-spacing: 1.4px; color: #666; font-weight: 700; margin-bottom: 4px; text-transform: uppercase; }
+        .meta-item .val { font-size: 12.5px; font-weight: 700; color: #1a1a1a; }
+        .meta-item .val.pagado { color: #15803D; }
+
+        /* Título */
+        .doc-title-wrap { text-align: center; margin-bottom: 1.2rem; }
+        .doc-title-wrap h1 {
+            font-size: 30px; font-weight: 800; color: #1a1a1a;
+            letter-spacing: 1px; margin-bottom: 4px;
         }
-        .membrete .doc-title {
-            font-size: .68rem; letter-spacing: .1em;
-            text-transform: uppercase; color: #94A3B8; font-weight: 700;
+        .doc-title-wrap .subtitle {
+            font-size: 12px; color: #555; text-transform: uppercase;
+            letter-spacing: 2px; font-weight: 600;
         }
-        .membrete .doc-num {
-            font-size: 1.1rem; font-weight: 800; color: #2563EB;
-            font-variant-numeric: tabular-nums; margin-top: .1rem;
+        .doc-num-row {
+            text-align: right; margin-bottom: 1.3rem;
+            font-size: 12px; color: #555;
         }
-        .membrete .doc-date {
-            font-size: .76rem; color: #64748B; margin-top: .15rem;
+        .doc-num-row strong { color: #1a1a1a; font-weight: 700; letter-spacing: .5px; }
+
+        /* Section header azul */
+        .sec-head {
+            background: #1D4ED8; color: #fff;
+            padding: 8px 14px; font-size: 11px; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
         }
 
-        /* TITULO */
-        .titulo {
-            text-align: center; margin: 1.2rem 0 1.6rem;
+        /* Tabla concepto */
+        table.concepto-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+        .concepto-table thead th {
+            background: #F5F5F5; color: #555;
+            padding: 10px 14px; text-align: left;
+            font-size: 10px; font-weight: 700; letter-spacing: 1px;
+            border-bottom: 1px solid #E0E0E0;
         }
-        .titulo h2 {
-            font-size: 1.5rem; font-weight: 800;
-            letter-spacing: .18em; color: #0F172A;
-            padding: .55rem 1rem; display: inline-block;
-            background: #F1F5F9; border-radius: 6px;
+        .concepto-table thead th.right { text-align: right; }
+        .concepto-table tbody td {
+            padding: 15px 14px; vertical-align: top;
+            border-bottom: 1px solid #F0F0F0;
         }
+        .concepto-table .concepto-title { font-weight: 700; color: #1a1a1a; margin-bottom: 8px; font-size: 13px; }
+        .concepto-table .concepto-desc { color: #555; font-size: 12px; }
+        .concepto-table .fecha-cell { text-align: right; font-size: 12px; color: #555; white-space: nowrap; }
+        .concepto-table .valor-cell {
+            text-align: right; font-weight: 800; color: #15803D;
+            font-size: 14px; white-space: nowrap; font-variant-numeric: tabular-nums;
+        }
+        .concepto-table .valor-cell small { display:block; font-size: 10px; color: #666; font-weight: 500; margin-top: 3px; }
 
-        /* CUERPO */
-        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-bottom: 1.4rem; }
-        .box {
-            border: 1px solid #E5E7EB; border-radius: 8px;
-            padding: .85rem 1rem;
+        /* Totales / resumen del proyecto */
+        .totales { margin-top: 5px; }
+        .totales .row {
+            display: grid; grid-template-columns: 1fr auto;
+            padding: 10px 14px; align-items: center;
+            border-bottom: 1px solid #F0F0F0;
+            font-size: 12.5px;
         }
-        .box .lbl {
-            font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
-            color: #94A3B8; font-weight: 700; margin-bottom: .35rem;
+        .totales .row .k { color: #555; text-align: right; }
+        .totales .row .v { font-weight: 700; color: #1a1a1a; text-align: right; min-width: 140px; font-variant-numeric: tabular-nums; }
+        .totales .row .v.ok { color: #15803D; }
+        .totales .row .v.warn { color: #B45309; }
+        .totales .row.total {
+            background: #1D4ED8; color: #fff;
+            margin-top: 8px; border-radius: 4px; padding: 14px 14px;
         }
-        .box .val { font-size: .95rem; color: #0F172A; font-weight: 600; line-height: 1.35; }
-        .box .val small { color: #64748B; font-weight: 500; font-size: .8rem; }
+        .totales .row.total .k { color: rgba(255,255,255,.9); font-weight: 700; font-size: 13px; }
+        .totales .row.total .v { color: #fff; font-size: 20px; font-weight: 800; letter-spacing: .5px; }
+        .totales .row.total .v small { display: block; font-size: 10.5px; font-weight: 600; opacity: .9; margin-top: 3px; }
 
-        /* MONTO destacado */
-        .monto-hero {
-            background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-            border: 1px solid #BFDBFE; border-radius: 12px;
-            padding: 1.2rem 1.4rem;
-            display: flex; justify-content: space-between; align-items: center; gap: 1rem;
-            margin-bottom: 1.4rem;
-        }
-        .monto-hero .l { font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; color: #1E40AF; font-weight: 700; }
-        .monto-hero .v {
-            font-size: 2.2rem; font-weight: 800; color: #1D4ED8;
-            letter-spacing: -.02em; font-variant-numeric: tabular-nums; line-height: 1;
-        }
-        .monto-hero .v small { font-size: 1rem; font-weight: 700; margin-left: .3rem; color: #2563EB; }
-        .monto-hero .side { text-align: right; }
-        .monto-hero .side .m { font-size: .74rem; color: #1E3A8A; font-weight: 600; }
-        .monto-hero .side .m span { font-weight: 800; }
-
-        /* LETRAS */
         .letras {
-            padding: .7rem 1rem;
-            border: 1px dashed #CBD5E1;
-            border-radius: 8px;
-            font-size: .82rem; color: #334155; line-height: 1.5;
-            margin-bottom: 1.4rem;
+            font-size: 11.5px; color: #555; padding: 10px 14px; font-style: italic;
+            border-top: 1px dashed #E0E0E0;
         }
-        .letras strong { color: #0F172A; font-weight: 700; letter-spacing: .01em; }
+        .letras strong { color: #1a1a1a; font-style: normal; font-weight: 700; }
 
-        /* CONCEPTO */
-        .concepto {
-            margin-bottom: 1.4rem;
+        /* Detalle del pago */
+        .pago-box {
+            background: #F0FDF4; border: 1px solid #BBF7D0;
+            padding: 15px 18px; border-radius: 4px;
+            margin: 1.2rem 0 1.5rem;
         }
-        .concepto .lbl {
-            font-size: .68rem; text-transform: uppercase; letter-spacing: .06em;
-            color: #94A3B8; font-weight: 700; margin-bottom: .4rem;
-        }
-        .concepto .txt {
-            font-size: .92rem; color: #0F172A;
-            padding: .8rem 1rem; background: #FAFAFA; border-left: 3px solid #2563EB;
-            border-radius: 4px; line-height: 1.5;
-        }
+        .pago-box h4 { font-size: 12px; font-weight: 800; color: #15803D; margin-bottom: 10px; letter-spacing: .5px; }
+        .pago-box p { font-size: 12px; color: #444; margin-bottom: 5px; line-height: 1.6; }
+        .pago-box p strong { color: #1a1a1a; font-weight: 700; }
 
-        /* RESUMEN */
-        .resumen {
-            border: 1px solid #E5E7EB; border-radius: 8px; overflow: hidden;
-            margin-bottom: 1.6rem;
+        /* Firmas */
+        .firmas {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+            margin-top: 3rem; padding: 0 20px;
         }
-        .resumen .row {
-            display: flex; justify-content: space-between; align-items: center;
-            padding: .55rem .95rem; font-size: .84rem;
-            border-bottom: 1px solid #F1F5F9;
-        }
-        .resumen .row:last-child { border-bottom: none; }
-        .resumen .row .k { color: #64748B; font-weight: 500; }
-        .resumen .row .v { font-weight: 700; color: #0F172A; font-variant-numeric: tabular-nums; }
-        .resumen .row.total { background: #0F172A; color: #fff; }
-        .resumen .row.total .k, .resumen .row.total .v { color: #fff; font-size: .95rem; font-weight: 800; }
-        .resumen .row.saldo .v { color: #B45309; }
-        .resumen .row.saldo.zero .v { color: #047857; }
+        .firma { text-align: center; padding-top: 8px; border-top: 1.5px solid #1a1a1a; }
+        .firma .nombre { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-top: 4px; }
+        .firma .rol { font-size: 11px; color: #555; margin-top: 2px; }
+        .firma .extra { font-size: 10.5px; color: #666; margin-top: 2px; }
 
-        /* FIRMAS */
-        .firmas { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; }
-        .firma { text-align: center; }
-        .firma-line { border-top: 1px solid #0F172A; padding-top: .35rem; }
-        .firma-nombre { font-size: .84rem; font-weight: 700; color: #0F172A; }
-        .firma-rol { font-size: .72rem; color: #64748B; margin-top: .15rem; }
-
-        /* FOOTER */
-        .footer {
-            position: absolute; bottom: 1cm; left: 2cm; right: 2cm;
+        .footer-doc {
+            text-align: center; margin-top: 2.5rem; padding-top: 12px;
             border-top: 1px solid #E5E7EB;
-            padding-top: .7rem;
-            display: flex; justify-content: space-between; align-items: center;
-            font-size: .72rem; color: #94A3B8;
+            font-size: 10.5px; color: #666; line-height: 1.7;
         }
-        .footer .left { display: flex; gap: 1rem; align-items: center; }
-        .footer .left strong { color: #64748B; }
+        .footer-doc strong { color: #1a1a1a; }
+
+        /* Sello PAGADO */
+        .sello {
+            position: absolute;
+            display: inline-block;
+            transform: rotate(-8deg);
+            border: 3px solid #15803D;
+            color: #15803D;
+            font-size: 20px; font-weight: 800; letter-spacing: 3px;
+            padding: 6px 18px; border-radius: 8px;
+            opacity: .85;
+        }
+        .sello-wrap { position: relative; height: 0; }
+        .sello-wrap .sello { right: 40px; top: -10px; }
 
         @media print {
             html, body { background: #fff; }
             .actions { display: none !important; }
-            .page { box-shadow: none; margin: 0; width: auto; min-height: 0; padding: 1.5cm 1.5cm 1cm; }
+            .page { box-shadow: none; margin: 0; width: auto; min-height: 0; padding: 1.3cm 1.3cm 1cm; }
             @page { size: A4 portrait; margin: 0; }
         }
     </style>
@@ -232,7 +246,7 @@
 <body>
 
 <div class="actions">
-    <a href="{{ route('admin.internal-projects.show', $project) }}" class="back">← Volver al proyecto</a>
+    <a href="{{ $backUrl }}" class="back">← Volver</a>
     <button type="button" class="print" onclick="window.print()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
         Imprimir / Guardar PDF
@@ -240,117 +254,191 @@
 </div>
 
 <div class="page">
-    <div class="membrete">
-        <img src="{{ asset('images/mytech-logo.jpg') }}" alt="MYTECH SOLUTIONS S.A.S">
-        <div class="brand">
-            <h1>MYTECH SOLUTIONS S.A.S</h1>
-            <div class="tag">NIT 901.923.467-5 · Innovación y Tecnología para tu Empresa</div>
-        </div>
-        <div class="accent"></div>
-        <div class="doc">
-            <div class="doc-title">Recibo de caja</div>
-            <div class="doc-num">N° {{ $numeroRecibo }}</div>
-            <div class="doc-date">{{ $payment->fecha->translatedFormat('d \d\e F \d\e Y') }}</div>
-        </div>
-    </div>
-
-    <div class="titulo">
-        <h2>RECIBO DE CAJA</h2>
-    </div>
-
-    <div class="grid">
-        <div class="box">
-            <div class="lbl">Recibido de</div>
-            <div class="val">
-                {{ $project->cliente_nombre ?: '—' }}
-                @if($project->cliente_contacto)
-                    <br><small>Tel: {{ $project->cliente_contacto }}</small>
-                @endif
-                @if($project->cliente_email)
-                    <br><small>{{ $project->cliente_email }}</small>
-                @endif
-            </div>
-        </div>
-        <div class="box">
-            <div class="lbl">Proyecto</div>
-            <div class="val">
-                {{ $project->nombre }}
-                <br><small>Estado: {{ $project->estado_label }}</small>
-            </div>
-        </div>
-    </div>
-
-    <div class="monto-hero">
+    {{-- ============= HEADER: PRESTADOR + CLIENTE ============= --}}
+    <div class="cols">
         <div>
-            <div class="l">La suma de</div>
-            <div class="v">{{ $simbolo($project->moneda) }}{{ $fmt($payment->monto) }}<small>{{ $project->moneda }}</small></div>
+            <div class="col-title">PRESTADOR DE SERVICIOS</div>
+            <div class="col-body">
+                <div class="logo-line">
+                    <img src="{{ asset('images/mytech-logo.jpg') }}" alt="MYTECH">
+                </div>
+                <div class="name">MYTECH SOLUTIONS S.A.S</div>
+                MY Tech Solutions<br>
+                Bogotá D.C., Colombia<br>
+                Tel: +57 302 489 9201<br>
+                Email: michcardenas01@hotmail.com<br>
+                Web: mytechsolutionsco.com<br>
+                <strong>NIT: 901.923.467-5</strong>
+            </div>
         </div>
-        <div class="side">
-            <div class="m">Fecha del pago<br><span>{{ $payment->fecha->format('d/m/Y') }}</span></div>
-            @if($payment->metodo)
-                <div class="m" style="margin-top:.4rem;">Método<br><span>{{ $payment->metodo }}</span></div>
-            @endif
+        <div>
+            <div class="col-title">RECIBIDO DE</div>
+            <div class="col-body">
+                <div class="name">{{ $nombreEmpresa ?: '—' }}</div>
+                @if($contactoPersonal)
+                    <div class="att">Att: {{ $contactoPersonal }}{{ $cargoContacto ? ' ('.$cargoContacto.')' : '' }}</div>
+                @endif
+                @if($identCliente)
+                    <div>NIT/ID: {{ $identCliente }}</div>
+                @endif
+                @if($direccion)
+                    {{ $direccion }}<br>
+                @endif
+                @if($ciudad || $pais)
+                    {{ trim(($ciudad ?? '').(($ciudad && $pais) ? ', ' : '').($pais ?? '')) }}<br>
+                @endif
+                @if($telCliente)
+                    Tel: {{ $telCliente }}<br>
+                @endif
+                @if($emailCliente)
+                    Email: {{ $emailCliente }}<br>
+                @endif
+                @if($webCliente)
+                    Web: {{ $webCliente }}<br>
+                @endif
+                <strong>Proyecto: {{ $project->nombre }}</strong>
+            </div>
         </div>
     </div>
 
-    <div class="letras">
-        <strong>Son:</strong> {{ $letras }} {{ $prefijoMoneda }}
-        @if($payment->monto != $montoEntero)
-            <em>({{ $simbolo($project->moneda) }}{{ number_format((float) $payment->monto, 2, ',', '.') }})</em>
-        @endif
-    </div>
+    <div class="barra-azul"></div>
 
-    <div class="concepto">
-        <div class="lbl">Por concepto de</div>
-        <div class="txt">
-            Abono al proyecto <strong>«{{ $project->nombre }}»</strong>{{ $payment->nota ? '. '.$payment->nota : '.' }}
-            @if($payment->referencia)
-                <br><small style="color:#64748B;">Referencia: {{ $payment->referencia }}</small>
-            @endif
+    {{-- ============= META INFO ============= --}}
+    <div class="meta-row">
+        <div class="meta-item">
+            <div class="lbl">Fecha del pago</div>
+            <div class="val">{{ $payment->fecha->format('d/m/Y') }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="lbl">Método de pago</div>
+            <div class="val">{{ $payment->metodo ?: '—' }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="lbl">Referencia</div>
+            <div class="val">{{ $payment->referencia ?: '—' }}</div>
+        </div>
+        <div class="meta-item">
+            <div class="lbl">Estado</div>
+            <div class="val pagado">✓ Pagado</div>
         </div>
     </div>
 
-    <div class="resumen">
+    <div class="sello-wrap"><span class="sello">PAGADO</span></div>
+
+    {{-- ============= TÍTULO ============= --}}
+    <div class="doc-title-wrap">
+        <h1>RECIBO DE PAGO</h1>
+        <div class="subtitle">{{ $project->nombre }}</div>
+    </div>
+
+    <div class="doc-num-row">
+        <strong>DOCUMENTO NO.</strong> {{ $numeroRecibo }}
+    </div>
+
+    {{-- ============= DETALLE DEL PAGO ============= --}}
+    <div class="sec-head">DETALLE DEL PAGO RECIBIDO</div>
+    <table class="concepto-table">
+        <thead>
+            <tr>
+                <th>CONCEPTO / DESCRIPCIÓN</th>
+                <th class="right">FECHA</th>
+                <th class="right">VALOR RECIBIDO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="concepto-title">Abono al proyecto «{{ $project->nombre }}»</div>
+                    <div class="concepto-desc">
+                        {{ $payment->nota ?: 'Pago recibido a satisfacción por los servicios profesionales prestados.' }}
+                        @if($payment->referencia)
+                            <br><small style="color:#888;">Referencia: {{ $payment->referencia }}</small>
+                        @endif
+                    </div>
+                </td>
+                <td class="fecha-cell">{{ $payment->fecha->format('d/m/Y') }}</td>
+                <td class="valor-cell">
+                    {{ $simbolo($project->moneda) }}{{ $fmt($payment->monto) }}
+                    <small>{{ $project->moneda }}</small>
+                    @if($equivalente)
+                        <small style="color:#888;">≈ {{ $equivalente['simbolo'] }}{{ $fmt($equivalente['valor']) }} {{ $equivalente['moneda'] }}</small>
+                    @endif
+                </td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div class="totales">
         <div class="row">
             <span class="k">Valor total del proyecto</span>
             <span class="v">{{ $simbolo($project->moneda) }}{{ $fmt($project->precio) }} {{ $project->moneda }}</span>
         </div>
         <div class="row">
             <span class="k">Total pagado a la fecha (incluye este recibo)</span>
-            <span class="v">{{ $simbolo($project->moneda) }}{{ $fmt($totalPagado) }} {{ $project->moneda }}</span>
+            <span class="v ok">{{ $simbolo($project->moneda) }}{{ $fmt($totalPagado) }} {{ $project->moneda }}</span>
         </div>
-        <div class="row saldo {{ $saldo <= 0 ? 'zero' : '' }}">
+        <div class="row">
             <span class="k">Saldo pendiente</span>
-            <span class="v">{{ $saldo <= 0 ? 'PAGADO EN SU TOTALIDAD' : $simbolo($project->moneda).$fmt($saldo).' '.$project->moneda }}</span>
+            <span class="v {{ $saldo <= 0 ? 'ok' : 'warn' }}">
+                {{ $saldo <= 0 ? 'PAGADO EN SU TOTALIDAD' : $simbolo($project->moneda).$fmt($saldo).' '.$project->moneda }}
+            </span>
         </div>
         <div class="row total">
-            <span class="k">Este recibo</span>
-            <span class="v">{{ $simbolo($project->moneda) }}{{ $fmt($payment->monto) }} {{ $project->moneda }}</span>
+            <span class="k">VALOR DE ESTE RECIBO</span>
+            <span class="v">
+                {{ $simbolo($project->moneda) }}{{ $fmt($payment->monto) }} {{ $project->moneda }}
+                @if($equivalente)
+                    <small>(≈ {{ $equivalente['simbolo'] }}{{ $fmt($equivalente['valor']) }} {{ $equivalente['moneda'] }})</small>
+                @endif
+            </span>
         </div>
     </div>
 
+    <div class="letras">
+        <strong>Son:</strong> {{ $letras }} {{ $prefijoMoneda }}
+    </div>
+
+    {{-- ============= CONSTANCIA ============= --}}
+    <div class="pago-box">
+        <h4>✓ CONSTANCIA DE PAGO</h4>
+        <p>
+            <strong>MYTECH SOLUTIONS S.A.S</strong> (NIT 901.923.467-5) declara haber recibido de
+            <strong>{{ $nombreEmpresa }}</strong> la suma de
+            <strong>{{ $simbolo($project->moneda) }}{{ $fmt($payment->monto) }} {{ $project->moneda }}</strong>
+            el día <strong>{{ $payment->fecha->translatedFormat('d \d\e F \d\e Y') }}</strong>
+            @if($payment->metodo) vía <strong>{{ $payment->metodo }}</strong>@endif,
+            como abono al proyecto «{{ $project->nombre }}».
+        </p>
+        <p style="margin-top:8px; font-style:italic; color:#555;">
+            Este recibo constituye constancia del pago recibido. Consérvelo como soporte de su transacción.
+        </p>
+    </div>
+
+    {{-- ============= FIRMAS ============= --}}
     <div class="firmas">
         <div class="firma">
-            <div class="firma-line">
-                <div class="firma-nombre">MYTECH SOLUTIONS S.A.S</div>
-                <div class="firma-rol">NIT 901.923.467-5 · Emisor</div>
-            </div>
+            <div class="nombre">MYTECH SOLUTIONS S.A.S</div>
+            <div class="rol">Emisor</div>
+            <div class="extra">NIT: 901.923.467-5</div>
         </div>
         <div class="firma">
-            <div class="firma-line">
-                <div class="firma-nombre">{{ $project->cliente_nombre ?: 'Cliente' }}</div>
-                <div class="firma-rol">Recibí conforme</div>
-            </div>
+            <div class="nombre">{{ strtoupper($nombreEmpresa) }}</div>
+            @if($contactoPersonal)
+                <div class="rol">{{ $contactoPersonal }}{{ $cargoContacto ? ' — '.$cargoContacto : '' }}</div>
+            @else
+                <div class="rol">Recibí conforme</div>
+            @endif
+            @if($ciudad || $pais)
+                <div class="extra">{{ trim(($ciudad ?? '').(($ciudad && $pais) ? ', ' : '').($pais ?? '')) }}</div>
+            @endif
         </div>
     </div>
 
-    <div class="footer">
-        <div class="left">
-            <strong>MYTECH SOLUTIONS S.A.S</strong>
-            <span>· NIT 901.923.467-5</span>
-            <span>· mytechsolutionsco.com</span>
-        </div>
-        <div>Generado el {{ now()->format('d/m/Y H:i') }}</div>
+    <div class="footer-doc">
+        Este documento ha sido generado electrónicamente y es válido sin firma autógrafa.<br>
+        <strong>MYTECH SOLUTIONS S.A.S</strong> · NIT: 901.923.467-5 · Bogotá, Colombia<br>
+        michcardenas01@hotmail.com · (+57) 302 489 9201 · mytechsolutionsco.com<br>
+        Generado el {{ now()->format('d/m/Y H:i') }}
     </div>
 </div>
 

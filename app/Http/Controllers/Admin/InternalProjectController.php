@@ -1183,6 +1183,7 @@ class InternalProjectController extends Controller
     {
         abort_unless($payment->internal_project_id === $internal_project->id, 404);
 
+        $internal_project->load('client');
         $totalPagado = (float) $internal_project->payments()->sum('monto');
         $saldo = max((float) $internal_project->precio - $totalPagado, 0);
 
@@ -1191,6 +1192,7 @@ class InternalProjectController extends Controller
             'payment' => $payment,
             'totalPagado' => $totalPagado,
             'saldo' => $saldo,
+            'backUrl' => route('admin.internal-projects.show', $internal_project),
         ]);
     }
 

@@ -132,6 +132,7 @@ class PortalClienteController extends Controller
 
         abort_unless($esDelCliente, 403);
 
+        $project->load('client');
         $totalPagado = (float) $project->payments()->sum('monto');
         $saldo = max((float) $project->precio - $totalPagado, 0);
 
@@ -140,6 +141,7 @@ class PortalClienteController extends Controller
             'payment' => $payment,
             'totalPagado' => $totalPagado,
             'saldo' => $saldo,
+            'backUrl' => route('portal.cliente.dashboard'),
         ]);
     }
 
