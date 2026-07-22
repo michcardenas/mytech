@@ -34,6 +34,13 @@ Route::prefix('portal')->group(function () {
     Route::post('gestor', [App\Http\Controllers\Portal\PortalVendedorController::class, 'login'])->name('portal.vendedor.login');
     Route::get('gestor/dashboard', [App\Http\Controllers\Portal\PortalVendedorController::class, 'dashboard'])->name('portal.vendedor.dashboard');
     Route::post('gestor/logout', [App\Http\Controllers\Portal\PortalVendedorController::class, 'logout'])->name('portal.vendedor.logout');
+
+    // Clientes
+    Route::get('cliente', [App\Http\Controllers\Portal\PortalClienteController::class, 'showLogin'])->name('portal.cliente.login.show');
+    Route::post('cliente', [App\Http\Controllers\Portal\PortalClienteController::class, 'login'])->name('portal.cliente.login');
+    Route::get('cliente/dashboard', [App\Http\Controllers\Portal\PortalClienteController::class, 'dashboard'])->name('portal.cliente.dashboard');
+    Route::get('cliente/recibo/{payment}', [App\Http\Controllers\Portal\PortalClienteController::class, 'receipt'])->name('portal.cliente.receipt');
+    Route::post('cliente/logout', [App\Http\Controllers\Portal\PortalClienteController::class, 'logout'])->name('portal.cliente.logout');
 });
 
 /* ---------- Landing Pages (debe ir ANTES de otras rutas dinámicas) ---------- */
@@ -199,6 +206,8 @@ Route::middleware('auth')->group(function () {
         ->names('admin.internal-projects');
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
     Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
+    Route::get('internal-projects/{internal_project}/payments/{payment}/recibo', [App\Http\Controllers\Admin\InternalProjectController::class, 'receiptPayment'])->name('admin.internal-projects.payments.receipt');
+    Route::get('internal-projects/{internal_project}/cuenta-cobro', [App\Http\Controllers\Admin\InternalProjectController::class, 'cuentaCobro'])->name('admin.internal-projects.cuenta-cobro');
     Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');
     Route::delete('internal-projects/{internal_project}/developer-payments/{developerPayment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyDeveloperPayment'])->name('admin.internal-projects.developer-payments.destroy');
     Route::post('internal-projects/{internal_project}/gestion-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeGestionPayment'])->name('admin.internal-projects.gestion-payments.store');

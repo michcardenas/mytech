@@ -956,10 +956,12 @@ class InternalProjectController extends Controller
             'fuente' => 'required|in:directo,workana',
             'fuente_url' => 'nullable|url|max:500',
             'precio' => 'required|numeric|min:0',
-            'moneda' => 'required|in:COP,USD',
+            'moneda' => 'required|in:COP,USD,EUR',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'fecha_facturacion' => 'nullable|date',
+            'notas_facturacion' => 'nullable|string|max:500',
             'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
@@ -967,7 +969,7 @@ class InternalProjectController extends Controller
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
-            'desarrollador_moneda' => 'required|in:COP,USD',
+            'desarrollador_moneda' => 'required|in:COP,USD,EUR',
             'vendedor_id' => 'nullable|exists:vendedores,id',
             'comision_tipo' => 'nullable|in:porcentaje,monto',
             'comision_valor' => 'nullable|numeric|min:0',
@@ -1047,10 +1049,12 @@ class InternalProjectController extends Controller
             'fuente' => 'required|in:directo,workana',
             'fuente_url' => 'nullable|url|max:500',
             'precio' => 'required|numeric|min:0',
-            'moneda' => 'required|in:COP,USD',
+            'moneda' => 'required|in:COP,USD,EUR',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'fecha_facturacion' => 'nullable|date',
+            'notas_facturacion' => 'nullable|string|max:500',
             'es_recurrente' => 'nullable|boolean',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
@@ -1058,7 +1062,7 @@ class InternalProjectController extends Controller
             'desarrollador_nombre' => 'nullable|string|max:255',
             'desarrollador_email' => 'nullable|email|max:255',
             'desarrollador_pago' => 'nullable|numeric|min:0',
-            'desarrollador_moneda' => 'required|in:COP,USD',
+            'desarrollador_moneda' => 'required|in:COP,USD,EUR',
             'vendedor_id' => 'nullable|exists:vendedores,id',
             'comision_tipo' => 'nullable|in:porcentaje,monto',
             'comision_valor' => 'nullable|numeric|min:0',
@@ -1171,13 +1175,69 @@ class InternalProjectController extends Controller
             ->with('success', 'Pago eliminado.');
     }
 
+    /**
+     * Vista imprimible del recibo/factura de un pago del cliente,
+     * con membrete MY Tech Solutions. El admin usa Ctrl+P → "Guardar como PDF".
+     */
+    public function receiptPayment(InternalProject $internal_project, ProjectPayment $payment)
+    {
+        abort_unless($payment->internal_project_id === $internal_project->id, 404);
+
+        $totalPagado = (float) $internal_project->payments()->sum('monto');
+        $saldo = max((float) $internal_project->precio - $totalPagado, 0);
+
+        return view('admin.internal-projects.receipt', [
+            'project' => $internal_project,
+            'payment' => $payment,
+            'totalPagado' => $totalPagado,
+            'saldo' => $saldo,
+        ]);
+    }
+
+    /**
+     * Cuenta de cobro (solicitud de pago) para el proyecto.
+     * Para recurrentes: cobra el valor mensual del periodo indicado (?mes=YYYY-MM).
+     * Para one-shot: cobra el saldo pendiente del cliente.
+     */
+    public function cuentaCobro(Request $request, InternalProject $internal_project)
+    {
+        $esRecurrente = (bool) $internal_project->es_recurrente;
+
+        if ($esRecurrente) {
+            try {
+                $periodo = $request->filled('mes')
+                    ? \Carbon\Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
+                    : now()->startOfMonth();
+            } catch (\Exception) {
+                $periodo = now()->startOfMonth();
+            }
+            $monto = (float) $internal_project->precio;
+        } else {
+            $periodo = now()->startOfMonth();
+            $totalPagado = (float) $internal_project->payments()->sum('monto');
+            $monto = max((float) $internal_project->precio - $totalPagado, 0);
+
+            if ($monto <= 0) {
+                return redirect()->route('admin.internal-projects.show', $internal_project)
+                    ->with('error', 'No hay saldo pendiente para cobrar en este proyecto.');
+            }
+        }
+
+        return view('admin.internal-projects.cuenta-cobro', [
+            'project' => $internal_project,
+            'monto' => $monto,
+            'periodo' => $periodo,
+            'esRecurrente' => $esRecurrente,
+        ]);
+    }
+
     // --- Developer Payments ---
 
     public function storeDeveloperPayment(Request $request, InternalProject $internal_project)
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
-            'moneda' => 'required|in:COP,USD',
+            'moneda' => 'required|in:COP,USD,EUR',
             'fecha' => 'required|date',
             'metodo' => 'nullable|string|max:100',
             'referencia' => 'nullable|string|max:255',
@@ -1204,7 +1264,7 @@ class InternalProjectController extends Controller
     {
         $validated = $request->validate([
             'monto' => 'required|numeric|min:0.01',
-            'moneda' => 'required|in:COP,USD',
+            'moneda' => 'required|in:COP,USD,EUR',
             'fecha' => 'required|date',
             'metodo' => 'nullable|string|max:100',
             'referencia' => 'nullable|string|max:255',
@@ -1233,7 +1293,7 @@ class InternalProjectController extends Controller
             'concepto' => 'required|string|max:255',
             'descripcion' => 'nullable|string|max:1000',
             'monto' => 'required|numeric|min:0.01',
-            'moneda' => 'required|in:COP,USD',
+            'moneda' => 'required|in:COP,USD,EUR',
             'fecha' => 'required|date',
             'categoria' => 'nullable|string|max:100',
         ]);

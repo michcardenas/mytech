@@ -25,6 +25,8 @@ class InternalProject extends Model
         'estado',
         'fecha_inicio',
         'fecha_entrega',
+        'fecha_facturacion',
+        'notas_facturacion',
         'descripcion',
         'notas',
         'desarrollador_nombre',
@@ -40,6 +42,7 @@ class InternalProject extends Model
         'comision_valor' => 'decimal:2',
         'fecha_inicio' => 'date',
         'fecha_entrega' => 'date',
+        'fecha_facturacion' => 'date',
         'es_recurrente' => 'boolean',
     ];
 

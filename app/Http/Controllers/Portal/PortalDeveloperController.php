@@ -17,6 +17,7 @@ class PortalDeveloperController extends Controller
         if ($request->session()->get('portal_developer_id')) {
             return redirect()->route('portal.developer.dashboard');
         }
+
         return view('portal.login', [
             'role' => 'developer',
             'titulo' => 'Portal de desarrolladores',
@@ -38,31 +39,37 @@ class PortalDeveloperController extends Controller
         $normalized = $this->normalizePhone($request->telefono);
         if (strlen($normalized) < 7) {
             $this->recordAttempt($request, 'developer');
+
             return back()->withErrors(['telefono' => 'Número inválido.'])->withInput();
         }
 
         // Buscar dev cuyo telefono normalizado coincida
         $developers = Developer::whereNotNull('telefono')->get();
-        $match = $developers->first(fn ($d) => $this->normalizePhone($d->telefono) === $normalized);
+        $match = $developers->first(fn ($d) => $this->phonesMatch($d->telefono, $normalized));
 
-        if (!$match) {
+        if (! $match) {
             $this->recordAttempt($request, 'developer');
+
             return back()->withErrors(['telefono' => 'No encontramos un desarrollador con ese número.'])->withInput();
         }
 
         $this->clearAttempts($request, 'developer');
         $request->session()->put('portal_developer_id', $match->id);
+
         return redirect()->route('portal.developer.dashboard');
     }
 
     public function dashboard(Request $request)
     {
         $devId = $request->session()->get('portal_developer_id');
-        if (!$devId) return redirect()->route('portal.developer.login.show');
+        if (! $devId) {
+            return redirect()->route('portal.developer.login.show');
+        }
 
         $developer = Developer::find($devId);
-        if (!$developer) {
+        if (! $developer) {
             $request->session()->forget('portal_developer_id');
+
             return redirect()->route('portal.developer.login.show');
         }
 
@@ -82,9 +89,9 @@ class PortalDeveloperController extends Controller
 
         // === Proyectos del dev (por FK o nombre legacy) ===
         $projects = InternalProject::where(function ($q) use ($developer) {
-                $q->where('developer_id', $developer->id)
-                  ->orWhere('desarrollador_nombre', $developer->nombre);
-            })
+            $q->where('developer_id', $developer->id)
+                ->orWhere('desarrollador_nombre', $developer->nombre);
+        })
             ->withSum('developerPayments as total_pagado_dev', 'monto')
             ->withCount('developerPayments')
             ->orderBy('fecha_inicio', 'desc')
@@ -111,6 +118,7 @@ class PortalDeveloperController extends Controller
                 $asignadoMensual = (float) ($p->desarrollador_pago ?? 0);
                 $pagosMes = $monthPayments->where('internal_project_id', $p->id);
                 $cobradoMes = $pagosMes->sum('monto');
+
                 return [
                     'id' => $p->id,
                     'nombre' => $p->nombre,
@@ -132,7 +140,7 @@ class PortalDeveloperController extends Controller
         // === Proyectos no-recurrentes:
         //  (a) con pago en este mes (cobrados este mes), O
         //  (b) con saldo pendiente y no cancelados (siguen apareciendo aunque no haya pago este mes)
-        $idsOneShotConPagoMes = $monthPayments->filter(fn ($p) => $p->project && !$p->project->es_recurrente)
+        $idsOneShotConPagoMes = $monthPayments->filter(fn ($p) => $p->project && ! $p->project->es_recurrente)
             ->pluck('internal_project_id')->unique();
 
         $resumenOneShot = $projects->where('es_recurrente', false)
@@ -140,6 +148,7 @@ class PortalDeveloperController extends Controller
                 $asignado = (float) ($p->desarrollador_pago ?? 0);
                 $pagado = (float) ($p->total_pagado_dev ?? 0);
                 $tienePendiente = $asignado > $pagado && $p->estado !== 'cancelado';
+
                 return $idsOneShotConPagoMes->contains($p->id) || $tienePendiente;
             })
             ->map(function ($p) use ($allPayments, $monthPayments, $toCop, $idsOneShotConPagoMes) {
@@ -153,9 +162,13 @@ class PortalDeveloperController extends Controller
                 $tienePagoMes = $idsOneShotConPagoMes->contains($p->id);
 
                 // Status: cobrado_mes / pendiente / completo
-                if ($tienePagoMes && $pendiente <= 0) $status = 'completo';
-                elseif ($tienePagoMes) $status = 'cobrado_mes';
-                else $status = 'pendiente';
+                if ($tienePagoMes && $pendiente <= 0) {
+                    $status = 'completo';
+                } elseif ($tienePagoMes) {
+                    $status = 'cobrado_mes';
+                } else {
+                    $status = 'pendiente';
+                }
 
                 return [
                     'id' => $p->id,
@@ -190,6 +203,7 @@ class PortalDeveloperController extends Controller
             $start = $m->copy()->startOfMonth();
             $end = $m->copy()->endOfMonth();
             $pagos = $allPayments->filter(fn ($p) => $p->fecha && $p->fecha->between($start, $end));
+
             return [
                 'key' => $m->format('Y-m'),
                 'label_short' => $m->locale('es')->isoFormat('MMM'),
@@ -207,6 +221,7 @@ class PortalDeveloperController extends Controller
         $paymentsAgrupados = $allPayments->groupBy(fn ($p) => $p->fecha?->format('Y-m'))
             ->map(function ($pagos, $key) use ($toCop) {
                 $first = $pagos->first()?->fecha ?? \Carbon\Carbon::now();
+
                 return [
                     'key' => $key,
                     'label' => $first->locale('es')->isoFormat('MMMM YYYY'),
@@ -250,6 +265,7 @@ class PortalDeveloperController extends Controller
     public function logout(Request $request)
     {
         $request->session()->forget('portal_developer_id');
+
         return redirect()->route('portal.developer.login.show')->with('success', 'Sesión cerrada.');
     }
 }

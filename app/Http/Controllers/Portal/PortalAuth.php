@@ -5,19 +5,41 @@ namespace App\Http\Controllers\Portal;
 trait PortalAuth
 {
     /**
-     * Normaliza un número telefónico: solo dígitos, sin prefijo país +57.
+     * Normaliza un número telefónico a solo dígitos. NO recorta código de país
+     * para soportar clientes internacionales (LATAM, España, Australia, US, etc.).
+     * El matching se hace después con phonesMatch().
      */
     protected function normalizePhone(?string $phone): string
     {
-        if (!$phone) return '';
-        $digits = preg_replace('/\D+/', '', $phone);
-        if (strlen($digits) === 12 && str_starts_with($digits, '57')) {
-            $digits = substr($digits, 2);
+        if (! $phone) {
+            return '';
         }
-        if (strlen($digits) === 13 && str_starts_with($digits, '057')) {
-            $digits = substr($digits, 3);
+
+        return preg_replace('/\D+/', '', $phone);
+    }
+
+    /**
+     * Compara dos teléfonos siendo tolerante con códigos de país.
+     * Coinciden si:
+     *  - son idénticos tras normalizar; o
+     *  - uno es sufijo del otro (ej: "3102334308" ⊂ "573102334308"); o
+     *  - los últimos 8 dígitos coinciden (número local sin código de país).
+     */
+    protected function phonesMatch(string $a, string $b): bool
+    {
+        $a = $this->normalizePhone($a);
+        $b = $this->normalizePhone($b);
+        if ($a === '' || $b === '') {
+            return false;
         }
-        return $digits;
+        if ($a === $b) {
+            return true;
+        }
+        if (str_ends_with($a, $b) || str_ends_with($b, $a)) {
+            return true;
+        }
+
+        return strlen($a) >= 8 && strlen($b) >= 8 && substr($a, -8) === substr($b, -8);
     }
 
     /**
@@ -26,21 +48,22 @@ trait PortalAuth
     protected function tooManyAttempts(\Illuminate\Http\Request $request, string $key): bool
     {
         $now = time();
-        $attempts = $request->session()->get('portal_attempts.' . $key, []);
+        $attempts = $request->session()->get('portal_attempts.'.$key, []);
         $attempts = array_filter($attempts, fn ($t) => $t > $now - 600);
-        $request->session()->put('portal_attempts.' . $key, $attempts);
+        $request->session()->put('portal_attempts.'.$key, $attempts);
+
         return count($attempts) >= 5;
     }
 
     protected function recordAttempt(\Illuminate\Http\Request $request, string $key): void
     {
-        $attempts = $request->session()->get('portal_attempts.' . $key, []);
+        $attempts = $request->session()->get('portal_attempts.'.$key, []);
         $attempts[] = time();
-        $request->session()->put('portal_attempts.' . $key, $attempts);
+        $request->session()->put('portal_attempts.'.$key, $attempts);
     }
 
     protected function clearAttempts(\Illuminate\Http\Request $request, string $key): void
     {
-        $request->session()->forget('portal_attempts.' . $key);
+        $request->session()->forget('portal_attempts.'.$key);
     }
 }

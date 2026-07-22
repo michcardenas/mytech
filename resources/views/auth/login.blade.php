@@ -152,6 +152,21 @@
                     </a>
                 </p>
             </form>
+
+            {{-- Accesos a portales por teléfono --}}
+            <div class="mt-8 pt-6 border-t border-mt-border">
+                <p class="text-center text-xs uppercase tracking-wider text-mt-text-3 font-semibold mb-3">
+                    ¿Ya eres cliente?
+                </p>
+                <a href="{{ route('portal.cliente.login.show') }}"
+                   class="flex items-center justify-center gap-2 w-full rounded-xl border border-mt-border bg-mt-bg-2 hover:bg-white hover:border-mt-accent hover:text-mt-accent px-4 py-3 text-sm font-semibold text-mt-text-2 transition">
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M22 16.9v3a2 2 0 0 1-2.2 2 19.8 19.8 0 0 1-8.6-3.1 19.5 19.5 0 0 1-6-6A19.8 19.8 0 0 1 2.1 4.2 2 2 0 0 1 4.1 2h3a2 2 0 0 1 2 1.7c.1.9.4 1.8.7 2.6a2 2 0 0 1-.5 2.1L8.1 9.7a16 16 0 0 0 6 6l1.3-1.3a2 2 0 0 1 2.1-.5c.8.3 1.7.6 2.6.7a2 2 0 0 1 1.7 2Z"/>
+                    </svg>
+                    Ingresar con mi número de teléfono
+                </a>
+                <p class="text-center text-xs text-mt-text-3 mt-2">Descarga tus facturas y consulta el estado de tus proyectos.</p>
+            </div>
         </div>
     </div>
 </section>

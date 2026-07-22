@@ -310,6 +310,20 @@
                         <div class="field-hint">Marca esta opcion si el proyecto es continuo (mantenimiento, mensualidad, soporte, etc.)</div>
                     </div>
                 </div>
+
+                <div class="field-row">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-file-invoice-dollar"></i> Fecha de facturación</div>
+                        <input type="date" name="fecha_facturacion" class="form-control"
+                               value="{{ old('fecha_facturacion', $project->fecha_facturacion?->format('Y-m-d')) }}">
+                        <div class="field-hint">Cuándo se debe emitir la factura al cliente. Para recurrentes indica la próxima.</div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-sticky-note"></i> Notas de facturación</div>
+                        <textarea name="notas_facturacion" class="form-control" rows="2"
+                                  placeholder="Ej: Facturar el 5 de cada mes, adjuntar acta, régimen simplificado...">{{ old('notas_facturacion', $project->notas_facturacion) }}</textarea>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -533,6 +547,7 @@
                             <select name="moneda" id="moneda" class="form-select">
                                 <option value="COP" {{ old('moneda', $project->moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('moneda', $project->moneda) == 'USD' ? 'selected' : '' }}>USD</option>
+                                <option value="EUR" {{ old('moneda', $project->moneda) == 'EUR' ? 'selected' : '' }}>EUR</option>
                             </select>
                         </div>
                         @error('precio') <div class="invalid-feedback">{{ $message }}</div> @enderror
@@ -607,6 +622,7 @@
                             <select name="desarrollador_moneda" id="desarrollador_moneda" class="form-select">
                                 <option value="COP" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'COP' ? 'selected' : '' }}>COP</option>
                                 <option value="USD" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'USD' ? 'selected' : '' }}>USD</option>
+                                <option value="EUR" {{ old('desarrollador_moneda', $project->desarrollador_moneda) == 'EUR' ? 'selected' : '' }}>EUR</option>
                             </select>
                         </div>
                         <div class="field-hint">Monto que se le pagará al desarrollador por este proyecto (auto-sugerido si el dev tiene tarifa).</div>
@@ -661,6 +677,7 @@
                             <select id="nuevoDevMoneda" style="width:100%; padding:0.65rem 0.9rem; border:2px solid #e9ecef; border-radius:10px; font-size:0.92rem;">
                                 <option value="COP">COP</option>
                                 <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
                             </select>
                         </div>
                     </div>
@@ -956,7 +973,8 @@
                 document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
 
                 const USD_COP = {{ (float) config('services.usd_cop', env('USD_COP_RATE', 4000)) }};
-                const fmt = (n, m) => (m === 'USD' ? 'US$' : '$') + Number(n).toLocaleString('es-CO', { maximumFractionDigits: 0 }) + (m === 'USD' ? ' USD' : '');
+                const simb = (m) => m === 'USD' ? 'US$' : (m === 'EUR' ? '€' : '$');
+                const fmt = (n, m) => simb(m) + Number(n).toLocaleString('es-CO', { maximumFractionDigits: 0 }) + ' ' + m;
 
                 function getTipo() {
                     const r = document.querySelector('input[name="comision_tipo"]:checked');
@@ -964,7 +982,7 @@
                 }
 
                 function syncUnidad() {
-                    unidad.textContent = getTipo() === 'porcentaje' ? '%' : (monedaInput.value === 'USD' ? 'USD' : 'COP');
+                    unidad.textContent = getTipo() === 'porcentaje' ? '%' : monedaInput.value;
                 }
 
                 function calcular() {
@@ -1202,7 +1220,7 @@
             if (!selectId) return;
             const sel = document.getElementById(selectId);
             if (!sel) return;
-            const sync = () => { pref.textContent = sel.value === 'USD' ? 'US$' : '$'; };
+            const sync = () => { pref.textContent = sel.value === 'USD' ? 'US$' : (sel.value === 'EUR' ? '€' : '$'); };
             sel.addEventListener('change', sync);
             sync();
         });

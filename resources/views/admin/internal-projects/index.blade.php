@@ -149,7 +149,7 @@
         if ($val === null || $val === '') {
             return '—';
         }
-        $prefix = $moneda === 'USD' ? 'US$' : '$';
+        $prefix = $moneda === 'USD' ? 'US$' : ($moneda === 'EUR' ? '€' : '$');
 
         return $prefix.number_format((float) $val, 0, ',', '.');
     };
@@ -421,6 +421,7 @@
                         <select name="moneda" class="form-select" id="payMoneda">
                             <option value="COP">COP</option>
                             <option value="USD">USD</option>
+                            <option value="EUR">EUR</option>
                         </select>
                     </div>
                     <div class="col-12">
@@ -479,7 +480,7 @@
 
             const saldo = parseFloat(btn.dataset.saldo || 0);
             const moneda = btn.dataset.moneda || 'COP';
-            const prefix = moneda === 'USD' ? 'US$' : '$';
+            const prefix = moneda$moneda === 'USD' ? 'US$' : ($moneda === 'EUR' ? '€' : '$');
             const saldoTxt = saldo > 0
                 ? 'Saldo pendiente: <strong>' + prefix + Math.round(saldo).toLocaleString('es-CO') + ' ' + moneda + '</strong>'
                 : 'Sin saldo pendiente registrado.';

@@ -390,7 +390,7 @@
 
 @php
     $fmt = function ($val, $moneda = 'COP') {
-        $prefix = $moneda === 'USD' ? 'US$' : '$';
+        $prefix = $moneda === 'USD' ? 'US$' : ($moneda === 'EUR' ? '€' : '$');
         return $prefix . number_format((float) $val, 0, ',', '.') . ($moneda === 'USD' ? ' USD' : '');
     };
     $fmtCop = fn ($v) => '$' . number_format((float) $v, 0, ',', '.');

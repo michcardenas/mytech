@@ -39,6 +39,9 @@
     .btn-h-back:hover { background: rgba(255,255,255,0.35); color: white; text-decoration: none; }
     .btn-h-edit { background: white; color: var(--primary-blue); }
     .btn-h-edit:hover { background: #f0f7ff; color: var(--primary-dark); text-decoration: none; }
+    .btn-h-cobro { background: #F59E0B; color: white; border: none; cursor: pointer; }
+    .btn-h-cobro:hover { background: #D97706; color: white; text-decoration: none; }
+    .btn-h-cobro.dropdown-toggle::after { margin-left: .4rem; }
     .btn-h-delete { background: rgba(220,53,69,0.85); color: white; }
     .btn-h-delete:hover { background: var(--danger); }
 
@@ -92,6 +95,9 @@
     .item-amount-sub { font-size: 0.7rem; color: var(--success); font-weight: 600; margin-top: 0.15rem; }
     .btn-delete-sm { width: 28px; height: 28px; border-radius: 8px; border: none; background: rgba(220,53,69,0.08); color: var(--danger); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 0.72rem; transition: var(--transition); flex-shrink: 0; }
     .btn-delete-sm:hover { background: var(--danger); color: white; }
+    .btn-receipt-sm { display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .7rem; border-radius:8px; background:rgba(37,99,235,.08); color:#2563EB; text-decoration:none; font-size:.72rem; font-weight:700; transition:var(--transition); border:1px solid rgba(37,99,235,.16); flex-shrink:0; }
+    .btn-receipt-sm:hover { background:#2563EB; color:#fff; text-decoration:none; }
+    .btn-receipt-sm i { font-size:.7rem; }
 
     /* ADD FORM */
     .add-form-card { background: linear-gradient(135deg, rgba(0,123,255,0.04) 0%, rgba(0,123,255,0.01) 100%); border: 1px dashed rgba(0,123,255,0.2); border-radius: 12px; padding: 1.1rem 1.25rem; }
@@ -161,6 +167,37 @@
             </div>
             <div class="show-header-actions">
                 <a href="{{ route('admin.internal-projects.index') }}" class="btn-h btn-h-back"><i class="fas fa-arrow-left"></i> Volver</a>
+                @if($project->es_recurrente)
+                    <div class="dropdown">
+                        <button class="btn-h btn-h-cobro dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-file-invoice"></i> Cuenta de cobro
+                        </button>
+                        <ul class="dropdown-menu" style="border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.12); padding:.4rem; min-width:220px;">
+                            <li><a class="dropdown-item" style="border-radius:8px; padding:.55rem .8rem; font-size:.87rem;" href="{{ route('admin.internal-projects.cuenta-cobro', ['internal_project' => $project, 'mes' => now()->format('Y-m')]) }}" target="_blank">
+                                <i class="fas fa-calendar-check" style="color:#F59E0B; width:18px;"></i> {{ ucfirst(now()->translatedFormat('F Y')) }} <small style="color:#94A3B8;">(mes actual)</small>
+                            </a></li>
+                            <li><a class="dropdown-item" style="border-radius:8px; padding:.55rem .8rem; font-size:.87rem;" href="{{ route('admin.internal-projects.cuenta-cobro', ['internal_project' => $project, 'mes' => now()->subMonth()->format('Y-m')]) }}" target="_blank">
+                                <i class="fas fa-calendar" style="color:#64748B; width:18px;"></i> {{ ucfirst(now()->subMonth()->translatedFormat('F Y')) }} <small style="color:#94A3B8;">(mes anterior)</small>
+                            </a></li>
+                            <li><hr style="margin:.3rem 0; border-color:#F1F5F9;"></li>
+                            <li>
+                                <form onsubmit="event.preventDefault(); const m=this.mes.value; if(m) window.open('{{ route('admin.internal-projects.cuenta-cobro', $project) }}?mes='+m, '_blank');" style="padding:.4rem .6rem; display:flex; gap:.3rem; align-items:center;">
+                                    <input type="month" name="mes" required style="flex:1; padding:.35rem .5rem; border:1px solid #E2E8F0; border-radius:6px; font-size:.82rem;">
+                                    <button type="submit" style="padding:.35rem .7rem; border:none; background:#F59E0B; color:#fff; border-radius:6px; font-size:.78rem; font-weight:700; cursor:pointer;">Ver</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </div>
+                @else
+                    @php
+                        $saldoActual = max((float) $project->precio - (float) $project->payments->sum('monto'), 0);
+                    @endphp
+                    @if($saldoActual > 0)
+                        <a href="{{ route('admin.internal-projects.cuenta-cobro', $project) }}" target="_blank" class="btn-h btn-h-cobro">
+                            <i class="fas fa-file-invoice"></i> Cuenta de cobro
+                        </a>
+                    @endif
+                @endif
                 <a href="{{ route('admin.internal-projects.edit', $project) }}" class="btn-h btn-h-edit"><i class="fas fa-edit"></i> Editar</a>
                 <form action="{{ route('admin.internal-projects.destroy', $project) }}" method="POST" onsubmit="return confirm('Eliminar este proyecto y todos sus datos?');">
                     @csrf @method('DELETE')
@@ -278,6 +315,31 @@
                         @endif
                     </span>
                 </div>
+                @if($project->fecha_facturacion)
+                    @php
+                        $diasFact = (int) now()->startOfDay()->diffInDays($project->fecha_facturacion->startOfDay(), false);
+                        $factColor = $diasFact < 0 ? '#DC2626' : ($diasFact <= 3 ? '#B45309' : '#0F766E');
+                    @endphp
+                    <div class="info-item">
+                        <span class="info-item-label"><i class="fas fa-file-invoice-dollar" style="color:#aaa;"></i> Fecha de facturación</span>
+                        <span class="info-item-value" style="color:{{ $factColor }}; font-weight:700;">
+                            {{ $project->fecha_facturacion->format('d/m/Y') }}
+                            @if($diasFact < 0)
+                                <small style="font-weight:600;">· vencida hace {{ abs($diasFact) }}d</small>
+                            @elseif($diasFact === 0)
+                                <small style="font-weight:600;">· hoy</small>
+                            @elseif($diasFact <= 7)
+                                <small style="font-weight:600;">· en {{ $diasFact }}d</small>
+                            @endif
+                        </span>
+                    </div>
+                @endif
+                @if($project->notas_facturacion)
+                    <div class="info-item" style="grid-column:1/-1;">
+                        <span class="info-item-label"><i class="fas fa-sticky-note" style="color:#aaa;"></i> Notas de facturación</span>
+                        <span class="info-item-value" style="white-space:pre-line;">{{ $project->notas_facturacion }}</span>
+                    </div>
+                @endif
                 @if($project->desarrollador_nombre)
                 <div class="info-item">
                     <span class="info-item-label">Desarrollador</span>
@@ -346,6 +408,12 @@
                                     <div class="item-amount-sub"><i class="fas fa-arrow-down"></i> ${{ number_format($payment->monto_recibido_cop, 0, ',', '.') }} COP neto</div>
                                 @endif
                             </div>
+                            <a href="{{ route('admin.internal-projects.payments.receipt', [$project, $payment]) }}"
+                               target="_blank"
+                               class="btn-receipt-sm"
+                               title="Generar recibo con membrete MyTech">
+                                <i class="fas fa-file-invoice"></i> Recibo
+                            </a>
                             <form action="{{ route('admin.internal-projects.payments.destroy', [$project, $payment]) }}" method="POST" onsubmit="return confirm('Eliminar este pago?');">
                                 @csrf @method('DELETE')
                                 <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
@@ -673,6 +741,7 @@
                             <select name="moneda">
                                 <option value="COP">COP</option>
                                 <option value="USD">USD</option>
+                                <option value="EUR">EUR</option>
                             </select>
                         </div>
                         <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>

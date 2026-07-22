@@ -44,7 +44,7 @@ class PortalVendedorController extends Controller
         }
 
         $vendedores = Vendedor::whereNotNull('telefono')->get();
-        $match = $vendedores->first(fn ($v) => $this->normalizePhone($v->telefono) === $normalized);
+        $match = $vendedores->first(fn ($v) => $this->phonesMatch($v->telefono, $normalized));
 
         if (! $match) {
             $this->recordAttempt($request, 'vendedor');
