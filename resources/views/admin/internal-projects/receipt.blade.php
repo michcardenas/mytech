@@ -63,6 +63,10 @@
     } elseif ($project->moneda === 'EUR') {
         $equivalente = ['moneda' => 'USD', 'simbolo' => 'US$', 'valor' => (float) $payment->monto * $eurUsd];
     }
+
+    // Firma del representante legal, incrustada en base64 (no se sirve por URL pública)
+    $firmaPath = resource_path('images/firma-michael.png');
+    $firmaB64 = is_file($firmaPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($firmaPath)) : null;
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -209,7 +213,10 @@
             display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
             margin-top: 3rem; padding: 0 20px;
         }
-        .firma { text-align: center; padding-top: 8px; border-top: 1.5px solid #1a1a1a; }
+        .firma { text-align: center; }
+        .firma .sig-space { height: 58px; display: flex; align-items: flex-end; justify-content: center; }
+        .firma .sig-space img { height: 62px; width: auto; margin-bottom: -10px; }
+        .firma .firma-line { padding-top: 8px; border-top: 1.5px solid #1a1a1a; }
         .firma .nombre { font-size: 12px; font-weight: 700; color: #1a1a1a; margin-top: 4px; }
         .firma .rol { font-size: 11px; color: #555; margin-top: 2px; }
         .firma .extra { font-size: 10.5px; color: #666; margin-top: 2px; }
@@ -417,20 +424,30 @@
     {{-- ============= FIRMAS ============= --}}
     <div class="firmas">
         <div class="firma">
-            <div class="nombre">MYTECH SOLUTIONS S.A.S</div>
-            <div class="rol">Emisor</div>
-            <div class="extra">NIT: 901.923.467-5</div>
+            <div class="sig-space">
+                @if($firmaB64)
+                    <img src="{{ $firmaB64 }}" alt="Firma">
+                @endif
+            </div>
+            <div class="firma-line">
+                <div class="nombre">MYTECH SOLUTIONS S.A.S</div>
+                <div class="rol">Michael Daniel Cárdenas Ríos — Representante Legal</div>
+                <div class="extra">NIT: 901.923.467-5</div>
+            </div>
         </div>
         <div class="firma">
-            <div class="nombre">{{ strtoupper($nombreEmpresa) }}</div>
-            @if($contactoPersonal)
-                <div class="rol">{{ $contactoPersonal }}{{ $cargoContacto ? ' — '.$cargoContacto : '' }}</div>
-            @else
-                <div class="rol">Recibí conforme</div>
-            @endif
-            @if($ciudad || $pais)
-                <div class="extra">{{ trim(($ciudad ?? '').(($ciudad && $pais) ? ', ' : '').($pais ?? '')) }}</div>
-            @endif
+            <div class="sig-space"></div>
+            <div class="firma-line">
+                <div class="nombre">{{ strtoupper($nombreEmpresa) }}</div>
+                @if($contactoPersonal)
+                    <div class="rol">{{ $contactoPersonal }}{{ $cargoContacto ? ' — '.$cargoContacto : '' }}</div>
+                @else
+                    <div class="rol">Recibí conforme</div>
+                @endif
+                @if($ciudad || $pais)
+                    <div class="extra">{{ trim(($ciudad ?? '').(($ciudad && $pais) ? ', ' : '').($pais ?? '')) }}</div>
+                @endif
+            </div>
         </div>
     </div>
 
