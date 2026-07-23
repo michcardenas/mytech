@@ -1007,8 +1007,35 @@ class InternalProjectController extends Controller
 
         $project = InternalProject::create($validated);
 
+        $this->guardarDocumentosAdjuntos($request, $project);
+
         return redirect()->route('admin.internal-projects.show', $project)
             ->with('success', 'Proyecto creado exitosamente.');
+    }
+
+    /**
+     * Guarda los archivos de propuesta/contrato adjuntados desde el form
+     * de crear/editar como ProjectFile del proyecto.
+     */
+    private function guardarDocumentosAdjuntos(Request $request, InternalProject $project): void
+    {
+        if (! $request->hasFile('documentos')) {
+            return;
+        }
+
+        $request->validate([
+            'documentos.*' => 'file|mimes:pdf,doc,docx,jpg,jpeg,png,webp,zip|max:20480',
+        ]);
+
+        foreach ($request->file('documentos') as $file) {
+            $path = $file->store('internal-projects/'.$project->id, 'public');
+            $project->files()->create([
+                'nombre' => 'Propuesta/Contrato — '.$file->getClientOriginalName(),
+                'archivo' => $path,
+                'tipo' => $file->getMimeType(),
+                'tamano' => $file->getSize(),
+            ]);
+        }
     }
 
     public function show(InternalProject $internal_project)
@@ -1099,6 +1126,8 @@ class InternalProjectController extends Controller
         }
 
         $internal_project->update($validated);
+
+        $this->guardarDocumentosAdjuntos($request, $internal_project);
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Proyecto actualizado exitosamente.');

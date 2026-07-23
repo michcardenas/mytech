@@ -247,7 +247,7 @@
     </div>
 
     <form action="{{ $isEdit ? route('admin.internal-projects.update', $project) : route('admin.internal-projects.store') }}"
-          method="POST">
+          method="POST" enctype="multipart/form-data">
         @csrf
         @if($isEdit) @method('PUT') @endif
 
@@ -568,6 +568,44 @@
                         <div class="field-hint">Link al proyecto en la plataforma externa</div>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        {{-- Propuesta / Contrato --}}
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-file-signature"></i>
+                <h3>Propuesta / Contrato</h3>
+            </div>
+            <div class="form-section-body">
+                <div class="field-row single">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-paperclip"></i> Adjuntar propuesta o contrato firmado</div>
+                        <input type="file" name="documentos[]" multiple class="form-control @error('documentos.*') is-invalid @enderror"
+                               accept=".pdf,.doc,.docx,.jpg,.jpeg,.png,.webp,.zip"
+                               style="padding:0.45rem 0.6rem;">
+                        <div class="field-hint">Puedes seleccionar varios archivos (PDF, Word, imagen o ZIP, máx 20MB c/u). Quedarán en la pestaña "Archivos" del proyecto.</div>
+                        @error('documentos.*') <div class="invalid-feedback d-block">{{ $message }}</div> @enderror
+                    </div>
+                </div>
+                @if($isEdit && $project->files->count() > 0)
+                    <div class="field-row single">
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-folder-open"></i> Archivos ya adjuntos</div>
+                            <div style="display:flex; flex-direction:column; gap:.4rem;">
+                                @foreach($project->files as $file)
+                                    <a href="{{ asset('storage/'.$file->archivo) }}" target="_blank"
+                                       style="display:inline-flex; align-items:center; gap:.5rem; padding:.5rem .8rem; background:#F8FAFC; border:1px solid #E5E7EB; border-radius:8px; text-decoration:none; color:#0F172A; font-size:.85rem; font-weight:600;">
+                                        <i class="fas {{ $file->icono }}" style="color:#2563EB;"></i>
+                                        {{ $file->nombre }}
+                                        <small style="color:#94A3B8; font-weight:500;">{{ $file->tamano_formateado }}</small>
+                                    </a>
+                                @endforeach
+                            </div>
+                            <div class="field-hint">Para eliminar archivos ve a la pestaña "Archivos" en el detalle del proyecto.</div>
+                        </div>
+                    </div>
+                @endif
             </div>
         </div>
 
