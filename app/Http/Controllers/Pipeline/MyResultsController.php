@@ -113,8 +113,23 @@ class MyResultsController extends Controller
         $abiertos = Lead::where('user_id', $user->id)->abierto()->count();
         $pipeline = Lead::where('user_id', $user->id)->abierto()->sum('valor_estimado');
 
+        // Liquidaciones pagadas al comercial (con comprobante y link al documento)
+        $liquidaciones = empty($vendedorIds)
+            ? collect()
+            : LiquidacionPago::whereIn('vendedor_id', $vendedorIds)
+                ->orderByDesc('periodo')
+                ->orderByDesc('fecha_pago')
+                ->get()
+                ->map(function ($pg) {
+                    $pg->ciclo_fin = $pg->periodo->copy()->addMonth()->day(19);
+                    $pg->mes_corte = $pg->periodo->copy()->addMonth()->format('Y-m');
+
+                    return $pg;
+                });
+
         return view('pipeline.my-results', [
             'proyectos' => $proyectos,
+            'liquidaciones' => $liquidaciones,
             'cierresMesActual' => $cierresMesActual,
             'cierresMesAnterior' => $cierresMesAnterior,
             'comisionMesActual' => $comisionMesActual,

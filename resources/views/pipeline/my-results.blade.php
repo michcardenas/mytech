@@ -33,6 +33,17 @@
     .mr-com-pct { display:inline-flex; align-items:center; padding:.2rem .6rem; border-radius:999px; font-size:.78rem; font-weight:700; font-variant-numeric:tabular-nums; }
     .mr-com-pct.pct { background:#DBEAFE; color:#1D4ED8; }
     .mr-com-pct.fijo { background:#EDE9FE; color:#6D28D9; font-size:.7rem; text-transform:uppercase; letter-spacing:.03em; }
+
+    /* Mis liquidaciones */
+    .mr-liq-row { display:flex; align-items:center; gap:1rem; padding:.6rem .85rem; background:#F8FAFC; border:1px solid #E5E7EB; border-radius:10px; margin-bottom:.45rem; font-size:.85rem; flex-wrap:wrap; }
+    .mr-liq-row .ciclo { font-weight:700; color:#0F172A; }
+    .mr-liq-row .monto { font-weight:800; color:#16A34A; font-variant-numeric:tabular-nums; }
+    .mr-liq-row .meta { color:#64748B; font-size:.78rem; }
+    .mr-liq-btn { display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .75rem; border-radius:8px; font-size:.75rem; font-weight:700; text-decoration:none; transition:all .12s; }
+    .mr-liq-btn.doc { background:#2563EB; color:#fff; }
+    .mr-liq-btn.doc:hover { background:#1D4ED8; color:#fff; }
+    .mr-liq-btn.comp { background:#fff; color:#334155; border:1px solid #E2E8F0; }
+    .mr-liq-btn.comp:hover { border-color:#2563EB; color:#2563EB; }
 </style>
 
 <div class="mr-wrap">
@@ -149,5 +160,29 @@
             </table>
         </div>
     </div>
+
+    @if(isset($liquidaciones) && $liquidaciones->isNotEmpty())
+        <div class="mr-card" style="margin-top:1.4rem;">
+            <h3><i class="fas fa-file-invoice-dollar" style="color:#2563EB;"></i> Mis liquidaciones pagadas</h3>
+            @foreach($liquidaciones as $liq)
+                <div class="mr-liq-row">
+                    <span class="ciclo"><i class="far fa-calendar-alt" style="color:#94A3B8;"></i> Ciclo {{ $liq->periodo->format('d/m/Y') }} — {{ $liq->ciclo_fin->format('d/m/Y') }}</span>
+                    <span class="monto">${{ number_format((float) $liq->monto, 0, ',', '.') }}</span>
+                    <span class="meta">Pagado el {{ $liq->fecha_pago->format('d/m/Y') }}{{ $liq->metodo ? ' · '.$liq->metodo : '' }}</span>
+                    <span style="margin-left:auto; display:flex; gap:.4rem; flex-wrap:wrap;">
+                        @if($liq->comprobante)
+                            <a href="{{ asset('storage/'.$liq->comprobante) }}" target="_blank" class="mr-liq-btn comp">
+                                <i class="fas fa-paperclip"></i> Comprobante
+                            </a>
+                        @endif
+                        <a href="{{ route('admin.internal-projects.liquidacion.documento', ['vendedor' => $liq->vendedor_id, 'mes' => $liq->mes_corte]) }}" target="_blank" class="mr-liq-btn doc">
+                            <i class="fas fa-file-pdf"></i> Ver liquidación
+                        </a>
+                    </span>
+                </div>
+            @endforeach
+            <p style="font-size:.75rem; color:#94A3B8; margin-top:.5rem;">El documento de liquidación detalla tu sueldo básico, las comisiones del ciclo y el total pagado.</p>
+        </div>
+    @endif
 </div>
 @endsection
