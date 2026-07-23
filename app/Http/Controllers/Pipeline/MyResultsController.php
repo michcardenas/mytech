@@ -127,9 +127,12 @@ class MyResultsController extends Controller
                     return $pg;
                 });
 
+        $banners = \App\Models\ComercialBanner::vigentesPara($user->id)->get();
+
         return view('pipeline.my-results', [
             'proyectos' => $proyectos,
             'liquidaciones' => $liquidaciones,
+            'banners' => $banners,
             'cierresMesActual' => $cierresMesActual,
             'cierresMesAnterior' => $cierresMesAnterior,
             'comisionMesActual' => $comisionMesActual,

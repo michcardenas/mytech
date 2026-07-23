@@ -259,7 +259,12 @@
                         @endif
                     </td>
                     <td class="right">{{ $simb }}{{ number_format($p['precio'], 0, ',', '.') }} {{ $p['moneda'] }}</td>
-                    <td class="right com">{{ $simb }}{{ number_format($p['comision'], 0, ',', '.') }}</td>
+                    <td class="right com">
+                        {{ $simb }}{{ number_format($p['comision'], 0, ',', '.') }}
+                        @if(($p['pct_aplicado'] ?? null) !== null)
+                            <small style="display:block; font-size:9.5px; color:#6D28D9; font-weight:700;">escalón {{ rtrim(rtrim(number_format($p['pct_aplicado'], 2, ',', '.'), '0'), ',') }}%</small>
+                        @endif
+                    </td>
                     <td class="right com">{{ $fmtCop($p['comision_cop']) }}</td>
                 </tr>
             @empty
@@ -288,7 +293,7 @@
     </div>
 
     <div class="nota-box">
-        <strong>Condiciones de pago:</strong> conforme al contrato de prestación de servicios, el pago se efectúa entre el día 20 y el día 25 de {{ ucfirst($mesCorte->translatedFormat('F Y')) }}, previa presentación de la cuenta de cobro y la planilla de seguridad social (PILA) como trabajador independiente. Las comisiones corresponden a proyectos efectivamente cerrados en el ciclo del {{ $cicloInicio->format('d/m/Y') }} al {{ $cicloFin->format('d/m/Y') }} como resultado de la gestión comercial del contratista. Los pagos están sujetos a las retenciones de ley sobre honorarios.
+        @if(($pctEscalon ?? null) !== null)<strong>Comisión escalonada aplicada:</strong> por haber cerrado {{ $proyectos->count() }} proyecto{{ $proyectos->count() === 1 ? '' : 's' }} en el ciclo, la comisión se liquida al <strong>{{ rtrim(rtrim(number_format($pctEscalon, 2, ',', '.'), '0'), ',') }}%</strong> sobre todos los cierres del periodo.<br><br>@endif<strong>Condiciones de pago:</strong> conforme al contrato de prestación de servicios, el pago se efectúa entre el día 20 y el día 25 de {{ ucfirst($mesCorte->translatedFormat('F Y')) }}, previa presentación de la cuenta de cobro y la planilla de seguridad social (PILA) como trabajador independiente. Las comisiones corresponden a proyectos efectivamente cerrados en el ciclo del {{ $cicloInicio->format('d/m/Y') }} al {{ $cicloFin->format('d/m/Y') }} como resultado de la gestión comercial del contratista. Los pagos están sujetos a las retenciones de ley sobre honorarios.
     </div>
 
     <div class="firmas">

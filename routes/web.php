@@ -205,6 +205,14 @@ Route::middleware('auth')->group(function () {
     Route::get('internal-projects/liquidacion-comerciales', [App\Http\Controllers\Admin\InternalProjectController::class, 'liquidacionComerciales'])->name('admin.internal-projects.liquidacion');
     Route::get('internal-projects/liquidacion-comerciales/{vendedor}/documento', [App\Http\Controllers\Admin\InternalProjectController::class, 'liquidacionVendedorDocumento'])->name('admin.internal-projects.liquidacion.documento');
     Route::put('internal-projects/vendedores/{vendedor}/sueldo', [App\Http\Controllers\Admin\InternalProjectController::class, 'actualizarSueldoVendedor'])->name('admin.internal-projects.vendedores.sueldo');
+    Route::put('internal-projects/vendedores/{vendedor}/escalones', [App\Http\Controllers\Admin\InternalProjectController::class, 'actualizarEscalonesVendedor'])->name('admin.internal-projects.vendedores.escalones');
+
+    // Banners motivacionales para comerciales
+    Route::get('banners-comerciales', [App\Http\Controllers\Admin\ComercialBannerController::class, 'index'])->name('admin.banners.index');
+    Route::post('banners-comerciales', [App\Http\Controllers\Admin\ComercialBannerController::class, 'store'])->name('admin.banners.store');
+    Route::put('banners-comerciales/{banner}', [App\Http\Controllers\Admin\ComercialBannerController::class, 'update'])->name('admin.banners.update');
+    Route::put('banners-comerciales/{banner}/toggle', [App\Http\Controllers\Admin\ComercialBannerController::class, 'toggle'])->name('admin.banners.toggle');
+    Route::delete('banners-comerciales/{banner}', [App\Http\Controllers\Admin\ComercialBannerController::class, 'destroy'])->name('admin.banners.destroy');
     Route::post('internal-projects/liquidacion-comerciales/{vendedor}/pagos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.store');
     Route::delete('internal-projects/liquidacion-pagos/{pago}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.destroy');
     Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)

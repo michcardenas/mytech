@@ -1325,8 +1325,23 @@ class InternalProjectController extends Controller
         $liquidaciones = $vendedores->map(function ($v) use ($proyectosMes, $toCop, $pagosLiquidacion) {
             $proyectos = $proyectosMes->where('vendedor_id', $v->id)->values();
 
-            $detalle = $proyectos->map(function ($p) use ($toCop) {
-                $comision = (float) $p->comision_calculada;
+            // Comisión escalonada: el tramo alcanzado aplica retroactivo a todo el ciclo.
+            $pctEscalon = $v->porcentajePorCierres($proyectos->count());
+
+            $detalle = $proyectos->map(function ($p) use ($toCop, $pctEscalon) {
+                $comisionBase = (float) $p->comision_calculada;
+                $comision = $comisionBase;
+                $pctAplicado = null;
+
+                // El escalón es un incentivo: solo aplica si MEJORA lo pactado en el proyecto.
+                if ($pctEscalon !== null && $p->comision_tipo === 'porcentaje') {
+                    $comisionEscalon = round((float) $p->precio * ($pctEscalon / 100), 2);
+                    if ($comisionEscalon > $comisionBase) {
+                        $comision = $comisionEscalon;
+                        $pctAplicado = $pctEscalon;
+                    }
+                }
+
                 $abonado = (float) $p->gestionPayments->sum('monto');
 
                 return [
@@ -1339,6 +1354,8 @@ class InternalProjectController extends Controller
                     'comision_tipo' => $p->comision_tipo,
                     'comision_valor' => (float) $p->comision_valor,
                     'comision' => $comision,
+                    'comision_base' => $comisionBase,
+                    'pct_aplicado' => $pctAplicado,
                     'comision_cop' => $toCop($comision, $p->moneda),
                     'abonado' => $abonado,
                 ];
@@ -1351,6 +1368,19 @@ class InternalProjectController extends Controller
             $pagadoCop = (float) $pagos->sum('monto');
             $totalCop = $sueldoCop + $comisionesCop;
 
+            // Cuánto ganaría con un cierre más (para mostrarle la zanahoria del siguiente tramo)
+            $siguienteTramo = null;
+            if ($v->escalonada_activa) {
+                $tramos = collect($v->escalones ?: Vendedor::ESCALONES_DEFAULT)->sortBy('desde');
+                $prox = $tramos->first(fn ($t) => (int) ($t['desde'] ?? 0) > $proyectos->count());
+                if ($prox) {
+                    $siguienteTramo = [
+                        'faltan' => (int) $prox['desde'] - $proyectos->count(),
+                        'pct' => (float) $prox['pct'],
+                    ];
+                }
+            }
+
             return [
                 'vendedor' => $v,
                 'proyectos' => $detalle,
@@ -1359,6 +1389,8 @@ class InternalProjectController extends Controller
                 'abonado_cop' => $abonadoCop,
                 'total_cop' => $totalCop,
                 'pendiente_cop' => max($sueldoCop + $comisionesCop - $abonadoCop, 0),
+                'pct_escalon' => $pctEscalon,
+                'siguiente_tramo' => $siguienteTramo,
                 'pagos' => $pagos,
                 'pagado_cop' => $pagadoCop,
                 'saldo_liquidacion' => max($totalCop - $pagadoCop, 0),
@@ -1400,22 +1432,37 @@ class InternalProjectController extends Controller
 
                 return $cierre && $cierre->between($cicloInicio, $cicloFin);
             })
-            ->map(function ($p) use ($toCop) {
-                $comision = (float) $p->comision_calculada;
+            ->values();
 
-                return [
-                    'id' => $p->id,
-                    'nombre' => $p->nombre,
-                    'cliente' => $p->cliente_nombre,
-                    'cierre' => ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y'),
-                    'precio' => (float) $p->precio,
-                    'moneda' => $p->moneda,
-                    'comision_tipo' => $p->comision_tipo,
-                    'comision_valor' => (float) $p->comision_valor,
-                    'comision' => $comision,
-                    'comision_cop' => $toCop($comision, $p->moneda),
-                ];
-            })->values();
+        $pctEscalon = $vendedor->porcentajePorCierres($proyectos->count());
+
+        $proyectos = $proyectos->map(function ($p) use ($toCop, $pctEscalon) {
+            $comision = (float) $p->comision_calculada;
+            $pctAplicado = null;
+
+            // El escalón es un incentivo: solo aplica si MEJORA lo pactado en el proyecto.
+            if ($pctEscalon !== null && $p->comision_tipo === 'porcentaje') {
+                $comisionEscalon = round((float) $p->precio * ($pctEscalon / 100), 2);
+                if ($comisionEscalon > $comision) {
+                    $comision = $comisionEscalon;
+                    $pctAplicado = $pctEscalon;
+                }
+            }
+
+            return [
+                'id' => $p->id,
+                'nombre' => $p->nombre,
+                'cliente' => $p->cliente_nombre,
+                'cierre' => ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y'),
+                'precio' => (float) $p->precio,
+                'moneda' => $p->moneda,
+                'comision_tipo' => $p->comision_tipo,
+                'comision_valor' => (float) $p->comision_valor,
+                'comision' => $comision,
+                'pct_aplicado' => $pctAplicado,
+                'comision_cop' => $toCop($comision, $p->moneda),
+            ];
+        });
 
         $sueldoCop = $toCop((float) ($vendedor->sueldo_basico ?? 0), $vendedor->sueldo_moneda ?? 'COP');
         $comisionesCop = $proyectos->sum('comision_cop');
@@ -1428,6 +1475,7 @@ class InternalProjectController extends Controller
             'mesCorte' => $mesCorte,
             'sueldoCop' => $sueldoCop,
             'comisionesCop' => $comisionesCop,
+            'pctEscalon' => $pctEscalon,
             'totalCop' => $sueldoCop + $comisionesCop,
         ]);
     }
@@ -1443,6 +1491,31 @@ class InternalProjectController extends Controller
         $vendedor->update($validated);
 
         return back()->with('success', 'Sueldo de '.$vendedor->nombre.' actualizado.');
+    }
+
+    /** Configura la comisión escalonada (tramos por cantidad de cierres) de un vendedor. */
+    public function actualizarEscalonesVendedor(Request $request, Vendedor $vendedor)
+    {
+        $validated = $request->validate([
+            'escalonada_activa' => 'nullable|boolean',
+            'tramos' => 'nullable|array|max:5',
+            'tramos.*.desde' => 'required_with:tramos|integer|min:1|max:99',
+            'tramos.*.pct' => 'required_with:tramos|numeric|min:0|max:100',
+        ]);
+
+        $tramos = collect($validated['tramos'] ?? [])
+            ->filter(fn ($t) => isset($t['desde'], $t['pct']))
+            ->map(fn ($t) => ['desde' => (int) $t['desde'], 'pct' => (float) $t['pct']])
+            ->sortBy('desde')
+            ->values()
+            ->all();
+
+        $vendedor->update([
+            'escalonada_activa' => $request->boolean('escalonada_activa'),
+            'escalones' => $tramos ?: Vendedor::ESCALONES_DEFAULT,
+        ]);
+
+        return back()->with('success', 'Comisión escalonada actualizada para '.$vendedor->nombre.'.');
     }
 
     /** Registra el pago de la liquidación de un mes al vendedor, con comprobante adjunto opcional. */

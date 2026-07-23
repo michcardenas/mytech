@@ -78,6 +78,20 @@
     .lq-res-item.abonado .lq-res-val { color:#16A34A; }
     .lq-res-item.pendiente .lq-res-val { color:#C2410C; }
 
+    /* Comisión escalonada */
+    .lq-escalon-badge { display:inline-flex; align-items:center; gap:.3rem; padding:.22rem .65rem; border-radius:999px; background:linear-gradient(135deg,#7C3AED,#5B21B6); color:#fff; font-size:.72rem; font-weight:800; }
+    .lq-escalon-panel { border-top:1px solid #F1F5F9; background:#FAF5FF; padding:.85rem 1.25rem; }
+    .lq-escalon-title { font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; color:#6D28D9; font-weight:800; margin-bottom:.5rem; display:flex; align-items:center; gap:.4rem; }
+    .lq-escalon-form { display:flex; gap:.75rem; align-items:flex-end; flex-wrap:wrap; }
+    .lq-tramo { display:flex; align-items:center; gap:.25rem; background:#fff; border:1px solid #DDD6FE; border-radius:8px; padding:.35rem .5rem; }
+    .lq-tramo input { width:52px; padding:.25rem .35rem; border:1px solid #E2E8F0; border-radius:6px; font-size:.8rem; text-align:center; font-weight:700; }
+    .lq-tramo span { font-size:.75rem; color:#6D28D9; font-weight:700; }
+    .lq-escalon-form .toggle { display:flex; align-items:center; gap:.4rem; font-size:.8rem; font-weight:700; color:#4C1D95; cursor:pointer; }
+    .lq-escalon-form button { padding:.45rem .9rem; border:none; background:#7C3AED; color:#fff; border-radius:8px; font-size:.78rem; font-weight:700; cursor:pointer; }
+    .lq-escalon-form button:hover { background:#5B21B6; }
+    .lq-zanahoria { margin-top:.5rem; font-size:.8rem; color:#6D28D9; background:#EDE9FE; border-radius:8px; padding:.45rem .8rem; display:inline-flex; align-items:center; gap:.4rem; font-weight:600; }
+    .lq-pct-mejorado { font-size:.68rem; color:#6D28D9; font-weight:700; display:block; margin-top:.1rem; }
+
     /* Estado de pago de la liquidación */
     .lq-estado-badge { display:inline-flex; align-items:center; gap:.35rem; padding:.25rem .7rem; border-radius:999px; font-size:.72rem; font-weight:800; letter-spacing:.03em; }
     .lq-estado-badge.pagado { background:#DCFCE7; color:#166534; }
@@ -151,6 +165,9 @@
                     <div>
                         <h3 class="lq-nombre">
                             {{ $v->nombre }}
+                            @if($liq['pct_escalon'] !== null)
+                                <span class="lq-escalon-badge" title="Comisión escalonada activa"><i class="fas fa-layer-group"></i> {{ rtrim(rtrim(number_format($liq['pct_escalon'], 2, ',', '.'), '0'), ',') }}%</span>
+                            @endif
                             @if($liq['estado_pago'] === 'pagado')
                                 <span class="lq-estado-badge pagado"><i class="fas fa-check-circle"></i> PAGADO</span>
                             @elseif($liq['estado_pago'] === 'parcial')
@@ -219,7 +236,14 @@
                                     @endif
                                 </td>
                                 <td class="right">{{ $simb }}{{ number_format($p['precio'], 0, ',', '.') }} <small style="color:#94A3B8;">{{ $p['moneda'] }}</small></td>
-                                <td class="right" style="font-weight:700;">{{ $simb }}{{ number_format($p['comision'], 0, ',', '.') }}</td>
+                                <td class="right" style="font-weight:700;">
+                                    {{ $simb }}{{ number_format($p['comision'], 0, ',', '.') }}
+                                    @if(($p['pct_aplicado'] ?? null) !== null && $p['comision'] > ($p['comision_base'] ?? 0))
+                                        <span class="lq-pct-mejorado">
+                                            <i class="fas fa-arrow-up"></i> era {{ $simb }}{{ number_format($p['comision_base'], 0, ',', '.') }}
+                                        </span>
+                                    @endif
+                                </td>
                                 <td class="right" style="font-weight:700; color:#6D28D9;">{{ $fmtCop($p['comision_cop']) }}</td>
                             </tr>
                         @endforeach
@@ -244,6 +268,40 @@
                     <div class="lq-res-lbl">Total a pagar (20–25 {{ ucfirst($mesCorte->translatedFormat('M')) }})</div>
                     <div class="lq-res-val">{{ $fmtCop($liq['total_cop']) }}</div>
                 </div>
+            </div>
+
+            {{-- Comisión escalonada --}}
+            @php $tramosV = $v->escalones ?: \App\Models\Vendedor::ESCALONES_DEFAULT; @endphp
+            <div class="lq-escalon-panel">
+                <div class="lq-escalon-title">
+                    <i class="fas fa-layer-group"></i> Comisión escalonada por cierres del ciclo
+                    @if($liq['pct_escalon'] !== null)
+                        · aplicando <strong>{{ rtrim(rtrim(number_format($liq['pct_escalon'], 2, ',', '.'), '0'), ',') }}%</strong> a los {{ $liq['proyectos']->count() }} cierres
+                    @endif
+                </div>
+                <form method="POST" action="{{ route('admin.internal-projects.vendedores.escalones', $v) }}" class="lq-escalon-form">
+                    @csrf @method('PUT')
+                    <label class="toggle">
+                        <input type="checkbox" name="escalonada_activa" value="1" {{ $v->escalonada_activa ? 'checked' : '' }} style="accent-color:#7C3AED; width:16px; height:16px;">
+                        Activar
+                    </label>
+                    @foreach($tramosV as $i => $t)
+                        <div class="lq-tramo">
+                            <span>Desde</span>
+                            <input type="number" min="1" max="99" name="tramos[{{ $i }}][desde]" value="{{ $t['desde'] }}">
+                            <span>cierres →</span>
+                            <input type="number" step="0.5" min="0" max="100" name="tramos[{{ $i }}][pct]" value="{{ $t['pct'] }}">
+                            <span>%</span>
+                        </div>
+                    @endforeach
+                    <button type="submit"><i class="fas fa-save"></i> Guardar escalones</button>
+                </form>
+                @if($liq['siguiente_tramo'])
+                    <div class="lq-zanahoria">
+                        <i class="fas fa-bullseye"></i>
+                        Con {{ $liq['siguiente_tramo']['faltan'] }} cierre{{ $liq['siguiente_tramo']['faltan'] === 1 ? '' : 's' }} más sube a {{ rtrim(rtrim(number_format($liq['siguiente_tramo']['pct'], 2, ',', '.'), '0'), ',') }}% sobre TODO el ciclo
+                    </div>
+                @endif
             </div>
 
             {{-- Pagos de esta liquidación --}}

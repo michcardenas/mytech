@@ -314,6 +314,12 @@
                 <a href="{{ route('admin.internal-projects.stats') }}" class="mtadmin-link {{ request()->routeIs('admin.internal-projects.stats') ? 'is-active' : '' }}">
                     <i class="fas fa-chart-line"></i> Estadísticas
                 </a>
+                <a href="{{ route('admin.internal-projects.liquidacion') }}" class="mtadmin-link {{ request()->routeIs('admin.internal-projects.liquidacion*') ? 'is-active' : '' }}">
+                    <i class="fas fa-file-invoice-dollar"></i> Liquidación comerciales
+                </a>
+                <a href="{{ route('admin.banners.index') }}" class="mtadmin-link {{ request()->routeIs('admin.banners.*') ? 'is-active' : '' }}">
+                    <i class="fas fa-bullhorn"></i> Banners comerciales
+                </a>
 
                 <div class="mtadmin-group-label">Comercial</div>
                 <a href="{{ route('pipeline.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.index') || request()->routeIs('pipeline.leads.*') ? 'is-active' : '' }}">

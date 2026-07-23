@@ -4,6 +4,26 @@
 <style>
     .mr-wrap { padding:1.5rem 1.75rem; max-width:1000px; }
     .mr-title { font-size:1.4rem; font-weight:800; color:#0F172A; margin:0 0 .15rem; }
+
+    /* Banners motivacionales */
+    .mr-banner {
+        border-radius:16px; padding:1.35rem 1.6rem; margin-bottom:1rem;
+        color:#fff; display:flex; align-items:center; gap:1.35rem; flex-wrap:wrap;
+        box-shadow:0 6px 20px rgba(15,23,42,.12);
+    }
+    .mr-banner img { height:84px; width:auto; border-radius:12px; object-fit:cover; flex-shrink:0; }
+    .mr-banner-txt { flex:1; min-width:220px; }
+    .mr-banner-txt h2 { font-size:1.3rem; font-weight:800; margin:0 0 .3rem; letter-spacing:-.02em; line-height:1.2; }
+    .mr-banner-txt p { font-size:.92rem; opacity:.94; margin:0; line-height:1.55; }
+    .mr-banner-cta {
+        display:inline-flex; align-items:center; gap:.45rem; margin-top:.8rem;
+        padding:.55rem 1.15rem; background:rgba(255,255,255,.2);
+        border:1px solid rgba(255,255,255,.4); border-radius:10px;
+        color:#fff; text-decoration:none; font-size:.87rem; font-weight:700;
+        transition:all .15s;
+    }
+    .mr-banner-cta:hover { background:rgba(255,255,255,.32); color:#fff; transform:translateY(-1px); }
+    @media (max-width:640px) { .mr-banner { padding:1.1rem 1.2rem; } .mr-banner img { height:60px; } }
     .mr-sub { color:#64748B; font-size:.9rem; margin:0 0 1.4rem; }
     .mr-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:.9rem; margin-bottom:1.4rem; }
     .mr-stat { border-radius:14px; padding:1.15rem 1.25rem; color:#fff; }
@@ -47,6 +67,23 @@
 </style>
 
 <div class="mr-wrap">
+    @if(isset($banners) && $banners->isNotEmpty())
+        @foreach($banners as $banner)
+            <div class="mr-banner" style="background: {{ $banner->gradiente }};">
+                @if($banner->imagen)
+                    <img src="{{ asset('storage/'.$banner->imagen) }}" alt="">
+                @endif
+                <div class="mr-banner-txt">
+                    <h2>{{ $banner->titulo }}</h2>
+                    @if($banner->mensaje)<p>{{ $banner->mensaje }}</p>@endif
+                    @if($banner->cta_texto && $banner->cta_url)
+                        <a href="{{ $banner->cta_url }}" class="mr-banner-cta">{{ $banner->cta_texto }} <i class="fas fa-arrow-right"></i></a>
+                    @endif
+                </div>
+            </div>
+        @endforeach
+    @endif
+
     <h1 class="mr-title">Mis resultados</h1>
     <p class="mr-sub">Cierres y comisión generada por mes.</p>
 
