@@ -121,7 +121,7 @@
     <div class="lq-hero">
         <div>
             <h1><span class="icon"><i class="fas fa-file-invoice-dollar"></i></span> Liquidación de comerciales</h1>
-            <p>Sueldo básico + comisiones a mes vencido. Lo trabajado en {{ ucfirst($mesTrabajado->translatedFormat('F Y')) }} se paga en {{ ucfirst($mesPago->translatedFormat('F Y')) }}.</p>
+            <p>Ciclo 20 a 20: trabajado del {{ $cicloInicio->format('d/m/Y') }} al {{ $cicloFin->format('d/m/Y') }} · se paga del 20 al 25 de {{ ucfirst($mesCorte->translatedFormat('F Y')) }}.</p>
         </div>
         <div style="display:flex; gap:.5rem;">
             <button type="button" class="lq-btn" onclick="window.print()"><i class="fas fa-print"></i> Imprimir</button>
@@ -134,12 +134,12 @@
     @endif
 
     <div class="lq-mes">
-        <span class="lbl"><i class="fas fa-calendar-alt" style="color:#2563EB;"></i> Mes trabajado:</span>
+        <span class="lbl"><i class="fas fa-calendar-alt" style="color:#2563EB;"></i> Mes de corte (día 20):</span>
         <form method="GET">
-            <input type="month" name="mes" value="{{ $mesTrabajado->format('Y-m') }}">
+            <input type="month" name="mes" value="{{ $mesCorte->format('Y-m') }}">
             <button type="submit">Ver liquidación</button>
         </form>
-        <span class="pago-info"><i class="fas fa-hand-holding-usd"></i> Se paga en {{ ucfirst($mesPago->translatedFormat('F Y')) }}</span>
+        <span class="pago-info"><i class="fas fa-hand-holding-usd"></i> Ciclo {{ $cicloInicio->format('d/m') }} → {{ $cicloFin->format('d/m') }} · pago 20–25 {{ ucfirst($mesCorte->translatedFormat('F')) }}</span>
     </div>
 
     @forelse($liquidaciones as $liq)
@@ -160,7 +160,7 @@
                             @endif
                         </h3>
                         <p class="lq-sub">
-                            {{ $liq['proyectos']->count() }} {{ $liq['proyectos']->count() === 1 ? 'proyecto cerrado' : 'proyectos cerrados' }} en {{ ucfirst($mesTrabajado->translatedFormat('F')) }}
+                            {{ $liq['proyectos']->count() }} {{ $liq['proyectos']->count() === 1 ? 'proyecto cerrado' : 'proyectos cerrados' }} en el ciclo {{ $cicloInicio->format('d/m') }}–{{ $cicloFin->format('d/m') }}
                             @if($v->email) · {{ $v->email }} @endif
                         </p>
                     </div>
@@ -177,7 +177,7 @@
                         </select>
                         <button type="submit"><i class="fas fa-save"></i></button>
                     </form>
-                    <a href="{{ route('admin.internal-projects.liquidacion.documento', ['vendedor' => $v, 'mes' => $mesTrabajado->format('Y-m')]) }}"
+                    <a href="{{ route('admin.internal-projects.liquidacion.documento', ['vendedor' => $v, 'mes' => $mesCorte->format('Y-m')]) }}"
                        target="_blank"
                        style="display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .9rem; border-radius:8px; background:#2563EB; color:#fff; text-decoration:none; font-size:.78rem; font-weight:700;"
                        title="Documento de liquidación con membrete para imprimir/PDF">
@@ -187,7 +187,7 @@
             </div>
 
             @if($liq['proyectos']->isEmpty())
-                <div class="lq-empty-row">Sin proyectos cerrados con comisión en {{ ucfirst($mesTrabajado->translatedFormat('F Y')) }}. Solo aplica sueldo básico.</div>
+                <div class="lq-empty-row">Sin proyectos cerrados con comisión en el ciclo {{ $cicloInicio->format('d/m/Y') }} – {{ $cicloFin->format('d/m/Y') }}. Solo aplica sueldo básico.</div>
             @else
                 <table class="lq-table">
                     <thead>
@@ -233,7 +233,7 @@
                     <div class="lq-res-val">{{ $fmtCop($liq['sueldo_cop']) }}</div>
                 </div>
                 <div class="lq-res-item comis">
-                    <div class="lq-res-lbl">Comisiones {{ ucfirst($mesTrabajado->translatedFormat('F')) }}</div>
+                    <div class="lq-res-lbl">Comisiones del ciclo</div>
                     <div class="lq-res-val">{{ $fmtCop($liq['comisiones_cop']) }}</div>
                 </div>
                 <div class="lq-res-item abonado">
@@ -241,7 +241,7 @@
                     <div class="lq-res-val">{{ $fmtCop($liq['abonado_cop']) }}</div>
                 </div>
                 <div class="lq-res-item total">
-                    <div class="lq-res-lbl">Total a pagar en {{ ucfirst($mesPago->translatedFormat('F')) }}</div>
+                    <div class="lq-res-lbl">Total a pagar (20–25 {{ ucfirst($mesCorte->translatedFormat('M')) }})</div>
                     <div class="lq-res-val">{{ $fmtCop($liq['total_cop']) }}</div>
                 </div>
             </div>
@@ -284,7 +284,7 @@
                 @if($liq['estado_pago'] !== 'pagado' && $liq['total_cop'] > 0)
                     <form method="POST" action="{{ route('admin.internal-projects.liquidacion.pagos.store', $liq['vendedor']) }}" enctype="multipart/form-data" class="lq-pago-form">
                         @csrf
-                        <input type="hidden" name="periodo" value="{{ $mesTrabajado->format('Y-m') }}">
+                        <input type="hidden" name="periodo" value="{{ $cicloInicio->format('Y-m-d') }}">
                         <div class="fld">
                             <label>Fecha de pago</label>
                             <input type="date" name="fecha_pago" value="{{ now()->format('Y-m-d') }}" required>

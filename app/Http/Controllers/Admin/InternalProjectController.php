@@ -1235,10 +1235,33 @@ class InternalProjectController extends Controller
     }
 
     /**
-     * Liquidación mensual de comerciales: sueldo básico + comisiones a mes vencido.
-     * ?mes=YYYY-MM es el MES TRABAJADO (por defecto, el mes pasado — que es el que
-     * se paga este mes). Comisión atribuida por fecha de cierre del proyecto
-     * (fecha_inicio, fallback created_at), igual que el panel "Mis resultados".
+     * Ciclo de liquidación "20 a 20": del día 20 del mes anterior al día 19 (inclusive)
+     * del mes de corte. El pago se efectúa entre el 20 y el 25 del mes de corte.
+     * ?mes=YYYY-MM es el MES DE CORTE. Default: si hoy es ≥20, el corte de este mes
+     * (ciclo recién cerrado); si no, el del mes pasado.
+     *
+     * @return array{0: Carbon, 1: Carbon, 2: Carbon} [cicloInicio, cicloFin, mesCorte]
+     */
+    private function cicloLiquidacion(Request $request): array
+    {
+        try {
+            $mesCorte = $request->filled('mes')
+                ? Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
+                : (now()->day >= 20 ? now()->startOfMonth() : now()->subMonth()->startOfMonth());
+        } catch (\Exception) {
+            $mesCorte = now()->day >= 20 ? now()->startOfMonth() : now()->subMonth()->startOfMonth();
+        }
+
+        $cicloInicio = $mesCorte->copy()->subMonth()->day(20)->startOfDay();
+        $cicloFin = $mesCorte->copy()->day(19)->endOfDay();
+
+        return [$cicloInicio, $cicloFin, $mesCorte];
+    }
+
+    /**
+     * Liquidación de comerciales: sueldo básico + comisiones del ciclo 20-a-20.
+     * Comisión atribuida por fecha de cierre del proyecto (fecha_inicio,
+     * fallback created_at), igual que el panel "Mis resultados".
      */
     public function liquidacionComerciales(Request $request)
     {
@@ -1252,28 +1275,20 @@ class InternalProjectController extends Controller
             };
         };
 
-        try {
-            $mesTrabajado = $request->filled('mes')
-                ? Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
-                : now()->subMonth()->startOfMonth();
-        } catch (\Exception) {
-            $mesTrabajado = now()->subMonth()->startOfMonth();
-        }
-        $finMes = $mesTrabajado->copy()->endOfMonth();
-        $mesPago = $mesTrabajado->copy()->addMonth();
+        [$cicloInicio, $cicloFin, $mesCorte] = $this->cicloLiquidacion($request);
 
         $vendedores = $this->vendedoresParaSelect();
 
         $proyectosMes = InternalProject::whereNotNull('vendedor_id')
             ->with('gestionPayments')
             ->get()
-            ->filter(function ($p) use ($mesTrabajado, $finMes) {
+            ->filter(function ($p) use ($cicloInicio, $cicloFin) {
                 $cierre = $p->fecha_inicio ?? $p->created_at;
 
-                return $cierre && $cierre->between($mesTrabajado, $finMes);
+                return $cierre && $cierre->between($cicloInicio, $cicloFin);
             });
 
-        $pagosLiquidacion = \App\Models\LiquidacionPago::whereDate('periodo', $mesTrabajado->toDateString())
+        $pagosLiquidacion = \App\Models\LiquidacionPago::whereDate('periodo', $cicloInicio->toDateString())
             ->orderBy('fecha_pago')
             ->get()
             ->groupBy('vendedor_id');
@@ -1324,15 +1339,16 @@ class InternalProjectController extends Controller
 
         return view('admin.internal-projects.liquidacion', [
             'liquidaciones' => $liquidaciones,
-            'mesTrabajado' => $mesTrabajado,
-            'mesPago' => $mesPago,
+            'cicloInicio' => $cicloInicio,
+            'cicloFin' => $cicloFin,
+            'mesCorte' => $mesCorte,
             'usdCop' => $usdCop,
         ]);
     }
 
     /**
      * Documento imprimible de liquidación individual del vendedor:
-     * honorarios fijos + detalle de comisiones del mes trabajado + total.
+     * honorarios fijos + detalle de comisiones del ciclo 20-a-20 + total.
      */
     public function liquidacionVendedorDocumento(Request $request, Vendedor $vendedor)
     {
@@ -1346,22 +1362,14 @@ class InternalProjectController extends Controller
             };
         };
 
-        try {
-            $mesTrabajado = $request->filled('mes')
-                ? Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
-                : now()->subMonth()->startOfMonth();
-        } catch (\Exception) {
-            $mesTrabajado = now()->subMonth()->startOfMonth();
-        }
-        $finMes = $mesTrabajado->copy()->endOfMonth();
-        $mesPago = $mesTrabajado->copy()->addMonth();
+        [$cicloInicio, $cicloFin, $mesCorte] = $this->cicloLiquidacion($request);
 
         $proyectos = InternalProject::where('vendedor_id', $vendedor->id)
             ->get()
-            ->filter(function ($p) use ($mesTrabajado, $finMes) {
+            ->filter(function ($p) use ($cicloInicio, $cicloFin) {
                 $cierre = $p->fecha_inicio ?? $p->created_at;
 
-                return $cierre && $cierre->between($mesTrabajado, $finMes);
+                return $cierre && $cierre->between($cicloInicio, $cicloFin);
             })
             ->map(function ($p) use ($toCop) {
                 $comision = (float) $p->comision_calculada;
@@ -1386,8 +1394,9 @@ class InternalProjectController extends Controller
         return view('admin.internal-projects.liquidacion-documento', [
             'vendedor' => $vendedor,
             'proyectos' => $proyectos,
-            'mesTrabajado' => $mesTrabajado,
-            'mesPago' => $mesPago,
+            'cicloInicio' => $cicloInicio,
+            'cicloFin' => $cicloFin,
+            'mesCorte' => $mesCorte,
             'sueldoCop' => $sueldoCop,
             'comisionesCop' => $comisionesCop,
             'totalCop' => $sueldoCop + $comisionesCop,
@@ -1411,7 +1420,7 @@ class InternalProjectController extends Controller
     public function storeLiquidacionPago(Request $request, Vendedor $vendedor)
     {
         $validated = $request->validate([
-            'periodo' => 'required|date_format:Y-m',
+            'periodo' => 'required|date',
             'fecha_pago' => 'required|date',
             'monto' => 'required|numeric|min:0.01',
             'metodo' => 'nullable|string|max:100',
@@ -1427,7 +1436,7 @@ class InternalProjectController extends Controller
 
         \App\Models\LiquidacionPago::create([
             'vendedor_id' => $vendedor->id,
-            'periodo' => Carbon::createFromFormat('Y-m', $validated['periodo'])->startOfMonth(),
+            'periodo' => Carbon::parse($validated['periodo'])->startOfDay(),
             'fecha_pago' => $validated['fecha_pago'],
             'monto' => $validated['monto'],
             'metodo' => $validated['metodo'] ?? null,

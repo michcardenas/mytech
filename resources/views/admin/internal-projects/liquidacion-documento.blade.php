@@ -33,7 +33,7 @@
         return strtoupper(implode(' ', $partes));
     };
 
-    $numeroDoc = 'LIQ-'.$mesTrabajado->format('Ym').'-'.str_pad((string) $vendedor->id, 3, '0', STR_PAD_LEFT);
+    $numeroDoc = 'LIQ-'.$mesCorte->format('Ym').'-'.str_pad((string) $vendedor->id, 3, '0', STR_PAD_LEFT);
 
     $firmaPath = resource_path('images/firma-michael.png');
     $firmaB64 = is_file($firmaPath) ? 'data:image/png;base64,'.base64_encode(file_get_contents($firmaPath)) : null;
@@ -167,7 +167,7 @@
 <body>
 
 <div class="actions">
-    <a href="{{ route('admin.internal-projects.liquidacion', ['mes' => $mesTrabajado->format('Y-m')]) }}" class="back">← Volver a liquidación</a>
+    <a href="{{ route('admin.internal-projects.liquidacion', ['mes' => $mesCorte->format('Y-m')]) }}" class="back">← Volver a liquidación</a>
     <button type="button" class="print" onclick="window.print()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
         Imprimir / Guardar PDF
@@ -207,12 +207,12 @@
 
     <div class="meta-row">
         <div class="meta-item">
-            <div class="lbl">Periodo trabajado</div>
-            <div class="val">{{ ucfirst($mesTrabajado->translatedFormat('F Y')) }}</div>
+            <div class="lbl">Ciclo liquidado</div>
+            <div class="val">{{ $cicloInicio->format('d/m/Y') }} — {{ $cicloFin->format('d/m/Y') }}</div>
         </div>
         <div class="meta-item">
             <div class="lbl">Mes de pago</div>
-            <div class="val">{{ ucfirst($mesPago->translatedFormat('F Y')) }} (20–25)</div>
+            <div class="val">{{ ucfirst($mesCorte->translatedFormat('F Y')) }} (20–25)</div>
         </div>
         <div class="meta-item">
             <div class="lbl">Proyectos con comisión</div>
@@ -226,12 +226,12 @@
 
     <div class="doc-title-wrap">
         <h1>LIQUIDACIÓN DE HONORARIOS Y COMISIONES</h1>
-        <div class="subtitle">{{ $vendedor->nombre }} · {{ ucfirst($mesTrabajado->translatedFormat('F Y')) }}</div>
+        <div class="subtitle">{{ $vendedor->nombre }} · Ciclo {{ $cicloInicio->format('d/m') }} — {{ $cicloFin->format('d/m/Y') }}</div>
     </div>
 
     <div class="doc-num-row"><strong>DOCUMENTO NO.</strong> {{ $numeroDoc }}</div>
 
-    <div class="sec-head">DETALLE DE COMISIONES — PROYECTOS CERRADOS EN {{ strtoupper($mesTrabajado->translatedFormat('F Y')) }}</div>
+    <div class="sec-head">DETALLE DE COMISIONES — PROYECTOS CERRADOS DEL {{ $cicloInicio->format('d/m/Y') }} AL {{ $cicloFin->format('d/m/Y') }}</div>
     <table class="det">
         <thead>
             <tr>
@@ -274,7 +274,7 @@
             <span class="v">{{ $fmtCop($sueldoCop) }} COP</span>
         </div>
         <div class="row">
-            <span class="k">Total comisiones {{ ucfirst($mesTrabajado->translatedFormat('F Y')) }}</span>
+            <span class="k">Total comisiones del ciclo</span>
             <span class="v">{{ $fmtCop($comisionesCop) }} COP</span>
         </div>
         <div class="row total">
@@ -288,7 +288,7 @@
     </div>
 
     <div class="nota-box">
-        <strong>Condiciones de pago:</strong> conforme al contrato de prestación de servicios, el pago se efectúa entre el día 20 y el día 25 de {{ ucfirst($mesPago->translatedFormat('F Y')) }}, previa presentación de la cuenta de cobro y la planilla de seguridad social (PILA) como trabajador independiente. Las comisiones corresponden a proyectos efectivamente cerrados durante {{ ucfirst($mesTrabajado->translatedFormat('F Y')) }} como resultado de la gestión comercial del contratista. Los pagos están sujetos a las retenciones de ley sobre honorarios.
+        <strong>Condiciones de pago:</strong> conforme al contrato de prestación de servicios, el pago se efectúa entre el día 20 y el día 25 de {{ ucfirst($mesCorte->translatedFormat('F Y')) }}, previa presentación de la cuenta de cobro y la planilla de seguridad social (PILA) como trabajador independiente. Las comisiones corresponden a proyectos efectivamente cerrados en el ciclo del {{ $cicloInicio->format('d/m/Y') }} al {{ $cicloFin->format('d/m/Y') }} como resultado de la gestión comercial del contratista. Los pagos están sujetos a las retenciones de ley sobre honorarios.
     </div>
 
     <div class="firmas">
