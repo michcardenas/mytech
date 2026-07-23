@@ -185,6 +185,7 @@
         </div>
         <div class="pd-actions">
             <a href="{{ route('admin.internal-projects.todos') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-list"></i> Ver todos con filtros</a>
+            <a href="{{ route('admin.internal-projects.liquidacion') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-file-invoice-dollar"></i> Liquidación comerciales</a>
             <a href="{{ route('admin.internal-projects.stats') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-chart-pie"></i> Estadísticas</a>
             <a href="{{ route('admin.internal-projects.create') }}" class="pd-btn pd-btn-primary"><i class="fas fa-plus-circle"></i> Nuevo proyecto</a>
         </div>

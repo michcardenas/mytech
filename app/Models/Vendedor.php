@@ -13,10 +13,13 @@ class Vendedor extends Model
         'telefono',
         'email',
         'comision_porcentaje_default',
+        'sueldo_basico',
+        'sueldo_moneda',
     ];
 
     protected $casts = [
         'comision_porcentaje_default' => 'decimal:2',
+        'sueldo_basico' => 'decimal:2',
     ];
 
     public function internalProjects()

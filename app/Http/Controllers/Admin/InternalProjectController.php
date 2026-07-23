@@ -1234,6 +1234,222 @@ class InternalProjectController extends Controller
         ]);
     }
 
+    /**
+     * Liquidación mensual de comerciales: sueldo básico + comisiones a mes vencido.
+     * ?mes=YYYY-MM es el MES TRABAJADO (por defecto, el mes pasado — que es el que
+     * se paga este mes). Comisión atribuida por fecha de cierre del proyecto
+     * (fecha_inicio, fallback created_at), igual que el panel "Mis resultados".
+     */
+    public function liquidacionComerciales(Request $request)
+    {
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+        $eurUsd = (float) config('services.eur_usd', env('EUR_USD_RATE', 1.17));
+        $toCop = function (float $monto, string $moneda) use ($usdCop, $eurUsd): float {
+            return match ($moneda) {
+                'USD' => $monto * $usdCop,
+                'EUR' => $monto * $eurUsd * $usdCop,
+                default => $monto,
+            };
+        };
+
+        try {
+            $mesTrabajado = $request->filled('mes')
+                ? Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
+                : now()->subMonth()->startOfMonth();
+        } catch (\Exception) {
+            $mesTrabajado = now()->subMonth()->startOfMonth();
+        }
+        $finMes = $mesTrabajado->copy()->endOfMonth();
+        $mesPago = $mesTrabajado->copy()->addMonth();
+
+        $vendedores = $this->vendedoresParaSelect();
+
+        $proyectosMes = InternalProject::whereNotNull('vendedor_id')
+            ->with('gestionPayments')
+            ->get()
+            ->filter(function ($p) use ($mesTrabajado, $finMes) {
+                $cierre = $p->fecha_inicio ?? $p->created_at;
+
+                return $cierre && $cierre->between($mesTrabajado, $finMes);
+            });
+
+        $pagosLiquidacion = \App\Models\LiquidacionPago::whereDate('periodo', $mesTrabajado->toDateString())
+            ->orderBy('fecha_pago')
+            ->get()
+            ->groupBy('vendedor_id');
+
+        $liquidaciones = $vendedores->map(function ($v) use ($proyectosMes, $toCop, $pagosLiquidacion) {
+            $proyectos = $proyectosMes->where('vendedor_id', $v->id)->values();
+
+            $detalle = $proyectos->map(function ($p) use ($toCop) {
+                $comision = (float) $p->comision_calculada;
+                $abonado = (float) $p->gestionPayments->sum('monto');
+
+                return [
+                    'id' => $p->id,
+                    'nombre' => $p->nombre,
+                    'cliente' => $p->cliente_nombre,
+                    'cierre' => ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y'),
+                    'precio' => (float) $p->precio,
+                    'moneda' => $p->moneda,
+                    'comision_tipo' => $p->comision_tipo,
+                    'comision_valor' => (float) $p->comision_valor,
+                    'comision' => $comision,
+                    'comision_cop' => $toCop($comision, $p->moneda),
+                    'abonado' => $abonado,
+                ];
+            });
+
+            $comisionesCop = $detalle->sum('comision_cop');
+            $abonadoCop = $detalle->sum('abonado');
+            $sueldoCop = $toCop((float) ($v->sueldo_basico ?? 0), $v->sueldo_moneda ?? 'COP');
+            $pagos = $pagosLiquidacion->get($v->id, collect());
+            $pagadoCop = (float) $pagos->sum('monto');
+            $totalCop = $sueldoCop + $comisionesCop;
+
+            return [
+                'vendedor' => $v,
+                'proyectos' => $detalle,
+                'sueldo_cop' => $sueldoCop,
+                'comisiones_cop' => $comisionesCop,
+                'abonado_cop' => $abonadoCop,
+                'total_cop' => $totalCop,
+                'pendiente_cop' => max($sueldoCop + $comisionesCop - $abonadoCop, 0),
+                'pagos' => $pagos,
+                'pagado_cop' => $pagadoCop,
+                'saldo_liquidacion' => max($totalCop - $pagadoCop, 0),
+                'estado_pago' => $totalCop <= 0 ? 'na' : ($pagadoCop + 1 >= $totalCop ? 'pagado' : ($pagadoCop > 0 ? 'parcial' : 'pendiente')),
+            ];
+        })->sortByDesc('total_cop')->values();
+
+        return view('admin.internal-projects.liquidacion', [
+            'liquidaciones' => $liquidaciones,
+            'mesTrabajado' => $mesTrabajado,
+            'mesPago' => $mesPago,
+            'usdCop' => $usdCop,
+        ]);
+    }
+
+    /**
+     * Documento imprimible de liquidación individual del vendedor:
+     * honorarios fijos + detalle de comisiones del mes trabajado + total.
+     */
+    public function liquidacionVendedorDocumento(Request $request, Vendedor $vendedor)
+    {
+        $usdCop = (float) config('services.usd_cop', env('USD_COP_RATE', 4000));
+        $eurUsd = (float) config('services.eur_usd', env('EUR_USD_RATE', 1.17));
+        $toCop = function (float $monto, string $moneda) use ($usdCop, $eurUsd): float {
+            return match ($moneda) {
+                'USD' => $monto * $usdCop,
+                'EUR' => $monto * $eurUsd * $usdCop,
+                default => $monto,
+            };
+        };
+
+        try {
+            $mesTrabajado = $request->filled('mes')
+                ? Carbon::createFromFormat('Y-m', $request->get('mes'))->startOfMonth()
+                : now()->subMonth()->startOfMonth();
+        } catch (\Exception) {
+            $mesTrabajado = now()->subMonth()->startOfMonth();
+        }
+        $finMes = $mesTrabajado->copy()->endOfMonth();
+        $mesPago = $mesTrabajado->copy()->addMonth();
+
+        $proyectos = InternalProject::where('vendedor_id', $vendedor->id)
+            ->get()
+            ->filter(function ($p) use ($mesTrabajado, $finMes) {
+                $cierre = $p->fecha_inicio ?? $p->created_at;
+
+                return $cierre && $cierre->between($mesTrabajado, $finMes);
+            })
+            ->map(function ($p) use ($toCop) {
+                $comision = (float) $p->comision_calculada;
+
+                return [
+                    'id' => $p->id,
+                    'nombre' => $p->nombre,
+                    'cliente' => $p->cliente_nombre,
+                    'cierre' => ($p->fecha_inicio ?? $p->created_at)->format('d/m/Y'),
+                    'precio' => (float) $p->precio,
+                    'moneda' => $p->moneda,
+                    'comision_tipo' => $p->comision_tipo,
+                    'comision_valor' => (float) $p->comision_valor,
+                    'comision' => $comision,
+                    'comision_cop' => $toCop($comision, $p->moneda),
+                ];
+            })->values();
+
+        $sueldoCop = $toCop((float) ($vendedor->sueldo_basico ?? 0), $vendedor->sueldo_moneda ?? 'COP');
+        $comisionesCop = $proyectos->sum('comision_cop');
+
+        return view('admin.internal-projects.liquidacion-documento', [
+            'vendedor' => $vendedor,
+            'proyectos' => $proyectos,
+            'mesTrabajado' => $mesTrabajado,
+            'mesPago' => $mesPago,
+            'sueldoCop' => $sueldoCop,
+            'comisionesCop' => $comisionesCop,
+            'totalCop' => $sueldoCop + $comisionesCop,
+        ]);
+    }
+
+    /** Actualiza el sueldo básico de un vendedor desde la pantalla de liquidación. */
+    public function actualizarSueldoVendedor(Request $request, Vendedor $vendedor)
+    {
+        $validated = $request->validate([
+            'sueldo_basico' => 'nullable|numeric|min:0',
+            'sueldo_moneda' => 'required|in:COP,USD,EUR',
+        ]);
+
+        $vendedor->update($validated);
+
+        return back()->with('success', 'Sueldo de '.$vendedor->nombre.' actualizado.');
+    }
+
+    /** Registra el pago de la liquidación de un mes al vendedor, con comprobante adjunto opcional. */
+    public function storeLiquidacionPago(Request $request, Vendedor $vendedor)
+    {
+        $validated = $request->validate([
+            'periodo' => 'required|date_format:Y-m',
+            'fecha_pago' => 'required|date',
+            'monto' => 'required|numeric|min:0.01',
+            'metodo' => 'nullable|string|max:100',
+            'referencia' => 'nullable|string|max:255',
+            'nota' => 'nullable|string|max:500',
+            'comprobante' => 'nullable|file|mimes:pdf,jpg,jpeg,png,webp|max:8192',
+        ]);
+
+        $rutaComprobante = null;
+        if ($request->hasFile('comprobante')) {
+            $rutaComprobante = $request->file('comprobante')->store('liquidaciones', 'public');
+        }
+
+        \App\Models\LiquidacionPago::create([
+            'vendedor_id' => $vendedor->id,
+            'periodo' => Carbon::createFromFormat('Y-m', $validated['periodo'])->startOfMonth(),
+            'fecha_pago' => $validated['fecha_pago'],
+            'monto' => $validated['monto'],
+            'metodo' => $validated['metodo'] ?? null,
+            'referencia' => $validated['referencia'] ?? null,
+            'nota' => $validated['nota'] ?? null,
+            'comprobante' => $rutaComprobante,
+        ]);
+
+        return back()->with('success', 'Pago de liquidación registrado para '.$vendedor->nombre.'.');
+    }
+
+    /** Elimina un pago de liquidación (y su comprobante en disco). */
+    public function destroyLiquidacionPago(\App\Models\LiquidacionPago $pago)
+    {
+        if ($pago->comprobante) {
+            Storage::disk('public')->delete($pago->comprobante);
+        }
+        $pago->delete();
+
+        return back()->with('success', 'Pago de liquidación eliminado.');
+    }
+
     // --- Developer Payments ---
 
     public function storeDeveloperPayment(Request $request, InternalProject $internal_project)

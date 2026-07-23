@@ -202,6 +202,11 @@ Route::middleware('auth')->group(function () {
     Route::get('internal-projects/stats', [App\Http\Controllers\Admin\InternalProjectController::class, 'stats'])->name('admin.internal-projects.stats');
     Route::get('internal-projects/detalle', [App\Http\Controllers\Admin\InternalProjectController::class, 'detalle'])->name('admin.internal-projects.detalle');
     Route::get('internal-projects/todos', [App\Http\Controllers\Admin\InternalProjectController::class, 'todos'])->name('admin.internal-projects.todos');
+    Route::get('internal-projects/liquidacion-comerciales', [App\Http\Controllers\Admin\InternalProjectController::class, 'liquidacionComerciales'])->name('admin.internal-projects.liquidacion');
+    Route::get('internal-projects/liquidacion-comerciales/{vendedor}/documento', [App\Http\Controllers\Admin\InternalProjectController::class, 'liquidacionVendedorDocumento'])->name('admin.internal-projects.liquidacion.documento');
+    Route::put('internal-projects/vendedores/{vendedor}/sueldo', [App\Http\Controllers\Admin\InternalProjectController::class, 'actualizarSueldoVendedor'])->name('admin.internal-projects.vendedores.sueldo');
+    Route::post('internal-projects/liquidacion-comerciales/{vendedor}/pagos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.store');
+    Route::delete('internal-projects/liquidacion-pagos/{pago}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.destroy');
     Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
         ->names('admin.internal-projects');
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
