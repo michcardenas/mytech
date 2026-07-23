@@ -125,8 +125,10 @@
                             <td>
                                 @if($com <= 0)
                                     <span class="badge bg-light text-muted">Sin comisión</span>
-                                @elseif($pend <= 0)
+                                @elseif(($p->estado_liquidacion ?? null) === 'pagada' || $pend <= 0)
                                     <span class="badge bg-success">Pagada</span>
+                                @elseif(($p->estado_liquidacion ?? null) === 'parcial')
+                                    <span class="badge bg-warning text-dark">Parcial (liquidación)</span>
                                 @elseif($pag > 0)
                                     <span class="badge bg-warning text-dark">Parcial · falta ${{ number_format($pend,0,',','.') }}</span>
                                 @else

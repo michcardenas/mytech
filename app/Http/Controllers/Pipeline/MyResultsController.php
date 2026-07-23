@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Pipeline;
 use App\Http\Controllers\Controller;
 use App\Models\InternalProject;
 use App\Models\Lead;
+use App\Models\LiquidacionPago;
 use App\Models\Vendedor;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -41,6 +42,50 @@ class MyResultsController extends Controller
 
         // Fecha de "cierre" = fecha_inicio del proyecto; fallback a created_at si es null.
         $fechaCierre = fn ($p) => $p->fecha_inicio ?? $p->created_at;
+
+        // === Estado de pago vía liquidación (ciclo 20 a 20) ===
+        // Cuando el admin registra el pago de la liquidación del ciclo, todas las
+        // comisiones de proyectos cerrados dentro de ese ciclo cuentan como pagadas.
+        $eurUsd = (float) config('services.eur_usd', env('EUR_USD_RATE', 1.17));
+        $comisionCop = function ($p) use ($usdCop, $eurUsd): float {
+            $c = (float) $p->comision_calculada;
+
+            return match ($p->moneda) {
+                'USD' => $c * $usdCop,
+                'EUR' => $c * $eurUsd * $usdCop,
+                default => $c,
+            };
+        };
+        $cicloStart = function (\Carbon\Carbon $fecha): string {
+            return ($fecha->day >= 20 ? $fecha->copy()->day(20) : $fecha->copy()->subMonthNoOverflow()->day(20))->toDateString();
+        };
+
+        if (! empty($vendedorIds)) {
+            $pagosLiq = LiquidacionPago::whereIn('vendedor_id', $vendedorIds)->get()
+                ->groupBy(fn ($pg) => $pg->periodo->toDateString());
+
+            $sueldoCop = 0.0;
+            $vend = Vendedor::find($vendedorIds[0]);
+            if ($vend && $vend->sueldo_basico) {
+                $sueldoCop = match ($vend->sueldo_moneda ?? 'COP') {
+                    'USD' => (float) $vend->sueldo_basico * $usdCop,
+                    'EUR' => (float) $vend->sueldo_basico * $eurUsd * $usdCop,
+                    default => (float) $vend->sueldo_basico,
+                };
+            }
+
+            $porCiclo = $todosProyectos->groupBy(fn ($p) => $cicloStart($fechaCierre($p)));
+            foreach ($porCiclo as $inicio => $proyectosCiclo) {
+                $totalCiclo = $sueldoCop + $proyectosCiclo->sum($comisionCop);
+                $pagadoCiclo = (float) ($pagosLiq->get($inicio)?->sum('monto') ?? 0);
+                $estado = $pagadoCiclo + 1 >= $totalCiclo && $pagadoCiclo > 0
+                    ? 'pagada'
+                    : ($pagadoCiclo > 0 ? 'parcial' : null);
+                foreach ($proyectosCiclo as $p) {
+                    $p->estado_liquidacion = $estado;
+                }
+            }
+        }
 
         $mesActual = $todosProyectos->filter(fn ($p) => $fechaCierre($p)->between($inicioMesActual, $finMesActual));
         $mesAnterior = $todosProyectos->filter(fn ($p) => $fechaCierre($p)->between($inicioMesAnterior, $finMesAnterior));
