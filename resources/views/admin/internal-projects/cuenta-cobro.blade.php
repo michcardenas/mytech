@@ -466,7 +466,9 @@
         <h4>💳 MEDIOS DE PAGO DISPONIBLES</h4>
         <p><strong>Beneficiario:</strong> MYTECH SOLUTIONS S.A.S · NIT 901.923.467-5</p>
         <p><strong>PayPal:</strong> <span class="highlight">michcardenas001@gmail.com</span> (para clientes internacionales)</p>
-        <p><strong>Colombia:</strong> Nequi / Bre-B / Transferencia bancaria — solicite los datos por WhatsApp.</p>
+        <p><strong>Davivienda</strong> (cuenta empresarial MYTECH SOLUTIONS S.A.S): <span class="highlight">1089 0082 4930</span></p>
+        <p><strong>Bancolombia</strong> (Michael Cárdenas): <span class="highlight">912 06569 609</span></p>
+        <p><strong>Llave Bre-B:</strong> <span class="highlight">1032455582</span> — transferencia inmediata desde cualquier banco.</p>
         <p><strong>Concepto del pago:</strong> {{ $numeroDoc }} — {{ $project->nombre }}{{ $esRecurrente ? ' — '.ucfirst($periodo->translatedFormat('F Y')) : '' }}</p>
         <p><strong>Monto:</strong> {{ $simbolo($project->moneda) }}{{ $fmt($monto) }} {{ $project->moneda }} @if($equivalente)<em>(o equivalente en {{ $equivalente['moneda'] }} según tasa del día)</em>@endif</p>
         <div class="conf">
