@@ -169,10 +169,25 @@ class InternalProjectController extends Controller
             ->withSum('developerPayments as developer_payments_sum_monto', 'monto')
             ->get();
 
+        // "Por cobrar": todos los proyectos no cancelados (activos + completados + recurrentes vencidos).
+        $hoy = now()->endOfDay();
+        $paraCobrar = $baseProjectsQuery()
+            ->where('estado', '!=', 'cancelado')
+            ->withSum('payments', 'monto')
+            ->get();
+
         $porCobrarCop = 0;
         $proyectosConDeuda = 0;
-        foreach ($activos as $p) {
-            $saldo = (float) $p->precio - (float) ($p->payments_sum_monto ?? 0);
+        foreach ($paraCobrar as $p) {
+            $saldo = 0.0;
+            if ($p->es_recurrente) {
+                if ($p->fecha_facturacion && $p->fecha_facturacion->lte($hoy)) {
+                    $saldo = (float) $p->precio;
+                }
+            } else {
+                $saldo = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
+            }
+
             if ($saldo > 0) {
                 $porCobrarCop += $p->moneda === 'USD' ? $saldo * $usdCop : $saldo;
                 $proyectosConDeuda++;
@@ -546,20 +561,40 @@ class InternalProjectController extends Controller
                 $porPagarDevCop = 0;
                 $porCobrarCop = 0;
                 $proximaEntrega = null;
+                $hoy = now()->endOfDay();
 
+                // "Por pagar al dev" y "próxima entrega": solo proyectos activos.
                 foreach ($activosItems as $p) {
                     $saldoDev = max((float) ($p->desarrollador_pago ?? 0) - (float) ($p->developer_payments_sum_monto ?? 0), 0);
                     if ($saldoDev > 0) {
                         $porPagarDevCop += ($p->desarrollador_moneda ?? 'COP') === 'USD' ? $saldoDev * $usdCop : $saldoDev;
                     }
 
-                    $saldoCliente = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
-                    if ($saldoCliente > 0) {
-                        $porCobrarCop += $p->moneda === 'USD' ? $saldoCliente * $usdCop : $saldoCliente;
-                    }
-
                     if ($p->fecha_entrega && (! $proximaEntrega || $p->fecha_entrega < $proximaEntrega)) {
                         $proximaEntrega = $p->fecha_entrega;
+                    }
+                }
+
+                // "Por cobrar" (saldo pendiente): sobre TODOS los proyectos del dev (menos cancelados).
+                //  - Recurrente: si ya llegó su fecha de facturación, el valor del ciclo entra como pendiente.
+                //  - No recurrente (activo o completado): precio − cobrado. Un completado sin ningún
+                //    cobro suma su precio completo.
+                foreach ($items as $p) {
+                    if ($p->estado === 'cancelado') {
+                        continue;
+                    }
+
+                    $saldoCliente = 0.0;
+                    if ($p->es_recurrente) {
+                        if ($p->fecha_facturacion && $p->fecha_facturacion->lte($hoy)) {
+                            $saldoCliente = (float) $p->precio;
+                        }
+                    } else {
+                        $saldoCliente = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
+                    }
+
+                    if ($saldoCliente > 0) {
+                        $porCobrarCop += $p->moneda === 'USD' ? $saldoCliente * $usdCop : $saldoCliente;
                     }
                 }
 
