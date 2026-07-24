@@ -39,9 +39,8 @@
     .btn-h-back:hover { background: rgba(255,255,255,0.35); color: white; text-decoration: none; }
     .btn-h-edit { background: white; color: var(--primary-blue); }
     .btn-h-edit:hover { background: #f0f7ff; color: var(--primary-dark); text-decoration: none; }
-    .btn-h-cobro { background: #F59E0B; color: white; border: none; cursor: pointer; }
-    .btn-h-cobro:hover { background: #D97706; color: white; text-decoration: none; }
-    .btn-h-cobro.dropdown-toggle::after { margin-left: .4rem; }
+    .btn-h-cobro { background: #2563EB; color: white; border: none; cursor: pointer; }
+    .btn-h-cobro:hover { background: #1D4ED8; color: white; text-decoration: none; }
     .btn-h-delete { background: rgba(220,53,69,0.85); color: white; }
     .btn-h-delete:hover { background: var(--danger); }
 
@@ -167,37 +166,9 @@
             </div>
             <div class="show-header-actions">
                 <a href="{{ route('admin.internal-projects.index') }}" class="btn-h btn-h-back"><i class="fas fa-arrow-left"></i> Volver</a>
-                @if($project->es_recurrente)
-                    <div class="dropdown">
-                        <button class="btn-h btn-h-cobro dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-file-invoice"></i> Cuenta de cobro
-                        </button>
-                        <ul class="dropdown-menu" style="border-radius:12px; box-shadow:0 8px 25px rgba(0,0,0,.12); padding:.4rem; min-width:220px;">
-                            <li><a class="dropdown-item" style="border-radius:8px; padding:.55rem .8rem; font-size:.87rem;" href="{{ route('admin.internal-projects.cuenta-cobro', ['internal_project' => $project, 'mes' => now()->format('Y-m')]) }}" target="_blank">
-                                <i class="fas fa-calendar-check" style="color:#F59E0B; width:18px;"></i> {{ ucfirst(now()->translatedFormat('F Y')) }} <small style="color:#94A3B8;">(mes actual)</small>
-                            </a></li>
-                            <li><a class="dropdown-item" style="border-radius:8px; padding:.55rem .8rem; font-size:.87rem;" href="{{ route('admin.internal-projects.cuenta-cobro', ['internal_project' => $project, 'mes' => now()->subMonth()->format('Y-m')]) }}" target="_blank">
-                                <i class="fas fa-calendar" style="color:#64748B; width:18px;"></i> {{ ucfirst(now()->subMonth()->translatedFormat('F Y')) }} <small style="color:#94A3B8;">(mes anterior)</small>
-                            </a></li>
-                            <li><hr style="margin:.3rem 0; border-color:#F1F5F9;"></li>
-                            <li>
-                                <form onsubmit="event.preventDefault(); const m=this.mes.value; if(m) window.open('{{ route('admin.internal-projects.cuenta-cobro', $project) }}?mes='+m, '_blank');" style="padding:.4rem .6rem; display:flex; gap:.3rem; align-items:center;">
-                                    <input type="month" name="mes" required style="flex:1; padding:.35rem .5rem; border:1px solid #E2E8F0; border-radius:6px; font-size:.82rem;">
-                                    <button type="submit" style="padding:.35rem .7rem; border:none; background:#F59E0B; color:#fff; border-radius:6px; font-size:.78rem; font-weight:700; cursor:pointer;">Ver</button>
-                                </form>
-                            </li>
-                        </ul>
-                    </div>
-                @else
-                    @php
-                        $saldoActual = max((float) $project->precio - (float) $project->payments->sum('monto'), 0);
-                    @endphp
-                    @if($saldoActual > 0)
-                        <a href="{{ route('admin.internal-projects.cuenta-cobro', $project) }}" target="_blank" class="btn-h btn-h-cobro">
-                            <i class="fas fa-file-invoice"></i> Cuenta de cobro
-                        </a>
-                    @endif
-                @endif
+                <button type="button" class="btn-h btn-h-cobro" data-bs-toggle="modal" data-bs-target="#modalCuentaCobro">
+                    <i class="fas fa-file-invoice"></i> Cuenta de cobro
+                </button>
                 <a href="{{ route('admin.internal-projects.edit', $project) }}" class="btn-h btn-h-edit"><i class="fas fa-edit"></i> Editar</a>
                 <form action="{{ route('admin.internal-projects.destroy', $project) }}" method="POST" onsubmit="return confirm('Eliminar este proyecto y todos sus datos?');">
                     @csrf @method('DELETE')
@@ -865,5 +836,113 @@
 
         document.querySelectorAll('.js-money-input').forEach(init);
     })();
+</script>
+
+{{-- ===== Modal Cuenta de Cobro ===== --}}
+@php
+    $saldoActual = max((float) $project->precio - (float) $project->payments->sum('monto'), 0);
+    $simboloCC = $project->moneda === 'USD' ? 'US$' : ($project->moneda === 'EUR' ? '€' : '$');
+    $ccUrl = route('admin.internal-projects.cuenta-cobro', $project);
+@endphp
+<div class="modal fade" id="modalCuentaCobro" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius:16px; border:none;">
+            <div class="modal-header" style="border-bottom:1px solid #F1F5F9; padding:1.1rem 1.35rem;">
+                <h5 class="modal-title" style="font-weight:800; color:#0F172A; font-size:1.05rem;">
+                    <i class="fas fa-file-invoice" style="color:#2563EB;"></i> Generar cuenta de cobro
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body" style="padding:1.35rem;">
+                <p style="font-size:.85rem; color:#64748B; margin-bottom:1rem;">
+                    Proyecto: <strong style="color:#0F172A;">{{ $project->nombre }}</strong><br>
+                    Precio: <strong>{{ $simboloCC }}{{ number_format($project->precio,0,',','.') }} {{ $project->moneda }}</strong>
+                    · Saldo: <strong style="color:#B45309;">{{ $simboloCC }}{{ number_format($saldoActual,0,',','.') }}</strong>
+                </p>
+
+                @if($project->es_recurrente)
+                    <div style="margin-bottom:1rem;">
+                        <label style="font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; color:#94A3B8; font-weight:700; display:block; margin-bottom:.35rem;">Periodo (mes)</label>
+                        <input type="month" id="cc-mes" value="{{ now()->format('Y-m') }}" style="width:100%; padding:.55rem .75rem; border:1px solid #E2E8F0; border-radius:8px; font-size:.9rem;">
+                    </div>
+                @endif
+
+                <label style="font-size:.72rem; text-transform:uppercase; letter-spacing:.03em; color:#94A3B8; font-weight:700; display:block; margin-bottom:.5rem;">¿Qué monto cobrar?</label>
+                <div style="display:flex; flex-direction:column; gap:.55rem;">
+                    <label class="cc-opt" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border:1.5px solid #E2E8F0; border-radius:10px; cursor:pointer; font-size:.88rem;">
+                        <input type="radio" name="cc-tipo" value="saldo" checked style="accent-color:#2563EB;">
+                        <span><strong>Saldo pendiente</strong> — {{ $simboloCC }}{{ number_format($saldoActual,0,',','.') }}</span>
+                    </label>
+                    <label class="cc-opt" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border:1.5px solid #E2E8F0; border-radius:10px; cursor:pointer; font-size:.88rem;">
+                        <input type="radio" name="cc-tipo" value="total" style="accent-color:#2563EB;">
+                        <span><strong>Precio total</strong> — {{ $simboloCC }}{{ number_format($project->precio,0,',','.') }}</span>
+                    </label>
+                    <label class="cc-opt" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border:1.5px solid #E2E8F0; border-radius:10px; cursor:pointer; font-size:.88rem;">
+                        <input type="radio" name="cc-tipo" value="porcentaje" style="accent-color:#2563EB;">
+                        <span style="display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;"><strong>% del proyecto</strong>
+                            <input type="number" id="cc-pct" min="1" max="100" step="1" value="50" style="width:70px; padding:.3rem .5rem; border:1px solid #E2E8F0; border-radius:6px;"> %</span>
+                    </label>
+                    <label class="cc-opt" style="display:flex; align-items:center; gap:.6rem; padding:.6rem .8rem; border:1.5px solid #E2E8F0; border-radius:10px; cursor:pointer; font-size:.88rem;">
+                        <input type="radio" name="cc-tipo" value="valor" style="accent-color:#2563EB;">
+                        <span style="display:flex; align-items:center; gap:.4rem; flex-wrap:wrap;"><strong>Valor exacto</strong> {{ $simboloCC }}
+                            <input type="number" id="cc-valor" min="1" step="1000" placeholder="0" style="width:130px; padding:.3rem .5rem; border:1px solid #E2E8F0; border-radius:6px;"></span>
+                    </label>
+                </div>
+
+                <label style="display:flex; align-items:center; gap:.5rem; margin-top:1.1rem; padding:.7rem .85rem; background:#EFF6FF; border:1px solid #BFDBFE; border-radius:10px; cursor:pointer;">
+                    <input type="checkbox" id="cc-visible" style="width:18px; height:18px; accent-color:#2563EB;">
+                    <span style="font-size:.85rem; color:#1E40AF; font-weight:600;"><i class="fas fa-eye"></i> Publicar visible para el cliente en su portal</span>
+                </label>
+            </div>
+            <div class="modal-footer" style="border-top:1px solid #F1F5F9; padding:.9rem 1.35rem; gap:.5rem;">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn" style="background:#2563EB; color:#fff; font-weight:700;" onclick="ccVer()">
+                    <i class="fas fa-print"></i> Ver / Imprimir
+                </button>
+                <form method="POST" action="{{ route('admin.internal-projects.cuenta-cobro.publicar', $project) }}" id="cc-publish-form" style="margin:0;">
+                    @csrf
+                    <input type="hidden" name="tipo" id="cc-f-tipo">
+                    <input type="hidden" name="valor" id="cc-f-valor">
+                    <input type="hidden" name="mes" id="cc-f-mes">
+                    <input type="hidden" name="visible_cliente" id="cc-f-visible" value="0">
+                    <button type="button" class="btn" style="background:#16A34A; color:#fff; font-weight:700;" onclick="ccPublicar()">
+                        <i class="fas fa-save"></i> Guardar / Publicar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function ccParams() {
+        const tipo = document.querySelector('input[name="cc-tipo"]:checked').value;
+        let valor = '';
+        if (tipo === 'porcentaje') valor = document.getElementById('cc-pct').value || '0';
+        if (tipo === 'valor') valor = document.getElementById('cc-valor').value || '0';
+        const mesEl = document.getElementById('cc-mes');
+        const mes = mesEl ? mesEl.value : '';
+        return { tipo, valor, mes };
+    }
+    function ccVer() {
+        const { tipo, valor, mes } = ccParams();
+        const p = new URLSearchParams({ tipo });
+        if (valor) p.set('valor', valor);
+        if (mes) p.set('mes', mes);
+        window.open('{{ $ccUrl }}?' + p.toString(), '_blank');
+    }
+    function ccPublicar() {
+        const { tipo, valor, mes } = ccParams();
+        document.getElementById('cc-f-tipo').value = tipo;
+        document.getElementById('cc-f-valor').value = valor;
+        document.getElementById('cc-f-mes').value = mes;
+        document.getElementById('cc-f-visible').value = document.getElementById('cc-visible').checked ? '1' : '0';
+        document.getElementById('cc-publish-form').submit();
+    }
+    // Resalta la opción seleccionada
+    document.querySelectorAll('input[name="cc-tipo"]').forEach(r => r.addEventListener('change', () => {
+        document.querySelectorAll('.cc-opt').forEach(o => o.style.borderColor = '#E2E8F0');
+        r.closest('.cc-opt').style.borderColor = '#2563EB';
+    }));
 </script>
 @endsection

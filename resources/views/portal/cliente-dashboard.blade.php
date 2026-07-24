@@ -185,6 +185,40 @@
         @endif
     </div>
 
+    @if(isset($cuentasCobro) && $cuentasCobro->isNotEmpty())
+        <div class="panel">
+            <div class="panel-head">
+                <h3><i class="fas fa-file-invoice" style="color:#B45309;"></i> Cuentas de cobro por pagar</h3>
+                <span class="muted">{{ $cuentasCobro->count() }} pendiente{{ $cuentasCobro->count() === 1 ? '' : 's' }}</span>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Documento</th>
+                        <th>Proyecto</th>
+                        <th style="text-align:right;">Valor</th>
+                        <th style="text-align:right;">Cuenta de cobro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($cuentasCobro as $cc)
+                        @php $sc = $cc->moneda === 'USD' ? 'US$' : ($cc->moneda === 'EUR' ? '€' : '$'); @endphp
+                        <tr>
+                            <td class="row-name">{{ $cc->numero_doc }}</td>
+                            <td>{{ $cc->project->nombre ?? '—' }}</td>
+                            <td style="text-align:right; font-weight:800; color:#B45309;">{{ $sc }}{{ number_format((float) $cc->monto, 0, ',', '.') }} <span style="color:#94A3B8; font-size:.72rem; font-weight:600;">{{ $cc->moneda }}</span></td>
+                            <td style="text-align:right;">
+                                <a href="{{ route('portal.cliente.cuenta-cobro', $cc) }}" target="_blank" class="btn-recibo" style="background:#B45309;">
+                                    <i class="fas fa-file-download"></i> Ver / descargar
+                                </a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    @endif
+
     <div class="panel">
         <div class="panel-head">
             <h3><i class="fas fa-file-invoice-dollar" style="color:#2563EB;"></i> Mis recibos de pago</h3>

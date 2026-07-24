@@ -103,11 +103,19 @@ class PortalClienteController extends Controller
             return $pay;
         }))->sortByDesc('fecha')->values();
 
+        // Cuentas de cobro que el admin marcó visibles para el cliente.
+        $cuentasCobro = \App\Models\CuentaCobro::whereIn('internal_project_id', $proyectos->pluck('id'))
+            ->where('visible_cliente', true)
+            ->with('project:id,nombre,moneda')
+            ->orderByDesc('created_at')
+            ->get();
+
         return view('portal.cliente-dashboard', [
             'client' => $client,
             'nombreVisible' => $nombreVisible,
             'proyectos' => $proyectos,
             'pagos' => $pagos,
+            'cuentasCobro' => $cuentasCobro,
         ]);
     }
 
@@ -141,6 +149,37 @@ class PortalClienteController extends Controller
             'payment' => $payment,
             'totalPagado' => $totalPagado,
             'saldo' => $saldo,
+            'backUrl' => route('portal.cliente.dashboard'),
+        ]);
+    }
+
+    /** Cuenta de cobro publicada, visible para el cliente logueado. */
+    public function cuentaCobro(Request $request, \App\Models\CuentaCobro $cuenta)
+    {
+        $clientId = $request->session()->get('portal_cliente_id');
+        $phone = $request->session()->get('portal_cliente_phone');
+        if (! $clientId && ! $phone) {
+            return redirect()->route('portal.cliente.login.show');
+        }
+
+        abort_unless($cuenta->visible_cliente, 404);
+
+        $project = $cuenta->project;
+        abort_unless($project, 404);
+
+        $esDelCliente = ($clientId && $project->client_id === (int) $clientId)
+            || ($phone && $this->phonesMatch($project->cliente_contacto ?? '', $phone));
+        abort_unless($esDelCliente, 403);
+
+        $project->load('client');
+
+        return view('admin.internal-projects.cuenta-cobro', [
+            'project' => $project,
+            'monto' => (float) $cuenta->monto,
+            'periodo' => $cuenta->periodo ?? now()->startOfMonth(),
+            'esRecurrente' => (bool) $project->es_recurrente,
+            'tipoCobro' => $cuenta->tipo,
+            'pctCobro' => $cuenta->tipo === 'porcentaje' ? (float) $cuenta->valor_param : null,
             'backUrl' => route('portal.cliente.dashboard'),
         ]);
     }

@@ -97,8 +97,8 @@
             font-weight: 600; font-size: 13px; cursor: pointer; text-decoration: none;
             display: inline-flex; align-items: center; gap: .4rem;
         }
-        .actions .print { background: #2E7D32; color: #fff; }
-        .actions .print:hover { background: #1B5E20; }
+        .actions .print { background: #2563EB; color: #fff; }
+        .actions .print:hover { background: #1D4ED8; }
         .actions .back { background: #fff; color: #333; border: 1px solid #E2E8F0; }
         .actions .back:hover { background: #F1F5F9; }
 
@@ -109,7 +109,7 @@
         }
         .col-title {
             font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
-            color: #2E7D32; margin-bottom: 8px;
+            color: #2563EB; margin-bottom: 8px;
         }
         .col-body { font-size: 12.5px; line-height: 1.65; color: #333; }
         .col-body .name { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 3px; text-transform: uppercase; }
@@ -119,7 +119,7 @@
         .col-body .logo-line img { height: 42px; width: auto; }
 
         /* Barra verde divisora */
-        .barra-verde { height: 4px; background: #2E7D32; margin-bottom: 1.5rem; }
+        .barra-verde { height: 4px; background: #0F172A; margin-bottom: 1.5rem; }
 
         /* Meta info (fechas + estado) */
         .meta-row {
@@ -148,7 +148,7 @@
 
         /* Section header verde */
         .sec-head {
-            background: #2E7D32; color: #fff;
+            background: #0F172A; color: #fff;
             padding: 8px 14px; font-size: 11px; font-weight: 700;
             letter-spacing: 1.5px; text-transform: uppercase;
             margin-bottom: 0;
@@ -175,7 +175,7 @@
         .concepto-table ul { list-style: none; margin-top: 4px; }
         .concepto-table ul li { padding-left: 15px; position: relative; margin-bottom: 3px; color: #555; font-size: 12px; }
         .concepto-table ul li::before {
-            content: '•'; position: absolute; left: 0; color: #2E7D32; font-weight: bold;
+            content: '•'; position: absolute; left: 0; color: #2563EB; font-weight: bold;
         }
         .concepto-table .periodo-cell { text-align: right; font-size: 12px; color: #555; white-space: nowrap; }
         .concepto-table .valor-cell {
@@ -187,9 +187,9 @@
 
         /* Aviso tipo de cambio */
         .aviso-tc {
-            background: #E8F5E9; border: 1px solid #C8E6C9;
+            background: #EFF6FF; border: 1px solid #BFDBFE;
             padding: 10px 14px; margin: 15px 0;
-            font-size: 11.5px; color: #1B5E20; line-height: 1.5;
+            font-size: 11.5px; color: #1E3A8A; line-height: 1.5;
             border-radius: 4px;
         }
         .aviso-tc strong { font-weight: 700; }
@@ -205,7 +205,7 @@
         .totales .row .k { color: #555; text-align: right; }
         .totales .row .v { font-weight: 700; color: #1a1a1a; text-align: right; min-width: 130px; font-variant-numeric: tabular-nums; }
         .totales .row.total {
-            background: #2E7D32; color: #fff;
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%); color: #fff;
             margin-top: 8px; border-radius: 4px; padding: 14px 14px;
         }
         .totales .row.total .k { color: rgba(255,255,255,.9); font-weight: 700; font-size: 13px; }
@@ -224,23 +224,23 @@
 
         /* Pago */
         .pago-box {
-            background: #F9FBF9; border: 1px solid #E0E0E0;
+            background: #F0F7FF; border: 1px solid #DBEAFE;
             padding: 15px 18px; border-radius: 4px;
             margin-bottom: 1.5rem;
         }
         .pago-box h4 {
-            font-size: 12px; font-weight: 800; color: #2E7D32;
+            font-size: 12px; font-weight: 800; color: #1D4ED8;
             margin-bottom: 10px; letter-spacing: .5px;
         }
         .pago-box p { font-size: 12px; color: #444; margin-bottom: 5px; line-height: 1.6; }
         .pago-box p strong { color: #1a1a1a; font-weight: 700; }
         .pago-box .highlight {
-            display: inline-block; background: #C8E6C9;
+            display: inline-block; background: #DBEAFE;
             padding: 4px 10px; border-radius: 4px;
-            font-weight: 700; color: #1B5E20; font-size: 12px;
+            font-weight: 700; color: #1E40AF; font-size: 12px;
             margin: 4px 0;
         }
-        .pago-box .conf { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #C8E6C9; font-style: italic; color: #555; font-size: 11.5px; }
+        .pago-box .conf { margin-top: 10px; padding-top: 10px; border-top: 1px dashed #BFDBFE; font-style: italic; color: #555; font-size: 11.5px; }
 
         /* Términos */
         .terminos ol {
@@ -281,7 +281,7 @@
 <body>
 
 <div class="actions">
-    <a href="{{ route('admin.internal-projects.show', $project) }}" class="back">← Volver al proyecto</a>
+    <a href="{{ $backUrl ?? route('admin.internal-projects.show', $project) }}" class="back">← Volver</a>
     <button type="button" class="print" onclick="window.print()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg>
         Imprimir / Guardar PDF

@@ -1278,16 +1278,30 @@ class InternalProjectController extends Controller
             } catch (\Exception) {
                 $periodo = now()->startOfMonth();
             }
-            $monto = (float) $internal_project->precio;
         } else {
             $periodo = now()->startOfMonth();
-            $totalPagado = (float) $internal_project->payments()->sum('monto');
-            $monto = max((float) $internal_project->precio - $totalPagado, 0);
+        }
 
-            if ($monto <= 0) {
-                return redirect()->route('admin.internal-projects.show', $internal_project)
-                    ->with('error', 'No hay saldo pendiente para cobrar en este proyecto.');
-            }
+        // Monto a cobrar según lo que elija el admin al imprimir:
+        //  - saldo (default one-shot): precio − cobrado
+        //  - total: precio completo (default recurrente)
+        //  - porcentaje: precio × %
+        //  - valor: valor exacto escrito
+        $totalPagado = (float) $internal_project->payments()->sum('monto');
+        $saldo = max((float) $internal_project->precio - $totalPagado, 0);
+        $tipo = $request->get('tipo', $esRecurrente ? 'total' : 'saldo');
+        $valorParam = (float) $request->get('valor', 0);
+
+        $monto = match ($tipo) {
+            'total' => (float) $internal_project->precio,
+            'porcentaje' => round((float) $internal_project->precio * (max($valorParam, 0) / 100), 2),
+            'valor' => max($valorParam, 0),
+            default => $saldo,
+        };
+
+        if ($monto <= 0) {
+            return redirect()->route('admin.internal-projects.show', $internal_project)
+                ->with('error', 'El monto a cobrar debe ser mayor a cero.');
         }
 
         return view('admin.internal-projects.cuenta-cobro', [
@@ -1295,7 +1309,71 @@ class InternalProjectController extends Controller
             'monto' => $monto,
             'periodo' => $periodo,
             'esRecurrente' => $esRecurrente,
+            'tipoCobro' => $tipo,
+            'pctCobro' => $tipo === 'porcentaje' ? $valorParam : null,
         ]);
+    }
+
+    /**
+     * Publica una cuenta de cobro al portal del cliente (la persiste y la marca visible).
+     * El monto se calcula igual que en cuentaCobro() según tipo/valor.
+     */
+    public function publicarCuentaCobro(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'tipo' => 'required|in:saldo,total,porcentaje,valor',
+            'valor' => 'nullable|numeric|min:0',
+            'mes' => 'nullable|date_format:Y-m',
+            'visible_cliente' => 'nullable|boolean',
+        ]);
+
+        $esRecurrente = (bool) $internal_project->es_recurrente;
+        $totalPagado = (float) $internal_project->payments()->sum('monto');
+        $saldo = max((float) $internal_project->precio - $totalPagado, 0);
+        $valorParam = (float) ($validated['valor'] ?? 0);
+
+        $monto = match ($validated['tipo']) {
+            'total' => (float) $internal_project->precio,
+            'porcentaje' => round((float) $internal_project->precio * (max($valorParam, 0) / 100), 2),
+            'valor' => max($valorParam, 0),
+            default => $saldo,
+        };
+
+        if ($monto <= 0) {
+            return back()->with('error', 'El monto a cobrar debe ser mayor a cero.');
+        }
+
+        $periodo = null;
+        if ($esRecurrente) {
+            try {
+                $periodo = ! empty($validated['mes'])
+                    ? \Carbon\Carbon::createFromFormat('Y-m', $validated['mes'])->startOfMonth()
+                    : now()->startOfMonth();
+            } catch (\Exception) {
+                $periodo = now()->startOfMonth();
+            }
+        }
+
+        $numeroDoc = $esRecurrente && $periodo
+            ? 'CC-'.$periodo->format('Ym').'-'.str_pad((string) $internal_project->id, 4, '0', STR_PAD_LEFT)
+            : 'CC-'.now()->format('Ymd').'-'.str_pad((string) $internal_project->id, 4, '0', STR_PAD_LEFT);
+
+        \App\Models\CuentaCobro::create([
+            'internal_project_id' => $internal_project->id,
+            'numero_doc' => $numeroDoc,
+            'tipo' => $validated['tipo'],
+            'valor_param' => in_array($validated['tipo'], ['porcentaje', 'valor'], true) ? $valorParam : null,
+            'monto' => $monto,
+            'moneda' => $internal_project->moneda,
+            'periodo' => $periodo,
+            'visible_cliente' => $request->boolean('visible_cliente'),
+        ]);
+
+        $msg = $request->boolean('visible_cliente')
+            ? 'Cuenta de cobro publicada y visible para el cliente en su portal.'
+            : 'Cuenta de cobro guardada (no visible para el cliente).';
+
+        return back()->with('success', $msg);
     }
 
     /**
