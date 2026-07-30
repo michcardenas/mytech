@@ -149,14 +149,7 @@
         </script>
     @endif
 
-    {{-- GA4 --}}
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-FDPVS72L91"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-FDPVS72L91');
-    </script>
+    {{-- GA4 se carga vía Google Tag Manager (GTM-MDMLQKMM). No incrustar gtag aquí para evitar conteo doble. --}}
 
     {{-- Vite assets --}}
     @vite(['resources/css/home.css', 'resources/js/home/index.js'])
