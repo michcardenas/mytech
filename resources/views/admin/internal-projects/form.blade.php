@@ -1461,6 +1461,42 @@
     })();
 </script>
 
+{{-- Bolsa de horas: el Precio Acordado = horas × valor por hora (auto, solo lectura). --}}
+<script>
+    (function () {
+        const check = document.getElementById('es_bolsa_horas');
+        const precio = document.getElementById('precio');
+        const horas = document.getElementById('horas_totales');
+        const valor = document.getElementById('valor_hora');
+        if (!check || !precio || !horas || !valor) return;
+
+        function raw(el) {
+            return window.moneyRaw ? window.moneyRaw(el) : (parseFloat(String(el.value).replace(/\./g, '').replace(',', '.')) || 0);
+        }
+
+        function sync() {
+            if (check.checked && raw(valor) > 0) {
+                const total = Math.round((parseFloat(horas.value) || 0) * raw(valor) * 100) / 100;
+                if (window.moneySet) { window.moneySet(precio, total); } else { precio.value = total; }
+                precio.readOnly = true;
+                precio.style.opacity = '0.7';
+                precio.style.cursor = 'not-allowed';
+                precio.title = 'Se calcula solo: horas × valor por hora';
+            } else {
+                precio.readOnly = false;
+                precio.style.opacity = '';
+                precio.style.cursor = '';
+                precio.title = '';
+            }
+        }
+
+        check.addEventListener('change', sync);
+        horas.addEventListener('input', sync);
+        valor.addEventListener('input', sync);
+        sync();
+    })();
+</script>
+
 {{-- Prefijo dinámico según moneda (COP: $, USD: US$) --}}
 <script>
     (function () {

@@ -1117,6 +1117,11 @@ class InternalProjectController extends Controller
 
         $validated['puntos_acuerdo'] = $puntos ?: null;
 
+        // El precio de una bolsa = horas × valor por hora (si se definió el valor por hora).
+        if (! empty($validated['horas_totales']) && ! empty($validated['valor_hora'])) {
+            $validated['precio'] = round((float) $validated['horas_totales'] * (float) $validated['valor_hora'], 2);
+        }
+
         return $validated;
     }
 

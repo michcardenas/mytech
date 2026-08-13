@@ -118,6 +118,31 @@ class BolsaHorasTest extends TestCase
         $response->assertSee('Registrar horas consumidas');
     }
 
+    public function test_bolsa_calcula_precio_desde_horas_y_valor(): void
+    {
+        Role::create(['name' => 'admin']);
+        $admin = User::factory()->create();
+        $admin->assignRole('admin');
+
+        $this->actingAs($admin)->post(route('admin.internal-projects.store'), [
+            'nombre' => 'Bolsa auto precio',
+            'cliente_nombre' => 'Cliente Z',
+            'fuente' => 'directo',
+            'precio' => 0,
+            'moneda' => 'USD',
+            'estado' => 'en_progreso',
+            'desarrollador_moneda' => 'COP',
+            'es_bolsa_horas' => '1',
+            'horas_totales' => 10,
+            'valor_hora' => 13.5,
+        ]);
+
+        $project = InternalProject::where('nombre', 'Bolsa auto precio')->first();
+        $this->assertNotNull($project);
+        $this->assertEqualsWithDelta(135.0, (float) $project->precio, 0.001);
+        $this->assertEqualsWithDelta(13.5, (float) $project->valor_hora, 0.001);
+    }
+
     public function test_horas_no_bolsa_no_se_guardan(): void
     {
         Role::create(['name' => 'admin']);
