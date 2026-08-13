@@ -30,6 +30,26 @@
     .form-check-input:checked { background-color: #00A9E0; border-color: #00A9E0; }
     .invalid-feedback { display: block; }
     .image-preview { max-width: 150px; max-height: 150px; border-radius: 10px; margin-top: 10px; background: white; padding: 5px; }
+
+    /* ===== Subida de imágenes con previsualización ===== */
+    .img-uploader, .img-uploader-multi { margin-top: 6px; }
+    .img-input { position: absolute; width: 1px; height: 1px; opacity: 0; overflow: hidden; }
+    .img-drop { position: relative; display: flex; align-items: center; gap: 14px; width: 100%; cursor: pointer; margin: 0; padding: 14px; border: 2px dashed #00A9E0; border-radius: 12px; background: #101820; transition: border-color .15s ease, background .15s ease, box-shadow .15s ease; }
+    .img-drop:hover, .img-drop.drag { border-color: #f7a831; background: #13212c; box-shadow: 0 0 0 3px rgba(247,168,49,.15); }
+    .img-thumb { width: 78px; height: 78px; flex-shrink: 0; border-radius: 10px; background-color: #0b1116; background-position: center; background-size: cover; background-repeat: no-repeat; border: 1px solid rgba(0,169,224,.4); display: flex; align-items: center; justify-content: center; }
+    .img-thumb-icon { color: #00A9E0; font-size: 1.5rem; }
+    .img-thumb.has-img .img-thumb-icon { display: none; }
+    .img-drop-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .img-drop-cta { color: #FCFAF1; font-weight: 600; font-size: .92rem; }
+    .img-drop-cta u { color: #00A9E0; text-decoration: none; border-bottom: 1px dashed #00A9E0; }
+    .img-drop-hint { color: #9CA3AF; font-size: .78rem; }
+    .img-drop-file { color: #f7a831; font-size: .8rem; font-weight: 700; margin-top: 3px; word-break: break-all; }
+    .img-clear { margin-top: 8px; background: transparent; border: 1px solid #6c757d; color: #cbd5e1; border-radius: 8px; padding: 4px 12px; font-size: .78rem; cursor: pointer; transition: all .15s ease; }
+    .img-clear:hover { border-color: #ef4444; color: #ef4444; }
+    .img-uploader.has-new .img-drop { border-style: solid; border-color: #25D366; }
+    .img-drop-body-multi { align-items: flex-start; }
+    .img-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .img-grid-item { width: 74px; height: 74px; border-radius: 8px; background-color: #0b1116; background-position: center; background-size: cover; background-repeat: no-repeat; border: 1px solid rgba(37,211,102,.45); }
     .hint { color: #9CA3AF; font-size: 0.825rem; margin-top: 4px; display: block; }
     .hint code { background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 4px; font-size: 12px; color: #f7a831; }
     .char-counter { color: #6c757d; font-size: 0.8rem; font-family: ui-monospace, "JetBrains Mono", monospace; text-align: right; display: block; margin-top: 4px; }
@@ -204,13 +224,20 @@
                 <div class="row g-3">
                     <div class="col-md-6">
                         <label for="logo">Archivo del logo</label>
-                        @if($proyecto->logo)
-                            <div class="mb-2">
-                                <img src="{{ asset('storage/'.$proyecto->logo) }}" class="image-preview" alt="Logo actual">
-                            </div>
-                        @endif
-                        <input type="file" class="form-control" id="logo" name="logo" accept="image/*">
-                        <span class="hint">Si subes uno nuevo, reemplaza el actual.</span>
+                        <div class="img-uploader">
+                            <label class="img-drop" for="logo">
+                                <input type="file" class="img-input" id="logo" name="logo" accept="image/*">
+                                <div class="img-thumb @if($proyecto->logo) has-img @endif" @if($proyecto->logo) style="background-image:url('{{ asset('storage/'.$proyecto->logo) }}')" @endif>
+                                    <i class="fas fa-cloud-upload-alt img-thumb-icon"></i>
+                                </div>
+                                <div class="img-drop-body">
+                                    <span class="img-drop-cta">Arrastra o <u>haz clic</u> para subir</span>
+                                    <span class="img-drop-hint">PNG · JPG · SVG · WEBP — máx 2MB@if($proyecto->logo) · reemplaza el actual@endif</span>
+                                    <span class="img-drop-file"></span>
+                                </div>
+                            </label>
+                            <button type="button" class="img-clear" hidden><i class="fas fa-times"></i> Quitar selección</button>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label for="alt_logo">Alt text del logo <span class="seo-badge">SEO</span></label>
@@ -305,12 +332,20 @@
                     </div>
                     <div class="col-md-6">
                         <label for="og_image">OG Image (1200×630)</label>
-                        @if($proyecto->og_image)
-                            <div class="mb-2">
-                                <img src="{{ asset('storage/'.$proyecto->og_image) }}" class="image-preview" alt="OG actual">
-                            </div>
-                        @endif
-                        <input type="file" class="form-control" id="og_image" name="og_image" accept="image/*">
+                        <div class="img-uploader">
+                            <label class="img-drop" for="og_image">
+                                <input type="file" class="img-input" id="og_image" name="og_image" accept="image/*">
+                                <div class="img-thumb @if($proyecto->og_image) has-img @endif" @if($proyecto->og_image) style="background-image:url('{{ asset('storage/'.$proyecto->og_image) }}')" @endif>
+                                    <i class="fas fa-cloud-upload-alt img-thumb-icon"></i>
+                                </div>
+                                <div class="img-drop-body">
+                                    <span class="img-drop-cta">Arrastra o <u>haz clic</u> para subir</span>
+                                    <span class="img-drop-hint">Ideal 1200×630 · JPG/PNG/WEBP — máx 5MB@if($proyecto->og_image) · reemplaza el actual@endif</span>
+                                    <span class="img-drop-file"></span>
+                                </div>
+                            </label>
+                            <button type="button" class="img-clear" hidden><i class="fas fa-times"></i> Quitar selección</button>
+                        </div>
                     </div>
                     <div class="col-md-6">
                         <label for="alt_og_image">Alt OG Image</label>
@@ -342,12 +377,20 @@
                     </div>
                     <div class="col-md-6">
                         <label for="twitter_image">Twitter Image (override)</label>
-                        @if($proyecto->twitter_image)
-                            <div class="mb-2">
-                                <img src="{{ asset('storage/'.$proyecto->twitter_image) }}" class="image-preview" alt="Twitter actual">
-                            </div>
-                        @endif
-                        <input type="file" class="form-control" id="twitter_image" name="twitter_image" accept="image/*">
+                        <div class="img-uploader">
+                            <label class="img-drop" for="twitter_image">
+                                <input type="file" class="img-input" id="twitter_image" name="twitter_image" accept="image/*">
+                                <div class="img-thumb @if($proyecto->twitter_image) has-img @endif" @if($proyecto->twitter_image) style="background-image:url('{{ asset('storage/'.$proyecto->twitter_image) }}')" @endif>
+                                    <i class="fas fa-cloud-upload-alt img-thumb-icon"></i>
+                                </div>
+                                <div class="img-drop-body">
+                                    <span class="img-drop-cta">Arrastra o <u>haz clic</u> para subir</span>
+                                    <span class="img-drop-hint">Override de Twitter/X · JPG/PNG/WEBP — máx 2MB@if($proyecto->twitter_image) · reemplaza el actual@endif</span>
+                                    <span class="img-drop-file"></span>
+                                </div>
+                            </label>
+                            <button type="button" class="img-clear" hidden><i class="fas fa-times"></i> Quitar selección</button>
+                        </div>
                     </div>
                     <div class="col-12">
                         <label for="twitter_title">Twitter Title</label>
@@ -462,11 +505,22 @@
                     @if($proyecto->galeria && is_array($proyecto->galeria) && count($proyecto->galeria))
                         <div class="d-flex flex-wrap gap-2 mb-2">
                             @foreach($proyecto->galeria as $g)
-                                <img src="{{ asset('storage/'.$g) }}" style="max-height:80px; border-radius:4px;">
+                                <img src="{{ asset('storage/'.$g) }}" style="max-height:80px; border-radius:6px; border:1px solid rgba(0,169,224,.3);">
                             @endforeach
                         </div>
                     @endif
-                    <input type="file" class="form-control" id="galeria" name="galeria[]" accept="image/*" multiple>
+                    <div class="img-uploader-multi">
+                        <label class="img-drop" for="galeria">
+                            <input type="file" class="img-input" id="galeria" name="galeria[]" accept="image/*" multiple>
+                            <div class="img-thumb"><i class="fas fa-images img-thumb-icon"></i></div>
+                            <div class="img-drop-body img-drop-body-multi">
+                                <span class="img-drop-cta">Arrastra varias o <u>haz clic</u> para elegir</span>
+                                <span class="img-drop-hint">Puedes seleccionar varias · máx 2MB c/u · reemplaza la galería actual</span>
+                                <span class="img-drop-file"></span>
+                            </div>
+                        </label>
+                        <div class="img-grid"></div>
+                    </div>
                 </div>
 
                 <div class="mt-3">
@@ -594,6 +648,103 @@
         if (serpSlug)  serpSlug.textContent  = slugEl.value || 'slug';
     }
     [metaTitleEl, metaDescEl, nombreEl, slugEl].forEach(el => el && el.addEventListener('input', update));
+})();
+</script>
+
+<script>
+/* Previsualización de imágenes al subir (dropzone + drag & drop) */
+(function () {
+    function fmtSize(bytes) {
+        return bytes < 1048576 ? Math.round(bytes / 1024) + ' KB' : (bytes / 1048576).toFixed(1) + ' MB';
+    }
+
+    // Imagen única: logo, og_image, twitter_image
+    document.querySelectorAll('.img-uploader').forEach(function (u) {
+        var input = u.querySelector('.img-input');
+        var drop = u.querySelector('.img-drop');
+        var thumb = u.querySelector('.img-thumb');
+        var fileLabel = u.querySelector('.img-drop-file');
+        var clearBtn = u.querySelector('.img-clear');
+        if (!input || !drop || !thumb) { return; }
+        var originalBg = thumb.style.backgroundImage || '';
+        var originalHasImg = thumb.classList.contains('has-img');
+
+        function preview(files) {
+            if (!files || !files.length) { return; }
+            var f = files[0];
+            if (!f.type || f.type.indexOf('image/') !== 0) { return; }
+            thumb.style.backgroundImage = "url('" + URL.createObjectURL(f) + "')";
+            thumb.classList.add('has-img');
+            fileLabel.textContent = f.name + ' · ' + fmtSize(f.size);
+            u.classList.add('has-new');
+            if (clearBtn) { clearBtn.hidden = false; }
+        }
+
+        input.addEventListener('change', function () { preview(input.files); });
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('drag'); });
+        });
+        ['dragleave', 'dragend'].forEach(function (ev) {
+            drop.addEventListener(ev, function () { drop.classList.remove('drag'); });
+        });
+        drop.addEventListener('drop', function (e) {
+            e.preventDefault();
+            drop.classList.remove('drag');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                preview(input.files);
+            }
+        });
+        if (clearBtn) {
+            clearBtn.addEventListener('click', function () {
+                input.value = '';
+                thumb.style.backgroundImage = originalBg;
+                thumb.classList.toggle('has-img', originalHasImg);
+                fileLabel.textContent = '';
+                u.classList.remove('has-new');
+                clearBtn.hidden = true;
+            });
+        }
+    });
+
+    // Galería múltiple
+    document.querySelectorAll('.img-uploader-multi').forEach(function (u) {
+        var input = u.querySelector('.img-input');
+        var drop = u.querySelector('.img-drop');
+        var grid = u.querySelector('.img-grid');
+        var fileLabel = u.querySelector('.img-drop-file');
+        if (!input || !drop || !grid) { return; }
+
+        function render(files) {
+            grid.innerHTML = '';
+            var n = 0;
+            [].forEach.call(files, function (f) {
+                if (!f.type || f.type.indexOf('image/') !== 0) { return; }
+                n++;
+                var d = document.createElement('div');
+                d.className = 'img-grid-item';
+                d.style.backgroundImage = "url('" + URL.createObjectURL(f) + "')";
+                grid.appendChild(d);
+            });
+            fileLabel.textContent = n ? (n + (n === 1 ? ' imagen seleccionada' : ' imágenes seleccionadas')) : '';
+        }
+
+        input.addEventListener('change', function () { render(input.files); });
+        ['dragenter', 'dragover'].forEach(function (ev) {
+            drop.addEventListener(ev, function (e) { e.preventDefault(); drop.classList.add('drag'); });
+        });
+        ['dragleave', 'dragend'].forEach(function (ev) {
+            drop.addEventListener(ev, function () { drop.classList.remove('drag'); });
+        });
+        drop.addEventListener('drop', function (e) {
+            e.preventDefault();
+            drop.classList.remove('drag');
+            if (e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) {
+                input.files = e.dataTransfer.files;
+                render(input.files);
+            }
+        });
+    });
 })();
 </script>
 @endsection
