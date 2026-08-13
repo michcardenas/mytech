@@ -34,6 +34,10 @@ class InternalProject extends Model
         'desarrollador_pago',
         'desarrollador_moneda',
         'es_recurrente',
+        'es_bolsa_horas',
+        'horas_totales',
+        'valor_hora',
+        'puntos_acuerdo',
     ];
 
     protected $casts = [
@@ -44,6 +48,10 @@ class InternalProject extends Model
         'fecha_entrega' => 'date',
         'fecha_facturacion' => 'date',
         'es_recurrente' => 'boolean',
+        'es_bolsa_horas' => 'boolean',
+        'horas_totales' => 'decimal:2',
+        'valor_hora' => 'decimal:2',
+        'puntos_acuerdo' => 'array',
     ];
 
     public function client()
@@ -109,6 +117,11 @@ class InternalProject extends Model
         return $this->hasMany(ProjectPayment::class);
     }
 
+    public function bolsaMovimientos()
+    {
+        return $this->hasMany(BolsaMovimiento::class);
+    }
+
     public function developerPayments()
     {
         return $this->hasMany(DeveloperPayment::class);
@@ -168,6 +181,25 @@ class InternalProject extends Model
         }
 
         return round(($this->total_pagado / $this->precio) * 100);
+    }
+
+    public function getHorasConsumidasAttribute(): float
+    {
+        return (float) $this->bolsaMovimientos->sum('horas');
+    }
+
+    public function getHorasRestantesAttribute(): float
+    {
+        return (float) $this->horas_totales - $this->horas_consumidas;
+    }
+
+    public function getPorcentajeHorasAttribute(): int
+    {
+        if ((float) $this->horas_totales <= 0) {
+            return 0;
+        }
+
+        return (int) min(round(($this->horas_consumidas / (float) $this->horas_totales) * 100), 100);
     }
 
     public function getEstadoLabelAttribute()

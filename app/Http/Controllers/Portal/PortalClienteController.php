@@ -87,7 +87,10 @@ class PortalClienteController extends Controller
             ->when(! $client && $phone, function ($q) use ($phone) {
                 $q->whereRaw('REPLACE(REPLACE(REPLACE(REPLACE(cliente_contacto, " ", ""), "-", ""), "+", ""), "(", "") LIKE ?', ['%'.$phone.'%']);
             })
-            ->with(['payments' => fn ($q) => $q->orderByDesc('fecha')])
+            ->with([
+                'payments' => fn ($q) => $q->orderByDesc('fecha'),
+                'bolsaMovimientos' => fn ($q) => $q->orderByDesc('fecha'),
+            ])
             ->withSum('payments as pagado', 'monto')
             ->orderByDesc('created_at')
             ->get();

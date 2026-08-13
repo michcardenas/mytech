@@ -19,6 +19,11 @@ return new class extends Migration
 
     public function up(): void
     {
+        // Solo MySQL/MariaDB usan ENUM nativo. En sqlite (tests) la columna es TEXT y ya admite 'EUR'.
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         foreach ($this->columns as $col) {
             $default = $col['default'] ? "DEFAULT '{$col['default']}'" : '';
             DB::statement("ALTER TABLE `{$col['table']}` MODIFY `{$col['column']}` ENUM('COP','USD','EUR') {$default}");
@@ -27,6 +32,10 @@ return new class extends Migration
 
     public function down(): void
     {
+        if (DB::getDriverName() !== 'mysql') {
+            return;
+        }
+
         foreach ($this->columns as $col) {
             DB::statement("UPDATE `{$col['table']}` SET `{$col['column']}` = 'COP' WHERE `{$col['column']}` = 'EUR'");
             $default = $col['default'] ? "DEFAULT '{$col['default']}'" : '';

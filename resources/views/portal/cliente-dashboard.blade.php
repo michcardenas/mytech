@@ -12,6 +12,7 @@
             --blue: #2563EB;
             --grad: linear-gradient(135deg, #60A5FA 0%, #2563EB 100%);
             --shadow: 0 4px 15px rgba(0,0,0,0.06);
+            --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
         }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #F6F7F9; color: #0F172A; min-height: 100vh; }
         .wrap { max-width: 1080px; margin: 0 auto; padding: 1.75rem 1.25rem 3rem; }
@@ -82,6 +83,69 @@
             font-size: .72rem;
             font-weight: 600;
         }
+
+        /* ===== Bolsa de horas (premium) ===== */
+        .bolsa-card { position: relative; overflow: hidden; border: 1px solid #E9EEF5; opacity: 0; transform: translateY(10px); animation: bolsaIn .6s var(--ease-out) forwards; }
+        .bolsa-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, #60A5FA, #2563EB); }
+        @keyframes bolsaIn { to { opacity: 1; transform: translateY(0); } }
+        @media (hover: hover) and (pointer: fine) {
+            .bolsa-card { transition: transform .28s var(--ease-out), box-shadow .28s ease; }
+            .bolsa-card:hover { transform: translateY(-3px); box-shadow: 0 14px 34px rgba(37,99,235,.12); }
+        }
+
+        .bolsa-top { display: flex; align-items: center; gap: 1.75rem; margin: .5rem 0 .25rem; flex-wrap: wrap; }
+        .bolsa-gauge { position: relative; width: 176px; height: 176px; flex-shrink: 0; margin: 0 auto; }
+        .bolsa-gauge svg { width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+        .g-track { fill: none; stroke: #EEF2F7; stroke-width: 12; }
+        .g-value { fill: none; stroke-width: 12; stroke-linecap: round; transition: stroke-dashoffset 1.1s var(--ease-out); filter: drop-shadow(0 3px 6px rgba(37,99,235,.18)); }
+        .g-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .g-num { font-size: 2.7rem; font-weight: 800; color: #0F172A; letter-spacing: -.03em; line-height: 1; font-variant-numeric: tabular-nums; }
+        .g-num .g-unit { font-size: 1.05rem; font-weight: 700; color: #64748B; margin-left: 2px; }
+        .g-lbl { font-size: .68rem; text-transform: uppercase; letter-spacing: .07em; color: #94A3B8; font-weight: 800; margin-top: .4rem; }
+        .g-sub { font-size: .74rem; color: #64748B; font-weight: 600; margin-top: .15rem; }
+        .g-sub.excedida { color: #DC2626; font-weight: 700; }
+
+        .bolsa-meta { flex: 1; min-width: 220px; display: flex; flex-direction: column; gap: .55rem; }
+        .bm-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: .65rem .85rem; background: #F8FAFC; border: 1px solid #EEF2F7; border-radius: 12px; }
+        .bm-left { display: flex; align-items: center; gap: .7rem; min-width: 0; }
+        .bm-ico { width: 34px; height: 34px; border-radius: 9px; display: inline-flex; align-items: center; justify-content: center; font-size: .82rem; flex-shrink: 0; }
+        .bm-lbl { font-size: .82rem; color: #475569; font-weight: 600; }
+        .bm-num { font-size: 1.15rem; font-weight: 800; color: #0F172A; font-variant-numeric: tabular-nums; white-space: nowrap; }
+        .bm-num small { font-size: .72rem; color: #94A3B8; font-weight: 600; }
+
+        .bolsa-linebar { height: 9px; border-radius: 999px; background: #EEF2F7; overflow: hidden; margin-top: .35rem; }
+        .bolsa-linebar > span { display: block; height: 100%; width: 0; border-radius: 999px; background: linear-gradient(90deg, #60A5FA, #2563EB); transition: width 1.1s var(--ease-out); }
+        .bolsa-linebar.warn > span { background: linear-gradient(90deg, #FBBF24, #F59E0B); }
+        .bolsa-linebar.danger > span { background: linear-gradient(90deg, #F87171, #DC2626); }
+        .bolsa-linecap { display: flex; justify-content: space-between; flex-wrap: wrap; gap: .3rem; font-size: .77rem; color: #64748B; margin-top: .45rem; }
+        .bolsa-linecap strong { color: #0F172A; }
+
+        .bolsa-sub { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: #94A3B8; font-weight: 800; margin: 1.35rem 0 .55rem; display: flex; align-items: center; gap: .4rem; }
+        .bolsa-puntos { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: .4rem; }
+        .bolsa-puntos li { display: flex; align-items: center; gap: .65rem; padding: .6rem .8rem; background: #F8FAFC; border: 1px solid #EEF2F7; border-radius: 11px; font-size: .87rem; opacity: 0; transform: translateY(6px); animation: puntoIn .45s var(--ease-out) forwards; }
+        @keyframes puntoIn { to { opacity: 1; transform: translateY(0); } }
+        @media (hover: hover) and (pointer: fine) {
+            .bolsa-puntos li { transition: background .2s ease, border-color .2s ease; }
+            .bolsa-puntos li:hover { background: #F1F6FF; border-color: #DBEAFE; }
+        }
+        .bp-check { flex-shrink: 0; font-size: .95rem; }
+        @keyframes bpSpin { to { transform: rotate(360deg); } }
+        .bp-spin { display: inline-block; animation: bpSpin 2.4s linear infinite; transform-origin: center; }
+        .bp-text { flex: 1; min-width: 0; color: #0F172A; font-weight: 600; }
+        .bp-hrs { font-size: .74rem; color: #64748B; font-weight: 700; white-space: nowrap; }
+        .bp-badge { padding: .18rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 800; white-space: nowrap; }
+        .bolsa-empty { text-align: center; color: #94A3B8; font-size: .85rem; padding: 1.1rem; background: #F8FAFC; border-radius: 10px; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .bolsa-card, .bolsa-puntos li { animation: none; opacity: 1; transform: none; }
+            .bp-spin { animation: none; }
+            .g-value, .bolsa-linebar > span { transition: none; }
+        }
+
+        @media (max-width: 560px) {
+            .bolsa-gauge { width: 150px; height: 150px; }
+            .g-num { font-size: 2.3rem; }
+        }
     </style>
 </head>
 <body>
@@ -120,6 +184,138 @@
             <div class="kpi-value">${{ number_format((float) $totalSaldo, 0, ',', '.') }}</div>
         </div>
     </div>
+
+    @php
+        $bolsas = $proyectos->where('es_bolsa_horas', true);
+        $fmtH = fn ($h) => rtrim(rtrim(number_format((float) $h, 2, ',', '.'), '0'), ',');
+        $estadoBolsa = [
+            'pendiente' => ['Pendiente', '#64748B', '#F1F5F9', 'fa-circle'],
+            'en_progreso' => ['En progreso', '#1D4ED8', '#DBEAFE', 'fa-circle-notch'],
+            'hecho' => ['Hecho', '#166534', '#DCFCE7', 'fa-circle-check'],
+        ];
+    @endphp
+    @foreach($bolsas as $b)
+        @php
+            $bTot = (float) $b->horas_totales;
+            $bCons = $b->horas_consumidas;
+            $bRest = $b->horas_restantes;
+            $bPct = $b->porcentaje_horas;   // % consumido (0..100)
+            $bRem = max(100 - $bPct, 0);     // % disponible
+            $sim = $b->moneda === 'USD' ? 'US$' : ($b->moneda === 'EUR' ? '€' : '$');
+            // Color según horas DISPONIBLES: sano (azul) -> ojo (ámbar) -> casi agotada (rojo)
+            if ($bRem <= 20) { $g1 = '#F87171'; $g2 = '#DC2626'; }
+            elseif ($bRem <= 40) { $g1 = '#FBBF24'; $g2 = '#F59E0B'; }
+            else { $g1 = '#38BDF8'; $g2 = '#2563EB'; }
+            $circ = 2 * M_PI * 52;
+            $gid = 'bolsaGrad'.$loop->index;
+        @endphp
+        <div class="panel bolsa-card" style="animation-delay: {{ $loop->index * 90 }}ms;">
+            <div class="panel-head">
+                <h3><i class="fas fa-hourglass-half" style="color:#2563EB;"></i> {{ $b->nombre }}</h3>
+                <span class="muted">Bolsa de horas prepagada</span>
+            </div>
+
+            <div class="bolsa-top">
+                <div class="bolsa-gauge">
+                    <svg viewBox="0 0 120 120" role="img" aria-label="{{ $bRem }}% de horas disponibles">
+                        <defs>
+                            <linearGradient id="{{ $gid }}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="{{ $g1 }}"/>
+                                <stop offset="100%" stop-color="{{ $g2 }}"/>
+                            </linearGradient>
+                        </defs>
+                        <circle class="g-track" cx="60" cy="60" r="52"/>
+                        <circle class="g-value" cx="60" cy="60" r="52"
+                                stroke="url(#{{ $gid }})"
+                                stroke-dasharray="{{ round($circ, 2) }}"
+                                stroke-dashoffset="{{ round($circ * (min($bPct, 100) / 100), 2) }}"
+                                data-offset="{{ round($circ * (min($bPct, 100) / 100), 2) }}"
+                                data-empty="{{ round($circ, 2) }}"/>
+                    </svg>
+                    <div class="g-center">
+                        <div class="g-num"><span class="js-count" data-to="{{ max($bRest, 0) }}">{{ $fmtH(max($bRest, 0)) }}</span><span class="g-unit">h</span></div>
+                        <div class="g-lbl">Disponibles</div>
+                        @if($bRest < 0)
+                            <div class="g-sub excedida">Excedida {{ $fmtH(abs($bRest)) }} h</div>
+                        @else
+                            <div class="g-sub">de {{ $fmtH($bTot) }} h</div>
+                        @endif
+                    </div>
+                </div>
+
+                <div class="bolsa-meta">
+                    <div class="bm-row">
+                        <div class="bm-left">
+                            <span class="bm-ico" style="background:#EFF6FF; color:#2563EB;"><i class="fas fa-clock"></i></span>
+                            <span class="bm-lbl">Horas contratadas</span>
+                        </div>
+                        <span class="bm-num"><span class="js-count" data-to="{{ $bTot }}">{{ $fmtH($bTot) }}</span> h</span>
+                    </div>
+                    <div class="bm-row">
+                        <div class="bm-left">
+                            <span class="bm-ico" style="background:#FEF2F2; color:#DC2626;"><i class="fas fa-bolt"></i></span>
+                            <span class="bm-lbl">Horas consumidas</span>
+                        </div>
+                        <span class="bm-num"><span class="js-count" data-to="{{ $bCons }}">{{ $fmtH($bCons) }}</span> h</span>
+                    </div>
+                    @if($b->valor_hora)
+                        <div class="bm-row">
+                            <div class="bm-left">
+                                <span class="bm-ico" style="background:#F0FDF4; color:#16A34A;"><i class="fas fa-tag"></i></span>
+                                <span class="bm-lbl">Valor de la bolsa</span>
+                            </div>
+                            <span class="bm-num">{{ $sim }}{{ number_format((float) $b->valor_hora * $bTot, 0, ',', '.') }} <small>{{ $b->moneda }}</small></span>
+                        </div>
+                    @endif
+
+                    <div class="bolsa-linebar"><span style="width: {{ min($bPct, 100) }}%;" data-width="{{ min($bPct, 100) }}"></span></div>
+                    <div class="bolsa-linecap">
+                        <span><strong>{{ $bPct }}%</strong> consumido</span>
+                        <span>Quedan <strong>{{ $fmtH(max($bRest, 0)) }}</strong> de {{ $fmtH($bTot) }} h</span>
+                    </div>
+                </div>
+            </div>
+
+            @if(!empty($b->puntos_acuerdo))
+                <div class="bolsa-sub"><i class="fas fa-list-check" style="color:#2563EB;"></i> Puntos acordados</div>
+                <ul class="bolsa-puntos">
+                    @foreach($b->puntos_acuerdo as $pt)
+                        @php $estado = $pt['estado'] ?? 'pendiente'; $em = $estadoBolsa[$estado] ?? $estadoBolsa['pendiente']; @endphp
+                        <li style="animation-delay: {{ $loop->index * 60 }}ms;">
+                            <span class="bp-check" style="color:{{ $em[1] }};"><i class="fas {{ $em[3] }}{{ $estado === 'en_progreso' ? ' bp-spin' : '' }}"></i></span>
+                            <span class="bp-text">{{ $pt['texto'] ?? '' }}</span>
+                            @if(!empty($pt['horas']))<span class="bp-hrs">{{ $fmtH($pt['horas']) }} h</span>@endif
+                            <span class="bp-badge" style="color:{{ $em[1] }}; background:{{ $em[2] }};">{{ $em[0] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            <div class="bolsa-sub"><i class="fas fa-clock-rotate-left" style="color:#2563EB;"></i> Detalle de horas usadas</div>
+            @if($b->bolsaMovimientos->isNotEmpty())
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Detalle</th>
+                            <th style="text-align:right;">Horas</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($b->bolsaMovimientos as $mov)
+                            <tr>
+                                <td class="row-name">{{ $mov->fecha->format('d/m/Y') }}</td>
+                                <td>{{ $mov->descripcion }}</td>
+                                <td style="text-align:right; font-weight:700; color:#0F172A;">{{ $fmtH($mov->horas) }} h</td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            @else
+                <div class="bolsa-empty">Aún no hemos consumido horas de esta bolsa.</div>
+            @endif
+        </div>
+    @endforeach
 
     <div class="panel">
         <div class="panel-head">
@@ -279,5 +475,73 @@
         @endif
     </div>
 </div>
+<script>
+    (function () {
+        const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const cards = document.querySelectorAll('.bolsa-card');
+        if (!cards.length) { return; }
+
+        function fmtH(n) {
+            return (Math.round(n * 100) / 100).toFixed(2).replace(/\.?0+$/, '').replace('.', ',');
+        }
+
+        // Estado final (el HTML ya lo trae por defecto; esto lo re-asegura sin depender de la animación).
+        function setFinal(card) {
+            card.querySelectorAll('.js-count').forEach(el => { el.textContent = fmtH(parseFloat(el.dataset.to || '0')); });
+            const ring = card.querySelector('.g-value');
+            if (ring) { ring.style.strokeDashoffset = ring.dataset.offset || '0'; }
+            const bar = card.querySelector('.bolsa-linebar > span');
+            if (bar) { bar.style.width = (bar.dataset.width || '0') + '%'; }
+        }
+
+        if (reduce) { cards.forEach(setFinal); return; }
+
+        // Reset al estado inicial de forma síncrona (antes del primer paint → sin parpadeo).
+        cards.forEach(card => {
+            card.querySelectorAll('.js-count').forEach(el => { el.textContent = '0'; });
+            const ring = card.querySelector('.g-value');
+            if (ring) { ring.style.transition = 'none'; ring.style.strokeDashoffset = ring.dataset.empty; }
+            const bar = card.querySelector('.bolsa-linebar > span');
+            if (bar) { bar.style.transition = 'none'; bar.style.width = '0%'; }
+        });
+        void document.body.offsetWidth; // confirma el reset antes de reactivar transiciones
+        cards.forEach(card => {
+            const ring = card.querySelector('.g-value');
+            if (ring) { ring.style.transition = ''; }
+            const bar = card.querySelector('.bolsa-linebar > span');
+            if (bar) { bar.style.transition = ''; }
+        });
+
+        function countUp(el, to) {
+            const start = performance.now(), dur = 1000;
+            function tick(now) {
+                const t = Math.min((now - start) / dur, 1);
+                el.textContent = fmtH(to * (1 - Math.pow(1 - t, 3))); // easeOutCubic
+                if (t < 1) { requestAnimationFrame(tick); } else { el.textContent = fmtH(to); }
+            }
+            requestAnimationFrame(tick);
+        }
+
+        function reveal(card) {
+            const ring = card.querySelector('.g-value');
+            if (ring) { ring.style.strokeDashoffset = ring.dataset.offset || '0'; }
+            const bar = card.querySelector('.bolsa-linebar > span');
+            if (bar) { bar.style.width = (bar.dataset.width || '0') + '%'; }
+            card.querySelectorAll('.js-count').forEach(el => countUp(el, parseFloat(el.dataset.to || '0')));
+        }
+
+        if ('IntersectionObserver' in window) {
+            const io = new IntersectionObserver((entries, obs) => {
+                entries.forEach(e => { if (e.isIntersecting) { reveal(e.target); obs.unobserve(e.target); } });
+            }, { threshold: 0.2 });
+            cards.forEach(c => io.observe(c));
+        } else {
+            cards.forEach(reveal);
+        }
+
+        // Red de seguridad: si rAF nunca corre (p. ej. pestaña pintada en segundo plano), fija el estado final.
+        setTimeout(() => cards.forEach(setFinal), 1600);
+    })();
+</script>
 </body>
 </html>

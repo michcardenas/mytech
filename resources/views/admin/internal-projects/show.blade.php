@@ -245,6 +245,9 @@
     <div class="tabs-wrapper">
         <div class="tabs-nav">
             <button class="tab-btn active" data-tab="info"><i class="fas fa-info-circle"></i> Informacion</button>
+            @if($project->es_bolsa_horas)
+                <button class="tab-btn" data-tab="bolsa"><i class="fas fa-hourglass-half"></i> Bolsa de horas <span class="tab-count">{{ $project->bolsaMovimientos->count() }}</span></button>
+            @endif
             <button class="tab-btn" data-tab="cobros"><i class="fas fa-money-bill-wave"></i> Cobros <span class="tab-count">{{ $project->payments->count() }}</span></button>
             <button class="tab-btn" data-tab="dev"><i class="fas fa-laptop-code"></i> Pagos al Dev <span class="tab-count">{{ $project->developerPayments->count() }}</span></button>
             <button class="tab-btn" data-tab="gestion"><i class="fas fa-handshake"></i> Pagos de Gestión <span class="tab-count">{{ $project->gestionPayments->count() }}</span></button>
@@ -337,6 +340,100 @@
                 </div>
             @endif
         </div>
+
+        {{-- TAB: BOLSA DE HORAS --}}
+        @if($project->es_bolsa_horas)
+        <div class="tab-content" id="tab-bolsa">
+            @php
+                $fmtH = fn ($h) => rtrim(rtrim(number_format((float) $h, 2, ',', '.'), '0'), ',');
+                $hTot = (float) $project->horas_totales;
+                $hCons = $project->horas_consumidas;
+                $hRest = $project->horas_restantes;
+                $pctH = $project->porcentaje_horas;
+                $colorH = $pctH >= 100 ? 'var(--danger)' : ($pctH >= 75 ? 'var(--warning)' : 'var(--success)');
+                $simH = $project->moneda === 'USD' ? 'US$' : ($project->moneda === 'EUR' ? '€' : '$');
+                $estadoMap = [
+                    'pendiente' => ['Pendiente', '#64748B', '#F1F5F9'],
+                    'en_progreso' => ['En progreso', '#1D4ED8', '#DBEAFE'],
+                    'hecho' => ['Hecho', '#166534', '#DCFCE7'],
+                ];
+            @endphp
+
+            <div class="section-summary">
+                <div class="ss-stat">
+                    <div class="ss-stat-num" style="color: var(--dark-text);">{{ $fmtH($hTot) }} h</div>
+                    <div class="ss-stat-label">Contratadas</div>
+                </div>
+                <div class="ss-stat">
+                    <div class="ss-stat-num" style="color: {{ $colorH }};">{{ $fmtH($hCons) }} h</div>
+                    <div class="ss-stat-label">Consumidas ({{ $pctH }}%)</div>
+                </div>
+                <div class="ss-progress-bar"><div class="ss-progress-fill" style="width:{{ $pctH }}%; background: {{ $colorH }};"></div></div>
+                <div class="ss-stat">
+                    <div class="ss-stat-num" style="color: {{ $hRest < 0 ? 'var(--danger)' : 'var(--success)' }};">{{ $fmtH($hRest) }} h</div>
+                    <div class="ss-stat-label">{{ $hRest < 0 ? 'Excedidas' : 'Restantes' }}</div>
+                </div>
+                @if($project->valor_hora)
+                    <div class="ss-stat">
+                        <div class="ss-stat-num" style="color: var(--dark-text);">{{ $simH }}{{ number_format((float) $project->valor_hora * $hTot, 0, ',', '.') }}</div>
+                        <div class="ss-stat-label">Valor bolsa</div>
+                    </div>
+                @endif
+            </div>
+
+            @if(!empty($project->puntos_acuerdo))
+                <div style="font-size:0.78rem; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:0.3px; margin:0.5rem 0 0.6rem;"><i class="fas fa-list-check"></i> Puntos acordados</div>
+                <ul class="item-list">
+                    @foreach($project->puntos_acuerdo as $pt)
+                        @php $em = $estadoMap[$pt['estado'] ?? 'pendiente'] ?? $estadoMap['pendiente']; @endphp
+                        <li class="item-row">
+                            <div class="item-info">
+                                <div class="item-primary">{{ $pt['texto'] ?? '' }}</div>
+                                @if(!empty($pt['horas']))
+                                    <div class="item-secondary"><i class="fas fa-clock" style="font-size:0.72rem;"></i> {{ $fmtH($pt['horas']) }} h estimadas</div>
+                                @endif
+                            </div>
+                            <span style="padding:0.2rem 0.6rem; border-radius:999px; font-size:0.7rem; font-weight:700; color:{{ $em[1] }}; background:{{ $em[2] }};">{{ $em[0] }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            @endif
+
+            <div style="font-size:0.78rem; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:0.3px; margin:1rem 0 0.6rem;"><i class="fas fa-clock-rotate-left"></i> Bitácora de consumo</div>
+            @if($project->bolsaMovimientos->count() > 0)
+                <ul class="item-list">
+                    @foreach($project->bolsaMovimientos as $mov)
+                        <li class="item-row">
+                            <div class="item-info">
+                                <div class="item-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> {{ $mov->fecha->format('d/m/Y') }}</div>
+                                <div class="item-secondary">{{ $mov->descripcion }}</div>
+                            </div>
+                            <div class="item-amount">{{ $fmtH($mov->horas) }}<small>horas</small></div>
+                            <form action="{{ route('admin.internal-projects.movimientos.destroy', [$project, $mov]) }}" method="POST" onsubmit="return confirm('Eliminar este registro de horas?');">
+                                @csrf @method('DELETE')
+                                <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
+                            </form>
+                        </li>
+                    @endforeach
+                </ul>
+            @else
+                <div class="no-data"><i class="fas fa-hourglass-half"></i> Aún no hay horas registradas. Usa el formulario de abajo para descontar horas de la bolsa.</div>
+            @endif
+
+            <div class="add-form-card">
+                <h4><i class="fas fa-plus-circle"></i> Registrar horas consumidas</h4>
+                <form action="{{ route('admin.internal-projects.movimientos.store', $project) }}" method="POST">
+                    @csrf
+                    <div class="add-row">
+                        <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>
+                        <div class="add-field" style="grid-column: span 2;"><label>¿Qué se hizo? *</label><input type="text" name="descripcion" required placeholder="Ej: Ajustes en el checkout y pruebas"></div>
+                        <div class="add-field"><label>Horas *</label><input type="number" name="horas" step="0.25" min="0.25" required placeholder="Ej: 2,5"></div>
+                        <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-plus"></i> Registrar</button></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        @endif
 
         {{-- TAB: COBROS (Cliente) --}}
         <div class="tab-content" id="tab-cobros">

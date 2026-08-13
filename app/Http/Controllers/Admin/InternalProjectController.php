@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\BolsaMovimiento;
 use App\Models\Client;
 use App\Models\Developer;
 use App\Models\DeveloperPayment;
@@ -994,10 +995,17 @@ class InternalProjectController extends Controller
             'moneda' => 'required|in:COP,USD,EUR',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
-            'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
             'fecha_facturacion' => 'nullable|date',
             'notas_facturacion' => 'nullable|string|max:500',
             'es_recurrente' => 'nullable|boolean',
+            'es_bolsa_horas' => 'nullable|boolean',
+            'horas_totales' => 'nullable|numeric|min:0|required_if:es_bolsa_horas,1',
+            'valor_hora' => 'nullable|numeric|min:0',
+            'puntos' => 'nullable|array',
+            'puntos.*.texto' => 'nullable|string|max:500',
+            'puntos.*.horas' => 'nullable|numeric|min:0',
+            'puntos.*.estado' => 'nullable|in:pendiente,en_progreso,hecho',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
             'developer_id' => 'nullable|exists:developers,id',
@@ -1039,6 +1047,8 @@ class InternalProjectController extends Controller
         if ($validated['es_recurrente']) {
             $validated['fecha_entrega'] = null;
         }
+
+        $validated = $this->aplicarDatosBolsa($validated, $request);
 
         $project = InternalProject::create($validated);
 
@@ -1073,6 +1083,67 @@ class InternalProjectController extends Controller
         }
     }
 
+    /**
+     * Normaliza los campos de "bolsa de horas prepagada" antes de guardar el proyecto.
+     * Si no es bolsa, limpia los campos; si lo es, arma el arreglo de puntos acordados.
+     *
+     * @param  array<string, mixed>  $validated
+     * @return array<string, mixed>
+     */
+    private function aplicarDatosBolsa(array $validated, Request $request): array
+    {
+        unset($validated['puntos']);
+
+        $esBolsa = $request->boolean('es_bolsa_horas');
+        $validated['es_bolsa_horas'] = $esBolsa;
+
+        if (! $esBolsa) {
+            $validated['horas_totales'] = null;
+            $validated['valor_hora'] = null;
+            $validated['puntos_acuerdo'] = null;
+
+            return $validated;
+        }
+
+        $puntos = collect($request->input('puntos', []))
+            ->map(fn ($p) => [
+                'texto' => trim((string) ($p['texto'] ?? '')),
+                'horas' => ($p['horas'] ?? '') === '' ? null : (float) $p['horas'],
+                'estado' => in_array($p['estado'] ?? '', ['pendiente', 'en_progreso', 'hecho'], true) ? $p['estado'] : 'pendiente',
+            ])
+            ->filter(fn ($p) => $p['texto'] !== '')
+            ->values()
+            ->all();
+
+        $validated['puntos_acuerdo'] = $puntos ?: null;
+
+        return $validated;
+    }
+
+    public function storeMovimiento(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'fecha' => 'required|date',
+            'descripcion' => 'required|string|max:255',
+            'horas' => 'required|numeric|min:0.01',
+        ]);
+
+        $internal_project->bolsaMovimientos()->create($validated);
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Horas registradas en la bolsa.');
+    }
+
+    public function destroyMovimiento(InternalProject $internal_project, BolsaMovimiento $movimiento)
+    {
+        abort_unless($movimiento->internal_project_id === $internal_project->id, 404);
+
+        $movimiento->delete();
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Registro de horas eliminado.');
+    }
+
     public function show(InternalProject $internal_project)
     {
         $internal_project->load([
@@ -1080,6 +1151,7 @@ class InternalProjectController extends Controller
             'developerPayments' => fn ($q) => $q->orderBy('fecha', 'desc'),
             'gestionPayments' => fn ($q) => $q->orderBy('fecha', 'desc'),
             'expenses' => fn ($q) => $q->orderBy('fecha', 'desc'),
+            'bolsaMovimientos' => fn ($q) => $q->orderBy('fecha', 'desc'),
             'files',
             'vendedor',
         ]);
@@ -1114,10 +1186,17 @@ class InternalProjectController extends Controller
             'moneda' => 'required|in:COP,USD,EUR',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
-            'fecha_entrega' => 'nullable|date|required_without:es_recurrente',
+            'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
             'fecha_facturacion' => 'nullable|date',
             'notas_facturacion' => 'nullable|string|max:500',
             'es_recurrente' => 'nullable|boolean',
+            'es_bolsa_horas' => 'nullable|boolean',
+            'horas_totales' => 'nullable|numeric|min:0|required_if:es_bolsa_horas,1',
+            'valor_hora' => 'nullable|numeric|min:0',
+            'puntos' => 'nullable|array',
+            'puntos.*.texto' => 'nullable|string|max:500',
+            'puntos.*.horas' => 'nullable|numeric|min:0',
+            'puntos.*.estado' => 'nullable|in:pendiente,en_progreso,hecho',
             'descripcion' => 'nullable|string',
             'notas' => 'nullable|string',
             'developer_id' => 'nullable|exists:developers,id',
@@ -1159,6 +1238,8 @@ class InternalProjectController extends Controller
         if ($validated['es_recurrente']) {
             $validated['fecha_entrega'] = null;
         }
+
+        $validated = $this->aplicarDatosBolsa($validated, $request);
 
         $internal_project->update($validated);
 

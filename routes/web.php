@@ -221,6 +221,8 @@ Route::middleware('auth')->group(function () {
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
     Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
     Route::get('internal-projects/{internal_project}/payments/{payment}/recibo', [App\Http\Controllers\Admin\InternalProjectController::class, 'receiptPayment'])->name('admin.internal-projects.payments.receipt');
+    Route::post('internal-projects/{internal_project}/movimientos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeMovimiento'])->name('admin.internal-projects.movimientos.store');
+    Route::delete('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyMovimiento'])->name('admin.internal-projects.movimientos.destroy');
     Route::get('internal-projects/{internal_project}/cuenta-cobro', [App\Http\Controllers\Admin\InternalProjectController::class, 'cuentaCobro'])->name('admin.internal-projects.cuenta-cobro');
     Route::post('internal-projects/{internal_project}/cuenta-cobro/publicar', [App\Http\Controllers\Admin\InternalProjectController::class, 'publicarCuentaCobro'])->name('admin.internal-projects.cuenta-cobro.publicar');
     Route::post('internal-projects/{internal_project}/developer-payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeDeveloperPayment'])->name('admin.internal-projects.developer-payments.store');

@@ -571,6 +571,114 @@
             </div>
         </div>
 
+        {{-- Bolsa de horas prepagada --}}
+        @php $puntosOld = collect(old('puntos', $project->puntos_acuerdo ?? []))->values(); @endphp
+        <div class="form-section">
+            <div class="form-section-header">
+                <i class="fas fa-hourglass-half"></i>
+                <h3>Bolsa de horas prepagada</h3>
+            </div>
+            <div class="form-section-body">
+                <div class="field-row single">
+                    <div class="field-group">
+                        <label style="display: inline-flex; align-items: center; gap: 0.5rem; cursor: pointer; padding: 0.6rem 0.9rem; background: #f8f9fa; border: 2px dashed #e9ecef; border-radius: 10px; font-size: 0.85rem; font-weight: 600; color: var(--dark-text); width: 100%;">
+                            <input type="checkbox" name="es_bolsa_horas" id="es_bolsa_horas" value="1"
+                                   {{ old('es_bolsa_horas', $project->es_bolsa_horas) ? 'checked' : '' }}
+                                   style="width: 18px; height: 18px; cursor: pointer; accent-color: var(--primary-blue);">
+                            <i class="fas fa-hourglass-half" style="color: var(--primary-blue);"></i>
+                            Este proyecto es una bolsa de horas (el cliente verá horas, consumo y puntos en su portal)
+                        </label>
+                    </div>
+                </div>
+
+                <div id="bolsa-fields" style="display:none;">
+                    <div class="field-row">
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-clock"></i> Total de horas contratadas <span class="required">*</span></div>
+                            <input type="number" name="horas_totales" id="horas_totales" step="0.25" min="0"
+                                   class="form-control @error('horas_totales') is-invalid @enderror"
+                                   value="{{ old('horas_totales', $project->horas_totales ? rtrim(rtrim(number_format($project->horas_totales, 2, '.', ''), '0'), '.') : '') }}"
+                                   placeholder="Ej: 40">
+                            @error('horas_totales') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                        </div>
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-dollar-sign"></i> Valor por hora <small style="font-weight:500; color:#aaa;">(opcional)</small></div>
+                            <div class="money-wrap">
+                                <span class="money-prefix" data-money-prefix-for="moneda">$</span>
+                                <input type="text" inputmode="numeric" name="valor_hora" id="valor_hora"
+                                       class="form-control js-money-input"
+                                       value="{{ old('valor_hora', $project->valor_hora) }}" placeholder="0">
+                            </div>
+                            <div class="field-hint">Se le muestra al cliente cuánto vale cada hora de su bolsa.</div>
+                        </div>
+                    </div>
+
+                    <div class="field-row single">
+                        <div class="field-group">
+                            <div class="field-label"><i class="fas fa-list-check"></i> Puntos acordados</div>
+                            <div class="field-hint" style="margin-top:0; margin-bottom:0.6rem;">Lista de lo que se acordó con el cliente. Puedes indicar horas estimadas y el estado de cada punto.</div>
+                            <div id="puntos-list"></div>
+                            <button type="button" id="btn-add-punto"
+                                    style="margin-top:0.4rem; padding:0.5rem 1rem; border:2px dashed var(--primary-blue); background:rgba(0,123,255,0.04); color:var(--primary-blue); border-radius:10px; font-weight:700; font-size:0.82rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.4rem;">
+                                <i class="fas fa-plus"></i> Agregar punto
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            (function () {
+                const check = document.getElementById('es_bolsa_horas');
+                const body = document.getElementById('bolsa-fields');
+                function sync() { body.style.display = check.checked ? 'block' : 'none'; }
+                check.addEventListener('change', sync);
+                sync();
+
+                const list = document.getElementById('puntos-list');
+                const addBtn = document.getElementById('btn-add-punto');
+                let idx = 0;
+
+                const esc = (s) => String(s == null ? '' : s).replace(/"/g, '&quot;');
+
+                function rowHtml(i, texto, horas, estado) {
+                    const opt = (v, label) => `<option value="${v}" ${estado === v ? 'selected' : ''}>${label}</option>`;
+                    return `
+                        <div class="punto-row" style="display:grid; grid-template-columns: 1fr 90px 140px 38px; gap:0.5rem; align-items:center; margin-bottom:0.5rem;">
+                            <input type="text" name="puntos[${i}][texto]" value="${esc(texto)}" placeholder="Ej: Desarrollar módulo de reportes" class="form-control" style="padding:0.5rem 0.75rem;">
+                            <input type="number" name="puntos[${i}][horas]" value="${esc(horas)}" step="0.25" min="0" placeholder="Hrs" class="form-control" style="padding:0.5rem 0.4rem; text-align:center;">
+                            <select name="puntos[${i}][estado]" class="form-select" style="padding:0.5rem 0.4rem;">
+                                ${opt('pendiente', 'Pendiente')}
+                                ${opt('en_progreso', 'En progreso')}
+                                ${opt('hecho', 'Hecho')}
+                            </select>
+                            <button type="button" class="btn-remove-punto" title="Quitar" style="width:36px; height:36px; border:none; border-radius:9px; background:rgba(220,53,69,0.1); color:#dc3545; cursor:pointer;"><i class="fas fa-times"></i></button>
+                        </div>`;
+                }
+
+                function addRow(texto, horas, estado) {
+                    const holder = document.createElement('div');
+                    holder.innerHTML = rowHtml(idx, texto || '', horas ?? '', estado || 'pendiente');
+                    list.appendChild(holder.firstElementChild);
+                    idx++;
+                }
+
+                const PUNTOS_INIT = @json($puntosOld);
+                if (PUNTOS_INIT.length) {
+                    PUNTOS_INIT.forEach(p => addRow(p.texto, p.horas, p.estado));
+                } else {
+                    addRow();
+                }
+
+                addBtn.addEventListener('click', () => addRow());
+                list.addEventListener('click', (e) => {
+                    const btn = e.target.closest('.btn-remove-punto');
+                    if (btn) btn.closest('.punto-row').remove();
+                });
+            })();
+        </script>
+
         {{-- Propuesta / Contrato --}}
         <div class="form-section">
             <div class="form-section-header">
