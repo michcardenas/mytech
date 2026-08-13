@@ -674,9 +674,9 @@
                             <div class="field-label"><i class="fas fa-dollar-sign"></i> Valor por hora <small style="font-weight:500; color:#aaa;">(opcional)</small></div>
                             <div class="money-wrap">
                                 <span class="money-prefix" data-money-prefix-for="moneda">$</span>
-                                <input type="text" inputmode="numeric" name="valor_hora" id="valor_hora"
+                                <input type="text" inputmode="decimal" name="valor_hora" id="valor_hora"
                                        class="form-control js-money-input"
-                                       value="{{ old('valor_hora', $project->valor_hora) }}" placeholder="0">
+                                       value="{{ old('valor_hora', $project->valor_hora) }}" placeholder="Ej: 13,5">
                             </div>
                             <div class="field-hint">Se le muestra al cliente cuánto vale cada hora de su bolsa.</div>
                         </div>
@@ -1351,33 +1351,58 @@
     })();
 </script>
 
-{{-- Máscara de miles ENTERA (1.500.000) para inputs .js-money-input.
-     Sin decimales. Al enviar el form se manda el número plano (1500000). --}}
+{{-- Máscara de dinero: miles (1.234.567) y decimales opcionales (1.234,50).
+     Coma = decimal (también acepta punto y lo convierte). Al enviar manda el número plano (1234567.5). --}}
 <script>
     (function () {
         const inputs = document.querySelectorAll('.js-money-input');
         if (!inputs.length) return;
         const form = inputs[0].closest('form');
 
-        // Agrupa una cadena de dígitos con puntos de miles.
         function groupThousands(digits) {
             digits = String(digits).replace(/\D/g, '').replace(/^0+(?=\d)/, '');
             if (digits === '') return '';
             return digits.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
         }
 
-        // Valor inicial del backend (ej "3200000.00", "25.00", "15") → entero con puntos.
-        function formatInitial(v) {
-            if (v === '' || v == null) return '';
-            const num = Math.round(parseFloat(String(v).replace(/\s/g, '')));
-            if (isNaN(num)) return '';
-            return groupThousands(String(num));
+        // Deja dígitos + una sola coma decimal (los puntos son miles → se quitan).
+        function cleanRaw(str) {
+            let s = String(str == null ? '' : str).replace(/[^\d,]/g, '');
+            const i = s.indexOf(',');
+            if (i !== -1) { s = s.slice(0, i + 1) + s.slice(i + 1).replace(/,/g, ''); }
+            return s;
         }
 
-        // Lee el valor numérico plano (sin puntos) de un input enmascarado.
+        // raw (dígitos + coma) → visual con miles y máx 2 decimales.
+        function formatVisual(raw) {
+            if (!raw) return '';
+            const parts = raw.split(',');
+            const intFormatted = groupThousands(parts[0]) || (parts.length > 1 ? '0' : '');
+            if (parts.length > 1) {
+                return intFormatted + ',' + parts[1].replace(/\D/g, '').slice(0, 2);
+            }
+            return intFormatted;
+        }
+
+        // "1.234,50" → "1234.50"
+        function toBackend(visual) {
+            if (visual === '' || visual == null) return '';
+            return String(visual).replace(/\./g, '').replace(',', '.');
+        }
+
+        // Backend "13.50"/"1234" → visual "13,5"/"1.234".
+        function formatInitial(v) {
+            if (v === '' || v == null) return '';
+            const num = parseFloat(String(v).replace(/\s/g, ''));
+            if (isNaN(num)) return '';
+            const s = (Math.round(num * 100) / 100).toString().replace('.', ',');
+            return formatVisual(s);
+        }
+
+        // Lee el valor numérico plano (float) de un input enmascarado.
         window.moneyRaw = function (input) {
             if (!input) return 0;
-            const n = parseInt(String(input.value).replace(/\D/g, ''), 10);
+            const n = parseFloat(toBackend(input.value));
             return isNaN(n) ? 0 : n;
         };
 
@@ -1388,40 +1413,49 @@
         };
 
         inputs.forEach(inp => {
-            // Formatear valor inicial (edición)
             if (inp.value !== '') inp.value = formatInitial(inp.value);
 
             inp.addEventListener('input', () => {
                 const oldValue = inp.value;
                 const caret = inp.selectionStart;
-                // dígitos que hay antes del cursor (para reposicionarlo después)
-                const digitsBefore = oldValue.slice(0, caret).replace(/\D/g, '').length;
+                const keptBefore = oldValue.slice(0, caret).replace(/[^\d,]/g, '').length;
 
-                const formatted = groupThousands(oldValue);
+                const formatted = formatVisual(cleanRaw(oldValue));
                 inp.value = formatted;
 
-                // reposicionar el cursor tras la misma cantidad de dígitos
                 let pos = 0, count = 0;
-                if (digitsBefore > 0) {
+                if (keptBefore > 0) {
                     for (let i = 0; i < formatted.length; i++) {
-                        if (/\d/.test(formatted[i])) count++;
-                        if (count === digitsBefore) { pos = i + 1; break; }
+                        if (/[\d,]/.test(formatted[i])) count++;
+                        if (count === keptBefore) { pos = i + 1; break; }
                     }
-                    if (count < digitsBefore) pos = formatted.length;
+                    if (count < keptBefore) pos = formatted.length;
                 }
                 try { inp.setSelectionRange(pos, pos); } catch (e) {}
             });
 
-            // Solo dígitos (sin decimales ni comas)
+            // Dígitos + un separador decimal (el punto se convierte en coma).
             inp.addEventListener('keypress', (e) => {
                 if (e.ctrlKey || e.metaKey) return;
-                if (!/[0-9]/.test(e.key)) e.preventDefault();
+                if (/[0-9]/.test(e.key)) return;
+                if (e.key === ',' || e.key === '.') {
+                    if (inp.value.indexOf(',') !== -1) { e.preventDefault(); return; }
+                    if (e.key === '.') {
+                        e.preventDefault();
+                        const s = inp.selectionStart, en = inp.selectionEnd;
+                        if (inp.setRangeText) { inp.setRangeText(',', s, en, 'end'); }
+                        else { inp.value = inp.value.slice(0, s) + ',' + inp.value.slice(en); }
+                        inp.dispatchEvent(new Event('input'));
+                    }
+                    return;
+                }
+                e.preventDefault();
             });
         });
 
         if (form) {
             form.addEventListener('submit', () => {
-                inputs.forEach(inp => { inp.value = String(inp.value).replace(/\D/g, ''); });
+                inputs.forEach(inp => { inp.value = toBackend(inp.value); });
             });
         }
     })();
