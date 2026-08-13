@@ -343,6 +343,7 @@
                                 @foreach($clients as $c)
                                     <option value="{{ $c->id }}"
                                             data-telefono="{{ $c->telefono }}"
+                                            data-email="{{ $c->email }}"
                                             data-empresa="{{ $c->empresa }}"
                                             data-identificacion="{{ $c->identificacion }}"
                                             {{ old('client_id', $project->client_id) == $c->id ? 'selected' : '' }}>
@@ -360,7 +361,7 @@
                     </div>
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-envelope"></i> Email</div>
-                        <input type="email" name="cliente_email" class="form-control"
+                        <input type="email" name="cliente_email" id="cliente_email" class="form-control"
                                value="{{ old('cliente_email', $project->cliente_email) }}" placeholder="email@ejemplo.com">
                     </div>
                 </div>
@@ -369,6 +370,16 @@
                         <div class="field-label"><i class="fas fa-phone"></i> Contacto</div>
                         <input type="text" name="cliente_contacto" id="cliente_contacto" class="form-control"
                                value="{{ old('cliente_contacto', $project->cliente_contacto) }}" placeholder="Teléfono o WhatsApp (se completa con el del cliente si se deja vacío)">
+                    </div>
+                </div>
+                <div class="field-row single" id="cliente-edit-row" style="display:none;">
+                    <div class="field-group">
+                        <button type="button" id="btnGuardarCliente"
+                                style="padding:0.55rem 1rem; border-radius:10px; border:none; background:linear-gradient(135deg,#34d399 0%,#059669 100%); color:white; font-weight:600; font-size:0.83rem; cursor:pointer; display:inline-flex; align-items:center; gap:0.45rem;">
+                            <i class="fas fa-user-check"></i> Guardar teléfono y correo en la ficha del cliente
+                        </button>
+                        <span id="clienteGuardadoMsg" style="margin-left:0.7rem; font-size:0.82rem; font-weight:700;"></span>
+                        <div class="field-hint">Actualiza el teléfono y el email del <strong>cliente seleccionado</strong> (su ficha), no solo de este proyecto.</div>
                     </div>
                 </div>
             </div>
@@ -432,6 +443,10 @@
                 const select = document.getElementById('client_id');
                 const hiddenNombre = document.getElementById('cliente_nombre_hidden');
                 const telefonoInput = document.getElementById('cliente_contacto');
+                const emailInput = document.getElementById('cliente_email');
+                const editRow = document.getElementById('cliente-edit-row');
+                const btnGuardarCliente = document.getElementById('btnGuardarCliente');
+                const guardadoMsg = document.getElementById('clienteGuardadoMsg');
                 const nombreField = document.getElementById('nuevoClienteNombre');
                 const telField = document.getElementById('nuevoClienteTelefono');
                 const empField = document.getElementById('nuevoClienteEmpresa');
@@ -452,20 +467,73 @@
                 modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
                 document.addEventListener('keydown', e => { if (e.key === 'Escape' && modal.style.display === 'flex') closeModal(); });
 
-                // Sync hidden cliente_nombre from select selection (legacy fallback)
-                function syncHiddenFromSelect() {
+                // Al seleccionar un cliente: nombre oculto + rellenar/editar sus datos
+                function syncFromSelect(userChange) {
                     const opt = select.options[select.selectedIndex];
                     if (opt && opt.value) {
                         hiddenNombre.value = opt.textContent.split(' · ')[0].trim();
-                        // Si el campo teléfono está vacío y el cliente tiene teléfono → sugerirlo
-                        const tel = opt.dataset.telefono;
-                        if (tel && !telefonoInput.value) telefonoInput.value = tel;
+                        const tel = opt.dataset.telefono || '';
+                        const email = opt.dataset.email || '';
+                        if (userChange) {
+                            // Al elegir un cliente mostramos SUS datos (editables)
+                            telefonoInput.value = tel;
+                            if (emailInput) { emailInput.value = email; }
+                        } else {
+                            // En carga inicial no pisar lo que ya trae el proyecto
+                            if (tel && !telefonoInput.value) { telefonoInput.value = tel; }
+                            if (email && emailInput && !emailInput.value) { emailInput.value = email; }
+                        }
+                        if (editRow) { editRow.style.display = ''; }
                     } else {
                         hiddenNombre.value = '';
+                        if (editRow) { editRow.style.display = 'none'; }
                     }
+                    if (guardadoMsg) { guardadoMsg.textContent = ''; }
                 }
-                select.addEventListener('change', syncHiddenFromSelect);
-                syncHiddenFromSelect();
+                select.addEventListener('change', () => syncFromSelect(true));
+                syncFromSelect(false);
+
+                // Guardar teléfono + email en la ficha del cliente seleccionado
+                btnGuardarCliente?.addEventListener('click', async () => {
+                    const opt = select.options[select.selectedIndex];
+                    if (!opt || !opt.value) { return; }
+                    guardadoMsg.textContent = '';
+                    const original = btnGuardarCliente.innerHTML;
+                    btnGuardarCliente.disabled = true;
+                    btnGuardarCliente.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+                    try {
+                        const res = await fetch('{{ url('clients') }}/' + opt.value, {
+                            method: 'PATCH',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')?.content
+                                    || document.querySelector('input[name="_token"]').value,
+                            },
+                            body: JSON.stringify({
+                                telefono: telefonoInput.value.trim() || null,
+                                email: (emailInput?.value || '').trim() || null,
+                            }),
+                        });
+                        const data = await res.json();
+                        if (!res.ok || !data.ok) {
+                            const msg = data?.errors
+                                ? Object.values(data.errors).flat().join(' · ')
+                                : (data?.message || 'No se pudo actualizar el cliente.');
+                            throw new Error(msg);
+                        }
+                        opt.dataset.telefono = data.client.telefono || '';
+                        opt.dataset.email = data.client.email || '';
+                        guardadoMsg.style.color = '#059669';
+                        guardadoMsg.textContent = '✓ Guardado en la ficha del cliente';
+                    } catch (err) {
+                        guardadoMsg.style.color = '#dc3545';
+                        guardadoMsg.textContent = err.message;
+                    } finally {
+                        btnGuardarCliente.disabled = false;
+                        btnGuardarCliente.innerHTML = original;
+                    }
+                });
 
                 document.getElementById('guardarNuevoCliente').addEventListener('click', async () => {
                     errorBox.style.display = 'none';
@@ -510,11 +578,12 @@
                             c.id, true, true
                         );
                         opt.dataset.telefono = c.telefono || '';
+                        opt.dataset.email = c.email || '';
                         opt.dataset.empresa = c.empresa || '';
                         opt.dataset.identificacion = c.identificacion || '';
                         select.add(opt);
                         select.value = c.id;
-                        syncHiddenFromSelect();
+                        syncFromSelect(true);
                         closeModal();
                     } catch (err) {
                         errorBox.textContent = err.message;

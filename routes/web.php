@@ -190,6 +190,7 @@ Route::patch('admin-proyectos/{proyecto}/toggle', [App\Http\Controllers\Admin\Pr
 
 // === CLIENTES (usados desde proyectos internos) ===
 Route::post('clients', [App\Http\Controllers\Admin\ClientController::class, 'store'])->name('admin.clients.store');
+Route::patch('clients/{client}', [App\Http\Controllers\Admin\ClientController::class, 'update'])->name('admin.clients.update');
 
 // === DESARROLLADORES (usados desde proyectos internos) ===
 Route::post('developers', [App\Http\Controllers\Admin\DeveloperController::class, 'store'])->name('admin.developers.store');

@@ -25,4 +25,19 @@ class ClientController extends Controller
             'client' => $client,
         ]);
     }
+
+    public function update(Request $request, Client $client): JsonResponse
+    {
+        $validated = $request->validate([
+            'telefono' => 'nullable|string|max:50',
+            'email' => 'nullable|email|max:255',
+        ]);
+
+        $client->update($validated);
+
+        return response()->json([
+            'ok' => true,
+            'client' => $client,
+        ]);
+    }
 }
