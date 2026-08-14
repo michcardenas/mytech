@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Page;
-use Illuminate\Http\Request;
 
 class LandingController extends Controller
 {
@@ -19,8 +18,21 @@ class LandingController extends Controller
             ->with(['activeSections', 'seo'])
             ->firstOrFail();
 
+        // El SEO (meta + schema) lo inyecta el layout desde el registro `seo`.
+        $seo = $landing->seo;
+        // Alias para partials/layout que esperan $page (breadcrumb, etc.)
+        $page = $landing;
+
         // Obtener proyectos destacados si existen
         $proyectos = $landing->featuredProyectos();
+
+        // Diseño bespoke por slug: si existe landings/custom/{slug}.blade.php se
+        // usa esa vista premium a medida (extiende layouts.app-home con SEO
+        // completo). Si no, cae al render genérico por secciones editables.
+        $customView = 'landings.custom.'.$slug;
+        if (view()->exists($customView)) {
+            return view($customView, compact('landing', 'page', 'seo', 'proyectos'));
+        }
 
         // Obtener datos estructurados de secciones
         $hero = $landing->sections()->where('name', 'hero')->first();

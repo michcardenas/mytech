@@ -2,17 +2,18 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Category;
+use App\Models\Page;
+use App\Models\Product;
+use App\Models\Proyecto;
 use Illuminate\Console\Command;
 use Spatie\Sitemap\Sitemap;
 use Spatie\Sitemap\Tags\Url;
-use App\Models\Proyecto;
-use App\Models\Product;
-use App\Models\Category;
-use App\Models\Page;
 
 class GenerateSitemap extends Command
 {
     protected $signature = 'sitemap:generate';
+
     protected $description = 'Generar sitemap.xml dinámico con todas las URLs del sitio';
 
     public function handle()
@@ -30,6 +31,9 @@ class GenerateSitemap extends Command
 
         // Agregar blogs
         $this->addBlogs($sitemap);
+
+        // Agregar landing pages comerciales (type = landing)
+        $this->addLandings($sitemap);
 
         // Agregar productos y categorías si existen (DESACTIVADO - residuos de prueba)
         // $this->addProducts($sitemap);
@@ -77,14 +81,14 @@ class GenerateSitemap extends Command
 
         foreach ($proyectos as $proyecto) {
             $sitemap->add(
-                Url::create('/proyectos/' . $proyecto->slug)
+                Url::create('/proyectos/'.$proyecto->slug)
                     ->setLastModificationDate($proyecto->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
                     ->setPriority(0.7)
             );
         }
 
-        $this->info('✓ ' . $proyectos->count() . ' proyectos agregados');
+        $this->info('✓ '.$proyectos->count().' proyectos agregados');
     }
 
     /**
@@ -107,7 +111,7 @@ class GenerateSitemap extends Command
 
         foreach ($blogs as $blog) {
             $sitemap->add(
-                Url::create('/blog/' . $blog->slug)
+                Url::create('/blog/'.$blog->slug)
                     ->setLastModificationDate($blog->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.7)
@@ -122,15 +126,53 @@ class GenerateSitemap extends Command
 
         foreach ($categoriesWithBlogs as $category) {
             $sitemap->add(
-                Url::create('/blog/categoria/' . $category)
+                Url::create('/blog/categoria/'.$category)
                     ->setLastModificationDate(now())
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.6)
             );
         }
 
-        $this->info('✓ ' . $blogs->count() . ' blogs agregados');
-        $this->info('✓ ' . $categoriesWithBlogs->count() . ' categorías de blog agregadas');
+        $this->info('✓ '.$blogs->count().' blogs agregados');
+        $this->info('✓ '.$categoriesWithBlogs->count().' categorías de blog agregadas');
+    }
+
+    /**
+     * Agregar landing pages comerciales activas al sitemap.
+     *
+     * Son páginas de servicio a medida (type = landing) servidas por el
+     * catch-all /{slug}. Prioridad alta (0.9) porque son páginas de captación.
+     * Respeta sitemap_include / sitemap_priority del registro SEO si existen.
+     */
+    protected function addLandings(Sitemap $sitemap): void
+    {
+        $landings = Page::where('type', 'landing')
+            ->where('is_active', true)
+            ->with('seo')
+            ->get();
+
+        $count = 0;
+
+        foreach ($landings as $landing) {
+            $seo = $landing->seo;
+
+            if ($seo && $seo->sitemap_include === false) {
+                continue;
+            }
+
+            $priority = $seo && $seo->sitemap_priority ? (float) $seo->sitemap_priority : 0.9;
+
+            $sitemap->add(
+                Url::create('/'.$landing->slug)
+                    ->setLastModificationDate($landing->updated_at ?? now())
+                    ->setChangeFrequency(Url::CHANGE_FREQUENCY_MONTHLY)
+                    ->setPriority($priority)
+            );
+
+            $count++;
+        }
+
+        $this->info('✓ '.$count.' landing pages agregadas');
     }
 
     /**
@@ -138,7 +180,7 @@ class GenerateSitemap extends Command
      */
     protected function addProducts(Sitemap $sitemap): void
     {
-        if (!class_exists(Product::class)) {
+        if (! class_exists(Product::class)) {
             return;
         }
 
@@ -146,7 +188,7 @@ class GenerateSitemap extends Command
 
         foreach ($products as $product) {
             $sitemap->add(
-                Url::create('/products/' . $product->id)
+                Url::create('/products/'.$product->id)
                     ->setLastModificationDate($product->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.6)
@@ -154,7 +196,7 @@ class GenerateSitemap extends Command
         }
 
         if ($products->count() > 0) {
-            $this->info('✓ ' . $products->count() . ' productos agregados');
+            $this->info('✓ '.$products->count().' productos agregados');
         }
     }
 
@@ -163,7 +205,7 @@ class GenerateSitemap extends Command
      */
     protected function addCategories(Sitemap $sitemap): void
     {
-        if (!class_exists(Category::class)) {
+        if (! class_exists(Category::class)) {
             return;
         }
 
@@ -171,7 +213,7 @@ class GenerateSitemap extends Command
 
         foreach ($categories as $category) {
             $sitemap->add(
-                Url::create('/categories/' . $category->id)
+                Url::create('/categories/'.$category->id)
                     ->setLastModificationDate($category->updated_at)
                     ->setChangeFrequency(Url::CHANGE_FREQUENCY_WEEKLY)
                     ->setPriority(0.5)
@@ -179,7 +221,7 @@ class GenerateSitemap extends Command
         }
 
         if ($categories->count() > 0) {
-            $this->info('✓ ' . $categories->count() . ' categorías agregadas');
+            $this->info('✓ '.$categories->count().' categorías agregadas');
         }
     }
 }
