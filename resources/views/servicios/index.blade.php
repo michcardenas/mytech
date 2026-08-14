@@ -12,6 +12,9 @@
     @include('partials.servicios.hero')
     @include('partials.servicios.storytelling')
 
+    {{-- Líneas destacadas: enlaza las 3 landings comerciales (bots, e-commerce, software) --}}
+    @include('partials.servicios.lineas')
+
     {{--
         Stack tecnológico — reuso del partial del home.
         El partial lee `stack_*` del JSON content. Para /servicios mapeamos los
