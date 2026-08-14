@@ -72,6 +72,31 @@ class LandingsSeeder extends Seeder
                     'schema_markup' => $this->chatbotsSchema($base),
                 ],
             ],
+            [
+                'slug' => 'desarrollo-ecommerce',
+                'title' => 'Desarrollo de E-commerce a la Medida',
+                'seo' => [
+                    'meta_title' => 'Desarrollo de Tiendas Online a la Medida que Venden | MY Tech',
+                    'meta_description' => 'Desarrollamos tiendas online y e-commerce a la medida en Laravel: catálogo, inventario, pagos (Stripe, Wompi, Mercado Pago), checkout optimizado y SEO. Tu tienda, sin límites.',
+                    'meta_keywords' => 'desarrollo de ecommerce a la medida, tienda online a la medida, desarrollo de tienda virtual, ecommerce colombia, desarrollo tienda online, tienda online laravel',
+                    'canonical_url' => $base.'/desarrollo-ecommerce',
+                    'robots' => 'index,follow',
+                    'og_title' => 'Desarrollo de E-commerce y Tiendas Online a la Medida',
+                    'og_description' => 'Tiendas online a la medida que venden: catálogo, pagos (Stripe, Wompi, Mercado Pago), checkout optimizado, panel propio y SEO técnico. Sin comisiones por venta ni límites de plantilla.',
+                    'og_type' => 'website',
+                    'og_url' => $base.'/desarrollo-ecommerce',
+                    'og_site_name' => 'MY Tech Solutions',
+                    'twitter_card' => 'summary_large_image',
+                    'twitter_title' => 'Desarrollo de E-commerce y Tiendas Online a la Medida',
+                    'twitter_description' => 'Tiendas online a la medida que venden: catálogo, pagos, checkout optimizado y SEO. Sin comisiones ni límites de plantilla. Cotiza gratis.',
+                    'focus_keyword' => 'desarrollo de ecommerce a la medida',
+                    'breadcrumb_title' => 'Desarrollo de E-commerce a la Medida',
+                    'sitemap_include' => true,
+                    'sitemap_priority' => 0.9,
+                    'sitemap_changefreq' => 'monthly',
+                    'schema_markup' => $this->ecommerceSchema($base),
+                ],
+            ],
         ];
     }
 
@@ -150,6 +175,89 @@ class LandingsSeeder extends Seeder
                             '@type' => 'ListItem',
                             'position' => 2,
                             'name' => 'Chatbots con IA para WhatsApp',
+                            'item' => $url,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function ecommerceSchema(string $base): array
+    {
+        $url = $base.'/desarrollo-ecommerce';
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => $base.'/#organization',
+                    'name' => 'MY Tech Solutions',
+                    'url' => $base,
+                    'logo' => $base.'/images/icon.png',
+                    'sameAs' => [
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.instagram.com/mytech_solutions',
+                    ],
+                ],
+                [
+                    '@type' => 'WebPage',
+                    '@id' => $url.'#webpage',
+                    'url' => $url,
+                    'name' => 'Desarrollo de Tiendas Online a la Medida que Venden | MY Tech',
+                    'description' => 'Desarrollo de e-commerce y tiendas online a la medida en Laravel: catálogo, pagos, checkout optimizado y SEO técnico.',
+                    'inLanguage' => 'es',
+                    'isPartOf' => ['@id' => $base.'/#website'],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $base.'/#website',
+                    'url' => $base,
+                    'name' => 'MY Tech Solutions',
+                    'publisher' => ['@id' => $base.'/#organization'],
+                    'inLanguage' => 'es',
+                ],
+                [
+                    '@type' => 'Service',
+                    '@id' => $url.'#service',
+                    'name' => 'Desarrollo de e-commerce y tiendas online a la medida',
+                    'serviceType' => 'Desarrollo de comercio electrónico a la medida',
+                    'url' => $url,
+                    'description' => 'Desarrollo de tiendas online y plataformas de e-commerce a la medida sobre Laravel: catálogo e inventario, pasarelas de pago (Stripe, Wompi, Mercado Pago, Sistecrédito), checkout optimizado, panel de administración propio, SEO técnico e integraciones con facturación y envíos.',
+                    'provider' => ['@id' => $base.'/#organization'],
+                    'areaServed' => [
+                        ['@type' => 'Country', 'name' => 'Colombia'],
+                        ['@type' => 'Country', 'name' => 'México'],
+                        ['@type' => 'Country', 'name' => 'Ecuador'],
+                        ['@type' => 'Country', 'name' => 'Argentina'],
+                        ['@type' => 'Country', 'name' => 'España'],
+                    ],
+                    'offers' => [
+                        '@type' => 'AggregateOffer',
+                        'priceCurrency' => 'USD',
+                        'lowPrice' => '1200',
+                        'offerCount' => '1',
+                        'url' => $url,
+                    ],
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => $url.'#breadcrumb',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Inicio',
+                            'item' => $base,
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Desarrollo de E-commerce a la Medida',
                             'item' => $url,
                         ],
                     ],
