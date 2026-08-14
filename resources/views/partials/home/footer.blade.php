@@ -58,7 +58,7 @@
                         </a>
                     </li>
                     <li>
-                        <a href="{{ route('blog.show', 'cuanto-cuesta-contratar-agencia-desarrollo-software-colombia-2026') }}"
+                        <a href="{{ route('blog.show', 'cuanto-cuesta-una-agencia-de-software-en-colombia-2026') }}"
                            class="text-mt-text-2 hover:text-mt-accent transition text-sm leading-snug block">
                             Precios reales: contratar agencia en Colombia
                         </a>

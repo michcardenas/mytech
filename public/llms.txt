@@ -46,7 +46,7 @@ Catálogo completo: 37 proyectos en https://mytechsolutionsco.com/proyectos
 ## Guías y recursos (long-form)
 
 - [Cuánto cuesta desarrollar software a medida en Colombia 2026](https://mytechsolutionsco.com/blog/cuanto-cuesta-desarrollar-software-colombia-2026): Tabla de precios reales por tipo de proyecto (landing $400-$1.200, e-commerce $2.000-$7.000, SaaS desde $12.000 USD), freelancer vs agencia.
-- [Cuánto cuesta contratar una agencia de desarrollo en Colombia 2026](https://mytechsolutionsco.com/blog/cuanto-cuesta-contratar-agencia-desarrollo-software-colombia-2026): Qué evaluar antes de contratar, preguntas clave, red flags, modelos de contratación con precios reales.
+- [Cuánto cuesta contratar una agencia de desarrollo en Colombia 2026](https://mytechsolutionsco.com/blog/cuanto-cuesta-una-agencia-de-software-en-colombia-2026): Qué evaluar antes de contratar, preguntas clave, red flags, modelos de contratación con precios reales.
 - [Cuánto cuesta un panel administrativo web en Colombia 2026](https://mytechsolutionsco.com/blog/cuanto-cuesta-desarrollar-un-panel-administrativo-web-en-colombia-2026): Costos específicos de paneles de gestión interna en Laravel.
 - [Facturación Electrónica DIAN: integrarla a tu software 2026](https://mytechsolutionsco.com/blog/facturacion-electronica-dian-integrar-software): Guía técnica para integrar la API DIAN — XML UBL 2.1, CUDE, habilitación directa vs proveedor autorizado. Costo estimado de integración: $1.500-$4.000 USD.
 - [Desarrollo de software en Bogotá: cuánto cuesta](https://mytechsolutionsco.com/blog/desarrollo-de-software-en-bogota-cuanto-cuesta): Precios reales 2026 para Bogotá específicamente.
