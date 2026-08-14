@@ -97,6 +97,31 @@ class LandingsSeeder extends Seeder
                     'schema_markup' => $this->ecommerceSchema($base),
                 ],
             ],
+            [
+                'slug' => 'software-a-la-medida',
+                'title' => 'Desarrollo de Software a la Medida',
+                'seo' => [
+                    'meta_title' => 'Software a la Medida: SaaS, ERP y CRM para Empresas | MY Tech',
+                    'meta_description' => 'Desarrollamos software a la medida para empresas: SaaS, ERPs, CRMs, paneles y plataformas en Laravel que se ajustan a tu operación, se integran y escalan. Cotiza gratis.',
+                    'meta_keywords' => 'desarrollo de software a la medida, software a la medida para empresas, desarrollo de saas, desarrollo de erp a la medida, desarrollo de crm, software empresarial colombia',
+                    'canonical_url' => $base.'/software-a-la-medida',
+                    'robots' => 'index,follow',
+                    'og_title' => 'Desarrollo de Software a la Medida: SaaS, ERP y CRM',
+                    'og_description' => 'Software a la medida para empresas: SaaS, ERPs, CRMs, paneles y plataformas que se ajustan a tu operación, se integran con lo que ya usas y escalan. El código es tuyo.',
+                    'og_type' => 'website',
+                    'og_url' => $base.'/software-a-la-medida',
+                    'og_site_name' => 'MY Tech Solutions',
+                    'twitter_card' => 'summary_large_image',
+                    'twitter_title' => 'Desarrollo de Software a la Medida: SaaS, ERP y CRM',
+                    'twitter_description' => 'Software a la medida para empresas: SaaS, ERPs, CRMs y plataformas que se ajustan a tu operación y escalan. El código es tuyo. Cotiza gratis.',
+                    'focus_keyword' => 'desarrollo de software a la medida',
+                    'breadcrumb_title' => 'Desarrollo de Software a la Medida',
+                    'sitemap_include' => true,
+                    'sitemap_priority' => 0.9,
+                    'sitemap_changefreq' => 'monthly',
+                    'schema_markup' => $this->softwareSchema($base),
+                ],
+            ],
         ];
     }
 
@@ -258,6 +283,89 @@ class LandingsSeeder extends Seeder
                             '@type' => 'ListItem',
                             'position' => 2,
                             'name' => 'Desarrollo de E-commerce a la Medida',
+                            'item' => $url,
+                        ],
+                    ],
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function softwareSchema(string $base): array
+    {
+        $url = $base.'/software-a-la-medida';
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => $base.'/#organization',
+                    'name' => 'MY Tech Solutions',
+                    'url' => $base,
+                    'logo' => $base.'/images/icon.png',
+                    'sameAs' => [
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.instagram.com/mytech_solutions',
+                    ],
+                ],
+                [
+                    '@type' => 'WebPage',
+                    '@id' => $url.'#webpage',
+                    'url' => $url,
+                    'name' => 'Software a la Medida: SaaS, ERP y CRM para Empresas | MY Tech',
+                    'description' => 'Desarrollo de software a la medida para empresas: SaaS, ERPs, CRMs, paneles y plataformas web en Laravel.',
+                    'inLanguage' => 'es',
+                    'isPartOf' => ['@id' => $base.'/#website'],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $base.'/#website',
+                    'url' => $base,
+                    'name' => 'MY Tech Solutions',
+                    'publisher' => ['@id' => $base.'/#organization'],
+                    'inLanguage' => 'es',
+                ],
+                [
+                    '@type' => 'Service',
+                    '@id' => $url.'#service',
+                    'name' => 'Desarrollo de software a la medida',
+                    'serviceType' => 'Desarrollo de software a la medida',
+                    'url' => $url,
+                    'description' => 'Desarrollo de software a la medida para empresas sobre Laravel: plataformas SaaS multi-tenant, ERPs y paneles administrativos, CRMs, marketplaces y portales, con automatizaciones, integraciones y reportes, ajustados a la operación de cada negocio.',
+                    'provider' => ['@id' => $base.'/#organization'],
+                    'areaServed' => [
+                        ['@type' => 'Country', 'name' => 'Colombia'],
+                        ['@type' => 'Country', 'name' => 'México'],
+                        ['@type' => 'Country', 'name' => 'Argentina'],
+                        ['@type' => 'Country', 'name' => 'España'],
+                        ['@type' => 'Country', 'name' => 'Estados Unidos'],
+                    ],
+                    'offers' => [
+                        '@type' => 'AggregateOffer',
+                        'priceCurrency' => 'USD',
+                        'lowPrice' => '1500',
+                        'offerCount' => '1',
+                        'url' => $url,
+                    ],
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => $url.'#breadcrumb',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Inicio',
+                            'item' => $base,
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Desarrollo de Software a la Medida',
                             'item' => $url,
                         ],
                     ],
