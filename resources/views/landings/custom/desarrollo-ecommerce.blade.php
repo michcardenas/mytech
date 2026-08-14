@@ -336,15 +336,19 @@
 
         <div class="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-4" data-animate>
             @foreach ($tiendas as $t)
-                <a href="{{ url('/proyectos/'.$t['slug']) }}" class="group rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.07]">
+                <a href="{{ url('/proyectos/'.$t['slug']) }}" class="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition-colors duration-300 hover:border-white/25 hover:bg-white/[0.07]">
                     <div class="flex items-center justify-between gap-3">
                         <span class="font-display font-semibold text-white text-lg leading-tight">{{ $t['nombre'] }}</span>
                         <span class="text-xl" aria-hidden="true">{{ $t['pais'] }}</span>
                     </div>
                     <p class="mt-1.5 text-mt-text-on-dark text-[13.5px] leading-snug">{{ $t['desc'] }}</p>
-                    <span class="inline-flex items-center gap-1.5 mt-4 text-mt-accent-on-dark text-[11px] font-mono uppercase tracking-[0.14em] transition-all duration-300 group-hover:gap-2.5">
-                        Ver caso <span aria-hidden="true">&rarr;</span>
-                    </span>
+                    <div class="mt-auto pt-5 flex items-center justify-between gap-3">
+                        <span class="font-mono text-[11px] uppercase tracking-[0.16em] text-mt-text-on-dark transition-colors duration-300 group-hover:text-white">Ver caso</span>
+                        <span class="relative inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/20 text-white overflow-hidden transition-all duration-300 group-hover:border-mt-accent" aria-hidden="true">
+                            <span class="absolute inset-0 bg-mt-accent scale-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-100"></span>
+                            <svg class="relative w-4 h-4 transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </span>
+                    </div>
                 </a>
             @endforeach
         </div>
