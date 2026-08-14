@@ -21,7 +21,7 @@
                 ['url' => url('/software-a-la-medida'), 'tag' => 'SaaS · ERP · CRM', 'title' => 'Software a la medida', 'desc' => 'Plataformas que se ajustan a tu operación y escalan contigo.', 'icon' => 'code'],
             ] as $l)
                 <a href="{{ $l['url'] }}"
-                   class="group rounded-2xl border border-mt-border bg-white p-7 transition-all duration-300 hover:border-mt-accent hover:shadow-mt-medium" data-animate>
+                   class="group flex flex-col rounded-2xl border border-mt-border bg-white p-7 transition-all duration-300 hover:border-mt-accent hover:shadow-mt-medium" data-animate>
                     <div class="flex items-center justify-between gap-4">
                         <span class="inline-flex items-center justify-center w-12 h-12 rounded-xl border border-mt-border bg-white text-mt-text transition-colors duration-300 group-hover:border-mt-accent group-hover:text-mt-accent">
                             @switch($l['icon'])
@@ -39,9 +39,13 @@
                     </div>
                     <h3 class="mt-5 text-xl font-display font-semibold text-mt-text leading-tight">{{ $l['title'] }}</h3>
                     <p class="mt-2 text-mt-text-2 text-[14.5px] leading-relaxed">{{ $l['desc'] }}</p>
-                    <span class="inline-flex items-center gap-1.5 mt-5 text-mt-accent text-[12px] font-mono uppercase tracking-[0.14em] transition-all duration-300 group-hover:gap-2.5">
-                        Ver más <span aria-hidden="true">→</span>
-                    </span>
+                    <div class="mt-auto pt-7 flex items-center justify-between gap-3">
+                        <span class="font-mono text-[11px] uppercase tracking-[0.18em] text-mt-text-2 transition-colors duration-300 group-hover:text-mt-accent">Ver más</span>
+                        <span class="relative inline-flex items-center justify-center w-10 h-10 rounded-full border border-mt-border text-mt-text overflow-hidden transition-all duration-300 group-hover:border-mt-accent group-hover:text-white group-hover:shadow-mt-btn" aria-hidden="true">
+                            <span class="absolute inset-0 bg-mt-accent scale-0 rounded-full transition-transform duration-300 ease-out group-hover:scale-100"></span>
+                            <svg class="relative w-[18px] h-[18px] transition-transform duration-300 group-hover:translate-x-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg>
+                        </span>
+                    </div>
                 </a>
             @endforeach
         </div>
