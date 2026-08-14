@@ -188,8 +188,10 @@
                 "addressCountry": "CO"
             },
             "sameAs": [
+                "https://www.instagram.com/mytech_solutions",
                 "https://www.facebook.com/profile.php?id=61575108256490",
-                "https://www.instagram.com/mytech_solutions"
+                "https://www.linkedin.com/company/110759244",
+                "https://www.tiktok.com/@mytechsolutionsco"
             ],
             "contactPoint": {
                 "@type": "ContactPoint",

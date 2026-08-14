@@ -142,8 +142,10 @@ class LandingsSeeder extends Seeder
                     'url' => $base,
                     'logo' => $base.'/images/icon.png',
                     'sameAs' => [
-                        'https://www.facebook.com/profile.php?id=61575108256490',
                         'https://www.instagram.com/mytech_solutions',
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.linkedin.com/company/110759244',
+                        'https://www.tiktok.com/@mytechsolutionsco',
                     ],
                 ],
                 [
@@ -225,8 +227,10 @@ class LandingsSeeder extends Seeder
                     'url' => $base,
                     'logo' => $base.'/images/icon.png',
                     'sameAs' => [
-                        'https://www.facebook.com/profile.php?id=61575108256490',
                         'https://www.instagram.com/mytech_solutions',
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.linkedin.com/company/110759244',
+                        'https://www.tiktok.com/@mytechsolutionsco',
                     ],
                 ],
                 [
@@ -308,8 +312,10 @@ class LandingsSeeder extends Seeder
                     'url' => $base,
                     'logo' => $base.'/images/icon.png',
                     'sameAs' => [
-                        'https://www.facebook.com/profile.php?id=61575108256490',
                         'https://www.instagram.com/mytech_solutions',
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.linkedin.com/company/110759244',
+                        'https://www.tiktok.com/@mytechsolutionsco',
                     ],
                 ],
                 [
