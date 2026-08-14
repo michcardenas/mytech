@@ -30,7 +30,8 @@ yarn-error.log*
 pnpm-debug.log*
 
 # Vite / Build
-/public/build
+# NOTA: public/build SÍ se versiona — el deploy a prod es `git pull`, así que
+# los assets compilados (npm run build) deben viajar por git.
 /public/hot
 
 # =========================
