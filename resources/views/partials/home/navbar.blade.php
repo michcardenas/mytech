@@ -10,9 +10,10 @@
     $navItems = [
         ['route' => 'home',                 'label' => 'Inicio'],
         ['route' => 'servicios.index',      'label' => 'Servicios', 'children' => [
-            ['url' => url('/chatbots-ia-whatsapp'), 'label' => 'Chatbots con IA para WhatsApp', 'desc' => 'Atienden, cobran y agendan 24/7'],
-            ['url' => url('/desarrollo-ecommerce'), 'label' => 'Tiendas online / E-commerce',    'desc' => 'A la medida, sin comisiones'],
-            ['url' => url('/software-a-la-medida'), 'label' => 'Software a la medida',            'desc' => 'SaaS, ERP, CRM y plataformas'],
+            ['url' => url('/chatbots-ia-whatsapp'),       'label' => 'Chatbots con IA para WhatsApp', 'desc' => 'Atienden, cobran y agendan 24/7'],
+            ['url' => url('/automatizacion-ia-empresas'), 'label' => 'Automatización con IA',        'desc' => 'Correos, documentos y contratos'],
+            ['url' => url('/desarrollo-ecommerce'),       'label' => 'Tiendas online / E-commerce',   'desc' => 'A la medida, sin comisiones'],
+            ['url' => url('/software-a-la-medida'),       'label' => 'Software a la medida',          'desc' => 'SaaS, ERP, CRM y plataformas'],
             ['url' => route('servicios.index'),     'label' => 'Todos los servicios',             'desc' => 'Ver el panorama completo', 'foot' => true],
         ]],
         ['route' => 'proyectos.index',      'label' => 'Proyectos'],

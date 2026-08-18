@@ -122,6 +122,117 @@ class LandingsSeeder extends Seeder
                     'schema_markup' => $this->softwareSchema($base),
                 ],
             ],
+            [
+                'slug' => 'automatizacion-ia-empresas',
+                'title' => 'Automatización con IA para Empresas',
+                'seo' => [
+                    'meta_title' => 'Automatización con IA para Empresas: Correos y Documentos | MY Tech',
+                    'meta_description' => 'Integramos IA (Claude) en tu operación para automatizar correos, redacción de documentos, interpretación de contratos y resúmenes de casos. Dentro de tus herramientas, con tus reglas.',
+                    'meta_keywords' => 'automatizacion con inteligencia artificial, automatizar procesos con ia, agentes de ia para empresas, ia para automatizar tareas, implementar ia en mi empresa, software juridico con ia, automatizacion de documentos con ia',
+                    'canonical_url' => $base.'/automatizacion-ia-empresas',
+                    'robots' => 'index,follow',
+                    'og_title' => 'Automatización con IA para Empresas | MY Tech Solutions',
+                    'og_description' => 'IA integrada a tu correo, tus documentos y tu base de datos: lee, clasifica, redacta, interpreta contratos y resume casos. Con permisos por rol y aprobación humana.',
+                    'og_type' => 'website',
+                    'og_url' => $base.'/automatizacion-ia-empresas',
+                    'og_site_name' => 'MY Tech Solutions',
+                    'twitter_card' => 'summary_large_image',
+                    'twitter_title' => 'Automatización con IA para Empresas | MY Tech Solutions',
+                    'twitter_description' => 'IA que lee tus correos, redacta documentos e interpreta contratos dentro de tus herramientas. A la medida, no una plantilla. Cotiza gratis.',
+                    'focus_keyword' => 'automatizacion con inteligencia artificial',
+                    'breadcrumb_title' => 'Automatización con IA para Empresas',
+                    'sitemap_include' => true,
+                    'sitemap_priority' => 0.9,
+                    'sitemap_changefreq' => 'monthly',
+                    'schema_markup' => $this->automatizacionIaSchema($base),
+                ],
+            ],
+        ];
+    }
+
+    /**
+     * @return array<string, mixed>
+     */
+    protected function automatizacionIaSchema(string $base): array
+    {
+        $url = $base.'/automatizacion-ia-empresas';
+
+        return [
+            '@context' => 'https://schema.org',
+            '@graph' => [
+                [
+                    '@type' => 'Organization',
+                    '@id' => $base.'/#organization',
+                    'name' => 'MY Tech Solutions',
+                    'url' => $base,
+                    'logo' => $base.'/images/icon.png',
+                    'sameAs' => [
+                        'https://www.instagram.com/mytech_solutions',
+                        'https://www.facebook.com/profile.php?id=61575108256490',
+                        'https://www.linkedin.com/company/110759244',
+                        'https://www.tiktok.com/@mytechsolutionsco',
+                    ],
+                ],
+                [
+                    '@type' => 'WebPage',
+                    '@id' => $url.'#webpage',
+                    'url' => $url,
+                    'name' => 'Automatización con IA para Empresas: Correos y Documentos | MY Tech',
+                    'description' => 'Integración de inteligencia artificial (Claude) en la operación de la empresa para automatizar correos, redacción de documentos, interpretación de contratos y resúmenes de casos.',
+                    'inLanguage' => 'es',
+                    'isPartOf' => ['@id' => $base.'/#website'],
+                ],
+                [
+                    '@type' => 'WebSite',
+                    '@id' => $base.'/#website',
+                    'url' => $base,
+                    'name' => 'MY Tech Solutions',
+                    'publisher' => ['@id' => $base.'/#organization'],
+                    'inLanguage' => 'es',
+                ],
+                [
+                    '@type' => 'Service',
+                    '@id' => $url.'#service',
+                    'name' => 'Automatización de procesos con inteligencia artificial',
+                    'serviceType' => 'Automatización con IA e integración de agentes inteligentes',
+                    'url' => $url,
+                    'description' => 'Integramos IA de Claude (Anthropic) dentro de la operación de la empresa para automatizar la lectura y clasificación de correos, la redacción de documentos, la interpretación de contratos y el resumen de casos, conectada a Gmail, Google Drive, bases de datos y el ERP o CRM del cliente, con permisos por rol, trazabilidad y aprobación humana.',
+                    'provider' => ['@id' => $base.'/#organization'],
+                    'areaServed' => [
+                        ['@type' => 'Country', 'name' => 'Colombia'],
+                        ['@type' => 'Country', 'name' => 'México'],
+                        ['@type' => 'Country', 'name' => 'Argentina'],
+                        ['@type' => 'Country', 'name' => 'Chile'],
+                        ['@type' => 'Country', 'name' => 'Perú'],
+                        ['@type' => 'Country', 'name' => 'España'],
+                    ],
+                    'offers' => [
+                        '@type' => 'AggregateOffer',
+                        'priceCurrency' => 'USD',
+                        'lowPrice' => '1200',
+                        'offerCount' => '1',
+                        'url' => $url,
+                    ],
+                ],
+                [
+                    '@type' => 'BreadcrumbList',
+                    '@id' => $url.'#breadcrumb',
+                    'itemListElement' => [
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 1,
+                            'name' => 'Inicio',
+                            'item' => $base,
+                        ],
+                        [
+                            '@type' => 'ListItem',
+                            'position' => 2,
+                            'name' => 'Automatización con IA para Empresas',
+                            'item' => $url,
+                        ],
+                    ],
+                ],
+            ],
         ];
     }
 
