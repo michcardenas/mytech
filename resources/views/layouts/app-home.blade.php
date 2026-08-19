@@ -35,6 +35,15 @@
         $twImageAltVal     = $seoRow->twitter_image_alt ?? $ogImageAltVal;
         $twitterHandle     = config('seo.twitter_handle');
 
+        // ── Analítica: NO cargar GTM en pantallas de acceso ─────────────────
+        // El evento automático `form_submit` de GA4 se dispara con CUALQUIER
+        // <form>, así que cada login inflaba las conversiones de Google Ads.
+        // Estas rutas no son tráfico de marketing: no deben medirse.
+        $cargarGtm = ! request()->routeIs(
+            'login', 'logout', 'register',
+            'password.*', 'verification.*', 'portal.*'
+        );
+
         // article:* (solo tienen sentido cuando og:type = article)
         $articlePublished  = $seoRow->article_published_time ?? null;
         $articleModified   = $seoRow->article_modified_time  ?? null;
@@ -126,12 +135,14 @@
 {!! json_encode($schemaPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_PRETTY_PRINT) !!}
     </script>
 
-    {{-- GTM --}}
+    {{-- GTM (omitido en pantallas de acceso: ver $cargarGtm arriba) --}}
+    @if($cargarGtm)
     <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
     new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
     j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
     })(window,document,'script','dataLayer','GTM-MDMLQKMM');</script>
+    @endif
 
     {{-- Meta Pixel (condicional) --}}
     @if(config('services.meta.pixel_id'))
@@ -159,9 +170,11 @@
 </head>
 <body class="bg-mt-bg text-mt-text antialiased font-sans">
 
-    {{-- GTM noscript --}}
+    {{-- GTM noscript (omitido en pantallas de acceso: ver $cargarGtm arriba) --}}
+    @if($cargarGtm)
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDMLQKMM"
         height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    @endif
 
     @include('partials.home.navbar')
 
