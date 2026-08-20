@@ -63,6 +63,17 @@ Route::get('/sobre-nosotros', [App\Http\Controllers\ServiciosController::class, 
 Route::get('/contacto', [App\Http\Controllers\ServiciosController::class, 'indexcontacto'])->name('contacto.index');
 Route::post('/contacto', [App\Http\Controllers\ServiciosController::class, 'storeContacto'])->name('contacto.store');
 Route::get('/gracias', [ServiciosController::class, 'gracias'])->name('contacto.gracias');
+Route::view('/bolsas-de-horas', 'bolsas-de-horas', [
+    'seo' => (object) [
+        'meta_title'       => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
+        'meta_description' => 'Reserva horas de desarrollo por adelantado y paga menos por hora. 5 planes desde $38.000 COP/hora, vigencia de 6 meses. Aplica a implementaciones nuevas.',
+        'canonical_url'    => 'https://mytechsolutionsco.com/bolsas-de-horas',
+        'og_title'         => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
+        'og_description'   => 'Horas de desarrollo prepagadas para los cambios y mejoras de tu proyecto. Mientras más horas reservas, menor es el precio por hora.',
+        'og_url'           => 'https://mytechsolutionsco.com/bolsas-de-horas',
+        'robots'           => 'index,follow',
+    ],
+])->name('bolsas-horas.index');
 
 /* ---------- Blog Routes ---------- */
 Route::get('/blog', [BlogController::class, 'index'])->name('blog.index');
