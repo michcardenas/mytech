@@ -1207,6 +1207,39 @@ class InternalProjectController extends Controller
     }
 
     /**
+     * Elimina varios movimientos de la bolsa a la vez (borrado masivo).
+     */
+    public function bulkDestroyMovimientos(Request $request, InternalProject $internal_project)
+    {
+        $validated = $request->validate([
+            'ids' => 'nullable|array',
+            'ids.*' => 'integer',
+            'todos' => 'nullable|boolean',
+        ]);
+
+        $query = $internal_project->bolsaMovimientos();
+
+        if ($request->boolean('todos')) {
+            $eliminados = $query->count();
+            $query->delete();
+        } else {
+            $ids = $validated['ids'] ?? [];
+            $eliminados = empty($ids) ? 0 : $query->whereIn('id', $ids)->delete();
+        }
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'eliminados' => $eliminados,
+                'totales' => $this->totalesBolsa($internal_project),
+            ]);
+        }
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', "Se eliminaron {$eliminados} registro(s) de horas.");
+    }
+
+    /**
      * Totales de la bolsa recalculados desde la BD (para respuestas AJAX).
      *
      * @return array{cons: float, tot: float, rest: float, pct: int}

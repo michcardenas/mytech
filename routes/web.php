@@ -226,6 +226,13 @@ Route::middleware('auth')->group(function () {
     Route::put('banners-comerciales/{banner}', [App\Http\Controllers\Admin\ComercialBannerController::class, 'update'])->name('admin.banners.update');
     Route::put('banners-comerciales/{banner}/toggle', [App\Http\Controllers\Admin\ComercialBannerController::class, 'toggle'])->name('admin.banners.toggle');
     Route::delete('banners-comerciales/{banner}', [App\Http\Controllers\Admin\ComercialBannerController::class, 'destroy'])->name('admin.banners.destroy');
+
+    // Banners de oferta de servicios para clientes (se ven en el portal del cliente)
+    Route::get('banners-clientes', [App\Http\Controllers\Admin\ClienteBannerController::class, 'index'])->name('admin.cliente-banners.index');
+    Route::post('banners-clientes', [App\Http\Controllers\Admin\ClienteBannerController::class, 'store'])->name('admin.cliente-banners.store');
+    Route::put('banners-clientes/{banner}', [App\Http\Controllers\Admin\ClienteBannerController::class, 'update'])->name('admin.cliente-banners.update');
+    Route::put('banners-clientes/{banner}/toggle', [App\Http\Controllers\Admin\ClienteBannerController::class, 'toggle'])->name('admin.cliente-banners.toggle');
+    Route::delete('banners-clientes/{banner}', [App\Http\Controllers\Admin\ClienteBannerController::class, 'destroy'])->name('admin.cliente-banners.destroy');
     Route::post('internal-projects/liquidacion-comerciales/{vendedor}/pagos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.store');
     Route::delete('internal-projects/liquidacion-pagos/{pago}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyLiquidacionPago'])->name('admin.internal-projects.liquidacion.pagos.destroy');
     Route::resource('internal-projects', App\Http\Controllers\Admin\InternalProjectController::class)
@@ -235,6 +242,7 @@ Route::middleware('auth')->group(function () {
     Route::get('internal-projects/{internal_project}/payments/{payment}/recibo', [App\Http\Controllers\Admin\InternalProjectController::class, 'receiptPayment'])->name('admin.internal-projects.payments.receipt');
     Route::get('internal-projects/{internal_project}/movimientos/plantilla', [App\Http\Controllers\Admin\InternalProjectController::class, 'plantillaMovimientos'])->name('admin.internal-projects.movimientos.plantilla');
     Route::post('internal-projects/{internal_project}/movimientos/import', [App\Http\Controllers\Admin\InternalProjectController::class, 'importMovimientos'])->name('admin.internal-projects.movimientos.import');
+    Route::post('internal-projects/{internal_project}/movimientos/bulk-destroy', [App\Http\Controllers\Admin\InternalProjectController::class, 'bulkDestroyMovimientos'])->name('admin.internal-projects.movimientos.bulk-destroy');
     Route::post('internal-projects/{internal_project}/movimientos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeMovimiento'])->name('admin.internal-projects.movimientos.store');
     Route::put('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'updateMovimiento'])->name('admin.internal-projects.movimientos.update');
     Route::delete('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyMovimiento'])->name('admin.internal-projects.movimientos.destroy');

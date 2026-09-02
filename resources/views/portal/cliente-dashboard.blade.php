@@ -136,6 +136,21 @@
         .bp-badge { padding: .18rem .6rem; border-radius: 999px; font-size: .68rem; font-weight: 800; white-space: nowrap; }
         .bolsa-empty { text-align: center; color: #94A3B8; font-size: .85rem; padding: 1.1rem; background: #F8FAFC; border-radius: 10px; }
 
+        /* Detalle de horas usadas — lista minimalista */
+        .uso-list { display: flex; flex-direction: column; }
+        .uso-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 1.25rem; padding: .8rem .1rem; border-bottom: 1px solid #F1F5F9; }
+        .uso-row:last-of-type { border-bottom: none; }
+        .uso-main { min-width: 0; }
+        .uso-meta { display: flex; align-items: center; gap: .55rem; margin-bottom: .22rem; flex-wrap: wrap; }
+        .uso-fecha { font-size: .74rem; color: #94A3B8; font-weight: 600; font-variant-numeric: tabular-nums; }
+        .uso-tema { font-size: .67rem; font-weight: 700; color: #2563EB; background: #EEF4FF; padding: .11rem .55rem; border-radius: 999px; letter-spacing: .01em; }
+        .uso-desc { font-size: .9rem; color: #334155; line-height: 1.45; }
+        .uso-horas { font-size: .95rem; font-weight: 800; color: #0F172A; white-space: nowrap; font-variant-numeric: tabular-nums; }
+        .uso-horas span { font-size: .7rem; font-weight: 600; color: #94A3B8; margin-left: .12rem; }
+        .uso-total { display: flex; align-items: center; justify-content: space-between; margin-top: .55rem; padding-top: .7rem; border-top: 2px solid #F1F5F9; }
+        .uso-total span { font-size: .72rem; text-transform: uppercase; letter-spacing: .04em; color: #94A3B8; font-weight: 800; }
+        .uso-total strong { font-size: 1rem; color: #0F172A; font-weight: 800; font-variant-numeric: tabular-nums; }
+
         @media (prefers-reduced-motion: reduce) {
             .bolsa-card, .bolsa-puntos li { animation: none; opacity: 1; transform: none; }
             .bp-spin { animation: none; }
@@ -145,6 +160,38 @@
         @media (max-width: 560px) {
             .bolsa-gauge { width: 150px; height: 150px; }
             .g-num { font-size: 2.3rem; }
+        }
+
+        /* Banners de servicios — carrusel premium (los publica el admin) */
+        .clibn-carousel { position: relative; margin-bottom: 1.25rem; }
+        .clibn-slide { display: none; }
+        .clibn-slide.is-active { display: block; animation: clibnFade .45s var(--ease-out, ease); }
+        @keyframes clibnFade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+        .clibn {
+            position: relative; overflow: hidden;
+            background: #fff; border: 1px solid #E9EEF5; border-radius: 16px;
+            padding: 1.4rem 1.6rem 1.4rem 1.75rem;
+            display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap;
+            box-shadow: 0 6px 22px rgba(15,23,42,.05);
+        }
+        .clibn::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px; background: var(--accent, #2563EB); }
+        .clibn-img { width: 118px; height: 104px; border-radius: 12px; object-fit: cover; flex-shrink: 0; background: var(--soft, #EFF6FF); }
+        .clibn-body { flex: 1; min-width: 240px; }
+        .clibn-body h2 { font-size: 1.12rem; font-weight: 800; color: #0F172A; margin: 0 0 .35rem; letter-spacing: -.02em; line-height: 1.28; }
+        .clibn-body p { font-size: .9rem; color: #64748B; margin: 0; line-height: 1.55; }
+        .clibn-cta { display: inline-flex; align-items: center; gap: .5rem; margin-top: 1rem; padding: .6rem 1.3rem; background: var(--accent, #2563EB); color: #fff; border-radius: 10px; text-decoration: none; font-size: .86rem; font-weight: 700; transition: transform .15s ease, filter .15s ease; }
+        .clibn-cta:hover { filter: brightness(1.07); transform: translateY(-1px); }
+        .clibn-dots { display: flex; justify-content: center; gap: .4rem; margin-top: .85rem; }
+        .clibn-dot { width: 8px; height: 8px; border-radius: 999px; border: none; background: #CBD5E1; cursor: pointer; padding: 0; transition: all .25s ease; }
+        .clibn-dot.is-active { background: #2563EB; width: 22px; }
+        .clibn-arrow { position: absolute; top: 50%; transform: translateY(-50%); width: 34px; height: 34px; border-radius: 50%; border: 1px solid #E5E7EB; background: rgba(255,255,255,.92); color: #334155; cursor: pointer; display: none; align-items: center; justify-content: center; z-index: 3; box-shadow: 0 2px 10px rgba(15,23,42,.1); }
+        .clibn-arrow.prev { left: 10px; } .clibn-arrow.next { right: 10px; }
+        .clibn-arrow:hover { background: #fff; color: #0F172A; }
+        .clibn-carousel:hover .clibn-arrow { display: flex; }
+        @media (max-width: 640px) {
+            .clibn { padding: 1.2rem 1.3rem; }
+            .clibn-img { width: 100%; height: 150px; }
+            .clibn-arrow { display: none !important; }
         }
     </style>
 </head>
@@ -163,6 +210,40 @@
             <button type="submit" class="btn-logout"><i class="fas fa-sign-out-alt"></i> Salir</button>
         </form>
     </div>
+
+    @if(isset($banners) && $banners->isNotEmpty())
+        <div class="clibn-carousel" id="clibnCarousel">
+            @if($banners->count() > 1)
+                <button class="clibn-arrow prev" type="button" aria-label="Anterior" onclick="clibnGo(-1)"><i class="fas fa-chevron-left"></i></button>
+                <button class="clibn-arrow next" type="button" aria-label="Siguiente" onclick="clibnGo(1)"><i class="fas fa-chevron-right"></i></button>
+            @endif
+
+            @foreach($banners as $banner)
+                <div class="clibn-slide {{ $loop->first ? 'is-active' : '' }}">
+                    <div class="clibn" style="--accent: {{ $banner->accent }}; --soft: {{ $banner->soft }};">
+                        @if($banner->imagen)
+                            <img class="clibn-img" src="{{ asset('storage/'.$banner->imagen) }}" alt="">
+                        @endif
+                        <div class="clibn-body">
+                            <h2>{{ $banner->titulo }}</h2>
+                            @if($banner->mensaje)<p>{{ $banner->mensaje }}</p>@endif
+                            @if($banner->cta_texto && $banner->cta_url)
+                                <a href="{{ $banner->cta_url }}" target="_blank" rel="noopener" class="clibn-cta">{{ $banner->cta_texto }} <i class="fas fa-arrow-right"></i></a>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endforeach
+
+            @if($banners->count() > 1)
+                <div class="clibn-dots">
+                    @foreach($banners as $banner)
+                        <button class="clibn-dot {{ $loop->first ? 'is-active' : '' }}" type="button" onclick="clibnJump({{ $loop->index }})" aria-label="Ir al banner {{ $loop->iteration }}"></button>
+                    @endforeach
+                </div>
+            @endif
+        </div>
+    @endif
 
     @php
         $totalContratado = $proyectos->sum('precio');
@@ -293,24 +374,21 @@
 
             <div class="bolsa-sub"><i class="fas fa-clock-rotate-left" style="color:#2563EB;"></i> Detalle de horas usadas</div>
             @if($b->bolsaMovimientos->isNotEmpty())
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Detalle</th>
-                            <th style="text-align:right;">Horas</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach($b->bolsaMovimientos as $mov)
-                            <tr>
-                                <td class="row-name">{{ $mov->fecha->format('d/m/Y') }}</td>
-                                <td>{{ $mov->descripcion }}</td>
-                                <td style="text-align:right; font-weight:700; color:#0F172A;">{{ $fmtH($mov->horas) }} h</td>
-                            </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+                <div class="uso-list">
+                    @foreach($b->bolsaMovimientos as $mov)
+                        <div class="uso-row">
+                            <div class="uso-main">
+                                <div class="uso-meta">
+                                    <span class="uso-fecha">{{ $mov->fecha->format('d/m/Y') }}</span>
+                                    @if($mov->tema)<span class="uso-tema">{{ $mov->tema }}</span>@endif
+                                </div>
+                                <div class="uso-desc">{{ $mov->descripcion }}</div>
+                            </div>
+                            <div class="uso-horas">{{ $fmtH($mov->horas) }}<span>h</span></div>
+                        </div>
+                    @endforeach
+                    <div class="uso-total"><span>Total consumido</span><strong>{{ $fmtH($bCons) }} h</strong></div>
+                </div>
             @else
                 <div class="bolsa-empty">Aún no hemos consumido horas de esta bolsa.</div>
             @endif
@@ -541,6 +619,36 @@
 
         // Red de seguridad: si rAF nunca corre (p. ej. pestaña pintada en segundo plano), fija el estado final.
         setTimeout(() => cards.forEach(setFinal), 1600);
+    })();
+</script>
+
+<script>
+    /* Carrusel de banners de servicios: autoavance + dots + flechas, pausa al pasar el mouse. */
+    (function () {
+        var car = document.getElementById('clibnCarousel');
+        if (!car) { return; }
+        var slides = car.querySelectorAll('.clibn-slide');
+        var dots = car.querySelectorAll('.clibn-dot');
+        if (slides.length < 2) { return; }
+
+        var idx = 0, timer = null, DELAY = 6000;
+        var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        function show(n) {
+            idx = (n + slides.length) % slides.length;
+            slides.forEach(function (s, i) { s.classList.toggle('is-active', i === idx); });
+            dots.forEach(function (d, i) { d.classList.toggle('is-active', i === idx); });
+        }
+        function start() { if (!reduce) { timer = setInterval(function () { show(idx + 1); }, DELAY); } }
+        function stop() { if (timer) { clearInterval(timer); timer = null; } }
+        function restart() { stop(); start(); }
+
+        window.clibnGo = function (dir) { show(idx + dir); restart(); };
+        window.clibnJump = function (n) { show(n); restart(); };
+
+        car.addEventListener('mouseenter', stop);
+        car.addEventListener('mouseleave', start);
+        start();
     })();
 </script>
 </body>

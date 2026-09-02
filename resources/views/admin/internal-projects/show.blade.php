@@ -130,6 +130,12 @@
     /* TEMA CHIP (bitácora bolsa) */
     .mov-tema-chip { display: inline-block; padding: 0.12rem 0.6rem; border-radius: 999px; background: rgba(0,123,255,0.1); color: var(--primary-blue); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2px; }
 
+    /* BULK ACTIONS (bolsa) */
+    .bolsa-bulk-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.6rem; padding: 0.5rem 0.75rem; background: var(--light-gray); border-radius: 10px; }
+    .bolsa-selall { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.8rem; font-weight: 600; color: #555; cursor: pointer; user-select: none; }
+    .bolsa-selall input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary-blue); }
+    #bolsa-bulk-delete:disabled { opacity: 0.5; cursor: not-allowed; box-shadow: none !important; }
+
     /* FILES & MISC */
     .file-icon { font-size: 1.4rem; color: #666; margin-right: 0.5rem; flex-shrink: 0; }
     .file-download { padding: 0.4rem 0.85rem; border-radius: 8px; background: rgba(0,123,255,0.1); color: var(--primary-blue); font-size: 0.75rem; font-weight: 700; text-decoration: none; transition: var(--transition); }
@@ -445,9 +451,16 @@
             @endif
 
             <div style="font-size:0.78rem; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:0.3px; margin:1rem 0 0.6rem;"><i class="fas fa-clock-rotate-left"></i> Bitácora de consumo</div>
+
+            <div class="bolsa-bulk-bar" id="bolsa-bulk-bar" @if($project->bolsaMovimientos->count() === 0) style="display:none;" @endif>
+                <label class="bolsa-selall"><input type="checkbox" id="bolsa-check-all"> Seleccionar todo</label>
+                <button type="button" class="btn-add" id="bolsa-bulk-delete" style="background:var(--gradient-danger); box-shadow:0 3px 10px rgba(220,53,69,0.25); padding:0.4rem 0.85rem; font-size:0.78rem;" disabled><i class="fas fa-trash"></i> Eliminar seleccionados (<span id="bolsa-sel-count">0</span>)</button>
+            </div>
+
             <ul class="item-list" id="bolsa-bitacora-list" {!! $project->bolsaMovimientos->count() > 0 ? '' : 'style=display:none' !!}>
                 @foreach($project->bolsaMovimientos as $mov)
                     <li class="item-row" style="flex-wrap:wrap;" id="mov-row-{{ $mov->id }}" data-mov-id="{{ $mov->id }}">
+                        <input type="checkbox" class="bolsa-row-check" value="{{ $mov->id }}" title="Seleccionar" style="width:16px; height:16px; cursor:pointer; flex-shrink:0; accent-color:var(--primary-blue);">
                         <div class="item-info">
                             <div class="item-primary js-mov-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> <span class="js-mov-fecha">{{ $mov->fecha->format('d/m/Y') }}</span> <span class="js-mov-tema">@if($mov->tema)<span class="mov-tema-chip">{{ $mov->tema }}</span>@endif</span></div>
                             <div class="item-secondary js-mov-desc">{{ $mov->descripcion }}</div>
@@ -1010,7 +1023,21 @@
                 listEl.style.display = 'none';
                 const nd = document.getElementById('bolsa-no-data');
                 if (nd) { nd.style.display = ''; }
+                const bar = document.getElementById('bolsa-bulk-bar');
+                if (bar) { bar.style.display = 'none'; }
             }
+            sincronizarSeleccion();
+        }
+
+        function sincronizarSeleccion() {
+            const checks = [...listEl.querySelectorAll('.bolsa-row-check')];
+            const sel = checks.filter((c) => c.checked).length;
+            const countEl = document.getElementById('bolsa-sel-count');
+            const btn = document.getElementById('bolsa-bulk-delete');
+            const all = document.getElementById('bolsa-check-all');
+            if (countEl) { countEl.textContent = sel; }
+            if (btn) { btn.disabled = sel === 0; }
+            if (all) { all.checked = checks.length > 0 && sel === checks.length; }
         }
 
         async function enviar(form, method) {
@@ -1069,6 +1096,56 @@
                 }
             }
         });
+
+        /* Selección múltiple + borrado masivo */
+        listEl.addEventListener('change', (e) => {
+            if (e.target.classList.contains('bolsa-row-check')) {
+                sincronizarSeleccion();
+            }
+        });
+
+        const checkAll = document.getElementById('bolsa-check-all');
+        if (checkAll) {
+            checkAll.addEventListener('change', () => {
+                listEl.querySelectorAll('.bolsa-row-check').forEach((c) => { c.checked = checkAll.checked; });
+                sincronizarSeleccion();
+            });
+        }
+
+        const bulkBtn = document.getElementById('bolsa-bulk-delete');
+        if (bulkBtn) {
+            bulkBtn.addEventListener('click', async () => {
+                const ids = [...listEl.querySelectorAll('.bolsa-row-check:checked')].map((c) => c.value);
+                if (ids.length === 0) { return; }
+                if (! confirm('¿Eliminar ' + ids.length + ' registro(s) de horas seleccionados?')) { return; }
+
+                const token = document.querySelector('input[name="_token"]')?.value || '';
+                const fd = new FormData();
+                fd.append('_token', token);
+                ids.forEach((id) => fd.append('ids[]', id));
+
+                try {
+                    const r = await fetch('{{ route('admin.internal-projects.movimientos.bulk-destroy', $project) }}', {
+                        method: 'POST',
+                        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                        body: fd,
+                    });
+                    if (! r.ok) { throw new Error('http'); }
+                    const res = await r.json();
+                    if (res && res.ok) {
+                        ids.forEach((id) => { const li = document.getElementById('mov-row-' + id); if (li) { li.remove(); } });
+                        actualizarTotales(res.totales);
+                        actualizarContador();
+                        if (checkAll) { checkAll.checked = false; }
+                        toast('Se eliminaron ' + res.eliminados + ' registro(s)', true);
+                    } else {
+                        toast('No se pudieron eliminar los registros', false);
+                    }
+                } catch (err) {
+                    toast('No se pudieron eliminar los registros', false);
+                }
+            });
+        }
     })();
 
     @if(session('import_bolsa'))

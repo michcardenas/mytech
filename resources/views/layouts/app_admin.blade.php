@@ -320,6 +320,9 @@
                 <a href="{{ route('admin.banners.index') }}" class="mtadmin-link {{ request()->routeIs('admin.banners.*') ? 'is-active' : '' }}">
                     <i class="fas fa-bullhorn"></i> Banners comerciales
                 </a>
+                <a href="{{ route('admin.cliente-banners.index') }}" class="mtadmin-link {{ request()->routeIs('admin.cliente-banners.*') ? 'is-active' : '' }}">
+                    <i class="fas fa-store"></i> Banners para clientes
+                </a>
 
                 <div class="mtadmin-group-label">Comercial</div>
                 <a href="{{ route('pipeline.index') }}" class="mtadmin-link {{ request()->routeIs('pipeline.index') || request()->routeIs('pipeline.leads.*') ? 'is-active' : '' }}">

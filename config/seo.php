@@ -22,4 +22,19 @@ return [
     'og_image_width' => env('SEO_OG_IMAGE_WIDTH', 1200),
     'og_image_height' => env('SEO_OG_IMAGE_HEIGHT', 630),
 
+    /*
+    |--------------------------------------------------------------------------
+    | Proyectos excluidos del índice de Google (noindex,follow)
+    |--------------------------------------------------------------------------
+    | Casos de portafolio que atraen tráfico de marca ajena ("basura") sin
+    | intención comercial y que ensucian las métricas de Search Console. Se
+    | sirven igual en el sitio (siguen enlazados y pasan link equity), pero se
+    | marcan noindex para que Google no los muestre ni los cuente. Quita un slug
+    | de esta lista para volver a indexar ese proyecto.
+    */
+    'noindex_proyecto_slugs' => [
+        'onlyescorts',
+        'bingo-riffy',
+    ],
+
 ];

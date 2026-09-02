@@ -9,7 +9,11 @@
     $seoTitle   = $proyecto->meta_title ?: ($proyecto->nombre . ' — MY Tech Solutions');
     $seoDesc    = $proyecto->meta_description ?: ($proyecto->excerpt ?: $proyecto->descripcion);
     $canonical  = $proyecto->canonical_url ?: $detailUrl;
-    $robots     = $proyecto->robots ?: 'index,follow';
+    /* Proyectos "basura" (tráfico de marca ajena sin intención comercial) se
+       fuerzan a noindex,follow desde config/seo.php — ver noindex_proyecto_slugs. */
+    $robots     = in_array($proyecto->slug, config('seo.noindex_proyecto_slugs', []), true)
+        ? 'noindex,follow'
+        : ($proyecto->robots ?: 'index,follow');
 
     $ogImage    = $proyecto->og_image
         ? (\Illuminate\Support\Str::startsWith($proyecto->og_image, ['http://', 'https://']) ? $proyecto->og_image : asset('storage/' . $proyecto->og_image))

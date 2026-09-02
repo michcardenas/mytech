@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Portal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\ClienteBanner;
 use App\Models\InternalProject;
 use App\Models\ProjectPayment;
 use Illuminate\Http\Request;
@@ -113,12 +114,16 @@ class PortalClienteController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
+        // Banners de oferta de servicios que el admin publicó para este cliente.
+        $banners = ClienteBanner::vigentesPara($client?->id)->get();
+
         return view('portal.cliente-dashboard', [
             'client' => $client,
             'nombreVisible' => $nombreVisible,
             'proyectos' => $proyectos,
             'pagos' => $pagos,
             'cuentasCobro' => $cuentasCobro,
+            'banners' => $banners,
         ]);
     }
 
