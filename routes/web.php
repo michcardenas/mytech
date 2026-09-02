@@ -233,7 +233,10 @@ Route::middleware('auth')->group(function () {
     Route::post('internal-projects/{internal_project}/payments', [App\Http\Controllers\Admin\InternalProjectController::class, 'storePayment'])->name('admin.internal-projects.payments.store');
     Route::delete('internal-projects/{internal_project}/payments/{payment}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyPayment'])->name('admin.internal-projects.payments.destroy');
     Route::get('internal-projects/{internal_project}/payments/{payment}/recibo', [App\Http\Controllers\Admin\InternalProjectController::class, 'receiptPayment'])->name('admin.internal-projects.payments.receipt');
+    Route::get('internal-projects/{internal_project}/movimientos/plantilla', [App\Http\Controllers\Admin\InternalProjectController::class, 'plantillaMovimientos'])->name('admin.internal-projects.movimientos.plantilla');
+    Route::post('internal-projects/{internal_project}/movimientos/import', [App\Http\Controllers\Admin\InternalProjectController::class, 'importMovimientos'])->name('admin.internal-projects.movimientos.import');
     Route::post('internal-projects/{internal_project}/movimientos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeMovimiento'])->name('admin.internal-projects.movimientos.store');
+    Route::put('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'updateMovimiento'])->name('admin.internal-projects.movimientos.update');
     Route::delete('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyMovimiento'])->name('admin.internal-projects.movimientos.destroy');
     Route::get('internal-projects/{internal_project}/cuenta-cobro', [App\Http\Controllers\Admin\InternalProjectController::class, 'cuentaCobro'])->name('admin.internal-projects.cuenta-cobro');
     Route::post('internal-projects/{internal_project}/cuenta-cobro/publicar', [App\Http\Controllers\Admin\InternalProjectController::class, 'publicarCuentaCobro'])->name('admin.internal-projects.cuenta-cobro.publicar');

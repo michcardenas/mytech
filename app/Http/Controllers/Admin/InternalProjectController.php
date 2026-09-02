@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Exports\PlantillaBolsaHorasExport;
 use App\Http\Controllers\Controller;
+use App\Imports\BolsaMovimientosImport;
 use App\Models\BolsaMovimiento;
 use App\Models\Client;
 use App\Models\Developer;
@@ -15,8 +17,11 @@ use App\Models\ProjectPayment;
 use App\Models\Vendedor;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Maatwebsite\Excel\Facades\Excel;
+use Symfony\Component\HttpFoundation\BinaryFileResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 
 class InternalProjectController extends Controller
@@ -1129,24 +1134,292 @@ class InternalProjectController extends Controller
     {
         $validated = $request->validate([
             'fecha' => 'required|date',
+            'tema' => 'required|string|max:255',
             'descripcion' => 'required|string|max:255',
-            'horas' => 'required|numeric|min:0.01',
+            'cantidad' => 'required|numeric|min:0.01',
+            'unidad' => 'required|in:horas,minutos',
         ]);
 
-        $internal_project->bolsaMovimientos()->create($validated);
+        $internal_project->bolsaMovimientos()->create([
+            'fecha' => $validated['fecha'],
+            'tema' => $validated['tema'],
+            'descripcion' => $validated['descripcion'],
+            'horas' => $this->cantidadAHoras($validated['cantidad'], $validated['unidad']),
+        ]);
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Horas registradas en la bolsa.');
     }
 
-    public function destroyMovimiento(InternalProject $internal_project, BolsaMovimiento $movimiento)
+    public function updateMovimiento(Request $request, InternalProject $internal_project, BolsaMovimiento $movimiento)
+    {
+        abort_unless($movimiento->internal_project_id === $internal_project->id, 404);
+
+        $validated = $request->validate([
+            'fecha' => 'required|date',
+            'tema' => 'required|string|max:255',
+            'descripcion' => 'required|string|max:255',
+            'cantidad' => 'required|numeric|min:0.01',
+            'unidad' => 'required|in:horas,minutos',
+        ]);
+
+        $movimiento->update([
+            'fecha' => $validated['fecha'],
+            'tema' => $validated['tema'],
+            'descripcion' => $validated['descripcion'],
+            'horas' => $this->cantidadAHoras($validated['cantidad'], $validated['unidad']),
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'movimiento' => [
+                    'id' => $movimiento->id,
+                    'fecha' => $movimiento->fecha->format('Y-m-d'),
+                    'fecha_fmt' => $movimiento->fecha->format('d/m/Y'),
+                    'tema' => $movimiento->tema,
+                    'descripcion' => $movimiento->descripcion,
+                    'horas' => (float) $movimiento->horas,
+                ],
+                'totales' => $this->totalesBolsa($internal_project),
+            ]);
+        }
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('success', 'Registro de horas actualizado.');
+    }
+
+    public function destroyMovimiento(Request $request, InternalProject $internal_project, BolsaMovimiento $movimiento)
     {
         abort_unless($movimiento->internal_project_id === $internal_project->id, 404);
 
         $movimiento->delete();
 
+        if ($request->expectsJson()) {
+            return response()->json([
+                'ok' => true,
+                'totales' => $this->totalesBolsa($internal_project),
+            ]);
+        }
+
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Registro de horas eliminado.');
+    }
+
+    /**
+     * Totales de la bolsa recalculados desde la BD (para respuestas AJAX).
+     *
+     * @return array{cons: float, tot: float, rest: float, pct: int}
+     */
+    private function totalesBolsa(InternalProject $internal_project): array
+    {
+        $cons = round((float) $internal_project->bolsaMovimientos()->sum('horas'), 2);
+        $tot = (float) $internal_project->horas_totales;
+        $rest = round($tot - $cons, 2);
+        $pct = $tot > 0 ? (int) min(round($cons / $tot * 100), 100) : 0;
+
+        return ['cons' => $cons, 'tot' => $tot, 'rest' => $rest, 'pct' => $pct];
+    }
+
+    /**
+     * Convierte una cantidad en horas o minutos a horas decimales (unidad canónica de la bolsa).
+     */
+    private function cantidadAHoras(float $cantidad, string $unidad): float
+    {
+        return $unidad === 'minutos' ? round($cantidad / 60, 2) : round($cantidad, 2);
+    }
+
+    /** Descarga la plantilla .xlsx para registrar horas de la bolsa. */
+    public function plantillaMovimientos(InternalProject $internal_project): BinaryFileResponse
+    {
+        return Excel::download(new PlantillaBolsaHorasExport, 'plantilla-horas-bolsa.xlsx');
+    }
+
+    /**
+     * Importa registros de horas desde un archivo Excel/CSV.
+     * Columnas esperadas: Fecha, Tema, Descripcion, Cantidad, Unidad (horas|minutos).
+     */
+    public function importMovimientos(Request $request, InternalProject $internal_project)
+    {
+        $request->validate([
+            'archivo' => 'required|file|mimes:xlsx,xls,csv,txt|max:10240',
+        ], [
+            'archivo.required' => 'Selecciona el archivo Excel a importar.',
+            'archivo.mimes' => 'El archivo debe ser Excel (.xlsx, .xls) o CSV.',
+            'archivo.max' => 'El archivo no puede superar los 10 MB.',
+        ]);
+
+        $import = new BolsaMovimientosImport;
+        Excel::import($import, $request->file('archivo'));
+
+        $filas = $import->filas;
+
+        if ($filas->isEmpty()) {
+            return back()->with('error', 'El archivo está vacío.');
+        }
+
+        $idx = $this->mapearColumnasMovimiento($filas->first() ?? collect());
+
+        // Respaldo posicional si el archivo no trae encabezados reconocibles.
+        if (! isset($idx['fecha']) && ! isset($idx['descripcion'])) {
+            $idx = ['fecha' => 0, 'tema' => 1, 'descripcion' => 2, 'cantidad' => 3, 'unidad' => 4];
+        }
+
+        $valor = fn ($fila, $campo) => isset($idx[$campo]) ? trim((string) ($fila[$idx[$campo]] ?? '')) : '';
+
+        $ok = 0;
+        $errores = [];
+        $nuevos = [];
+        $now = now();
+
+        // Se omite la primera fila (encabezados de la plantilla).
+        foreach ($filas->slice(1) as $i => $fila) {
+            $temaTxt = $valor($fila, 'tema');
+            $descTxt = $valor($fila, 'descripcion');
+            $cantTxt = $valor($fila, 'cantidad');
+            $fechaTxt = $valor($fila, 'fecha');
+
+            // Ignora filas completamente vacías sin marcarlas como error.
+            if ($fechaTxt === '' && $temaTxt === '' && $descTxt === '' && $cantTxt === '') {
+                continue;
+            }
+
+            $filaNum = $i + 1;
+            $fechaCruda = isset($idx['fecha']) ? ($fila[$idx['fecha']] ?? null) : null;
+            $fecha = $this->parsearFechaExcel($fechaCruda);
+            $cantidad = (float) str_replace(',', '.', $cantTxt);
+            $unidad = $this->normalizarUnidad($valor($fila, 'unidad'));
+
+            $problemas = [];
+            if (! $fecha) {
+                $problemas[] = 'fecha inválida';
+            }
+            if ($temaTxt === '') {
+                $problemas[] = 'falta el tema';
+            }
+            if ($descTxt === '') {
+                $problemas[] = 'falta la descripción';
+            }
+            if ($cantidad <= 0) {
+                $problemas[] = 'cantidad inválida';
+            }
+            if (! $unidad) {
+                $problemas[] = 'unidad inválida (usa "horas" o "minutos")';
+            }
+
+            if (! empty($problemas)) {
+                $errores[] = ['fila' => $filaNum, 'motivo' => implode(', ', $problemas)];
+
+                continue;
+            }
+
+            $nuevos[] = [
+                'internal_project_id' => $internal_project->id,
+                'fecha' => $fecha,
+                'tema' => $temaTxt,
+                'descripcion' => $descTxt,
+                'horas' => $this->cantidadAHoras($cantidad, $unidad),
+                'created_at' => $now,
+                'updated_at' => $now,
+            ];
+            $ok++;
+        }
+
+        if (! empty($nuevos)) {
+            BolsaMovimiento::insert($nuevos);
+        }
+
+        return redirect()->route('admin.internal-projects.show', $internal_project)
+            ->with('import_bolsa', ['ok' => $ok, 'errores' => $errores]);
+    }
+
+    /**
+     * Detecta el índice de cada columna por el NOMBRE del encabezado, no por su posición.
+     *
+     * @return array<string, int>
+     */
+    private function mapearColumnasMovimiento(Collection $encabezado): array
+    {
+        $normalizar = fn ($s) => strtolower(strtr(trim((string) $s), [
+            'á' => 'a', 'é' => 'e', 'í' => 'i', 'ó' => 'o', 'ú' => 'u', 'ñ' => 'n',
+            'Á' => 'a', 'É' => 'e', 'Í' => 'i', 'Ó' => 'o', 'Ú' => 'u', 'Ñ' => 'n',
+        ]));
+
+        $idx = [];
+        foreach ($encabezado as $i => $titulo) {
+            $h = $normalizar($titulo);
+            if ($h === '') {
+                continue;
+            }
+
+            $asignar = function (string $campo) use (&$idx, $i): void {
+                if (! isset($idx[$campo])) {
+                    $idx[$campo] = $i;
+                }
+            };
+
+            if (str_contains($h, 'fecha')) {
+                $asignar('fecha');
+            } elseif (str_contains($h, 'unidad') || str_contains($h, 'medida')) {
+                $asignar('unidad');
+            } elseif (str_contains($h, 'cantidad') || str_contains($h, 'tiempo') || str_contains($h, 'duracion') || str_contains($h, 'hora') || str_contains($h, 'minuto')) {
+                $asignar('cantidad');
+            } elseif (str_contains($h, 'tema') || str_contains($h, 'titulo') || str_contains($h, 'asunto')) {
+                $asignar('tema');
+            } elseif (str_contains($h, 'descrip') || str_contains($h, 'detalle') || str_contains($h, 'activid') || str_contains($h, 'nota') || str_contains($h, 'hizo')) {
+                $asignar('descripcion');
+            }
+        }
+
+        return $idx;
+    }
+
+    /** Normaliza el texto de unidad a "horas" o "minutos"; null si no es reconocible. */
+    private function normalizarUnidad(string $valor): ?string
+    {
+        $v = strtolower(trim($valor));
+
+        if ($v === '') {
+            return 'horas';
+        }
+        if (str_starts_with($v, 'h')) {
+            return 'horas';
+        }
+        if (str_starts_with($v, 'm')) {
+            return 'minutos';
+        }
+
+        return null;
+    }
+
+    /** Convierte una celda de fecha (serial de Excel o texto) a formato Y-m-d; null si no es válida. */
+    private function parsearFechaExcel($valor): ?string
+    {
+        if ($valor === null || trim((string) $valor) === '') {
+            return null;
+        }
+
+        if (is_numeric($valor) && $valor > 59 && $valor < 60000) {
+            try {
+                return \PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject((float) $valor)->format('Y-m-d');
+            } catch (\Throwable $e) {
+                return null;
+            }
+        }
+
+        $texto = trim((string) $valor);
+        foreach (['d/m/Y', 'd-m-Y', 'Y-m-d', 'd/m/y', 'Y/m/d'] as $formato) {
+            $fecha = \DateTime::createFromFormat($formato, $texto);
+            if ($fecha !== false) {
+                return $fecha->format('Y-m-d');
+            }
+        }
+
+        try {
+            return Carbon::parse($texto)->format('Y-m-d');
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function show(InternalProject $internal_project)

@@ -9,6 +9,7 @@ class BolsaMovimiento extends Model
     protected $fillable = [
         'internal_project_id',
         'fecha',
+        'tema',
         'descripcion',
         'horas',
     ];

@@ -114,6 +114,21 @@
 
     /* ALERT */
     .alert-success { background: white; color: #155724; border: 1px solid rgba(40,167,69,0.2); border-left: 4px solid var(--success); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; font-weight: 500; box-shadow: var(--shadow-soft); }
+    .alert-error { background: white; color: #842029; border: 1px solid rgba(220,53,69,0.2); border-left: 4px solid var(--danger); border-radius: 12px; padding: 1rem 1.5rem; margin-bottom: 1.25rem; font-weight: 500; box-shadow: var(--shadow-soft); }
+
+    /* IMPORT RESULT */
+    .import-result { background: white; border-radius: 12px; margin-bottom: 1.25rem; box-shadow: var(--shadow-soft); overflow: hidden; border: 1px solid rgba(0,0,0,0.05); }
+    .import-result-head { padding: 1rem 1.5rem; font-weight: 700; font-size: 0.95rem; display: flex; align-items: center; gap: 0.55rem; color: white; }
+    .import-result-head.ok { background: var(--gradient-success); }
+    .import-result-head.fail { background: var(--gradient-warning); }
+    .import-result-head.empty { background: var(--gradient-danger); }
+    .import-errores { list-style: none; margin: 0; padding: 0.5rem 0; max-height: 260px; overflow-y: auto; }
+    .import-errores li { padding: 0.5rem 1.5rem; font-size: 0.82rem; color: #666; border-bottom: 1px solid #f2f2f2; }
+    .import-errores li:last-child { border-bottom: none; }
+    .import-errores li strong { color: var(--danger); }
+
+    /* TEMA CHIP (bitácora bolsa) */
+    .mov-tema-chip { display: inline-block; padding: 0.12rem 0.6rem; border-radius: 999px; background: rgba(0,123,255,0.1); color: var(--primary-blue); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2px; }
 
     /* FILES & MISC */
     .file-icon { font-size: 1.4rem; color: #666; margin-right: 0.5rem; flex-shrink: 0; }
@@ -143,6 +158,36 @@
 <div class="show-container">
     @if(session('success'))
         <div class="alert-success"><i class="fas fa-check-circle"></i> {{ session('success') }}</div>
+    @endif
+
+    @if(session('error'))
+        <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ session('error') }}</div>
+    @endif
+
+    @if($errors->any())
+        <div class="alert-error"><i class="fas fa-exclamation-circle"></i> {{ $errors->first() }}</div>
+    @endif
+
+    @if(session('import_bolsa'))
+        @php $imp = session('import_bolsa'); $impErr = count($imp['errores']); @endphp
+        <div class="import-result">
+            <div class="import-result-head {{ $imp['ok'] > 0 ? ($impErr ? 'fail' : 'ok') : 'empty' }}">
+                <i class="fas fa-{{ $imp['ok'] > 0 ? ($impErr ? 'exclamation-triangle' : 'check-circle') : 'times-circle' }}"></i>
+                @if($imp['ok'] > 0)
+                    Se importaron {{ $imp['ok'] }} registro(s) de horas correctamente
+                @else
+                    No se importó ningún registro
+                @endif
+                @if($impErr) &nbsp;·&nbsp; {{ $impErr }} fila(s) con problemas @endif
+            </div>
+            @if($impErr)
+                <ul class="import-errores">
+                    @foreach($imp['errores'] as $e)
+                        <li><strong>Fila {{ $e['fila'] }}:</strong> {{ $e['motivo'] }}</li>
+                    @endforeach
+                </ul>
+            @endif
+        </div>
     @endif
 
     {{-- ============ HEADER ============ --}}
@@ -246,7 +291,7 @@
         <div class="tabs-nav">
             <button class="tab-btn active" data-tab="info"><i class="fas fa-info-circle"></i> Informacion</button>
             @if($project->es_bolsa_horas)
-                <button class="tab-btn" data-tab="bolsa"><i class="fas fa-hourglass-half"></i> Bolsa de horas <span class="tab-count">{{ $project->bolsaMovimientos->count() }}</span></button>
+                <button class="tab-btn" data-tab="bolsa"><i class="fas fa-hourglass-half"></i> Bolsa de horas <span class="tab-count" id="bolsa-tab-count">{{ $project->bolsaMovimientos->count() }}</span></button>
             @endif
             <button class="tab-btn" data-tab="cobros"><i class="fas fa-money-bill-wave"></i> Cobros <span class="tab-count">{{ $project->payments->count() }}</span></button>
             <button class="tab-btn" data-tab="dev"><i class="fas fa-laptop-code"></i> Pagos al Dev <span class="tab-count">{{ $project->developerPayments->count() }}</span></button>
@@ -365,13 +410,13 @@
                     <div class="ss-stat-label">Contratadas</div>
                 </div>
                 <div class="ss-stat">
-                    <div class="ss-stat-num" style="color: {{ $colorH }};">{{ $fmtH($hCons) }} h</div>
-                    <div class="ss-stat-label">Consumidas ({{ $pctH }}%)</div>
+                    <div class="ss-stat-num" id="bolsa-consumidas" style="color: {{ $colorH }};">{{ $fmtH($hCons) }} h</div>
+                    <div class="ss-stat-label">Consumidas (<span id="bolsa-pct">{{ $pctH }}</span>%)</div>
                 </div>
-                <div class="ss-progress-bar"><div class="ss-progress-fill" style="width:{{ $pctH }}%; background: {{ $colorH }};"></div></div>
+                <div class="ss-progress-bar"><div class="ss-progress-fill" id="bolsa-progress" style="width:{{ $pctH }}%; background: {{ $colorH }};"></div></div>
                 <div class="ss-stat">
-                    <div class="ss-stat-num" style="color: {{ $hRest < 0 ? 'var(--danger)' : 'var(--success)' }};">{{ $fmtH($hRest) }} h</div>
-                    <div class="ss-stat-label">{{ $hRest < 0 ? 'Excedidas' : 'Restantes' }}</div>
+                    <div class="ss-stat-num" id="bolsa-restantes" style="color: {{ $hRest < 0 ? 'var(--danger)' : 'var(--success)' }};">{{ $fmtH($hRest) }} h</div>
+                    <div class="ss-stat-label" id="bolsa-restantes-label">{{ $hRest < 0 ? 'Excedidas' : 'Restantes' }}</div>
                 </div>
                 @if($project->valor_hora)
                     <div class="ss-stat">
@@ -400,25 +445,40 @@
             @endif
 
             <div style="font-size:0.78rem; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:0.3px; margin:1rem 0 0.6rem;"><i class="fas fa-clock-rotate-left"></i> Bitácora de consumo</div>
-            @if($project->bolsaMovimientos->count() > 0)
-                <ul class="item-list">
-                    @foreach($project->bolsaMovimientos as $mov)
-                        <li class="item-row">
-                            <div class="item-info">
-                                <div class="item-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> {{ $mov->fecha->format('d/m/Y') }}</div>
-                                <div class="item-secondary">{{ $mov->descripcion }}</div>
-                            </div>
-                            <div class="item-amount">{{ $fmtH($mov->horas) }}<small>horas</small></div>
-                            <form action="{{ route('admin.internal-projects.movimientos.destroy', [$project, $mov]) }}" method="POST" onsubmit="return confirm('Eliminar este registro de horas?');">
-                                @csrf @method('DELETE')
-                                <button type="submit" class="btn-delete-sm"><i class="fas fa-times"></i></button>
+            <ul class="item-list" id="bolsa-bitacora-list" {!! $project->bolsaMovimientos->count() > 0 ? '' : 'style=display:none' !!}>
+                @foreach($project->bolsaMovimientos as $mov)
+                    <li class="item-row" style="flex-wrap:wrap;" id="mov-row-{{ $mov->id }}" data-mov-id="{{ $mov->id }}">
+                        <div class="item-info">
+                            <div class="item-primary js-mov-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> <span class="js-mov-fecha">{{ $mov->fecha->format('d/m/Y') }}</span> <span class="js-mov-tema">@if($mov->tema)<span class="mov-tema-chip">{{ $mov->tema }}</span>@endif</span></div>
+                            <div class="item-secondary js-mov-desc">{{ $mov->descripcion }}</div>
+                        </div>
+                        <div class="item-amount"><span class="js-mov-horas">{{ $fmtH($mov->horas) }}</span><small>horas</small></div>
+                        <button type="button" class="btn-delete-sm" style="background:#EEF2FF; color:#4F46E5;" title="Editar" onclick="toggleMovEdit({{ $mov->id }})"><i class="fas fa-pen"></i></button>
+                        <form action="{{ route('admin.internal-projects.movimientos.destroy', [$project, $mov]) }}" method="POST" class="js-mov-delete">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="btn-delete-sm" title="Eliminar"><i class="fas fa-times"></i></button>
+                        </form>
+
+                        <div id="mov-edit-{{ $mov->id }}" style="display:none; width:100%; margin-top:0.6rem; padding-top:0.6rem; border-top:1px dashed #e2e8f0;">
+                            <form action="{{ route('admin.internal-projects.movimientos.update', [$project, $mov]) }}" method="POST" class="js-mov-edit">
+                                @csrf @method('PUT')
+                                <div class="add-row">
+                                    <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ $mov->fecha->format('Y-m-d') }}"></div>
+                                    <div class="add-field"><label>Tema *</label><input type="text" name="tema" required value="{{ $mov->tema }}" placeholder="Ej: Checkout"></div>
+                                    <div class="add-field" style="grid-column: span 2;"><label>¿Qué se hizo? *</label><input type="text" name="descripcion" required value="{{ $mov->descripcion }}"></div>
+                                    <div class="add-field"><label>Cantidad *</label><input type="number" name="cantidad" step="0.01" min="0.01" required value="{{ rtrim(rtrim(number_format((float) $mov->horas, 2, '.', ''), '0'), '.') }}"></div>
+                                    <div class="add-field"><label>Unidad *</label><select name="unidad"><option value="horas" selected>Horas</option><option value="minutos">Minutos</option></select></div>
+                                    <div class="add-field" style="display:flex; gap:0.4rem;">
+                                        <button type="submit" class="btn-add btn-add-success"><i class="fas fa-save"></i> Guardar</button>
+                                        <button type="button" class="btn-add" style="background:#f1f5f9; color:#475569;" onclick="toggleMovEdit({{ $mov->id }})">Cancelar</button>
+                                    </div>
+                                </div>
                             </form>
-                        </li>
-                    @endforeach
-                </ul>
-            @else
-                <div class="no-data"><i class="fas fa-hourglass-half"></i> Aún no hay horas registradas. Usa el formulario de abajo para descontar horas de la bolsa.</div>
-            @endif
+                        </div>
+                    </li>
+                @endforeach
+            </ul>
+            <div class="no-data" id="bolsa-no-data" {!! $project->bolsaMovimientos->count() > 0 ? 'style=display:none' : '' !!}><i class="fas fa-hourglass-half"></i> Aún no hay horas registradas. Usa el formulario de abajo para descontar horas de la bolsa.</div>
 
             <div class="add-form-card">
                 <h4><i class="fas fa-plus-circle"></i> Registrar horas consumidas</h4>
@@ -426,9 +486,26 @@
                     @csrf
                     <div class="add-row">
                         <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>
+                        <div class="add-field"><label>Tema *</label><input type="text" name="tema" required placeholder="Ej: Checkout"></div>
                         <div class="add-field" style="grid-column: span 2;"><label>¿Qué se hizo? *</label><input type="text" name="descripcion" required placeholder="Ej: Ajustes en el checkout y pruebas"></div>
-                        <div class="add-field"><label>Horas *</label><input type="number" name="horas" step="0.25" min="0.25" required placeholder="Ej: 2,5"></div>
+                        <div class="add-field"><label>Cantidad *</label><input type="number" name="cantidad" step="0.01" min="0.01" required placeholder="Ej: 2,5 o 30"></div>
+                        <div class="add-field"><label>Unidad *</label><select name="unidad"><option value="horas" selected>Horas</option><option value="minutos">Minutos</option></select></div>
                         <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-plus"></i> Registrar</button></div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="add-form-card" style="margin-top:1rem; border-color: rgba(40,167,69,0.25); background: linear-gradient(135deg, rgba(40,167,69,0.05) 0%, rgba(40,167,69,0.01) 100%);">
+                <h4><i class="fas fa-file-excel" style="color:var(--success);"></i> Importar horas desde Excel</h4>
+                <p style="font-size:0.78rem; color:#777; margin:-0.5rem 0 0.85rem; line-height:1.5;">
+                    Columnas: <strong>Fecha</strong>, <strong>Tema</strong>, <strong>Descripción</strong>, <strong>Cantidad</strong> y <strong>Unidad</strong> (horas o minutos). Descarga la plantilla para no equivocarte con el formato.
+                </p>
+                <form action="{{ route('admin.internal-projects.movimientos.import', $project) }}" method="POST" enctype="multipart/form-data">
+                    @csrf
+                    <div class="add-row" style="grid-template-columns: minmax(200px,1fr) auto auto;">
+                        <div class="add-field"><label>Archivo Excel / CSV *</label><input type="file" name="archivo" accept=".xlsx,.xls,.csv" required></div>
+                        <div class="add-field"><label>&nbsp;</label><button type="submit" class="btn-add btn-add-success"><i class="fas fa-upload"></i> Subir archivo</button></div>
+                        <div class="add-field"><label>&nbsp;</label><a href="{{ route('admin.internal-projects.movimientos.plantilla', $project) }}" class="btn-add" style="background:#fff; color:var(--success); border:2px solid rgba(40,167,69,0.35); box-shadow:none;"><i class="fas fa-download"></i> Plantilla</a></div>
                     </div>
                 </form>
             </div>
@@ -877,6 +954,130 @@
             document.getElementById('tab-' + tab).classList.add('active');
         });
     });
+
+    /* Bolsa de horas: mostrar/ocultar el formulario inline de edición de un movimiento. */
+    function toggleMovEdit(id) {
+        const el = document.getElementById('mov-edit-' + id);
+        if (el) {
+            el.style.display = el.style.display === 'none' ? 'block' : 'none';
+        }
+    }
+
+    /* ──────────────────────────────────────────────────────────────────
+       Bolsa de horas: editar y eliminar SIN recargar la página.
+       Se queda en la misma pestaña y actualiza los totales al vuelo.
+       ────────────────────────────────────────────────────────────────── */
+    (function () {
+        const listEl = document.getElementById('bolsa-bitacora-list');
+        if (! listEl) { return; }
+
+        const escapeHtml = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+        const fmtH = (h) => {
+            let s = (Math.round(Number(h) * 100) / 100).toFixed(2).replace('.', ',');
+            s = s.replace(/,?0+$/, '');
+            return s === '' ? '0' : s;
+        };
+        const colorFor = (pct) => pct >= 100 ? 'var(--danger)' : (pct >= 75 ? 'var(--warning)' : 'var(--success)');
+
+        function toast(msg, ok) {
+            const d = document.createElement('div');
+            d.innerHTML = '<i class="fas fa-' + (ok ? 'check-circle' : 'exclamation-circle') + '"></i> ' + msg;
+            d.style.cssText = 'position:fixed;top:20px;right:20px;z-index:9999;padding:0.85rem 1.25rem;border-radius:10px;color:#fff;font-weight:600;font-size:0.85rem;box-shadow:0 8px 25px rgba(0,0,0,0.18);transition:opacity .4s,transform .4s;background:' + (ok ? '#28a745' : '#dc3545');
+            document.body.appendChild(d);
+            setTimeout(() => { d.style.opacity = '0'; d.style.transform = 'translateY(-8px)'; setTimeout(() => d.remove(), 400); }, 2600);
+        }
+
+        function actualizarTotales(t) {
+            const color = colorFor(t.pct);
+            const cons = document.getElementById('bolsa-consumidas');
+            const pctEl = document.getElementById('bolsa-pct');
+            const prog = document.getElementById('bolsa-progress');
+            const rest = document.getElementById('bolsa-restantes');
+            const restLbl = document.getElementById('bolsa-restantes-label');
+            if (cons) { cons.textContent = fmtH(t.cons) + ' h'; cons.style.color = color; }
+            if (pctEl) { pctEl.textContent = t.pct; }
+            if (prog) { prog.style.width = t.pct + '%'; prog.style.background = color; }
+            if (rest) { rest.textContent = fmtH(t.rest) + ' h'; rest.style.color = t.rest < 0 ? 'var(--danger)' : 'var(--success)'; }
+            if (restLbl) { restLbl.textContent = t.rest < 0 ? 'Excedidas' : 'Restantes'; }
+        }
+
+        function actualizarContador() {
+            const n = listEl.querySelectorAll(':scope > li').length;
+            const badge = document.getElementById('bolsa-tab-count');
+            if (badge) { badge.textContent = n; }
+            if (n === 0) {
+                listEl.style.display = 'none';
+                const nd = document.getElementById('bolsa-no-data');
+                if (nd) { nd.style.display = ''; }
+            }
+        }
+
+        async function enviar(form, method) {
+            const fd = new FormData(form);
+            fd.set('_method', method);
+            const r = await fetch(form.action, {
+                method: 'POST',
+                headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+                body: fd,
+            });
+            if (! r.ok) { return null; }
+            return r.json();
+        }
+
+        listEl.addEventListener('submit', async (e) => {
+            const form = e.target;
+
+            if (form.classList.contains('js-mov-delete')) {
+                e.preventDefault();
+                if (! confirm('¿Eliminar este registro de horas?')) { return; }
+                const li = form.closest('li');
+                try {
+                    const res = await enviar(form, 'DELETE');
+                    if (res && res.ok) {
+                        li.remove();
+                        actualizarTotales(res.totales);
+                        actualizarContador();
+                        toast('Registro eliminado', true);
+                    } else {
+                        toast('No se pudo eliminar el registro', false);
+                    }
+                } catch (err) {
+                    toast('No se pudo eliminar el registro', false);
+                }
+            } else if (form.classList.contains('js-mov-edit')) {
+                e.preventDefault();
+                const li = form.closest('li');
+                const id = li.dataset.movId;
+                try {
+                    const res = await enviar(form, 'PUT');
+                    if (res && res.ok) {
+                        const m = res.movimiento;
+                        li.querySelector('.js-mov-fecha').textContent = m.fecha_fmt;
+                        li.querySelector('.js-mov-tema').innerHTML = m.tema ? '<span class="mov-tema-chip">' + escapeHtml(m.tema) + '</span>' : '';
+                        li.querySelector('.js-mov-desc').textContent = m.descripcion;
+                        li.querySelector('.js-mov-horas').textContent = fmtH(m.horas);
+                        const box = document.getElementById('mov-edit-' + id);
+                        if (box) { box.style.display = 'none'; }
+                        actualizarTotales(res.totales);
+                        toast('Registro actualizado', true);
+                    } else {
+                        toast('No se pudo guardar. Revisa los campos.', false);
+                    }
+                } catch (err) {
+                    toast('No se pudo guardar el registro', false);
+                }
+            }
+        });
+    })();
+
+    @if(session('import_bolsa'))
+    /* Tras importar por Excel, abrir la pestaña de Bolsa de horas para ver el resultado. */
+    (function () {
+        const b = document.querySelector('.tab-btn[data-tab="bolsa"]');
+        if (b) { b.click(); }
+    })();
+    @endif
 
     /* ──────────────────────────────────────────────────────────────────
        Money input formatting: puntos de miles mientras escribís.
