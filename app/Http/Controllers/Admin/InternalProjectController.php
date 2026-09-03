@@ -1180,6 +1180,8 @@ class InternalProjectController extends Controller
                     'tema' => $movimiento->tema,
                     'descripcion' => $movimiento->descripcion,
                     'horas' => (float) $movimiento->horas,
+                    'creado_fmt' => $movimiento->created_at->format('d/m/Y H:i'),
+                    'editado_fmt' => $movimiento->updated_at->format('d/m/Y H:i'),
                 ],
                 'totales' => $this->totalesBolsa($internal_project),
             ]);

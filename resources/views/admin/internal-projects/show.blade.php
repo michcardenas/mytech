@@ -129,6 +129,9 @@
 
     /* TEMA CHIP (bitácora bolsa) */
     .mov-tema-chip { display: inline-block; padding: 0.12rem 0.6rem; border-radius: 999px; background: rgba(0,123,255,0.1); color: var(--primary-blue); font-size: 0.68rem; font-weight: 700; letter-spacing: 0.2px; }
+    .mov-trace { font-size: 0.68rem; color: #aeb6c2; margin-top: 0.2rem; display: flex; align-items: center; gap: 0.3rem; }
+    .mov-trace i { font-size: 0.62rem; }
+    .mov-trace .mt-edit { color: var(--warning); font-weight: 600; }
 
     /* BULK ACTIONS (bolsa) */
     .bolsa-bulk-bar { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 0.6rem; padding: 0.5rem 0.75rem; background: var(--light-gray); border-radius: 10px; }
@@ -464,6 +467,7 @@
                         <div class="item-info">
                             <div class="item-primary js-mov-primary"><i class="fas fa-calendar-day" style="color:#aaa; font-size:0.8rem;"></i> <span class="js-mov-fecha">{{ $mov->fecha->format('d/m/Y') }}</span> <span class="js-mov-tema">@if($mov->tema)<span class="mov-tema-chip">{{ $mov->tema }}</span>@endif</span></div>
                             <div class="item-secondary js-mov-desc">{{ $mov->descripcion }}</div>
+                            <div class="mov-trace"><i class="fas fa-cloud-arrow-up"></i> <span class="js-mov-trace">Cargado el {{ $mov->created_at->format('d/m/Y H:i') }}@if($mov->created_at->ne($mov->updated_at)) <span class="mt-edit">· editado el {{ $mov->updated_at->format('d/m/Y H:i') }}</span>@endif</span></div>
                         </div>
                         <div class="item-amount"><span class="js-mov-horas">{{ $fmtH($mov->horas) }}</span><small>horas</small></div>
                         <button type="button" class="btn-delete-sm" style="background:#EEF2FF; color:#4F46E5;" title="Editar" onclick="toggleMovEdit({{ $mov->id }})"><i class="fas fa-pen"></i></button>
@@ -494,7 +498,8 @@
             <div class="no-data" id="bolsa-no-data" {!! $project->bolsaMovimientos->count() > 0 ? 'style=display:none' : '' !!}><i class="fas fa-hourglass-half"></i> Aún no hay horas registradas. Usa el formulario de abajo para descontar horas de la bolsa.</div>
 
             <div class="add-form-card">
-                <h4><i class="fas fa-plus-circle"></i> Registrar horas consumidas</h4>
+                <h4><i class="fas fa-cloud-arrow-up"></i> Cargar horas</h4>
+                <p style="font-size:0.76rem; color:#888; margin:-0.5rem 0 0.85rem; line-height:1.5;">Cada carga queda como una línea nueva con su fecha y hora de carga (no se pierde la trazabilidad). Usa el lápiz solo para <strong>corregir</strong> un registro.</p>
                 <form action="{{ route('admin.internal-projects.movimientos.store', $project) }}" method="POST">
                     @csrf
                     <div class="add-row">
@@ -503,7 +508,7 @@
                         <div class="add-field" style="grid-column: span 2;"><label>¿Qué se hizo? *</label><input type="text" name="descripcion" required placeholder="Ej: Ajustes en el checkout y pruebas"></div>
                         <div class="add-field"><label>Cantidad *</label><input type="number" name="cantidad" step="0.01" min="0.01" required placeholder="Ej: 2,5 o 30"></div>
                         <div class="add-field"><label>Unidad *</label><select name="unidad"><option value="horas" selected>Horas</option><option value="minutos">Minutos</option></select></div>
-                        <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-plus"></i> Registrar</button></div>
+                        <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-cloud-arrow-up"></i> Cargar horas</button></div>
                     </div>
                 </form>
             </div>
@@ -1084,6 +1089,10 @@
                         li.querySelector('.js-mov-tema').innerHTML = m.tema ? '<span class="mov-tema-chip">' + escapeHtml(m.tema) + '</span>' : '';
                         li.querySelector('.js-mov-desc').textContent = m.descripcion;
                         li.querySelector('.js-mov-horas').textContent = fmtH(m.horas);
+                        const trace = li.querySelector('.js-mov-trace');
+                        if (trace && m.creado_fmt) {
+                            trace.innerHTML = 'Cargado el ' + m.creado_fmt + ' <span class="mt-edit">· editado el ' + m.editado_fmt + '</span>';
+                        }
                         const box = document.getElementById('mov-edit-' + id);
                         if (box) { box.style.display = 'none'; }
                         actualizarTotales(res.totales);
