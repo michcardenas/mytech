@@ -77,7 +77,11 @@ class GenerateSitemap extends Command
      */
     protected function addProyectos(Sitemap $sitemap): void
     {
-        $proyectos = Proyecto::activos()->get();
+        $noindexSlugs = config('seo.noindex_proyecto_slugs', []);
+
+        $proyectos = Proyecto::activos()
+            ->get()
+            ->reject(fn (Proyecto $proyecto): bool => in_array($proyecto->slug, $noindexSlugs, true));
 
         foreach ($proyectos as $proyecto) {
             $sitemap->add(
@@ -88,7 +92,7 @@ class GenerateSitemap extends Command
             );
         }
 
-        $this->info('✓ '.$proyectos->count().' proyectos agregados');
+        $this->info('✓ '.$proyectos->count().' proyectos agregados (noindex excluidos)');
     }
 
     /**
