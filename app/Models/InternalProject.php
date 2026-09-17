@@ -22,6 +22,7 @@ class InternalProject extends Model
         'fuente_url',
         'precio',
         'moneda',
+        'tasa_cambio_estimada',
         'estado',
         'fecha_inicio',
         'fecha_entrega',
@@ -42,6 +43,7 @@ class InternalProject extends Model
 
     protected $casts = [
         'precio' => 'decimal:2',
+        'tasa_cambio_estimada' => 'decimal:2',
         'desarrollador_pago' => 'decimal:2',
         'comision_valor' => 'decimal:2',
         'fecha_inicio' => 'date',
@@ -181,6 +183,19 @@ class InternalProject extends Model
         }
 
         return round(($this->total_pagado / $this->precio) * 100);
+    }
+
+    /**
+     * Precio del proyecto convertido a COP con la tasa estimada del proyecto.
+     * Devuelve null si la moneda ya es COP o si no se cargó una tasa.
+     */
+    public function getPrecioCopEstimadoAttribute(): ?float
+    {
+        if ($this->moneda === 'COP' || empty($this->tasa_cambio_estimada)) {
+            return null;
+        }
+
+        return round((float) $this->precio * (float) $this->tasa_cambio_estimada, 2);
     }
 
     public function getHorasConsumidasAttribute(): float

@@ -246,6 +246,12 @@
             <div class="kpi-label"><i class="fas fa-tag"></i> Precio Acordado</div>
             <div class="kpi-value">{{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($project->precio, 0, ',', '.') }}</div>
             <div class="kpi-sub">{{ $project->moneda }} &middot; Cliente</div>
+            @if($project->precio_cop_estimado)
+                <div class="kpi-sub" style="margin-top:0.15rem; color:var(--primary-blue);">
+                    <i class="fas fa-right-left"></i> ≈ ${{ number_format($project->precio_cop_estimado, 0, ',', '.') }} COP
+                    <small style="color:#9aa4b2;">(tasa ${{ number_format($project->tasa_cambio_estimada, 0, ',', '.') }})</small>
+                </div>
+            @endif
         </div>
         <div class="kpi-card kpi-success">
             <div class="kpi-label"><i class="fas fa-money-bill-wave"></i> Cobrado</div>
@@ -593,7 +599,7 @@
                 <form action="{{ route('admin.internal-projects.payments.store', $project) }}" method="POST">
                     @csrf
                     <div class="add-row">
-                        <div class="add-field"><label>Monto *</label><input type="text" inputmode="decimal" name="monto" required class="js-money-input" placeholder="0"></div>
+                        <div class="add-field"><label>Monto * <small>({{ $project->moneda }})</small></label><input type="text" inputmode="decimal" name="monto" id="cobro-monto" required class="js-money-input" placeholder="0"></div>
                         <div class="add-field"><label>Fecha *</label><input type="date" name="fecha" required value="{{ date('Y-m-d') }}"></div>
                         <div class="add-field">
                             <label>Metodo</label>
@@ -609,7 +615,7 @@
                                 <option value="Efectivo">Efectivo</option>
                             </select>
                         </div>
-                        <div class="add-field"><label>Recibido COP <small>(neto)</small></label><input type="text" inputmode="decimal" name="monto_recibido_cop" class="js-money-input" placeholder="Despues de impuestos"></div>
+                        <div class="add-field"><label>Recibido COP <small>(neto)</small></label><input type="text" inputmode="decimal" name="monto_recibido_cop" id="cobro-cop" class="js-money-input" placeholder="Despues de impuestos" data-tasa="{{ $project->moneda !== 'COP' ? (float) $project->tasa_cambio_estimada : 0 }}"><small id="cobro-cop-hint" style="display:none; color:#9aa4b2; margin-top:0.2rem;"></small></div>
                         <div class="add-field"><label>Referencia</label><input type="text" name="referencia" placeholder="# transaccion"></div>
                         <div class="add-field"><button type="submit" class="btn-add btn-add-success"><i class="fas fa-plus"></i> Registrar</button></div>
                     </div>
@@ -1219,6 +1225,36 @@
         };
 
         document.querySelectorAll('.js-money-input').forEach(init);
+    })();
+</script>
+
+{{-- Cobro: sugiere "Recibido COP" = monto x tasa estimada del proyecto (solo USD/EUR) --}}
+<script>
+    (function () {
+        const monto = document.getElementById('cobro-monto');
+        const cop = document.getElementById('cobro-cop');
+        const hint = document.getElementById('cobro-cop-hint');
+        if (!monto || !cop) return;
+
+        const tasa = parseFloat(cop.dataset.tasa || '0') || 0;
+        if (tasa <= 0) return;
+
+        let copTocado = false;
+        cop.addEventListener('input', () => { copTocado = true; });
+
+        const raw = (v) => parseFloat(String(v || '').replace(/\./g, '').replace(',', '.')) || 0;
+
+        monto.addEventListener('input', () => {
+            if (copTocado) return;
+            const m = raw(monto.value);
+            if (m > 0) {
+                cop.value = Math.round(m * tasa).toLocaleString('es-CO');
+                if (hint) {
+                    hint.style.display = 'block';
+                    hint.textContent = 'Sugerido con tasa $' + Math.round(tasa).toLocaleString('es-CO') + '. Ajústalo al valor real que llegó.';
+                }
+            }
+        });
     })();
 </script>
 

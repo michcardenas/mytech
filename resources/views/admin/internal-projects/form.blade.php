@@ -637,6 +637,22 @@
                         <div class="field-hint">Link al proyecto en la plataforma externa</div>
                     </div>
                 </div>
+                <div class="field-row single" id="tasa-cambio-wrap" style="display:none;">
+                    <div class="field-group">
+                        <div class="field-label"><i class="fas fa-right-left"></i> Tasa de cambio estimada <small style="font-weight:500; color:#aaa;">(a COP)</small></div>
+                        <div class="money-wrap" style="max-width:260px;">
+                            <span class="money-prefix">$</span>
+                            <input type="text" inputmode="decimal" id="tasa_cambio_estimada" name="tasa_cambio_estimada"
+                                   class="form-control js-money-input @error('tasa_cambio_estimada') is-invalid @enderror"
+                                   value="{{ old('tasa_cambio_estimada', $project->tasa_cambio_estimada) }}" placeholder="Ej: 4.000">
+                        </div>
+                        <div class="field-hint">
+                            Cuánto vale <strong>1 <span class="js-tasa-moneda">USD</span></strong> en pesos. Es solo para estimar el precio en COP; el valor real recibido se registra en cada pago.
+                            <span id="tasa-estimado-hint" style="display:block; margin-top:0.25rem; font-weight:600; color:var(--primary-blue);"></span>
+                        </div>
+                        @error('tasa_cambio_estimada') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -1458,6 +1474,43 @@
                 inputs.forEach(inp => { inp.value = toBackend(inp.value); });
             });
         }
+    })();
+</script>
+
+{{-- Tasa de cambio estimada: se muestra solo si la moneda no es COP + estima el precio en pesos --}}
+<script>
+    (function () {
+        const moneda = document.getElementById('moneda');
+        const wrap = document.getElementById('tasa-cambio-wrap');
+        const tasa = document.getElementById('tasa_cambio_estimada');
+        const precio = document.getElementById('precio');
+        const hint = document.getElementById('tasa-estimado-hint');
+        if (!moneda || !wrap) return;
+
+        const raw = (el) => window.moneyRaw ? window.moneyRaw(el) : (parseFloat(String(el && el.value || '').replace(/\./g, '').replace(',', '.')) || 0);
+        const fmtCop = (n) => '$' + Math.round(n).toLocaleString('es-CO');
+
+        function syncLabels() {
+            document.querySelectorAll('.js-tasa-moneda').forEach(s => { s.textContent = moneda.value; });
+        }
+
+        function estimar() {
+            if (!hint) return;
+            const t = raw(tasa), p = raw(precio);
+            hint.textContent = (t > 0 && p > 0) ? '≈ ' + fmtCop(p * t) + ' COP' : '';
+        }
+
+        function toggle() {
+            const esCop = moneda.value === 'COP';
+            wrap.style.display = esCop ? 'none' : '';
+            syncLabels();
+            estimar();
+        }
+
+        moneda.addEventListener('change', toggle);
+        if (tasa) tasa.addEventListener('input', estimar);
+        if (precio) precio.addEventListener('input', estimar);
+        toggle();
     })();
 </script>
 

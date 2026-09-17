@@ -998,6 +998,7 @@ class InternalProjectController extends Controller
             'fuente_url' => 'nullable|url|max:500',
             'precio' => 'required|numeric|min:0',
             'moneda' => 'required|in:COP,USD,EUR',
+            'tasa_cambio_estimada' => 'nullable|numeric|min:0',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
@@ -1051,6 +1052,10 @@ class InternalProjectController extends Controller
         $validated['es_recurrente'] = $request->boolean('es_recurrente');
         if ($validated['es_recurrente']) {
             $validated['fecha_entrega'] = null;
+        }
+
+        if (($validated['moneda'] ?? null) === 'COP') {
+            $validated['tasa_cambio_estimada'] = null;
         }
 
         $validated = $this->aplicarDatosBolsa($validated, $request);
@@ -1497,6 +1502,7 @@ class InternalProjectController extends Controller
             'fuente_url' => 'nullable|url|max:500',
             'precio' => 'required|numeric|min:0',
             'moneda' => 'required|in:COP,USD,EUR',
+            'tasa_cambio_estimada' => 'nullable|numeric|min:0',
             'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
@@ -1550,6 +1556,10 @@ class InternalProjectController extends Controller
         $validated['es_recurrente'] = $request->boolean('es_recurrente');
         if ($validated['es_recurrente']) {
             $validated['fecha_entrega'] = null;
+        }
+
+        if (($validated['moneda'] ?? null) === 'COP') {
+            $validated['tasa_cambio_estimada'] = null;
         }
 
         $validated = $this->aplicarDatosBolsa($validated, $request);
