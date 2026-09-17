@@ -10,10 +10,15 @@
     $navItems = [
         ['route' => 'home',                 'label' => 'Inicio'],
         ['route' => 'servicios.index',      'label' => 'Servicios', 'children' => [
-            ['url' => url('/chatbots-ia-whatsapp'),       'label' => 'Chatbots con IA para WhatsApp', 'desc' => 'Atienden, cobran y agendan 24/7'],
-            ['url' => url('/automatizacion-ia-empresas'), 'label' => 'Automatización con IA',        'desc' => 'Correos, documentos y contratos'],
-            ['url' => url('/desarrollo-ecommerce'),       'label' => 'Tiendas online / E-commerce',   'desc' => 'A la medida, sin comisiones'],
-            ['url' => url('/software-a-la-medida'),       'label' => 'Software a la medida',          'desc' => 'SaaS, ERP, CRM y plataformas'],
+            ['url' => url('/chatbots-ia-whatsapp'),                    'label' => 'Chatbots con IA para WhatsApp', 'desc' => 'Atienden, cobran y agendan 24/7'],
+            ['url' => url('/automatizacion-ia-empresas'),             'label' => 'Automatización con IA',        'desc' => 'Correos, documentos y contratos'],
+            ['url' => url('/software-a-la-medida'),                   'label' => 'Software a la medida',          'desc' => 'SaaS y plataformas web'],
+            ['url' => url('/software-crm-a-la-medida'),               'label' => 'CRM a la medida',               'desc' => 'Pipeline, leads y ventas'],
+            ['url' => url('/software-erp-a-la-medida'),               'label' => 'ERP a la medida',               'desc' => 'Inventario, ventas y cartera'],
+            ['url' => url('/desarrollo-ecommerce'),                   'label' => 'Tiendas online / E-commerce',   'desc' => 'A la medida, sin comisiones'],
+            ['url' => url('/desarrollo-de-apps-moviles'),             'label' => 'Apps móviles',                  'desc' => 'iOS y Android, una base'],
+            ['url' => url('/software-facturacion-electronica-dian'),  'label' => 'Facturación electrónica DIAN',  'desc' => 'Homologada e integrada'],
+            ['url' => url('/integracion-de-sistemas'),               'label' => 'Integración de sistemas',       'desc' => 'APIs, pagos, DIAN, Google'],
             ['url' => route('servicios.index'),     'label' => 'Todos los servicios',             'desc' => 'Ver el panorama completo', 'foot' => true],
         ]],
         ['route' => 'proyectos.index',      'label' => 'Proyectos'],
@@ -66,10 +71,24 @@
                                  x-transition:leave-start="opacity-100"
                                  x-transition:leave-end="opacity-0"
                                  class="absolute top-full left-1/2 -translate-x-1/2 pt-4 z-[60]">
-                                <div class="w-[330px] rounded-2xl border border-mt-border bg-white shadow-mt-strong p-2">
+                                <div class="w-[600px] rounded-2xl border border-mt-border bg-white shadow-mt-strong p-2">
+                                    <div class="grid grid-cols-2 gap-1">
+                                        @foreach($item['children'] as $child)
+                                            @continue(!empty($child['foot']))
+                                            <a href="{{ $child['url'] }}"
+                                               class="group/c flex items-center justify-between gap-4 px-3 py-2.5 rounded-xl hover:bg-mt-bg-2 transition-colors">
+                                                <span class="min-w-0">
+                                                    <span class="block font-display font-semibold text-mt-text text-[14px] leading-tight">{{ $child['label'] }}</span>
+                                                    <span class="block text-mt-text-3 text-[12px] mt-0.5 leading-snug">{{ $child['desc'] }}</span>
+                                                </span>
+                                                <span class="shrink-0 text-mt-accent opacity-0 -translate-x-1 group-hover/c:opacity-100 group-hover/c:translate-x-0 transition-all" aria-hidden="true">→</span>
+                                            </a>
+                                        @endforeach
+                                    </div>
                                     @foreach($item['children'] as $child)
+                                        @continue(empty($child['foot']))
                                         <a href="{{ $child['url'] }}"
-                                           class="group/c flex items-center justify-between gap-4 px-3 py-2.5 rounded-xl hover:bg-mt-bg-2 transition-colors {{ !empty($child['foot']) ? 'mt-1 border-t border-mt-border rounded-t-none pt-3' : '' }}">
+                                           class="group/c flex items-center justify-between gap-4 px-3 pt-3 pb-2.5 mt-1 rounded-xl hover:bg-mt-bg-2 transition-colors border-t border-mt-border">
                                             <span class="min-w-0">
                                                 <span class="block font-display font-semibold text-mt-text text-[14px] leading-tight">{{ $child['label'] }}</span>
                                                 <span class="block text-mt-text-3 text-[12px] mt-0.5 leading-snug">{{ $child['desc'] }}</span>
