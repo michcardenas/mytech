@@ -44,24 +44,30 @@
     .btn-h-delete { background: rgba(220,53,69,0.85); color: white; }
     .btn-h-delete:hover { background: var(--danger); }
 
-    /* KPI CARDS */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 0.85rem; margin-bottom: 1.25rem; }
-    .kpi-card { background: white; border-radius: 14px; padding: 1.1rem 1.25rem; box-shadow: var(--shadow-soft); border: 1px solid rgba(0,0,0,0.04); position: relative; overflow: hidden; }
-    .kpi-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:4px; background: var(--primary-blue); }
-    .kpi-card.kpi-success::before { background: var(--success); }
-    .kpi-card.kpi-danger::before { background: var(--danger); }
-    .kpi-card.kpi-warning::before { background: var(--warning); }
-    .kpi-card.kpi-utilidad { background: var(--gradient-success); color: white; }
-    .kpi-card.kpi-utilidad::before { display: none; }
-    .kpi-card.kpi-utilidad-neg { background: var(--gradient-danger); color: white; }
-    .kpi-label { font-size: 0.7rem; text-transform: uppercase; font-weight: 700; opacity: 0.65; letter-spacing: 0.4px; margin-bottom: 0.35rem; display: flex; align-items: center; gap: 0.35rem; }
-    .kpi-card.kpi-utilidad .kpi-label, .kpi-card.kpi-utilidad-neg .kpi-label { opacity: 0.9; }
-    .kpi-value { font-size: 1.4rem; font-weight: 800; color: var(--dark-text); line-height: 1.1; }
-    .kpi-card.kpi-utilidad .kpi-value, .kpi-card.kpi-utilidad-neg .kpi-value { color: white; }
-    .kpi-sub { font-size: 0.72rem; color: #999; margin-top: 0.25rem; }
-    .kpi-card.kpi-utilidad .kpi-sub, .kpi-card.kpi-utilidad-neg .kpi-sub { color: rgba(255,255,255,0.85); }
-    .kpi-progress { margin-top: 0.6rem; height: 5px; background: #f0f0f0; border-radius: 3px; overflow: hidden; }
-    .kpi-progress-fill { height: 100%; border-radius: 3px; transition: width 0.5s; }
+    /* RESUMEN FINANCIERO (minimalista) */
+    .fin { background: #fff; border: 1px solid #edeff2; border-radius: 16px; padding: 1.3rem 1.4rem 1.4rem; margin-bottom: 1.25rem; }
+    .fin-head { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; margin-bottom: 1.1rem; }
+    .fin-head h2 { font-size: 0.9rem; font-weight: 700; color: var(--dark-text); margin: 0; letter-spacing: 0.2px; display: flex; align-items: center; gap: 0.45rem; }
+    .fin-head h2 i { color: #b9c0c9; }
+    .fin-tasa { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; font-weight: 600; color: var(--primary-blue); background: rgba(0,123,255,0.06); border: 1px solid rgba(0,123,255,0.16); border-radius: 999px; padding: 0.32rem 0.75rem; }
+    .fin-hero { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-bottom: 1.15rem; border-bottom: 1px solid #f1f3f5; margin-bottom: 1.2rem; }
+    .fin-hero-label { font-size: 0.66rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.5px; color: #9aa4b2; margin-bottom: 0.3rem; display: flex; align-items: center; gap: 0.35rem; }
+    .fin-hero-value { font-size: 2.1rem; font-weight: 800; line-height: 1; letter-spacing: -0.5px; }
+    .fin-hero-value.pos { color: #059669; }
+    .fin-hero-value.neg { color: #DC2626; }
+    .fin-hero-sub { font-size: 0.7rem; color: #9aa4b2; margin-top: 0.45rem; }
+    .fin-hero-saldo { text-align: right; }
+    .fin-hero-saldo .n { font-size: 1.15rem; font-weight: 800; color: var(--dark-text); line-height: 1; }
+    .fin-hero-saldo .l { font-size: 0.64rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; color: #9aa4b2; margin-top: 0.3rem; }
+    .fin-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.1rem 1.2rem; }
+    .fin-tile { min-width: 0; }
+    .fin-tile-label { font-size: 0.64rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; color: #9aa4b2; margin-bottom: 0.32rem; display: flex; align-items: center; gap: 0.32rem; }
+    .fin-tile-value { font-size: 1.2rem; font-weight: 800; color: var(--dark-text); line-height: 1.1; }
+    .fin-tile-cop { font-size: 0.72rem; color: var(--primary-blue); margin-top: 0.18rem; font-weight: 600; display: flex; align-items: center; gap: 0.28rem; }
+    .fin-tile-sub { font-size: 0.68rem; color: #9aa4b2; margin-top: 0.18rem; }
+    .fin-bar { margin-top: 0.5rem; height: 4px; background: #eef1f4; border-radius: 3px; overflow: hidden; }
+    .fin-bar > span { display: block; height: 100%; border-radius: 3px; transition: width 0.5s; }
+    @media (max-width: 640px) { .fin-grid { grid-template-columns: repeat(2, 1fr); } .fin-hero-value { font-size: 1.7rem; } }
 
     /* TABS */
     .tabs-wrapper { background: white; border-radius: 14px; box-shadow: var(--shadow-soft); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 1.25rem; }
@@ -232,72 +238,97 @@
         </div>
     </div>
 
-    {{-- ============ KPI CARDS ============ --}}
+    {{-- ============ RESUMEN FINANCIERO ============ --}}
     @php
+        $esCop = $project->moneda === 'COP';
+        $sim = $esCop ? '$' : ($project->moneda === 'EUR' ? '€' : 'US$');
         $pctClient = $project->precio > 0 ? min(round(($project->total_pagado / $project->precio) * 100), 100) : 0;
         $colorClient = $pctClient >= 100 ? 'var(--success)' : ($pctClient >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
         $pctDev = ($project->desarrollador_pago ?? 0) > 0 ? min(round(($project->total_pagado_dev / $project->desarrollador_pago) * 100), 100) : 0;
         $colorDev = $pctDev >= 100 ? 'var(--success)' : ($pctDev >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
         $utilidad = $project->utilidad;
-        $utilClass = $utilidad >= 0 ? 'kpi-utilidad' : 'kpi-utilidad-neg';
+        $tasa = (float) $project->tasa_cambio_estimada;
+        $mostrarGestion = $project->comision_calculada > 0 || $project->vendedor_id;
+        $comCalc = (float) $project->comision_calculada;
+        $comPag = (float) $project->total_pagado_gestion;
+        $pctGest = $comCalc > 0 ? min(round(($comPag / $comCalc) * 100), 100) : 0;
+        $colorGest = $pctGest >= 100 ? 'var(--success)' : ($pctGest >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
     @endphp
-    <div class="kpi-grid">
-        <div class="kpi-card">
-            <div class="kpi-label"><i class="fas fa-tag"></i> Precio Acordado</div>
-            <div class="kpi-value">{{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($project->precio, 0, ',', '.') }}</div>
-            <div class="kpi-sub">{{ $project->moneda }} &middot; Cliente</div>
-            @if($project->precio_cop_estimado)
-                <div class="kpi-sub" style="margin-top:0.15rem; color:var(--primary-blue);">
-                    <i class="fas fa-right-left"></i> ≈ ${{ number_format($project->precio_cop_estimado, 0, ',', '.') }} COP
-                    <small style="color:#9aa4b2;">(tasa ${{ number_format($project->tasa_cambio_estimada, 0, ',', '.') }})</small>
-                </div>
+    <div class="fin">
+        <div class="fin-head">
+            <h2><i class="fas fa-chart-pie"></i> Resumen financiero</h2>
+            @if(! $esCop && $tasa > 0)
+                <span class="fin-tasa"><i class="fas fa-right-left"></i> Tasa {{ $project->moneda }} &rarr; COP · ${{ number_format($tasa, 0, ',', '.') }}</span>
             @endif
         </div>
-        <div class="kpi-card kpi-success">
-            <div class="kpi-label"><i class="fas fa-money-bill-wave"></i> Cobrado</div>
-            <div class="kpi-value">{{ $project->moneda == 'COP' ? '$' : 'US$' }}{{ number_format($project->total_pagado, 0, ',', '.') }}</div>
-            <div class="kpi-sub">{{ $pctClient }}% del precio</div>
-            <div class="kpi-progress"><div class="kpi-progress-fill" style="width:{{ $pctClient }}%; background: {{ $colorClient }};"></div></div>
+
+        <div class="fin-hero">
+            <div>
+                <div class="fin-hero-label"><i class="fas fa-chart-line"></i> Utilidad neta (en pesos)</div>
+                <div class="fin-hero-value {{ $utilidad >= 0 ? 'pos' : 'neg' }}">${{ number_format($utilidad, 0, ',', '.') }}</div>
+                <div class="fin-hero-sub">Recibido en COP &minus; pagado al dev &minus; gastos{{ $mostrarGestion ? ' &minus; gestión' : '' }}</div>
+            </div>
+            <div class="fin-hero-saldo">
+                <div class="n">{{ $sim }}{{ number_format($project->saldo_pendiente, 0, ',', '.') }}</div>
+                <div class="l">Saldo por cobrar</div>
+            </div>
         </div>
-        <div class="kpi-card kpi-warning">
-            <div class="kpi-label"><i class="fas fa-laptop-code"></i> Pagado al Dev</div>
-            <div class="kpi-value">${{ number_format($project->total_pagado_dev, 0, ',', '.') }}</div>
-            <div class="kpi-sub">@if($project->desarrollador_pago) de ${{ number_format($project->desarrollador_pago, 0, ',', '.') }} &middot; {{ $pctDev }}% @else Sin acuerdo definido @endif</div>
-            @if($project->desarrollador_pago)
-                <div class="kpi-progress"><div class="kpi-progress-fill" style="width:{{ $pctDev }}%; background: {{ $colorDev }};"></div></div>
-            @endif
-        </div>
-        <div class="kpi-card kpi-danger">
-            <div class="kpi-label"><i class="fas fa-receipt"></i> Otros Gastos</div>
-            <div class="kpi-value">${{ number_format($project->total_gastos, 0, ',', '.') }}</div>
-            <div class="kpi-sub">{{ $project->expenses->count() }} {{ Str::plural('item', $project->expenses->count()) }}</div>
-        </div>
-        @if($project->comision_calculada > 0 || $project->vendedor_id)
-            @php
-                $comCalc = (float) $project->comision_calculada;
-                $comPag = (float) $project->total_pagado_gestion;
-                $pctGest = $comCalc > 0 ? min(round(($comPag / $comCalc) * 100), 100) : 0;
-                $colorGest = $pctGest >= 100 ? 'var(--success)' : ($pctGest >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
-            @endphp
-            <div class="kpi-card" style="--col: #059669;">
-                <div class="kpi-label"><i class="fas fa-handshake"></i> Gestión (vendedor)</div>
-                <div class="kpi-value">${{ number_format($comPag, 0, ',', '.') }}</div>
-                <div class="kpi-sub">
-                    @if($comCalc > 0)
-                        de ${{ number_format($comCalc, 0, ',', '.') }} · {{ $pctGest }}%
-                    @else
-                        sin comisión definida
-                    @endif
-                </div>
-                @if($comCalc > 0)
-                    <div class="kpi-progress"><div class="kpi-progress-fill" style="width:{{ $pctGest }}%; background: {{ $colorGest }};"></div></div>
+
+        <div class="fin-grid">
+            {{-- Precio --}}
+            <div class="fin-tile">
+                <div class="fin-tile-label"><i class="fas fa-tag"></i> Precio acordado</div>
+                <div class="fin-tile-value">{{ $sim }}{{ number_format($project->precio, 0, ',', '.') }}</div>
+                @if($project->precio_cop_estimado)
+                    <div class="fin-tile-cop"><i class="fas fa-right-left" style="font-size:0.62rem;"></i> ≈ ${{ number_format($project->precio_cop_estimado, 0, ',', '.') }} COP</div>
+                @else
+                    <div class="fin-tile-sub">{{ $project->moneda }} · cliente</div>
                 @endif
             </div>
-        @endif
-        <div class="kpi-card {{ $utilClass }}">
-            <div class="kpi-label"><i class="fas fa-chart-line"></i> Utilidad Neta</div>
-            <div class="kpi-value">${{ number_format($utilidad, 0, ',', '.') }}</div>
-            <div class="kpi-sub">Recibido COP &minus; Dev &minus; Gastos</div>
+
+            {{-- Cobrado --}}
+            <div class="fin-tile">
+                <div class="fin-tile-label"><i class="fas fa-money-bill-wave"></i> Cobrado</div>
+                <div class="fin-tile-value">{{ $sim }}{{ number_format($project->total_pagado, 0, ',', '.') }}</div>
+                @if(! $esCop)
+                    <div class="fin-tile-cop"><i class="fas fa-arrow-down" style="font-size:0.6rem;"></i> ${{ number_format($project->total_recibido_cop, 0, ',', '.') }} COP recibido</div>
+                @endif
+                <div class="fin-bar"><span style="width:{{ $pctClient }}%; background:{{ $colorClient }};"></span></div>
+                <div class="fin-tile-sub">{{ $pctClient }}% del precio</div>
+            </div>
+
+            {{-- Pagado al dev --}}
+            <div class="fin-tile">
+                <div class="fin-tile-label"><i class="fas fa-laptop-code"></i> Pagado al dev</div>
+                <div class="fin-tile-value">${{ number_format($project->total_pagado_dev, 0, ',', '.') }}</div>
+                @if($project->desarrollador_pago)
+                    <div class="fin-bar"><span style="width:{{ $pctDev }}%; background:{{ $colorDev }};"></span></div>
+                    <div class="fin-tile-sub">de ${{ number_format($project->desarrollador_pago, 0, ',', '.') }} · {{ $pctDev }}%</div>
+                @else
+                    <div class="fin-tile-sub">Sin acuerdo definido</div>
+                @endif
+            </div>
+
+            {{-- Gestión (vendedor) --}}
+            @if($mostrarGestion)
+                <div class="fin-tile">
+                    <div class="fin-tile-label"><i class="fas fa-handshake"></i> Gestión (vendedor)</div>
+                    <div class="fin-tile-value">${{ number_format($comPag, 0, ',', '.') }}</div>
+                    @if($comCalc > 0)
+                        <div class="fin-bar"><span style="width:{{ $pctGest }}%; background:{{ $colorGest }};"></span></div>
+                        <div class="fin-tile-sub">de ${{ number_format($comCalc, 0, ',', '.') }} · {{ $pctGest }}%</div>
+                    @else
+                        <div class="fin-tile-sub">sin comisión definida</div>
+                    @endif
+                </div>
+            @endif
+
+            {{-- Otros gastos --}}
+            <div class="fin-tile">
+                <div class="fin-tile-label"><i class="fas fa-receipt"></i> Otros gastos</div>
+                <div class="fin-tile-value">${{ number_format($project->total_gastos, 0, ',', '.') }}</div>
+                <div class="fin-tile-sub">{{ $project->expenses->count() }} {{ Str::plural('item', $project->expenses->count()) }}</div>
+            </div>
         </div>
     </div>
 
