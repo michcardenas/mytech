@@ -131,6 +131,16 @@
                             {{-- Strip top que se activa en hover --}}
                             <span class="absolute top-0 left-0 right-0 h-[2px] origin-left transition-transform duration-500 ease-out scale-x-0 group-hover:scale-x-100 bg-[color:var(--card-tint)]"></span>
 
+                            {{-- Logo de la marca (grande, en su propia fila para que se vea bien) --}}
+                            @if($hasLogo)
+                                <div class="mb-5 inline-flex items-center justify-center w-16 h-16 rounded-xl bg-white border border-mt-border overflow-hidden shadow-sm transition-all duration-500 group-hover:border-[color-mix(in_srgb,var(--card-tint)_35%,transparent)] group-hover:shadow-md">
+                                    <img src="{{ PCH::logoUrl($p->logo) }}"
+                                         alt="{{ $p->nombre }} logo"
+                                         class="w-full h-full object-contain p-2"
+                                         loading="lazy">
+                                </div>
+                            @endif
+
                             {{-- País + categoría --}}
                             <div class="flex items-center gap-2 mb-4 text-[11px] font-mono uppercase tracking-wider">
                                 <span class="text-sm leading-none">{{ $p->bandera_emoji ?: '🌎' }}</span>
@@ -139,20 +149,10 @@
                                 <span class="font-semibold text-[color:var(--card-tint)]">{{ $p->badge_text }}</span>
                             </div>
 
-                            {{-- Nombre + logo elegante al lado (si existe) --}}
-                            <div class="mb-4 flex items-center gap-3">
-                                @if($hasLogo)
-                                    <span class="flex-shrink-0 inline-flex items-center justify-center w-11 h-11 rounded-xl bg-white border border-mt-border overflow-hidden shadow-sm transition-all duration-500 group-hover:border-[color-mix(in_srgb,var(--card-tint)_35%,transparent)] group-hover:shadow-md">
-                                        <img src="{{ PCH::logoUrl($p->logo) }}"
-                                             alt="{{ $p->nombre }} logo"
-                                             class="w-full h-full object-contain p-1.5"
-                                             loading="lazy">
-                                    </span>
-                                @endif
-                                <h3 class="text-[22px] md:text-2xl font-display font-bold text-mt-text leading-tight">
-                                    {{ $p->nombre }}
-                                </h3>
-                            </div>
+                            {{-- Nombre --}}
+                            <h3 class="text-[22px] md:text-2xl font-display font-bold text-mt-text leading-tight">
+                                {{ $p->nombre }}
+                            </h3>
 
                             {{-- Descripción --}}
                             <p class="text-[14px] text-mt-text-2 leading-relaxed min-h-[4rem]">
