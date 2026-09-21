@@ -133,10 +133,10 @@
 
                             {{-- Logo de la marca (grande, en su propia fila para que se vea bien) --}}
                             @if($hasLogo)
-                                <div class="mb-5 inline-flex items-center justify-center w-16 h-16 rounded-xl bg-white border border-mt-border overflow-hidden shadow-sm transition-all duration-500 group-hover:border-[color-mix(in_srgb,var(--card-tint)_35%,transparent)] group-hover:shadow-md">
+                                <div class="mb-5 inline-flex items-center justify-center w-20 h-20 rounded-2xl bg-white border border-mt-border overflow-hidden shadow-sm transition-all duration-500 group-hover:border-[color-mix(in_srgb,var(--card-tint)_35%,transparent)] group-hover:shadow-md">
                                     <img src="{{ PCH::logoUrl($p->logo) }}"
                                          alt="{{ $p->nombre }} logo"
-                                         class="w-full h-full object-contain p-2"
+                                         class="w-full h-full object-contain p-1.5"
                                          loading="lazy">
                                 </div>
                             @endif
