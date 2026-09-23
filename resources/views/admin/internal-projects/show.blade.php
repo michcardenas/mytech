@@ -69,6 +69,30 @@
     .fin-bar > span { display: block; height: 100%; border-radius: 3px; transition: width 0.5s; }
     @media (max-width: 640px) { .fin-grid { grid-template-columns: repeat(2, 1fr); } .fin-hero-value { font-size: 1.7rem; } }
 
+    /* KPI STRIP (estado del proyecto de un vistazo) */
+    .kpi-strip { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.9rem; margin-bottom: 1.25rem; }
+    .kpi-card { background: #fff; border: 1px solid #edeff2; border-radius: 14px; padding: 1rem 1.1rem 1.05rem 1.25rem; position: relative; overflow: hidden; box-shadow: var(--shadow-soft); }
+    .kpi-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--kpi-color, var(--primary-blue)); }
+    .kpi-label { font-size: 0.65rem; text-transform: uppercase; font-weight: 700; letter-spacing: 0.4px; color: #9aa4b2; display: flex; align-items: center; gap: 0.4rem; margin-bottom: 0.45rem; }
+    .kpi-label i { color: var(--kpi-color, var(--primary-blue)); }
+    .kpi-value { font-size: 1.4rem; font-weight: 800; line-height: 1; letter-spacing: -0.5px; color: var(--dark-text); }
+    .kpi-value.pos { color: #059669; }
+    .kpi-value.neg { color: #DC2626; }
+    .kpi-value.muted { color: #cbd2da; font-size: 1.1rem; }
+    .kpi-sub { font-size: 0.66rem; color: #9aa4b2; margin-top: 0.4rem; font-weight: 600; }
+    @media (max-width: 640px) { .kpi-strip { grid-template-columns: repeat(2, 1fr); } .kpi-value { font-size: 1.2rem; } }
+
+    /* SUB-NAV DINERO (pills dentro de la pestaña Dinero) */
+    .money-subnav { display: flex; gap: 0.45rem; flex-wrap: wrap; margin-bottom: 1.4rem; padding-bottom: 1.1rem; border-bottom: 1px solid #f1f3f5; }
+    .money-pill { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.5rem 0.95rem; border-radius: 999px; border: 1.5px solid #e9ecef; background: #fff; color: #667085; font-size: 0.8rem; font-weight: 700; cursor: pointer; transition: var(--transition); }
+    .money-pill:hover { border-color: var(--primary-blue); color: var(--primary-blue); }
+    .money-pill.active { background: var(--gradient-blue); border-color: transparent; color: #fff; box-shadow: 0 3px 10px rgba(0,123,255,0.25); }
+    .money-pill .mp-count { background: rgba(0,0,0,0.08); padding: 0.05rem 0.45rem; border-radius: 10px; font-size: 0.68rem; color: #666; }
+    .money-pill.active .mp-count { background: rgba(255,255,255,0.25); color: #fff; }
+    .money-panel { display: none; }
+    .money-panel.active { display: block; }
+    @media (max-width: 640px) { .money-subnav { gap: 0.35rem; } .money-pill { padding: 0.45rem 0.7rem; font-size: 0.74rem; } }
+
     /* TABS */
     .tabs-wrapper { background: white; border-radius: 14px; box-shadow: var(--shadow-soft); border: 1px solid rgba(0,0,0,0.04); overflow: hidden; margin-bottom: 1.25rem; }
     .tabs-nav { display: flex; gap: 0; border-bottom: 1px solid rgba(0,0,0,0.06); background: rgba(0,0,0,0.015); overflow-x: auto; }
@@ -238,7 +262,7 @@
         </div>
     </div>
 
-    {{-- ============ RESUMEN FINANCIERO ============ --}}
+    {{-- ============ CALCULOS FINANCIEROS ============ --}}
     @php
         $esCop = $project->moneda === 'COP';
         $sim = $esCop ? '$' : ($project->moneda === 'EUR' ? '€' : 'US$');
@@ -253,7 +277,51 @@
         $comPag = (float) $project->total_pagado_gestion;
         $pctGest = $comCalc > 0 ? min(round(($comPag / $comCalc) * 100), 100) : 0;
         $colorGest = $pctGest >= 100 ? 'var(--success)' : ($pctGest >= 50 ? 'var(--primary-blue)' : 'var(--warning)');
+        // KPIs de estado (lo que requiere accion)
+        $saldoCobrar = (float) $project->saldo_pendiente;
+        $saldoDevPend = ($project->desarrollador_pago ?? 0) > 0 ? max((float) $project->saldo_pendiente_dev, 0) : null;
+        $comPend = $mostrarGestion && $comCalc > 0 ? max($comCalc - $comPag, 0) : null;
     @endphp
+
+    {{-- ============ ESTADO DEL PROYECTO (de un vistazo) ============ --}}
+    <div class="kpi-strip">
+        {{-- Saldo por cobrar --}}
+        <div class="kpi-card" style="--kpi-color: {{ $saldoCobrar > 0 ? 'var(--warning)' : 'var(--success)' }};">
+            <div class="kpi-label"><i class="fas fa-hand-holding-dollar"></i> Por cobrar</div>
+            <div class="kpi-value {{ $saldoCobrar > 0 ? '' : 'pos' }}">{{ $sim }}{{ number_format($saldoCobrar, 0, ',', '.') }}</div>
+            <div class="kpi-sub">{{ $saldoCobrar > 0 ? $pctClient . '% cobrado del precio' : 'Cobrado al 100%' }}</div>
+        </div>
+        {{-- Por pagar al dev --}}
+        <div class="kpi-card" style="--kpi-color: var(--primary-blue);">
+            <div class="kpi-label"><i class="fas fa-laptop-code"></i> Pagar al dev</div>
+            @if($saldoDevPend !== null)
+                <div class="kpi-value {{ $saldoDevPend > 0 ? '' : 'pos' }}">${{ number_format($saldoDevPend, 0, ',', '.') }}</div>
+                <div class="kpi-sub">{{ $saldoDevPend > 0 ? 'de $' . number_format($project->desarrollador_pago, 0, ',', '.') . ' · ' . $pctDev . '%' : 'Dev pagado al 100%' }}</div>
+            @else
+                <div class="kpi-value muted">—</div>
+                <div class="kpi-sub">Sin dev asignado</div>
+            @endif
+        </div>
+        {{-- Comision por pagar (gestion) --}}
+        <div class="kpi-card" style="--kpi-color: #8b5cf6;">
+            <div class="kpi-label"><i class="fas fa-handshake"></i> Comisión gestión</div>
+            @if($comPend !== null)
+                <div class="kpi-value {{ $comPend > 0 ? '' : 'pos' }}">${{ number_format($comPend, 0, ',', '.') }}</div>
+                <div class="kpi-sub">{{ $comPend > 0 ? 'de $' . number_format($comCalc, 0, ',', '.') . ' · ' . $pctGest . '%' : 'Comisión pagada' }}</div>
+            @else
+                <div class="kpi-value muted">—</div>
+                <div class="kpi-sub">{{ $project->vendedor_id ? 'Sin comisión definida' : 'Sin vendedor' }}</div>
+            @endif
+        </div>
+        {{-- Utilidad neta --}}
+        <div class="kpi-card" style="--kpi-color: {{ $utilidad >= 0 ? '#059669' : '#DC2626' }};">
+            <div class="kpi-label"><i class="fas fa-chart-line"></i> Utilidad neta</div>
+            <div class="kpi-value {{ $utilidad >= 0 ? 'pos' : 'neg' }}">${{ number_format($utilidad, 0, ',', '.') }}</div>
+            <div class="kpi-sub">En pesos, ya realizada</div>
+        </div>
+    </div>
+
+    {{-- ============ RESUMEN FINANCIERO (detalle) ============ --}}
     <div class="fin">
         <div class="fin-head">
             <h2><i class="fas fa-chart-pie"></i> Resumen financiero</h2>
@@ -266,7 +334,7 @@
             <div>
                 <div class="fin-hero-label"><i class="fas fa-chart-line"></i> Utilidad neta (en pesos)</div>
                 <div class="fin-hero-value {{ $utilidad >= 0 ? 'pos' : 'neg' }}">${{ number_format($utilidad, 0, ',', '.') }}</div>
-                <div class="fin-hero-sub">Recibido en COP &minus; pagado al dev &minus; gastos{{ $mostrarGestion ? ' &minus; gestión' : '' }}</div>
+                <div class="fin-hero-sub">Recibido en COP &minus; pagado al dev &minus; gastos{!! $mostrarGestion ? ' &minus; gestión' : '' !!}</div>
             </div>
             <div class="fin-hero-saldo">
                 <div class="n">{{ $sim }}{{ number_format($project->saldo_pendiente, 0, ',', '.') }}</div>
@@ -335,14 +403,12 @@
     {{-- ============ TABS ============ --}}
     <div class="tabs-wrapper">
         <div class="tabs-nav">
-            <button class="tab-btn active" data-tab="info"><i class="fas fa-info-circle"></i> Informacion</button>
+            @php $totalDinero = $project->payments->count() + $project->developerPayments->count() + $project->gestionPayments->count() + $project->expenses->count(); @endphp
+            <button class="tab-btn active" data-tab="info"><i class="fas fa-info-circle"></i> Información</button>
             @if($project->es_bolsa_horas)
                 <button class="tab-btn" data-tab="bolsa"><i class="fas fa-hourglass-half"></i> Bolsa de horas <span class="tab-count" id="bolsa-tab-count">{{ $project->bolsaMovimientos->count() }}</span></button>
             @endif
-            <button class="tab-btn" data-tab="cobros"><i class="fas fa-money-bill-wave"></i> Cobros <span class="tab-count">{{ $project->payments->count() }}</span></button>
-            <button class="tab-btn" data-tab="dev"><i class="fas fa-laptop-code"></i> Pagos al Dev <span class="tab-count">{{ $project->developerPayments->count() }}</span></button>
-            <button class="tab-btn" data-tab="gestion"><i class="fas fa-handshake"></i> Pagos de Gestión <span class="tab-count">{{ $project->gestionPayments->count() }}</span></button>
-            <button class="tab-btn" data-tab="gastos"><i class="fas fa-receipt"></i> Otros Gastos <span class="tab-count">{{ $project->expenses->count() }}</span></button>
+            <button class="tab-btn" data-tab="dinero"><i class="fas fa-wallet"></i> Dinero <span class="tab-count">{{ $totalDinero }}</span></button>
             <button class="tab-btn" data-tab="archivos"><i class="fas fa-paperclip"></i> Archivos <span class="tab-count">{{ $project->files->count() }}</span></button>
             <button class="tab-btn" data-tab="notas"><i class="fas fa-sticky-note"></i> Notas</button>
         </div>
@@ -567,8 +633,17 @@
         </div>
         @endif
 
-        {{-- TAB: COBROS (Cliente) --}}
-        <div class="tab-content" id="tab-cobros">
+        {{-- ============ TAB: DINERO (agrupa Cobros / Dev / Gestión / Gastos) ============ --}}
+        <div class="tab-content" id="tab-dinero">
+            <div class="money-subnav">
+                <button class="money-pill active" data-money="cobros"><i class="fas fa-money-bill-wave"></i> Cobros <span class="mp-count">{{ $project->payments->count() }}</span></button>
+                <button class="money-pill" data-money="dev"><i class="fas fa-laptop-code"></i> Pagos al Dev <span class="mp-count">{{ $project->developerPayments->count() }}</span></button>
+                <button class="money-pill" data-money="gestion"><i class="fas fa-handshake"></i> Pagos de Gestión <span class="mp-count">{{ $project->gestionPayments->count() }}</span></button>
+                <button class="money-pill" data-money="gastos"><i class="fas fa-receipt"></i> Otros Gastos <span class="mp-count">{{ $project->expenses->count() }}</span></button>
+            </div>
+
+            {{-- COBROS (Cliente) --}}
+            <div class="money-panel active" id="money-cobros">
             @php
                 $saldo = $project->saldo_pendiente;
             @endphp
@@ -654,8 +729,8 @@
             </div>
         </div>
 
-        {{-- TAB: PAGOS DEV --}}
-        <div class="tab-content" id="tab-dev">
+            {{-- PAGOS DEV --}}
+            <div class="money-panel" id="money-dev">
             @if($project->desarrollador_pago)
                 @php $saldoDev = $project->saldo_pendiente_dev; @endphp
                 <div class="section-summary">
@@ -732,8 +807,8 @@
             </div>
         </div>
 
-        {{-- TAB: PAGOS DE GESTION (vendedor) --}}
-        <div class="tab-content" id="tab-gestion">
+            {{-- PAGOS DE GESTION (vendedor) --}}
+            <div class="money-panel" id="money-gestion">
             @php
                 $comCalc = (float) $project->comision_calculada;
                 $comPag = (float) $project->total_pagado_gestion;
@@ -873,8 +948,8 @@
             @endif
         </div>
 
-        {{-- TAB: OTROS GASTOS --}}
-        <div class="tab-content" id="tab-gastos">
+            {{-- OTROS GASTOS --}}
+            <div class="money-panel" id="money-gastos">
             <div class="section-summary">
                 <div class="ss-stat">
                     <div class="ss-stat-num" style="color: var(--danger);">${{ number_format($project->total_gastos, 0, ',', '.') }}</div>
@@ -950,7 +1025,8 @@
                     </div>
                 </form>
             </div>
-        </div>
+            </div>{{-- /money-gastos --}}
+        </div>{{-- /tab-dinero --}}
 
         {{-- TAB: ARCHIVOS --}}
         <div class="tab-content" id="tab-archivos">
@@ -1007,6 +1083,18 @@
             document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
             btn.classList.add('active');
             document.getElementById('tab-' + tab).classList.add('active');
+        });
+    });
+
+    /* Sub-pestañas dentro de "Dinero" (Cobros / Dev / Gestión / Gastos) */
+    document.querySelectorAll('.money-pill').forEach(pill => {
+        pill.addEventListener('click', () => {
+            const key = pill.dataset.money;
+            document.querySelectorAll('.money-pill').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.money-panel').forEach(p => p.classList.remove('active'));
+            pill.classList.add('active');
+            const panel = document.getElementById('money-' + key);
+            if (panel) { panel.classList.add('active'); }
         });
     });
 
