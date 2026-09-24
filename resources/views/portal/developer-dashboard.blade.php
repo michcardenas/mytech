@@ -132,6 +132,8 @@
         .proj-bar { height: 6px; background: #e2e8f0; border-radius: 3px; overflow: hidden; margin-top: 0.65rem; }
         .proj-bar-fill { height: 100%; background: var(--grad); border-radius: 3px; transition: width 0.6s ease; }
         .proj-foot { font-size: 0.72rem; color: #94a3b8; margin-top: 0.5rem; display: flex; justify-content: space-between; }
+        .proj-tablero { display: inline-flex; align-items: center; gap: 0.4rem; margin-top: 0.7rem; font-size: 0.78rem; font-weight: 700; color: #7c3aed; text-decoration: none; padding: 0.4rem 0.7rem; border: 1px solid rgba(124,58,237,0.25); border-radius: 8px; transition: all 0.2s; }
+        .proj-tablero:hover { background: #7c3aed; color: #fff; }
         .est-pill { padding: 0.12rem 0.5rem; border-radius: 6px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-block; margin-left: 0.4rem; }
         .recurrente-pill { background: rgba(124,58,237,0.12); color: var(--purple); padding: 0.12rem 0.5rem; border-radius: 6px; font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.3px; display: inline-block; margin-left: 0.35rem; }
 
@@ -318,6 +320,7 @@
                         <span>{{ $r['pagos_mes_count'] }} {{ $r['pagos_mes_count'] == 1 ? 'pago' : 'pagos' }} este mes</span>
                         <span>{{ $r['pct'] }}%</span>
                     </div>
+                    <a href="{{ route('portal.developer.board', $r['id']) }}" class="proj-tablero"><i class="fas fa-table-columns"></i> Ver tablero de tareas</a>
                 </div>
             @endforeach
         </div>
@@ -387,6 +390,7 @@
                         <span>{{ $o['pagos_total_count'] }} {{ $o['pagos_total_count'] == 1 ? 'pago' : 'pagos' }} en total</span>
                         <span>{{ $o['pct'] }}% pagado</span>
                     </div>
+                    <a href="{{ route('portal.developer.board', $o['id']) }}" class="proj-tablero"><i class="fas fa-table-columns"></i> Ver tablero de tareas</a>
                 </div>
             @endforeach
         </div>

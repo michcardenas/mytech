@@ -27,6 +27,18 @@ Route::prefix('portal')->group(function () {
     Route::get('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'showLogin'])->name('portal.developer.login.show');
     Route::post('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'login'])->name('portal.developer.login');
     Route::get('desarrollador/dashboard', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'dashboard'])->name('portal.developer.dashboard');
+    Route::get('desarrollador/proyecto/{internal_project}/tablero', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'board'])->name('portal.developer.board');
+    Route::post('desarrollador/tareas/{task}/mover', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'moveTask'])->name('portal.developer.tasks.move');
+    Route::post('desarrollador/proyecto/{internal_project}/tareas', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeTask'])->name('portal.developer.tasks.store');
+    Route::put('desarrollador/tareas/{task}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'updateTask'])->name('portal.developer.tasks.update');
+    Route::post('desarrollador/subtareas/{subtask}/toggle', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'toggleSubtask'])->name('portal.developer.subtasks.toggle');
+    Route::post('desarrollador/tareas/{task}/subtareas', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeSubtask'])->name('portal.developer.subtasks.store');
+    Route::put('desarrollador/subtareas/{subtask}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'updateSubtask'])->name('portal.developer.subtasks.update');
+    Route::delete('desarrollador/subtareas/{subtask}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroySubtask'])->name('portal.developer.subtasks.destroy');
+    Route::post('desarrollador/proyecto/{internal_project}/docs', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeProjectFile'])->name('portal.developer.docs.store');
+    Route::delete('desarrollador/docs/{file}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroyProjectFile'])->name('portal.developer.docs.destroy');
+    Route::post('desarrollador/tareas/{task}/archivos', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeTaskFile'])->name('portal.developer.tasks.files.store');
+    Route::delete('desarrollador/task-archivos/{taskFile}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroyTaskFile'])->name('portal.developer.tasks.files.destroy');
     Route::post('desarrollador/logout', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'logout'])->name('portal.developer.logout');
 
     // Gestores / vendedores
@@ -65,13 +77,13 @@ Route::post('/contacto', [App\Http\Controllers\ServiciosController::class, 'stor
 Route::get('/gracias', [ServiciosController::class, 'gracias'])->name('contacto.gracias');
 Route::view('/bolsas-de-horas', 'bolsas-de-horas', [
     'seo' => (object) [
-        'meta_title'       => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
+        'meta_title' => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
         'meta_description' => 'Reserva horas de desarrollo por adelantado y paga menos por hora. 5 planes desde $38.000 COP/hora, vigencia de 6 meses. Aplica a implementaciones nuevas.',
-        'canonical_url'    => 'https://mytechsolutionsco.com/bolsas-de-horas',
-        'og_title'         => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
-        'og_description'   => 'Horas de desarrollo prepagadas para los cambios y mejoras de tu proyecto. Mientras más horas reservas, menor es el precio por hora.',
-        'og_url'           => 'https://mytechsolutionsco.com/bolsas-de-horas',
-        'robots'           => 'index,follow',
+        'canonical_url' => 'https://mytechsolutionsco.com/bolsas-de-horas',
+        'og_title' => 'Bolsas de Horas Prepagadas | MY Tech Solutions',
+        'og_description' => 'Horas de desarrollo prepagadas para los cambios y mejoras de tu proyecto. Mientras más horas reservas, menor es el precio por hora.',
+        'og_url' => 'https://mytechsolutionsco.com/bolsas-de-horas',
+        'robots' => 'index,follow',
     ],
 ])->name('bolsas-horas.index');
 
@@ -256,6 +268,27 @@ Route::middleware('auth')->group(function () {
     Route::delete('internal-projects/{internal_project}/expenses/{expense}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyExpense'])->name('admin.internal-projects.expenses.destroy');
     Route::post('internal-projects/{internal_project}/files', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeFile'])->name('admin.internal-projects.files.store');
     Route::delete('internal-projects/{internal_project}/files/{file}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyFile'])->name('admin.internal-projects.files.destroy');
+});
+
+// === TABLERO DE TAREAS (Kanban por proyecto) — lado ADMIN ===
+Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('internal-projects/{internal_project}/tablero', [App\Http\Controllers\Admin\ProjectBoardController::class, 'show'])->name('admin.internal-projects.board');
+    Route::post('internal-projects/{internal_project}/tareas', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeTask'])->name('admin.internal-projects.tasks.store');
+    Route::put('project-tasks/{task}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'updateTask'])->name('admin.project-tasks.update');
+    Route::delete('project-tasks/{task}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyTask'])->name('admin.project-tasks.destroy');
+    Route::post('project-tasks/{task}/mover', [App\Http\Controllers\Admin\ProjectBoardController::class, 'moveTask'])->name('admin.project-tasks.move');
+    Route::post('project-tasks/{task}/subtareas', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeSubtask'])->name('admin.project-tasks.subtasks.store');
+    Route::put('project-subtasks/{subtask}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'updateSubtask'])->name('admin.project-subtasks.update');
+    Route::delete('project-subtasks/{subtask}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroySubtask'])->name('admin.project-subtasks.destroy');
+    Route::post('project-subtasks/{subtask}/toggle', [App\Http\Controllers\Admin\ProjectBoardController::class, 'toggleSubtask'])->name('admin.project-subtasks.toggle');
+    Route::put('internal-projects/{internal_project}/enlaces', [App\Http\Controllers\Admin\ProjectBoardController::class, 'linksUpdate'])->name('admin.internal-projects.links.update');
+    Route::post('internal-projects/{internal_project}/equipo', [App\Http\Controllers\Admin\ProjectBoardController::class, 'addTeam'])->name('admin.internal-projects.equipo.add');
+    Route::delete('internal-projects/{internal_project}/equipo/{developer}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'removeTeam'])->name('admin.internal-projects.equipo.remove');
+    // Documentos del tablero
+    Route::post('internal-projects/{internal_project}/docs', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeProjectFile'])->name('admin.internal-projects.docs.store');
+    Route::delete('project-files/{file}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyProjectFile'])->name('admin.project-files.destroy');
+    Route::post('project-tasks/{task}/archivos', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeTaskFile'])->name('admin.project-tasks.files.store');
+    Route::delete('project-task-files/{taskFile}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyTaskFile'])->name('admin.project-task-files.destroy');
 });
 
 //     // Página INICIO

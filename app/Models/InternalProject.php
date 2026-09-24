@@ -39,6 +39,9 @@ class InternalProject extends Model
         'horas_totales',
         'valor_hora',
         'puntos_acuerdo',
+        'repo_url',
+        'url_produccion',
+        'url_pruebas',
     ];
 
     protected $casts = [
@@ -64,6 +67,19 @@ class InternalProject extends Model
     public function developer()
     {
         return $this->belongsTo(Developer::class);
+    }
+
+    /** Equipo de desarrolladores del proyecto (multi-dev, tablero de tareas). */
+    public function equipo()
+    {
+        return $this->belongsToMany(Developer::class, 'internal_project_developer')
+            ->withTimestamps();
+    }
+
+    /** Tareas del tablero (Kanban) del proyecto. */
+    public function tasks()
+    {
+        return $this->hasMany(ProjectTask::class)->orderBy('orden')->orderBy('id');
     }
 
     public function vendedor()

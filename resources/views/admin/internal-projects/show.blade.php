@@ -250,6 +250,7 @@
             </div>
             <div class="show-header-actions">
                 <a href="{{ route('admin.internal-projects.index') }}" class="btn-h btn-h-back"><i class="fas fa-arrow-left"></i> Volver</a>
+                <a href="{{ route('admin.internal-projects.board', $project) }}" class="btn-h btn-h-edit"><i class="fas fa-table-columns"></i> Tablero</a>
                 <button type="button" class="btn-h btn-h-cobro" data-bs-toggle="modal" data-bs-target="#modalCuentaCobro">
                     <i class="fas fa-file-invoice"></i> Cuenta de cobro
                 </button>

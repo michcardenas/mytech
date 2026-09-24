@@ -2,14 +2,23 @@
 
 namespace App\Http\Controllers\Portal;
 
+use App\Http\Controllers\Concerns\BoardFiles;
+use App\Http\Controllers\Concerns\BoardTasks;
 use App\Http\Controllers\Controller;
 use App\Models\Developer;
 use App\Models\DeveloperPayment;
 use App\Models\InternalProject;
+use App\Models\ProjectFile;
+use App\Models\ProjectSubtask;
+use App\Models\ProjectTask;
+use App\Models\ProjectTaskFile;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class PortalDeveloperController extends Controller
 {
+    use BoardFiles;
+    use BoardTasks;
     use PortalAuth;
 
     public function showLogin(Request $request)
@@ -267,5 +276,219 @@ class PortalDeveloperController extends Controller
         $request->session()->forget('portal_developer_id');
 
         return redirect()->route('portal.developer.login.show')->with('success', 'Sesión cerrada.');
+    }
+
+    /* ===================== Tablero de tareas (Kanban) ===================== */
+
+    /** Developer autenticado por la sesión del portal, o null. */
+    private function currentDev(Request $request): ?Developer
+    {
+        $id = $request->session()->get('portal_developer_id');
+
+        return $id ? Developer::find($id) : null;
+    }
+
+    /** ¿El dev pertenece al proyecto? (equipo pivote o vínculo legacy por FK/nombre). */
+    private function devPuedeVer(Developer $dev, InternalProject $project): bool
+    {
+        if ($project->equipo()->where('developers.id', $dev->id)->exists()) {
+            return true;
+        }
+
+        return $project->developer_id === $dev->id
+            || $project->desarrollador_nombre === $dev->nombre;
+    }
+
+    public function board(Request $request, InternalProject $internal_project)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+
+        $project = $internal_project;
+
+        // Asegura que el dev principal esté en el equipo para un tablero consistente.
+        if ($project->developer_id && ! $project->equipo()->where('developers.id', $project->developer_id)->exists()) {
+            $project->equipo()->attach($project->developer_id);
+        }
+
+        abort_unless($this->devPuedeVer($dev, $project), 403, 'No perteneces a este proyecto.');
+
+        $project->load(['equipo', 'files', 'tasks.developer', 'tasks.subtasks.developer', 'tasks.files']);
+
+        return view('portal.developer-board', [
+            'project' => $project,
+            'developer' => $dev,
+            'columnas' => ProjectTask::COLUMNAS,
+            'prioridades' => ProjectTask::PRIORIDADES,
+            'tareasPorColumna' => $project->tasks->groupBy('columna'),
+            'equipo' => $project->equipo,
+            'documentos' => $project->files,
+            'esAdmin' => false,
+            'puedeEditar' => true,
+        ]);
+    }
+
+    public function moveTask(Request $request, ProjectTask $task)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return response()->json(['ok' => false], 401);
+        }
+        abort_unless($this->devPuedeVer($dev, $task->project), 403);
+
+        $data = $request->validate([
+            'columna' => ['required', Rule::in(array_keys(ProjectTask::COLUMNAS))],
+            'ids' => 'sometimes|array',
+            'ids.*' => 'integer',
+        ]);
+
+        $task->update(['columna' => $data['columna']]);
+
+        if (! empty($data['ids'])) {
+            foreach ($data['ids'] as $orden => $id) {
+                ProjectTask::where('internal_project_id', $task->internal_project_id)
+                    ->where('id', $id)
+                    ->update(['orden' => $orden]);
+            }
+        }
+
+        return response()->json(['ok' => true, 'columna' => $task->columna]);
+    }
+
+    public function toggleSubtask(Request $request, ProjectSubtask $subtask)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return response()->json(['ok' => false], 401);
+        }
+        abort_unless($this->devPuedeVer($dev, $subtask->task->project), 403);
+
+        $subtask->update(['hecha' => ! $subtask->hecha]);
+        $task = $subtask->task->load('subtasks');
+
+        return response()->json(['ok' => true, 'hecha' => $subtask->hecha, 'progreso' => $task->progreso]);
+    }
+
+    /* ===================== Tareas / subtareas (dev) ===================== */
+
+    public function storeTask(Request $request, InternalProject $internal_project)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $internal_project), 403);
+
+        $this->guardarTarea($request, $internal_project);
+
+        return back()->with('success', 'Tarea creada.');
+    }
+
+    public function updateTask(Request $request, ProjectTask $task)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $task->project), 403);
+
+        $this->actualizarTarea($request, $task);
+
+        return back()->with('success', 'Tarea actualizada.');
+    }
+
+    public function storeSubtask(Request $request, ProjectTask $task)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $task->project), 403);
+
+        $this->guardarSubtarea($request, $task);
+
+        return back()->with('success', 'Subtarea agregada.');
+    }
+
+    public function updateSubtask(Request $request, ProjectSubtask $subtask)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $subtask->task->project), 403);
+
+        $this->actualizarSubtarea($request, $subtask);
+
+        return back()->with('success', 'Subtarea actualizada.');
+    }
+
+    public function destroySubtask(Request $request, ProjectSubtask $subtask)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $subtask->task->project), 403);
+
+        $subtask->delete();
+
+        return back()->with('success', 'Subtarea eliminada.');
+    }
+
+    /* ===================== Documentos (dev) ===================== */
+
+    public function storeProjectFile(Request $request, InternalProject $internal_project)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $internal_project), 403);
+
+        $this->guardarProjectFile($request, $internal_project);
+
+        return back()->with('success', 'Documento del proyecto subido.');
+    }
+
+    public function destroyProjectFile(Request $request, ProjectFile $file)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $file->project), 403);
+
+        $this->borrarProjectFile($file);
+
+        return back()->with('success', 'Documento eliminado.');
+    }
+
+    public function storeTaskFile(Request $request, ProjectTask $task)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $task->project), 403);
+
+        $this->guardarTaskFile($request, $task, $dev->nombre);
+
+        return back()->with('success', 'Archivo adjuntado a la tarea.');
+    }
+
+    public function destroyTaskFile(Request $request, ProjectTaskFile $taskFile)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $taskFile->task->project), 403);
+
+        $this->borrarTaskFile($taskFile);
+
+        return back()->with('success', 'Archivo eliminado.');
     }
 }
