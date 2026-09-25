@@ -235,6 +235,19 @@ class ProjectBoardTest extends TestCase
         $this->assertDatabaseMissing('project_tasks', ['titulo' => 'Hack']);
     }
 
+    public function test_dev_secundario_del_equipo_ve_el_tablero_en_su_dashboard(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $dev2 = Developer::create(['nombre' => 'Dev Dos', 'telefono' => '+573004445566']);
+        $project->equipo()->attach($dev2->id);
+
+        $this->withSession(['portal_developer_id' => $dev2->id])
+            ->get(route('portal.developer.dashboard'))
+            ->assertOk()
+            ->assertSee($project->nombre)
+            ->assertSee(route('portal.developer.board', $project->id));
+    }
+
     public function test_admin_guarda_enlaces_del_proyecto(): void
     {
         [$project] = $this->proyectoConDev();

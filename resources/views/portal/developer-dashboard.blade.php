@@ -276,6 +276,25 @@
         </div>
     </div>
 
+    {{-- ===== TUS TABLEROS (todos los proyectos donde estás asignado) ===== --}}
+    @if($boards->count() > 0)
+    <div class="section">
+        <div class="section-head">
+            <h3><i class="fas fa-table-columns" style="color:var(--purple);"></i> Tus tableros</h3>
+            <span class="muted">{{ $boards->count() }} {{ $boards->count() == 1 ? 'proyecto' : 'proyectos' }}</span>
+        </div>
+        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:0.75rem;">
+            @foreach($boards as $b)
+                <a href="{{ route('portal.developer.board', $b->id) }}" style="display:flex; flex-direction:column; gap:0.35rem; padding:0.9rem 1rem; background:#fafbfc; border:1px solid #f1f3f5; border-left:3px solid var(--purple); border-radius:12px; text-decoration:none; transition:all .2s;">
+                    <span style="font-size:0.92rem; font-weight:800; color:#0f172a;">{{ $b->nombre }}</span>
+                    <span style="font-size:0.75rem; color:#94a3b8;"><i class="fas fa-user" style="font-size:0.65rem;"></i> {{ $b->cliente_nombre }}</span>
+                    <span style="font-size:0.78rem; font-weight:700; color:var(--purple); margin-top:0.2rem;"><i class="fas fa-arrow-right" style="font-size:0.7rem;"></i> Abrir tablero</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+    @endif
+
     {{-- ===== PROYECTOS RECURRENTES (en el mes seleccionado) ===== --}}
     @if($resumenRecurrentes->count() > 0)
     <div class="section">

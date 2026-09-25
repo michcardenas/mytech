@@ -264,10 +264,19 @@ class PortalDeveloperController extends Controller
             'ultimo_pago' => $allPayments->first()?->fecha,
         ];
 
+        // Tableros: TODOS los proyectos donde el dev esté asignado (principal, por nombre o en el equipo).
+        $boards = InternalProject::where('developer_id', $developer->id)
+            ->orWhere('desarrollador_nombre', $developer->nombre)
+            ->orWhereHas('equipo', function ($q) use ($developer) {
+                $q->where('developers.id', $developer->id);
+            })
+            ->orderBy('nombre')
+            ->get(['id', 'nombre', 'cliente_nombre']);
+
         return view('portal.developer-dashboard', compact(
             'developer', 'kpis', 'selectedMonth', 'isCurrentMonth',
             'resumenRecurrentes', 'resumenOneShot', 'monthPayments',
-            'historico', 'maxHistorico', 'paymentsAgrupados'
+            'historico', 'maxHistorico', 'paymentsAgrupados', 'boards'
         ));
     }
 
