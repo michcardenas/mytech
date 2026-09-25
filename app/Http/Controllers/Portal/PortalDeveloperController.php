@@ -339,6 +339,28 @@ class PortalDeveloperController extends Controller
         ]);
     }
 
+    public function globalBoard(Request $request)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+
+        $tasks = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
+            ->forDeveloper($dev->id)
+            ->orderBy('orden')->orderBy('id')
+            ->get();
+
+        return view('portal.developer-board-global', [
+            'developer' => $dev,
+            'columnas' => ProjectTask::COLUMNAS,
+            'prioridades' => ProjectTask::PRIORIDADES,
+            'tareasPorColumna' => $tasks->groupBy('columna'),
+            'tasks' => $tasks,
+            'esAdmin' => false,
+        ]);
+    }
+
     public function moveTask(Request $request, ProjectTask $task)
     {
         $dev = $this->currentDev($request);

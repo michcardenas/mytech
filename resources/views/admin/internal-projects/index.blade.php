@@ -184,6 +184,7 @@
             <p>Ve qué tiene cada dev, cuánto vale, qué le debes, y cuándo entrega. Sin ruido.</p>
         </div>
         <div class="pd-actions">
+            <a href="{{ route('admin.board.global') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-layer-group"></i> Tablero general</a>
             <a href="{{ route('admin.internal-projects.todos') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-list"></i> Ver todos con filtros</a>
             <a href="{{ route('admin.internal-projects.liquidacion') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-file-invoice-dollar"></i> Liquidación comerciales</a>
             <a href="{{ route('admin.internal-projects.stats') }}" class="pd-btn pd-btn-ghost"><i class="fas fa-chart-pie"></i> Estadísticas</a>

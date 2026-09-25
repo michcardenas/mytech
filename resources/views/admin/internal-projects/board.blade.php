@@ -39,6 +39,7 @@
 
     <div class="bd-head">
         <a href="{{ route('admin.internal-projects.show', $project) }}" class="bd-btn bd-btn-back"><i class="fas fa-arrow-left"></i> Volver al proyecto</a>
+        <a href="{{ route('admin.board.global') }}" class="bd-btn bd-btn-back"><i class="fas fa-layer-group"></i> Tablero general</a>
         <div style="flex:1; min-width:0;">
             <h1><i class="fas fa-table-columns" style="color:#2563eb;"></i> {{ $project->nombre }}</h1>
             <div class="sub">Tablero de tareas · cliente {{ $project->cliente_nombre }}</div>

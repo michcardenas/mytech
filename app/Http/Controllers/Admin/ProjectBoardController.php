@@ -28,6 +28,32 @@ class ProjectBoardController extends Controller
         }
     }
 
+    /* ===================== Tablero general (multi-proyecto) ===================== */
+
+    public function global(Request $request)
+    {
+        $devId = $request->integer('dev') ?: null;
+
+        $query = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
+            ->orderBy('orden')->orderBy('id');
+
+        if ($devId) {
+            $query->forDeveloper($devId);
+        }
+
+        $tasks = $query->get();
+
+        return view('admin.internal-projects.board-global', [
+            'columnas' => ProjectTask::COLUMNAS,
+            'prioridades' => ProjectTask::PRIORIDADES,
+            'tareasPorColumna' => $tasks->groupBy('columna'),
+            'tasks' => $tasks,
+            'devs' => Developer::orderBy('nombre')->get(),
+            'devId' => $devId,
+            'esAdmin' => true,
+        ]);
+    }
+
     /* ===================== Tablero ===================== */
 
     public function show(InternalProject $internal_project)

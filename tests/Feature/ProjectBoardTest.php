@@ -248,6 +248,37 @@ class ProjectBoardTest extends TestCase
             ->assertSee(route('portal.developer.board', $project->id));
     }
 
+    public function test_admin_ve_tablero_general(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $project->tasks()->create(['titulo' => 'Tarea Global A', 'columna' => 'por_hacer']);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.board.global'))
+            ->assertOk()
+            ->assertSee('Tarea Global A');
+    }
+
+    public function test_dev_ve_solo_sus_tareas_en_tablero_general(): void
+    {
+        [$project, $dev] = $this->proyectoConDev();
+        $otro = Developer::create(['nombre' => 'Otro Dev', 'telefono' => '+573009998877']);
+        $project->equipo()->attach($otro->id);
+
+        $project->tasks()->create(['titulo' => 'Mi tarea asignada', 'columna' => 'por_hacer', 'developer_id' => $dev->id]);
+        $project->tasks()->create(['titulo' => 'Tarea de otro', 'columna' => 'por_hacer', 'developer_id' => $otro->id]);
+        $viaSub = $project->tasks()->create(['titulo' => 'Tarea via subtarea', 'columna' => 'por_hacer']);
+        $viaSub->subtasks()->create(['titulo' => 'sub mia', 'developer_id' => $dev->id]);
+
+        $resp = $this->withSession(['portal_developer_id' => $dev->id])
+            ->get(route('portal.developer.board-global'))
+            ->assertOk();
+
+        $resp->assertSee('Mi tarea asignada');
+        $resp->assertSee('Tarea via subtarea');
+        $resp->assertDontSee('Tarea de otro');
+    }
+
     public function test_admin_guarda_enlaces_del_proyecto(): void
     {
         [$project] = $this->proyectoConDev();

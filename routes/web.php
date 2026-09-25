@@ -27,6 +27,7 @@ Route::prefix('portal')->group(function () {
     Route::get('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'showLogin'])->name('portal.developer.login.show');
     Route::post('desarrollador', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'login'])->name('portal.developer.login');
     Route::get('desarrollador/dashboard', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'dashboard'])->name('portal.developer.dashboard');
+    Route::get('desarrollador/tablero-general', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'globalBoard'])->name('portal.developer.board-global');
     Route::get('desarrollador/proyecto/{internal_project}/tablero', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'board'])->name('portal.developer.board');
     Route::post('desarrollador/tareas/{task}/mover', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'moveTask'])->name('portal.developer.tasks.move');
     Route::post('desarrollador/proyecto/{internal_project}/tareas', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeTask'])->name('portal.developer.tasks.store');
@@ -272,6 +273,7 @@ Route::middleware('auth')->group(function () {
 
 // === TABLERO DE TAREAS (Kanban por proyecto) — lado ADMIN ===
 Route::middleware(['auth', 'role:admin'])->group(function () {
+    Route::get('tablero-general', [App\Http\Controllers\Admin\ProjectBoardController::class, 'global'])->name('admin.board.global');
     Route::get('internal-projects/{internal_project}/tablero', [App\Http\Controllers\Admin\ProjectBoardController::class, 'show'])->name('admin.internal-projects.board');
     Route::post('internal-projects/{internal_project}/tareas', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeTask'])->name('admin.internal-projects.tasks.store');
     Route::put('project-tasks/{task}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'updateTask'])->name('admin.project-tasks.update');

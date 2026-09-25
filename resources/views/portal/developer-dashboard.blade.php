@@ -281,7 +281,7 @@
     <div class="section">
         <div class="section-head">
             <h3><i class="fas fa-table-columns" style="color:var(--purple);"></i> Tus tableros</h3>
-            <span class="muted">{{ $boards->count() }} {{ $boards->count() == 1 ? 'proyecto' : 'proyectos' }}</span>
+            <a href="{{ route('portal.developer.board-global') }}" style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; color:#fff; background:var(--purple); padding:0.45rem 0.85rem; border-radius:9px; text-decoration:none;"><i class="fas fa-layer-group"></i> Ver todas mis tareas</a>
         </div>
         <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:0.75rem;">
             @foreach($boards as $b)

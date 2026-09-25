@@ -90,4 +90,15 @@ class ProjectTask extends Model
             && $this->columna !== 'hecho'
             && $this->fecha_limite->startOfDay()->isPast();
     }
+
+    /** Tareas de un desarrollador: asignadas a él, o con al menos una subtarea suya. */
+    public function scopeForDeveloper($query, int $developerId)
+    {
+        return $query->where(function ($q) use ($developerId) {
+            $q->where('developer_id', $developerId)
+                ->orWhereHas('subtasks', function ($s) use ($developerId) {
+                    $s->where('developer_id', $developerId);
+                });
+        });
+    }
 }
