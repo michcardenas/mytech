@@ -33,12 +33,24 @@ class ProjectBoardController extends Controller
     public function global(Request $request)
     {
         $devId = $request->integer('dev') ?: null;
+        $projectId = $request->integer('proyecto') ?: null;
+        $desde = $request->date('desde');
+        $hasta = $request->date('hasta');
 
         $query = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
             ->orderBy('orden')->orderBy('id');
 
         if ($devId) {
             $query->forDeveloper($devId);
+        }
+        if ($projectId) {
+            $query->where('internal_project_id', $projectId);
+        }
+        if ($desde) {
+            $query->whereDate('fecha_limite', '>=', $desde);
+        }
+        if ($hasta) {
+            $query->whereDate('fecha_limite', '<=', $hasta);
         }
 
         $tasks = $query->get();
@@ -49,7 +61,11 @@ class ProjectBoardController extends Controller
             'tareasPorColumna' => $tasks->groupBy('columna'),
             'tasks' => $tasks,
             'devs' => Developer::orderBy('nombre')->get(),
+            'proyectos' => InternalProject::orderBy('nombre')->get(['id', 'nombre']),
             'devId' => $devId,
+            'projectId' => $projectId,
+            'desde' => $request->input('desde'),
+            'hasta' => $request->input('hasta'),
             'esAdmin' => true,
         ]);
     }

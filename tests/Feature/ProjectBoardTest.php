@@ -259,6 +259,36 @@ class ProjectBoardTest extends TestCase
             ->assertSee('Tarea Global A');
     }
 
+    public function test_admin_filtra_tablero_general_por_proyecto(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $otro = InternalProject::create([
+            'nombre' => 'Otro Proyecto', 'cliente_nombre' => 'Z',
+            'precio' => 1, 'moneda' => 'COP', 'estado' => 'en_progreso', 'fuente' => 'directo',
+        ]);
+        $project->tasks()->create(['titulo' => 'Tarea proyecto A', 'columna' => 'por_hacer']);
+        $otro->tasks()->create(['titulo' => 'Tarea proyecto B', 'columna' => 'por_hacer']);
+
+        $resp = $this->actingAs($this->admin())
+            ->get(route('admin.board.global', ['proyecto' => $project->id]))
+            ->assertOk();
+        $resp->assertSee('Tarea proyecto A');
+        $resp->assertDontSee('Tarea proyecto B');
+    }
+
+    public function test_admin_filtra_tablero_general_por_fecha(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $project->tasks()->create(['titulo' => 'Tarea en rango', 'columna' => 'por_hacer', 'fecha_limite' => '2026-10-15']);
+        $project->tasks()->create(['titulo' => 'Tarea fuera de rango', 'columna' => 'por_hacer', 'fecha_limite' => '2026-12-01']);
+
+        $resp = $this->actingAs($this->admin())
+            ->get(route('admin.board.global', ['desde' => '2026-10-01', 'hasta' => '2026-10-31']))
+            ->assertOk();
+        $resp->assertSee('Tarea en rango');
+        $resp->assertDontSee('Tarea fuera de rango');
+    }
+
     public function test_dev_ve_solo_sus_tareas_en_tablero_general(): void
     {
         [$project, $dev] = $this->proyectoConDev();
