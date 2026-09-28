@@ -375,6 +375,32 @@ class ProjectBoardTest extends TestCase
         $this->assertDatabaseHas('project_task_comments', ['id' => $comentario->id]);
     }
 
+    public function test_dev_filtra_tablero_general_por_estado_y_prioridad(): void
+    {
+        [$project, $dev] = $this->proyectoConDev();
+        $project->tasks()->create(['titulo' => 'Alta en progreso', 'columna' => 'en_progreso', 'prioridad' => 'alta', 'developer_id' => $dev->id]);
+        $project->tasks()->create(['titulo' => 'Baja por hacer', 'columna' => 'por_hacer', 'prioridad' => 'baja', 'developer_id' => $dev->id]);
+
+        $resp = $this->withSession(['portal_developer_id' => $dev->id])
+            ->get(route('portal.developer.board-global', ['estado' => 'en_progreso', 'prioridad' => 'alta']))
+            ->assertOk();
+        $resp->assertSee('Alta en progreso');
+        $resp->assertDontSee('Baja por hacer');
+    }
+
+    public function test_admin_filtra_tablero_general_por_estado(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $project->tasks()->create(['titulo' => 'Tarea hecha ya', 'columna' => 'hecho']);
+        $project->tasks()->create(['titulo' => 'Tarea pendiente', 'columna' => 'por_hacer']);
+
+        $resp = $this->actingAs($this->admin())
+            ->get(route('admin.board.global', ['estado' => 'hecho']))
+            ->assertOk();
+        $resp->assertSee('Tarea hecha ya');
+        $resp->assertDontSee('Tarea pendiente');
+    }
+
     public function test_dev_filtra_tablero_general_por_proyecto(): void
     {
         [$project, $dev] = $this->proyectoConDev();

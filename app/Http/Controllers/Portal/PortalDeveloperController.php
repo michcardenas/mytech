@@ -351,6 +351,8 @@ class PortalDeveloperController extends Controller
         $projectId = $request->integer('proyecto') ?: null;
         $desde = $request->date('desde');
         $hasta = $request->date('hasta');
+        $estado = array_key_exists($request->input('estado'), ProjectTask::COLUMNAS) ? $request->input('estado') : null;
+        $prioridad = array_key_exists($request->input('prioridad'), ProjectTask::PRIORIDADES) ? $request->input('prioridad') : null;
 
         $query = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
             ->forDeveloper($dev->id)
@@ -364,6 +366,12 @@ class PortalDeveloperController extends Controller
         }
         if ($hasta) {
             $query->whereDate('fecha_limite', '<=', $hasta);
+        }
+        if ($estado) {
+            $query->where('columna', $estado);
+        }
+        if ($prioridad) {
+            $query->where('prioridad', $prioridad);
         }
 
         $tasks = $query->get();
@@ -382,6 +390,8 @@ class PortalDeveloperController extends Controller
             'projectId' => $projectId,
             'desde' => $request->input('desde'),
             'hasta' => $request->input('hasta'),
+            'estado' => $estado,
+            'prioridad' => $prioridad,
             'esAdmin' => false,
         ]);
     }

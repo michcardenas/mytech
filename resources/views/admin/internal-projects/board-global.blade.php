@@ -46,8 +46,24 @@
             <span class="gg-f"><label><i class="fas fa-calendar-check"></i> Hasta</label>
                 <input type="date" name="hasta" value="{{ $hasta }}">
             </span>
+            <span class="gg-f"><label><i class="fas fa-table-columns"></i> Estado</label>
+                <select name="estado">
+                    <option value="">Todos</option>
+                    @foreach($columnas as $key => $meta)
+                        <option value="{{ $key }}" {{ $estado === $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                    @endforeach
+                </select>
+            </span>
+            <span class="gg-f"><label><i class="fas fa-flag"></i> Prioridad</label>
+                <select name="prioridad">
+                    <option value="">Todas</option>
+                    @foreach($prioridades as $key => $meta)
+                        <option value="{{ $key }}" {{ $prioridad === $key ? 'selected' : '' }}>{{ $meta['label'] }}</option>
+                    @endforeach
+                </select>
+            </span>
             <button type="submit" class="gg-btn gg-btn-primary"><i class="fas fa-filter"></i> Filtrar</button>
-            @if($devId || $projectId || $desde || $hasta)
+            @if($devId || $projectId || $desde || $hasta || $estado || $prioridad)
                 <a href="{{ route('admin.board.global') }}" class="gg-btn"><i class="fas fa-times"></i> Limpiar</a>
             @endif
         </form>
