@@ -63,6 +63,11 @@ class ProjectTask extends Model
         return $this->hasMany(ProjectTaskFile::class)->latest();
     }
 
+    public function comments(): HasMany
+    {
+        return $this->hasMany(ProjectTaskComment::class)->oldest();
+    }
+
     public function getColumnaLabelAttribute(): string
     {
         return self::COLUMNAS[$this->columna]['label'] ?? $this->columna;

@@ -40,6 +40,8 @@ Route::prefix('portal')->group(function () {
     Route::delete('desarrollador/docs/{file}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroyProjectFile'])->name('portal.developer.docs.destroy');
     Route::post('desarrollador/tareas/{task}/archivos', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeTaskFile'])->name('portal.developer.tasks.files.store');
     Route::delete('desarrollador/task-archivos/{taskFile}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroyTaskFile'])->name('portal.developer.tasks.files.destroy');
+    Route::post('desarrollador/tareas/{task}/comentarios', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'storeComment'])->name('portal.developer.comments.store');
+    Route::delete('desarrollador/comentarios/{comment}', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'destroyComment'])->name('portal.developer.comments.destroy');
     Route::post('desarrollador/logout', [App\Http\Controllers\Portal\PortalDeveloperController::class, 'logout'])->name('portal.developer.logout');
 
     // Gestores / vendedores
@@ -291,6 +293,9 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
     Route::delete('project-files/{file}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyProjectFile'])->name('admin.project-files.destroy');
     Route::post('project-tasks/{task}/archivos', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeTaskFile'])->name('admin.project-tasks.files.store');
     Route::delete('project-task-files/{taskFile}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyTaskFile'])->name('admin.project-task-files.destroy');
+    // Comentarios por tarea
+    Route::post('project-tasks/{task}/comentarios', [App\Http\Controllers\Admin\ProjectBoardController::class, 'storeComment'])->name('admin.project-tasks.comments.store');
+    Route::delete('project-task-comments/{comment}', [App\Http\Controllers\Admin\ProjectBoardController::class, 'destroyComment'])->name('admin.project-task-comments.destroy');
 });
 
 //     // Página INICIO

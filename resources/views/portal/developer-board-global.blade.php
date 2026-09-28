@@ -18,6 +18,12 @@
         .head-sub { font-size: 0.78rem; color: #94a3b8; margin-top: 0.15rem; }
         .head-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
         .h-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; border-radius: 10px; font-weight: 700; font-size: 0.8rem; text-decoration: none; border: none; cursor: pointer; background: #f1f5f9; color: #475569; }
+        .dg-filter { display: flex; align-items: flex-end; gap: 0.6rem; flex-wrap: wrap; background: #fff; border: 1px solid #e5e9f0; border-radius: 12px; padding: 0.7rem 0.85rem; margin-bottom: 1rem; }
+        .dg-f { display: flex; flex-direction: column; gap: 0.25rem; }
+        .dg-f label { font-size: 0.66rem; text-transform: uppercase; font-weight: 800; color: #94a3b8; letter-spacing: 0.3px; }
+        .dg-filter select, .dg-filter input[type=date] { font-size: 0.83rem; padding: 0.42rem 0.6rem; border: 1.5px solid #e2e8f0; border-radius: 9px; background: #fff; }
+        .dg-btn { border: none; background: var(--grad); color: #fff; border-radius: 9px; padding: 0.5rem 0.95rem; font-weight: 700; font-size: 0.8rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.4rem; }
+        .dg-clear { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.8rem; font-weight: 700; color: #64748b; text-decoration: none; padding: 0.5rem 0.6rem; }
     </style>
 </head>
 <body>
@@ -38,6 +44,27 @@
                 </form>
             </div>
         </div>
+
+        <form method="GET" action="{{ route('portal.developer.board-global') }}" class="dg-filter">
+            <span class="dg-f"><label><i class="fas fa-folder"></i> Proyecto</label>
+                <select name="proyecto">
+                    <option value="">Todos</option>
+                    @foreach($proyectos as $p)
+                        <option value="{{ $p->id }}" {{ $projectId == $p->id ? 'selected' : '' }}>{{ $p->nombre }}</option>
+                    @endforeach
+                </select>
+            </span>
+            <span class="dg-f"><label><i class="fas fa-calendar"></i> Desde</label>
+                <input type="date" name="desde" value="{{ $desde }}">
+            </span>
+            <span class="dg-f"><label><i class="fas fa-calendar-check"></i> Hasta</label>
+                <input type="date" name="hasta" value="{{ $hasta }}">
+            </span>
+            <button type="submit" class="dg-btn"><i class="fas fa-filter"></i> Filtrar</button>
+            @if($projectId || $desde || $hasta)
+                <a href="{{ route('portal.developer.board-global') }}" class="dg-clear"><i class="fas fa-times"></i> Limpiar</a>
+            @endif
+        </form>
 
         @include('partials.board.global')
     </div>

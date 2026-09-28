@@ -11,6 +11,7 @@ use App\Models\InternalProject;
 use App\Models\ProjectFile;
 use App\Models\ProjectSubtask;
 use App\Models\ProjectTask;
+use App\Models\ProjectTaskComment;
 use App\Models\ProjectTaskFile;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -324,7 +325,7 @@ class PortalDeveloperController extends Controller
 
         abort_unless($this->devPuedeVer($dev, $project), 403, 'No perteneces a este proyecto.');
 
-        $project->load(['equipo', 'files', 'tasks.developer', 'tasks.subtasks.developer', 'tasks.files']);
+        $project->load(['equipo', 'files', 'tasks.developer', 'tasks.subtasks.developer', 'tasks.files', 'tasks.comments']);
 
         return view('portal.developer-board', [
             'project' => $project,
@@ -336,6 +337,7 @@ class PortalDeveloperController extends Controller
             'documentos' => $project->files,
             'esAdmin' => false,
             'puedeEditar' => true,
+            'currentDeveloperId' => $dev->id,
         ]);
     }
 
@@ -346,10 +348,29 @@ class PortalDeveloperController extends Controller
             return redirect()->route('portal.developer.login.show');
         }
 
-        $tasks = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
+        $projectId = $request->integer('proyecto') ?: null;
+        $desde = $request->date('desde');
+        $hasta = $request->date('hasta');
+
+        $query = ProjectTask::with(['project:id,nombre,cliente_nombre', 'developer', 'subtasks'])
             ->forDeveloper($dev->id)
-            ->orderBy('orden')->orderBy('id')
-            ->get();
+            ->orderBy('orden')->orderBy('id');
+
+        if ($projectId) {
+            $query->where('internal_project_id', $projectId);
+        }
+        if ($desde) {
+            $query->whereDate('fecha_limite', '>=', $desde);
+        }
+        if ($hasta) {
+            $query->whereDate('fecha_limite', '<=', $hasta);
+        }
+
+        $tasks = $query->get();
+
+        // Lista de proyectos del dev (todos, sin importar el filtro actual) para el dropdown.
+        $misProyIds = ProjectTask::forDeveloper($dev->id)->pluck('internal_project_id')->unique();
+        $proyectos = InternalProject::whereIn('id', $misProyIds)->orderBy('nombre')->get(['id', 'nombre']);
 
         return view('portal.developer-board-global', [
             'developer' => $dev,
@@ -357,6 +378,10 @@ class PortalDeveloperController extends Controller
             'prioridades' => ProjectTask::PRIORIDADES,
             'tareasPorColumna' => $tasks->groupBy('columna'),
             'tasks' => $tasks,
+            'proyectos' => $proyectos,
+            'projectId' => $projectId,
+            'desde' => $request->input('desde'),
+            'hasta' => $request->input('hasta'),
             'esAdmin' => false,
         ]);
     }
@@ -521,5 +546,41 @@ class PortalDeveloperController extends Controller
         $this->borrarTaskFile($taskFile);
 
         return back()->with('success', 'Archivo eliminado.');
+    }
+
+    /* ===================== Comentarios (dev) ===================== */
+
+    public function storeComment(Request $request, ProjectTask $task)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        abort_unless($this->devPuedeVer($dev, $task->project), 403);
+
+        $data = $request->validate(['cuerpo' => 'required|string|max:2000']);
+
+        $task->comments()->create([
+            'cuerpo' => $data['cuerpo'],
+            'autor_tipo' => 'dev',
+            'autor_nombre' => $dev->nombre,
+            'developer_id' => $dev->id,
+        ]);
+
+        return back()->with('success', 'Comentario agregado.');
+    }
+
+    public function destroyComment(Request $request, ProjectTaskComment $comment)
+    {
+        $dev = $this->currentDev($request);
+        if (! $dev) {
+            return redirect()->route('portal.developer.login.show');
+        }
+        // Solo puede borrar sus propios comentarios.
+        abort_unless($comment->developer_id === $dev->id, 403);
+
+        $comment->delete();
+
+        return back()->with('success', 'Comentario eliminado.');
     }
 }

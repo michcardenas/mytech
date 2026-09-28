@@ -10,6 +10,7 @@ use App\Models\InternalProject;
 use App\Models\ProjectFile;
 use App\Models\ProjectSubtask;
 use App\Models\ProjectTask;
+use App\Models\ProjectTaskComment;
 use App\Models\ProjectTaskFile;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -83,6 +84,7 @@ class ProjectBoardController extends Controller
             'tasks.developer',
             'tasks.subtasks.developer',
             'tasks.files',
+            'tasks.comments',
         ]);
 
         $devsDisponibles = Developer::whereNotIn('id', $project->equipo->pluck('id'))
@@ -98,6 +100,7 @@ class ProjectBoardController extends Controller
             'documentos' => $project->files,
             'esAdmin' => true,
             'puedeEditar' => true,
+            'currentDeveloperId' => null,
         ]);
     }
 
@@ -241,5 +244,28 @@ class ProjectBoardController extends Controller
         $this->borrarTaskFile($taskFile);
 
         return back()->with('success', 'Archivo eliminado.');
+    }
+
+    /* ===================== Comentarios ===================== */
+
+    public function storeComment(Request $request, ProjectTask $task)
+    {
+        $data = $request->validate(['cuerpo' => 'required|string|max:2000']);
+
+        $task->comments()->create([
+            'cuerpo' => $data['cuerpo'],
+            'autor_tipo' => 'admin',
+            'autor_nombre' => Auth::user()->name ?? 'Admin',
+            'user_id' => Auth::id(),
+        ]);
+
+        return back()->with('success', 'Comentario agregado.');
+    }
+
+    public function destroyComment(ProjectTaskComment $comment)
+    {
+        $comment->delete();
+
+        return back()->with('success', 'Comentario eliminado.');
     }
 }

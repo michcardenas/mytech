@@ -327,4 +327,69 @@ class ProjectBoardTest extends TestCase
             'url_produccion' => 'https://demo.com',
         ]);
     }
+
+    public function test_admin_comenta_una_tarea(): void
+    {
+        [$project] = $this->proyectoConDev();
+        $task = $project->tasks()->create(['titulo' => 'T', 'columna' => 'por_hacer']);
+
+        $this->actingAs($this->admin())
+            ->post(route('admin.project-tasks.comments.store', $task), ['cuerpo' => 'Revisar el pago de Wompi'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('project_task_comments', [
+            'project_task_id' => $task->id,
+            'cuerpo' => 'Revisar el pago de Wompi',
+            'autor_tipo' => 'admin',
+        ]);
+    }
+
+    public function test_dev_comenta_su_tarea_por_portal(): void
+    {
+        [$project, $dev] = $this->proyectoConDev();
+        $task = $project->tasks()->create(['titulo' => 'T', 'columna' => 'por_hacer', 'developer_id' => $dev->id]);
+
+        $this->withSession(['portal_developer_id' => $dev->id])
+            ->post(route('portal.developer.comments.store', $task), ['cuerpo' => 'Ya quedo listo'])
+            ->assertRedirect();
+
+        $this->assertDatabaseHas('project_task_comments', [
+            'project_task_id' => $task->id,
+            'autor_tipo' => 'dev',
+            'developer_id' => $dev->id,
+        ]);
+    }
+
+    public function test_dev_no_borra_comentario_ajeno(): void
+    {
+        [$project, $dev] = $this->proyectoConDev();
+        $task = $project->tasks()->create(['titulo' => 'T', 'columna' => 'por_hacer']);
+        $comentario = $task->comments()->create([
+            'cuerpo' => 'Comentario del admin', 'autor_tipo' => 'admin', 'autor_nombre' => 'Admin',
+        ]);
+
+        $this->withSession(['portal_developer_id' => $dev->id])
+            ->delete(route('portal.developer.comments.destroy', $comentario))
+            ->assertForbidden();
+
+        $this->assertDatabaseHas('project_task_comments', ['id' => $comentario->id]);
+    }
+
+    public function test_dev_filtra_tablero_general_por_proyecto(): void
+    {
+        [$project, $dev] = $this->proyectoConDev();
+        $otro = InternalProject::create([
+            'nombre' => 'Proyecto Dos', 'cliente_nombre' => 'Y',
+            'precio' => 1, 'moneda' => 'COP', 'estado' => 'en_progreso', 'fuente' => 'directo',
+        ]);
+        $otro->equipo()->attach($dev->id);
+        $project->tasks()->create(['titulo' => 'Tarea uno mia', 'columna' => 'por_hacer', 'developer_id' => $dev->id]);
+        $otro->tasks()->create(['titulo' => 'Tarea dos mia', 'columna' => 'por_hacer', 'developer_id' => $dev->id]);
+
+        $resp = $this->withSession(['portal_developer_id' => $dev->id])
+            ->get(route('portal.developer.board-global', ['proyecto' => $project->id]))
+            ->assertOk();
+        $resp->assertSee('Tarea uno mia');
+        $resp->assertDontSee('Tarea dos mia');
+    }
 }

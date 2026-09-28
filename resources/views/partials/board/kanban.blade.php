@@ -65,6 +65,22 @@
     .kb-fileadd { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; align-items: center; }
     .kb-fileadd input[type=file] { flex: 1 1 100%; font-size: 0.68rem; min-width: 0; }
     .kb-fileadd button { border: none; background: #dcfce7; color: #15803d; border-radius: 7px; padding: 0.25rem 0.55rem; cursor: pointer; }
+    /* Comentarios */
+    .kb-comments { margin-top: 0.45rem; }
+    .kb-comments > summary { list-style: none; cursor: pointer; font-size: 0.72rem; font-weight: 700; color: #64748b; padding: 0.2rem 0; user-select: none; }
+    .kb-comments > summary::-webkit-details-marker { display: none; }
+    .kb-comments > summary::before { content: '\25B8'; margin-right: 0.35rem; display: inline-block; transition: transform .2s; }
+    .kb-comments[open] > summary::before { transform: rotate(90deg); }
+    .kb-comcount { background: #eef2f7; color: #475569; font-size: 0.65rem; font-weight: 800; padding: 0.02rem 0.4rem; border-radius: 999px; }
+    .kb-com { padding: 0.35rem 0; border-bottom: 1px solid #f4f6f9; }
+    .kb-com-head { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; color: #94a3b8; }
+    .kb-com-author { font-weight: 800; color: #334155; }
+    .kb-com-time { font-size: 0.64rem; }
+    .kb-av.sm.is-admin { background: #2563eb; }
+    .kb-com-body { font-size: 0.78rem; color: #334155; margin-top: 0.2rem; white-space: pre-wrap; overflow-wrap: anywhere; padding-left: 0.1rem; }
+    .kb-comadd { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.45rem; }
+    .kb-comadd textarea { width: 100%; min-width: 0; font-size: 0.76rem; padding: 0.4rem 0.5rem; border: 1px solid var(--kb-line); border-radius: 7px; resize: vertical; font-family: inherit; }
+    .kb-comadd button { align-self: flex-end; border: none; background: #e0e7ff; color: #4338ca; border-radius: 7px; padding: 0.3rem 0.75rem; font-weight: 700; font-size: 0.74rem; cursor: pointer; display: inline-flex; align-items: center; gap: 0.35rem; }
     .kb-addcard { margin-top: 0.5rem; border: 1px dashed #cbd5e1; background: transparent; color: #64748b; border-radius: 9px; padding: 0.5rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; width: 100%; transition: all .15s; }
     .kb-addcard:hover { border-color: #7c3aed; color: #7c3aed; background: rgba(124,58,237,0.04); }
     .kb-empty { font-size: 0.75rem; color: #b6c0cf; text-align: center; padding: 0.8rem 0; font-style: italic; }

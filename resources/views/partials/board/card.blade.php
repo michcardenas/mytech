@@ -142,4 +142,42 @@
             <button type="submit" title="Subir"><i class="fas fa-upload"></i></button>
         </form>
     </details>
+
+    {{-- Comentarios (comunicacion del equipo) --}}
+    @php
+        $comments = $t->comments;
+        $commentStoreUrl = $esAdmin
+            ? route('admin.project-tasks.comments.store', $t)
+            : route('portal.developer.comments.store', $t);
+    @endphp
+    <details class="kb-comments" {{ $comments->count() > 0 ? '' : '' }}>
+        <summary><i class="fas fa-comments" style="font-size:0.68rem;"></i> Comentarios <span class="kb-comcount">{{ $comments->count() }}</span></summary>
+        @foreach($comments as $c)
+            @php
+                $puedeBorrarCom = $esAdmin || ($currentDeveloperId && $c->developer_id === $currentDeveloperId);
+                $comDelUrl = $esAdmin
+                    ? route('admin.project-task-comments.destroy', $c)
+                    : route('portal.developer.comments.destroy', $c);
+            @endphp
+            <div class="kb-com">
+                <div class="kb-com-head">
+                    <span class="kb-av sm {{ $c->autor_tipo === 'admin' ? 'is-admin' : '' }}">{{ strtoupper($c->iniciales) }}</span>
+                    <span class="kb-com-author">{{ $c->autor_nombre }}</span>
+                    <span class="kb-com-time">{{ $c->created_at->diffForHumans() }}</span>
+                    @if($puedeBorrarCom)
+                        <form action="{{ $comDelUrl }}" method="POST" onsubmit="return confirm('¿Eliminar comentario?');" style="display:inline; margin-left:auto;">
+                            @csrf @method('DELETE')
+                            <button type="submit" class="kb-subdel" title="Eliminar"><i class="fas fa-times"></i></button>
+                        </form>
+                    @endif
+                </div>
+                <div class="kb-com-body">{{ $c->cuerpo }}</div>
+            </div>
+        @endforeach
+        <form class="kb-comadd" action="{{ $commentStoreUrl }}" method="POST">
+            @csrf
+            <textarea name="cuerpo" rows="2" placeholder="Escribe un comentario..." required maxlength="2000"></textarea>
+            <button type="submit"><i class="fas fa-paper-plane"></i> Enviar</button>
+        </form>
+    </details>
 </div>
