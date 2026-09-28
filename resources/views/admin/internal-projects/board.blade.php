@@ -5,9 +5,9 @@
 @section('content')
 <style>
     .bd-container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; }
-    .bd-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
-    .bd-head h1 { font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0; }
-    .bd-head .sub { font-size: 0.82rem; color: #94a3b8; }
+    .bd-head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.1rem; background: #fff; border: 1px solid #eceff4; border-radius: 14px; padding: 0.9rem 1.1rem; box-shadow: 0 1px 2px rgba(16,24,40,0.04); }
+    .bd-head h1 { font-size: 1.3rem; font-weight: 800; color: #0f172a; margin: 0; display: flex; align-items: center; gap: 0.5rem; }
+    .bd-head .sub { font-size: 0.82rem; color: #94a3b8; margin-top: 0.15rem; }
     .bd-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; border-radius: 10px; font-weight: 700; font-size: 0.82rem; text-decoration: none; border: none; cursor: pointer; }
     .bd-btn-back { background: #f1f5f9; color: #475569; }
     .bd-btn-back:hover { background: #e2e8f0; color: #0f172a; text-decoration: none; }

@@ -10,24 +10,25 @@
     .gb-view.active { display: block; }
 
     /* Kanban */
-    .gb-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(270px, 1fr); gap: 1rem; overflow-x: auto; padding-bottom: 0.5rem; align-items: start; }
-    .gb-col { background: #f1f4f8; border-radius: 14px; padding: 0.6rem; min-height: 100px; }
-    .gb-col-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.3rem 0.5rem 0.6rem; font-weight: 800; font-size: 0.82rem; color: #334155; }
-    .gb-col-dot { width: 9px; height: 9px; border-radius: 50%; }
-    .gb-col-count { margin-left: auto; background: rgba(0,0,0,0.07); color: #475569; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 999px; }
-    .gb-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 30px; }
-    .gb-card { background: #fff; border: 1px solid #e5e9f0; border-left: 4px solid var(--c,#94a3b8); border-radius: 10px; padding: 0.6rem 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: grab; overflow: hidden; min-width: 0; }
-    .gb-card.is-vencida { border-color: #fca5a5; background: #fff7f7; }
-    .gb-proj { display: inline-block; font-size: 0.66rem; font-weight: 800; color: #7c3aed; background: #f3e8ff; padding: 0.08rem 0.5rem; border-radius: 999px; margin-bottom: 0.35rem; }
+    .gb-board { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(285px, 1fr); gap: 0.85rem; overflow-x: auto; padding: 0.15rem 0.15rem 0.9rem; align-items: start; }
+    .gb-col { background: #f6f8fb; border: 1px solid #eceff4; border-radius: 16px; padding: 0.55rem 0.55rem 0.7rem; min-height: 100px; }
+    .gb-col-head { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.55rem 0.7rem; font-weight: 800; font-size: 0.71rem; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; }
+    .gb-col-dot { width: 8px; height: 8px; border-radius: 50%; box-shadow: 0 0 0 3px rgba(0,0,0,0.045); }
+    .gb-col-count { margin-left: auto; background: #fff; border: 1px solid #e8ebf0; color: #64748b; font-size: 0.7rem; font-weight: 800; padding: 0.03rem 0.5rem; border-radius: 999px; }
+    .gb-cards { display: flex; flex-direction: column; gap: 0.55rem; min-height: 30px; }
+    .gb-card { background: #fff; border: 1px solid #edf0f4; border-left: 3px solid var(--c,#94a3b8); border-radius: 12px; padding: 0.7rem 0.8rem; box-shadow: 0 1px 2px rgba(16,24,40,0.05); cursor: grab; overflow: hidden; min-width: 0; transition: box-shadow .16s ease, transform .16s ease; }
+    .gb-card:hover { box-shadow: 0 10px 22px -8px rgba(16,24,40,0.16); transform: translateY(-2px); }
+    .gb-card.is-vencida { border-color: #fecaca; background: #fffbfb; }
+    .gb-proj { display: inline-block; font-size: 0.64rem; font-weight: 800; color: #7c3aed; background: #f3e8ff; padding: 0.1rem 0.5rem; border-radius: 6px; margin-bottom: 0.4rem; }
     .gb-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; line-height: 1.3; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
     .gb-proj { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .gb-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
-    .gb-chip { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.67rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; background: #f1f5f9; color: #475569; }
-    .gb-chip.prio-alta { background: #fee2e2; color: #b91c1c; }
-    .gb-chip.prio-media { background: #dbeafe; color: #1d4ed8; }
-    .gb-chip.prio-baja { background: #e2e8f0; color: #475569; }
-    .gb-chip.venc { background: #fee2e2; color: #b91c1c; }
-    .gb-av { width: 15px; height: 15px; border-radius: 50%; background: #7c3aed; color: #fff; font-size: 0.55rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
+    .gb-chip { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 700; padding: 0.14rem 0.5rem; border-radius: 7px; background: #f4f6f9; color: #475569; border: 1px solid transparent; }
+    .gb-chip.prio-alta { background: #fef2f2; color: #dc2626; border-color: #fee2e2; }
+    .gb-chip.prio-media { background: #eff6ff; color: #2563eb; border-color: #dbeafe; }
+    .gb-chip.prio-baja { background: #f8fafc; color: #64748b; border-color: #eceff4; }
+    .gb-chip.venc { background: #fef2f2; color: #dc2626; border-color: #fecaca; }
+    .gb-av { width: 16px; height: 16px; border-radius: 50%; background: linear-gradient(135deg,#a78bfa,#7c3aed); color: #fff; font-size: 0.54rem; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
     .gb-foot { display: flex; align-items: center; justify-content: space-between; margin-top: 0.5rem; gap: 0.5rem; }
     .gb-prog { flex: 1; height: 5px; background: #eef2f7; border-radius: 4px; overflow: hidden; }
     .gb-prog > span { display: block; height: 100%; background: #16a34a; }
