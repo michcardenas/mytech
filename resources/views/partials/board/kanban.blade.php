@@ -12,11 +12,11 @@
     .kb-col-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
     .kb-col-count { margin-left: auto; background: rgba(0,0,0,0.07); color: #475569; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 999px; }
     .kb-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 40px; flex: 1; }
-    .kb-card { background: #fff; border: 1px solid var(--kb-line); border-left: 4px solid var(--c, #94a3b8); border-radius: 10px; padding: 0.65rem 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: grab; }
+    .kb-card { background: #fff; border: 1px solid var(--kb-line); border-left: 4px solid var(--c, #94a3b8); border-radius: 10px; padding: 0.65rem 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: grab; overflow: hidden; min-width: 0; }
     .kb-card:active { cursor: grabbing; }
     .kb-card.is-vencida { border-color: #fca5a5; background: #fff7f7; }
     .kb-card-top { display: flex; align-items: flex-start; gap: 0.45rem; }
-    .kb-title { font-size: 0.86rem; font-weight: 700; color: #1e293b; line-height: 1.3; flex: 1; word-break: break-word; }
+    .kb-title { font-size: 0.86rem; font-weight: 700; color: #1e293b; line-height: 1.3; flex: 1; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
     .kb-actions { display: flex; gap: 0.25rem; flex-shrink: 0; }
     .kb-ibtn { border: none; background: #f1f5f9; color: #64748b; width: 24px; height: 24px; border-radius: 7px; font-size: 0.7rem; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; transition: all .15s; }
     .kb-ibtn:hover { background: #e2e8f0; color: #0f172a; }
@@ -37,18 +37,18 @@
     .kb-subs > summary::-webkit-details-marker { display: none; }
     .kb-subs > summary::before { content: '\25B8'; margin-right: 0.35rem; display: inline-block; transition: transform .2s; }
     .kb-subs[open] > summary::before { transform: rotate(90deg); }
-    .kb-sub { display: flex; align-items: center; gap: 0.45rem; font-size: 0.78rem; color: #334155; padding: 0.25rem 0.1rem; }
+    .kb-sub { display: flex; flex-wrap: wrap; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: #334155; padding: 0.3rem 0.1rem; border-bottom: 1px solid #f4f6f9; }
     .kb-sub input[type=checkbox] { width: 15px; height: 15px; accent-color: #16a34a; cursor: pointer; flex-shrink: 0; }
     .kb-sub.done span.t { text-decoration: line-through; color: #94a3b8; }
-    .kb-sub .t { flex: 1; word-break: break-word; }
+    .kb-sub .t { flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
     .kb-sub .kb-subdel { border: none; background: transparent; color: #cbd5e1; cursor: pointer; font-size: 0.7rem; }
     .kb-sub .kb-subdel:hover { color: #dc2626; }
-    .kb-subadd { display: flex; gap: 0.3rem; margin-top: 0.35rem; }
-    .kb-subadd input { flex: 1; font-size: 0.75rem; padding: 0.3rem 0.5rem; border: 1px solid var(--kb-line); border-radius: 7px; }
-    .kb-subadd select { font-size: 0.72rem; padding: 0.3rem 0.35rem; border: 1px solid var(--kb-line); border-radius: 7px; max-width: 95px; }
-    .kb-subadd button { border: none; background: #e0e7ff; color: #4338ca; border-radius: 7px; padding: 0 0.6rem; font-weight: 800; cursor: pointer; }
-    .kb-reassign { margin: 0; }
-    .kb-reassign select { font-size: 0.68rem; padding: 0.15rem 0.25rem; border: 1px solid var(--kb-line); border-radius: 6px; max-width: 88px; color: #64748b; background: #fff; }
+    .kb-subadd { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; }
+    .kb-subadd input { flex: 1 1 100%; min-width: 0; font-size: 0.75rem; padding: 0.35rem 0.5rem; border: 1px solid var(--kb-line); border-radius: 7px; }
+    .kb-subadd select { flex: 1 1 auto; min-width: 0; font-size: 0.72rem; padding: 0.3rem 0.35rem; border: 1px solid var(--kb-line); border-radius: 7px; }
+    .kb-subadd button { flex: 0 0 auto; border: none; background: #e0e7ff; color: #4338ca; border-radius: 7px; padding: 0 0.75rem; font-weight: 800; cursor: pointer; }
+    .kb-reassign { flex: 1 1 100%; margin: 0.1rem 0 0 1.9rem; }
+    .kb-reassign select { width: 100%; max-width: 100%; font-size: 0.68rem; padding: 0.22rem 0.4rem; border: 1px solid var(--kb-line); border-radius: 6px; color: #64748b; background: #fff; }
     .kb-sub-resp .kb-av.sm { width: 16px; height: 16px; font-size: 0.55rem; }
     .kb-av.sm { width: 16px; height: 16px; border-radius: 50%; background: #7c3aed; color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; }
     /* Archivos por tarea */
@@ -59,11 +59,11 @@
     .kb-files[open] > summary::before { transform: rotate(90deg); }
     .kb-filecount, .kb-subcount { background: #eef2f7; color: #475569; font-size: 0.65rem; font-weight: 800; padding: 0.02rem 0.4rem; border-radius: 999px; }
     .kb-file { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; padding: 0.2rem 0.1rem; }
-    .kb-file-link { flex: 1; color: #2563eb; text-decoration: none; word-break: break-word; }
+    .kb-file-link { flex: 1 1 auto; min-width: 0; color: #2563eb; text-decoration: none; overflow-wrap: anywhere; word-break: break-word; }
     .kb-file-link:hover { text-decoration: underline; }
-    .kb-file-size { font-size: 0.65rem; color: #94a3b8; }
-    .kb-fileadd { display: flex; gap: 0.3rem; margin-top: 0.35rem; align-items: center; }
-    .kb-fileadd input[type=file] { flex: 1; font-size: 0.68rem; min-width: 0; }
+    .kb-file-size { flex: 0 0 auto; font-size: 0.65rem; color: #94a3b8; }
+    .kb-fileadd { display: flex; flex-wrap: wrap; gap: 0.3rem; margin-top: 0.4rem; align-items: center; }
+    .kb-fileadd input[type=file] { flex: 1 1 100%; font-size: 0.68rem; min-width: 0; }
     .kb-fileadd button { border: none; background: #dcfce7; color: #15803d; border-radius: 7px; padding: 0.25rem 0.55rem; cursor: pointer; }
     .kb-addcard { margin-top: 0.5rem; border: 1px dashed #cbd5e1; background: transparent; color: #64748b; border-radius: 9px; padding: 0.5rem; font-size: 0.78rem; font-weight: 700; cursor: pointer; width: 100%; transition: all .15s; }
     .kb-addcard:hover { border-color: #7c3aed; color: #7c3aed; background: rgba(124,58,237,0.04); }

@@ -16,10 +16,11 @@
     .gb-col-dot { width: 9px; height: 9px; border-radius: 50%; }
     .gb-col-count { margin-left: auto; background: rgba(0,0,0,0.07); color: #475569; font-size: 0.72rem; font-weight: 700; padding: 0.08rem 0.5rem; border-radius: 999px; }
     .gb-cards { display: flex; flex-direction: column; gap: 0.5rem; min-height: 30px; }
-    .gb-card { background: #fff; border: 1px solid #e5e9f0; border-left: 4px solid var(--c,#94a3b8); border-radius: 10px; padding: 0.6rem 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: grab; }
+    .gb-card { background: #fff; border: 1px solid #e5e9f0; border-left: 4px solid var(--c,#94a3b8); border-radius: 10px; padding: 0.6rem 0.7rem; box-shadow: 0 1px 3px rgba(0,0,0,0.04); cursor: grab; overflow: hidden; min-width: 0; }
     .gb-card.is-vencida { border-color: #fca5a5; background: #fff7f7; }
     .gb-proj { display: inline-block; font-size: 0.66rem; font-weight: 800; color: #7c3aed; background: #f3e8ff; padding: 0.08rem 0.5rem; border-radius: 999px; margin-bottom: 0.35rem; }
-    .gb-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; line-height: 1.3; word-break: break-word; }
+    .gb-title { font-size: 0.85rem; font-weight: 700; color: #1e293b; line-height: 1.3; min-width: 0; overflow-wrap: anywhere; word-break: break-word; }
+    .gb-proj { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .gb-meta { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.45rem; }
     .gb-chip { display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.67rem; font-weight: 700; padding: 0.12rem 0.5rem; border-radius: 999px; background: #f1f5f9; color: #475569; }
     .gb-chip.prio-alta { background: #fee2e2; color: #b91c1c; }
