@@ -22,6 +22,19 @@
         min-height: 80vh;
     }
 
+    .form-errors {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-left: 4px solid #dc2626;
+        border-radius: 12px;
+        padding: 0.9rem 1.1rem;
+        margin-bottom: 1.25rem;
+        color: #991b1b;
+    }
+    .form-errors-title { font-weight: 800; font-size: 0.92rem; display: flex; align-items: center; gap: 0.45rem; }
+    .form-errors ul { margin: 0.5rem 0 0; padding-left: 1.4rem; }
+    .form-errors li { font-size: 0.86rem; margin-bottom: 0.2rem; }
+
     .form-header {
         display: flex;
         justify-content: space-between;
@@ -246,6 +259,20 @@
         </a>
     </div>
 
+    @if($errors->any())
+        <div class="form-errors">
+            <div class="form-errors-title"><i class="fas fa-exclamation-triangle"></i> No se pudo guardar. Revisa estos campos:</div>
+            <ul>
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+    @if(session('error'))
+        <div class="form-errors"><div class="form-errors-title"><i class="fas fa-exclamation-triangle"></i> {{ session('error') }}</div></div>
+    @endif
+
     <form action="{{ $isEdit ? route('admin.internal-projects.update', $project) : route('admin.internal-projects.store') }}"
           method="POST" enctype="multipart/form-data">
         @csrf
@@ -279,8 +306,7 @@
                     <div class="field-group">
                         <div class="field-label"><i class="fas fa-flag"></i> Estado <span class="required">*</span></div>
                         <select name="estado" class="form-select" required>
-                            <option value="cotizado" {{ old('estado', $project->estado) == 'cotizado' ? 'selected' : '' }}>Cotizado</option>
-                            <option value="en_progreso" {{ old('estado', $project->estado) == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
+                            <option value="en_progreso" {{ old('estado', $project->estado ?: 'en_progreso') == 'en_progreso' ? 'selected' : '' }}>En Progreso</option>
                             <option value="pausado" {{ old('estado', $project->estado) == 'pausado' ? 'selected' : '' }}>Pausado</option>
                             <option value="completado" {{ old('estado', $project->estado) == 'completado' ? 'selected' : '' }}>Completado</option>
                             <option value="cancelado" {{ old('estado', $project->estado) == 'cancelado' ? 'selected' : '' }}>Cancelado</option>

@@ -552,7 +552,39 @@ class InternalProjectController extends Controller
             });
         }
 
-        $projects = $query->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC')
+        if ($request->filled('desarrollador')) {
+            if ($request->desarrollador === '__sin_dev__') {
+                $query->where(function ($q) {
+                    $q->whereNull('desarrollador_nombre')->orWhere('desarrollador_nombre', '');
+                });
+            } else {
+                $query->where('desarrollador_nombre', $request->desarrollador);
+            }
+        }
+
+        if ($request->filled('cliente')) {
+            $query->where('cliente_nombre', $request->cliente);
+        }
+
+        if ($request->filled('proyecto_id')) {
+            $query->where('id', $request->proyecto_id);
+        }
+
+        if ($request->filled('estado')) {
+            $query->where('estado', $request->estado);
+        }
+
+        if ($request->filled('entrega_desde')) {
+            $query->whereDate('fecha_entrega', '>=', $request->entrega_desde);
+        }
+
+        if ($request->filled('entrega_hasta')) {
+            $query->whereDate('fecha_entrega', '<=', $request->entrega_hasta);
+        }
+
+        $projects = $query
+            ->orderByRaw("FIELD(estado, 'en_progreso', 'cotizado', 'pausado', 'completado', 'cancelado')")
+            ->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC')
             ->orderBy('created_at', 'desc')
             ->get();
 
@@ -623,15 +655,73 @@ class InternalProjectController extends Controller
             })
             ->values();
 
+        // KPIs del mes en curso (flujo de caja real)
+        $ini = now()->startOfMonth();
+        $fin = now()->endOfMonth();
+
+        $cobradoMes = ProjectPayment::with('project:id,moneda')
+            ->whereBetween('fecha', [$ini, $fin])
+            ->get()
+            ->sum(function ($p) use ($usdCop) {
+                if ($p->monto_recibido_cop) {
+                    return (float) $p->monto_recibido_cop;
+                }
+                $moneda = optional($p->project)->moneda ?? 'COP';
+
+                return $moneda === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto;
+            });
+
+        $pagadoDevMes = DeveloperPayment::whereBetween('fecha', [$ini, $fin])
+            ->get()
+            ->sum(fn ($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
+
         $resumen = [
             'devs_activos' => $grupos->filter(fn ($g) => ! $g['is_sin_dev'] && $g['activos']->isNotEmpty())->count(),
             'proyectos_activos' => $projects->whereIn('estado', $activos)->count(),
             'sin_dev' => $projects->whereIn('estado', $activos)->whereNull('desarrollador_nombre')->count(),
             'por_pagar_dev_cop' => $grupos->sum('por_pagar_dev_cop'),
             'por_cobrar_cop' => $grupos->sum('por_cobrar_cop'),
+            'cobrado_mes_cop' => $cobradoMes,
+            'pagado_dev_mes_cop' => $pagadoDevMes,
         ];
 
-        return view('admin.internal-projects.index', compact('grupos', 'resumen', 'usdCop'));
+        $desarrolladores = InternalProject::whereNotNull('desarrollador_nombre')
+            ->where('desarrollador_nombre', '!=', '')
+            ->distinct()
+            ->orderBy('desarrollador_nombre')
+            ->pluck('desarrollador_nombre');
+
+        $clientes = InternalProject::whereNotNull('cliente_nombre')
+            ->where('cliente_nombre', '!=', '')
+            ->distinct()
+            ->orderBy('cliente_nombre')
+            ->pluck('cliente_nombre');
+
+        $proyectos = InternalProject::orderBy('nombre')->pluck('nombre', 'id');
+
+        $estados = [
+            'en_progreso' => 'En Progreso',
+            'pausado' => 'Pausado',
+            'completado' => 'Completado',
+            'cancelado' => 'Cancelado',
+        ];
+
+        $vista = $request->get('vista') === 'agrupado' ? 'agrupado' : 'tabla';
+
+        $filtros = [
+            'buscar' => $request->get('buscar', ''),
+            'desarrollador' => $request->get('desarrollador', ''),
+            'cliente' => $request->get('cliente', ''),
+            'proyecto_id' => $request->get('proyecto_id', ''),
+            'estado' => $request->get('estado', ''),
+            'entrega_desde' => $request->get('entrega_desde', ''),
+            'entrega_hasta' => $request->get('entrega_hasta', ''),
+        ];
+
+        return view('admin.internal-projects.index', compact(
+            'grupos', 'resumen', 'usdCop', 'projects',
+            'desarrolladores', 'clientes', 'proyectos', 'estados', 'vista', 'filtros'
+        ));
     }
 
     public function statsExport(Request $request): StreamedResponse
@@ -999,7 +1089,7 @@ class InternalProjectController extends Controller
             'precio' => 'required|numeric|min:0',
             'moneda' => 'required|in:COP,USD,EUR',
             'tasa_cambio_estimada' => 'nullable|numeric|min:0',
-            'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
+            'estado' => 'required|in:en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
             'fecha_facturacion' => 'nullable|date',
@@ -1503,7 +1593,7 @@ class InternalProjectController extends Controller
             'precio' => 'required|numeric|min:0',
             'moneda' => 'required|in:COP,USD,EUR',
             'tasa_cambio_estimada' => 'nullable|numeric|min:0',
-            'estado' => 'required|in:cotizado,en_progreso,pausado,completado,cancelado',
+            'estado' => 'required|in:en_progreso,pausado,completado,cancelado',
             'fecha_inicio' => 'nullable|date',
             'fecha_entrega' => 'nullable|date|required_without_all:es_recurrente,es_bolsa_horas',
             'fecha_facturacion' => 'nullable|date',

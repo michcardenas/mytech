@@ -36,14 +36,76 @@
     .pd-kpi.info .pd-kpi-value  { color:#1D4ED8; }
     .pd-kpi.debt .pd-kpi-value  { color:#6D28D9; }
     .pd-kpi.money .pd-kpi-value { color:#0F766E; }
+    .pd-kpi.good::before  { background:#16A34A; }
+    .pd-kpi.good .pd-kpi-value  { color:#15803D; }
+    .pd-kpi.paid::before  { background:#DB2777; }
+    .pd-kpi.paid .pd-kpi-value  { color:#BE185D; }
     .pd-kpi.warn { background:#FFF7ED; border-color:#FED7AA; }
     .pd-kpi.warn .pd-kpi-value  { color:#C2410C; }
 
-    /* Search */
-    .pd-search { display:flex; gap:.5rem; margin-bottom:1.5rem; max-width:520px; }
-    .pd-search input { flex:1; padding:.6rem .9rem; border:1px solid #E2E8F0; border-radius:10px; background:#fff; font-size:.9rem; }
-    .pd-search input:focus { outline:none; border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
-    .pd-search button { padding:.6rem 1.1rem; border:none; background:#0F172A; color:#fff; border-radius:10px; font-weight:600; font-size:.85rem; cursor:pointer; }
+    /* Toolbar: toggle de vista */
+    .pd-toolbar { display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:.75rem; margin-bottom:.75rem; }
+    .pd-viewtoggle { display:inline-flex; background:#fff; border:1px solid #E2E8F0; border-radius:10px; padding:.2rem; gap:.2rem; }
+    .pd-vt { display:inline-flex; align-items:center; gap:.4rem; padding:.45rem .85rem; border-radius:8px; font-size:.83rem; font-weight:600; text-decoration:none; color:#64748B; transition:all .12s; }
+    .pd-vt:hover { color:#0F172A; }
+    .pd-vt.active { background:#0F172A; color:#fff; }
+    .pd-result-count { font-size:.8rem; color:#64748B; font-weight:600; }
+
+    /* Barra de filtros */
+    .pd-filters { display:flex; flex-wrap:wrap; align-items:flex-end; gap:.75rem; background:#fff; border:1px solid #E5E7EB; border-radius:14px; padding:1rem 1.1rem; margin-bottom:1.5rem; }
+    .pd-filter-field { display:flex; flex-direction:column; gap:.3rem; min-width:150px; }
+    .pd-filter-field.grow { flex:1 1 220px; min-width:200px; }
+    .pd-filter-field label { font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:#94A3B8; font-weight:700; }
+    .pd-filter-field input, .pd-filter-field select { padding:.5rem .7rem; border:1px solid #E2E8F0; border-radius:9px; background:#fff; font-size:.86rem; color:#334155; }
+    .pd-filter-field input:focus, .pd-filter-field select:focus { outline:none; border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .pd-filter-actions { display:flex; gap:.5rem; align-items:center; }
+    .pd-filter-apply { padding:.55rem 1.1rem; border:none; background:#2563EB; color:#fff; border-radius:9px; font-weight:600; font-size:.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:.4rem; }
+    .pd-filter-apply:hover { background:#1D4ED8; }
+    .pd-filter-clear { padding:.55rem .9rem; border:1px solid #E2E8F0; background:#fff; color:#64748B; border-radius:9px; font-weight:600; font-size:.85rem; text-decoration:none; }
+    .pd-filter-clear:hover { background:#F1F5F9; color:#0F172A; }
+
+    /* Tom Select (selects con buscador) integrados al diseño */
+    .pd-filter-field .ts-wrapper { min-width:170px; }
+    .pd-filters .ts-control {
+        border:1px solid #E2E8F0; border-radius:9px; padding:.42rem .6rem; font-size:.86rem;
+        color:#334155; background:#fff; min-height:40px; box-shadow:none;
+    }
+    .pd-filters .ts-wrapper.focus .ts-control { border-color:#2563EB; box-shadow:0 0 0 3px rgba(37,99,235,.1); }
+    .pd-filters .ts-dropdown { border:1px solid #E2E8F0; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,.12); font-size:.86rem; z-index:2000; }
+    .pd-filters .ts-dropdown .active { background:#EFF6FF; color:#1D4ED8; }
+    .pd-filters .ts-dropdown .option { padding:.45rem .7rem; }
+
+    /* Tabla plana */
+    .pd-table-wrap { background:#fff; border:1px solid #E5E7EB; border-radius:14px; overflow:auto; max-height:calc(100vh - 200px); box-shadow:0 1px 2px rgba(15,23,42,.03); }
+    .pd-table { width:100%; border-collapse:separate; border-spacing:0; font-size:.88rem; }
+    .pd-table thead th {
+        background:#F1F5F9; border-bottom:1px solid #E5E7EB; padding:.75rem 1rem; text-align:left;
+        font-size:.68rem; text-transform:uppercase; letter-spacing:.04em; color:#64748B; font-weight:700; white-space:nowrap;
+        position:sticky; top:0; z-index:5;
+    }
+    .pd-table thead tr:first-child th:first-child { border-top-left-radius:14px; }
+    .pd-table thead tr:first-child th:last-child  { border-top-right-radius:14px; }
+    .pd-table thead th.r { text-align:right; }
+    .pd-table th[data-sortable] { cursor:pointer; user-select:none; }
+    .pd-table th[data-sortable]:hover { color:#0F172A; }
+    .pd-table th[data-sortable]::after { content:'\f0dc'; font-family:'Font Awesome 5 Free'; font-weight:900; font-size:.7rem; margin-left:.35rem; opacity:.3; }
+    .pd-table th.sorted-asc::after  { content:'\f0de'; opacity:1; color:#2563EB; }
+    .pd-table th.sorted-desc::after { content:'\f0dd'; opacity:1; color:#2563EB; }
+    .pd-table tbody td { padding:.75rem 1rem; border-top:1px solid #F1F5F9; color:#334155; vertical-align:middle; }
+    .pd-table tbody tr:hover { background:#F8FAFC; }
+    .pd-table td.r { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+    .pd-table td.name { font-weight:600; color:#0F172A; max-width:260px; }
+    .pd-table td.name a { color:inherit; text-decoration:none; }
+    .pd-table td.name a:hover { color:#2563EB; }
+    .pd-cell-cobrar { color:#0F766E; font-weight:700; }
+    .pd-cell-deuda  { color:#7C3AED; font-weight:700; }
+    .pd-cell-ok     { color:#94A3B8; font-weight:500; }
+    .pd-table .cell.acciones, .pd-table td.acc { white-space:nowrap; }
+    .pd-table td.acc .pd-action-btn { width:30px; height:30px; margin-left:.2rem; }
+    .pd-empty-cell { text-align:center; padding:2.5rem 1rem; color:#94A3B8; }
+    @media (max-width:980px) {
+        .pd-table { min-width:920px; }
+    }
 
     /* Dev cards */
     .pd-devs { display:flex; flex-direction:column; gap:1.1rem; }
@@ -92,6 +154,7 @@
     .pd-date-badge.late  { background:#FEE2E2; color:#B91C1C; }
     .pd-date-badge.recur { background:#EDE9FE; color:#6D28D9; }
     .pd-date-badge.none  { background:#F1F5F9; color:#64748B; }
+    .pd-date-badge.done  { background:#DCFCE7; color:#166534; }
 
     .pd-estado { display:inline-flex; align-items:center; gap:.35rem; padding:.22rem .55rem; border-radius:999px; font-size:.72rem; font-weight:700; }
     .pd-estado .dot { width:6px; height:6px; border-radius:999px; background:currentColor; }
@@ -156,6 +219,9 @@
     $fmtCop = fn ($v) => '$'.number_format((float) $v, 0, ',', '.');
 
     $dateBadge = function ($project) {
+        if (in_array($project->estado, ['completado', 'cancelado'])) {
+            return ['done', $project->fecha_entrega ? $project->fecha_entrega->format('d/m/Y') : '—'];
+        }
         if ($project->es_recurrente) {
             return ['recur', 'Recurrente'];
         }
@@ -201,18 +267,28 @@
 
     <div class="pd-kpis">
         <div class="pd-kpi info">
-            <div class="pd-kpi-label">Devs activos</div>
-            <div class="pd-kpi-value">{{ $resumen['devs_activos'] }}</div>
-            <div class="pd-kpi-sub">{{ $resumen['proyectos_activos'] }} proyectos activos</div>
+            <div class="pd-kpi-label">Proyectos activos</div>
+            <div class="pd-kpi-value">{{ $resumen['proyectos_activos'] }}</div>
+            <div class="pd-kpi-sub">{{ $resumen['devs_activos'] }} dev{{ $resumen['devs_activos'] === 1 ? '' : 's' }} activo{{ $resumen['devs_activos'] === 1 ? '' : 's' }}</div>
         </div>
-        <div class="pd-kpi debt">
-            <div class="pd-kpi-label">Por pagar a devs</div>
-            <div class="pd-kpi-value">{{ $fmtCop($resumen['por_pagar_dev_cop']) }}</div>
-            <div class="pd-kpi-sub">Saldo total pendiente (COP)</div>
+        <div class="pd-kpi good">
+            <div class="pd-kpi-label">Cobrado en el mes</div>
+            <div class="pd-kpi-value">{{ $fmtCop($resumen['cobrado_mes_cop']) }}</div>
+            <div class="pd-kpi-sub">Ingresos de {{ now()->translatedFormat('F') }} (COP)</div>
+        </div>
+        <div class="pd-kpi paid">
+            <div class="pd-kpi-label">Pagado a devs (mes)</div>
+            <div class="pd-kpi-value">{{ $fmtCop($resumen['pagado_dev_mes_cop']) }}</div>
+            <div class="pd-kpi-sub">Pagado en {{ now()->translatedFormat('F') }} (COP)</div>
         </div>
         <div class="pd-kpi money">
             <div class="pd-kpi-label">Por cobrar</div>
             <div class="pd-kpi-value">{{ $fmtCop($resumen['por_cobrar_cop']) }}</div>
+            <div class="pd-kpi-sub">Saldo total pendiente (COP)</div>
+        </div>
+        <div class="pd-kpi debt">
+            <div class="pd-kpi-label">Por pagar a devs</div>
+            <div class="pd-kpi-value">{{ $fmtCop($resumen['por_pagar_dev_cop']) }}</div>
             <div class="pd-kpi-sub">Saldo total pendiente (COP)</div>
         </div>
         @if($resumen['sin_dev'] > 0)
@@ -224,11 +300,103 @@
         @endif
     </div>
 
-    <form method="GET" class="pd-search">
-        <input type="text" name="buscar" placeholder="Buscar por proyecto, cliente o desarrollador..." value="{{ request('buscar') }}">
-        <button type="submit"><i class="fas fa-search"></i> Buscar</button>
+    @php $filtrosActivos = collect($filtros)->filter(fn ($v) => $v !== '' && $v !== null)->isNotEmpty(); @endphp
+
+    <div class="pd-toolbar">
+        <div class="pd-viewtoggle">
+            <a href="{{ route('admin.internal-projects.index', array_merge(request()->except('vista', 'page'), ['vista' => 'agrupado'])) }}"
+               class="pd-vt {{ $vista === 'agrupado' ? 'active' : '' }}"><i class="fas fa-layer-group"></i> Agrupado por dev</a>
+            <a href="{{ route('admin.internal-projects.index', array_merge(request()->except('vista', 'page'), ['vista' => 'tabla'])) }}"
+               class="pd-vt {{ $vista === 'tabla' ? 'active' : '' }}"><i class="fas fa-table"></i> Tabla</a>
+        </div>
+        <div class="pd-result-count">{{ $projects->count() }} proyecto{{ $projects->count() === 1 ? '' : 's' }}{{ $filtrosActivos ? ' (filtrado)' : '' }}</div>
+    </div>
+
+    <form method="GET" class="pd-filters">
+        <input type="hidden" name="vista" value="{{ $vista }}">
+        <div class="pd-filter-field grow">
+            <label>Buscar</label>
+            <input type="text" name="buscar" placeholder="Texto libre..." value="{{ $filtros['buscar'] }}">
+        </div>
+        <div class="pd-filter-field">
+            <label>Proyecto</label>
+            <select name="proyecto_id" class="js-tom" data-placeholder="Todos los proyectos">
+                <option value="">Todos</option>
+                @foreach($proyectos as $id => $nombre)
+                    <option value="{{ $id }}" @selected((string) $filtros['proyecto_id'] === (string) $id)>{{ $nombre }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="pd-filter-field">
+            <label>Desarrollador</label>
+            <select name="desarrollador" class="js-tom" data-placeholder="Todos los devs">
+                <option value="">Todos</option>
+                <option value="__sin_dev__" @selected($filtros['desarrollador'] === '__sin_dev__')>— Sin asignar —</option>
+                @foreach($desarrolladores as $d)
+                    <option value="{{ $d }}" @selected($filtros['desarrollador'] === $d)>{{ $d }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="pd-filter-field">
+            <label>Cliente</label>
+            <select name="cliente" class="js-tom" data-placeholder="Todos los clientes">
+                <option value="">Todos</option>
+                @foreach($clientes as $c)
+                    <option value="{{ $c }}" @selected($filtros['cliente'] === $c)>{{ $c }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="pd-filter-field">
+            <label>Estado</label>
+            <select name="estado" class="js-tom" data-placeholder="Todos">
+                <option value="">Todos</option>
+                @foreach($estados as $val => $lbl)
+                    <option value="{{ $val }}" @selected($filtros['estado'] === $val)>{{ $lbl }}</option>
+                @endforeach
+            </select>
+        </div>
+        <div class="pd-filter-field">
+            <label>Entrega desde</label>
+            <input type="date" name="entrega_desde" value="{{ $filtros['entrega_desde'] }}">
+        </div>
+        <div class="pd-filter-field">
+            <label>Entrega hasta</label>
+            <input type="date" name="entrega_hasta" value="{{ $filtros['entrega_hasta'] }}">
+        </div>
+        <div class="pd-filter-actions">
+            <button type="submit" class="pd-filter-apply"><i class="fas fa-filter"></i> Filtrar</button>
+            @if($filtrosActivos)
+                <a href="{{ route('admin.internal-projects.index', ['vista' => $vista]) }}" class="pd-filter-clear">Limpiar</a>
+            @endif
+        </div>
     </form>
 
+    {{-- Tom Select: convierte los selects del filtro en buscables --}}
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/css/tom-select.bootstrap5.min.css" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tom-select/2.3.1/js/tom-select.complete.min.js"></script>
+    <script>
+    (function () {
+        function initTom() {
+            if (typeof TomSelect === 'undefined') { return; }
+            document.querySelectorAll('.js-tom').forEach(function (sel) {
+                if (sel.tomselect) { return; }
+                new TomSelect(sel, {
+                    allowEmptyOption: true,
+                    create: false,
+                    maxOptions: 2000,
+                    placeholder: sel.dataset.placeholder || 'Todos',
+                });
+            });
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initTom);
+        } else {
+            initTom();
+        }
+    })();
+    </script>
+
+    @if($vista === 'agrupado')
     <div class="pd-devs">
         @forelse($grupos as $grupo)
             @php
@@ -393,6 +561,147 @@
             </div>
         @endforelse
     </div>
+    @else
+    {{-- Vista TABLA plana (mismos filtros, ordenable por columna) --}}
+    <div class="pd-table-wrap">
+        <table class="pd-table" id="pdTable">
+            <thead>
+                <tr>
+                    <th data-sortable data-type="text">Proyecto</th>
+                    <th data-sortable data-type="text">Cliente</th>
+                    <th data-sortable data-type="text">Desarrollador</th>
+                    <th class="r" data-sortable data-type="num">Valor</th>
+                    <th class="r" data-sortable data-type="num">Por cobrar</th>
+                    <th class="r" data-sortable data-type="num">Saldo dev</th>
+                    <th data-sortable data-type="num">Entrega</th>
+                    <th data-sortable data-type="text">Estado</th>
+                    <th class="r">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                @forelse($projects as $p)
+                    @php
+                        [$badgeClass, $badgeText] = $dateBadge($p);
+                        $devMoneda = $p->desarrollador_moneda ?? 'COP';
+
+                        // Saldo por cobrar al cliente (misma lógica que el agrupado)
+                        if ($p->estado === 'cancelado') {
+                            $saldoCliente = 0.0;
+                        } elseif ($p->es_recurrente) {
+                            $saldoCliente = ($p->fecha_facturacion && $p->fecha_facturacion->lte(now()->endOfDay())) ? (float) $p->precio : 0.0;
+                        } else {
+                            $saldoCliente = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
+                        }
+
+                        // Saldo pendiente al desarrollador
+                        $saldoDev = $p->estado === 'cancelado'
+                            ? 0.0
+                            : max((float) ($p->desarrollador_pago ?? 0) - (float) ($p->developer_payments_sum_monto ?? 0), 0);
+
+                        // Valores en COP para ordenar correctamente (USD→COP; EUR/COP tal cual)
+                        $toCop = fn ($v, $m) => $m === 'USD' ? $v * $usdCop : $v;
+                    @endphp
+                    <tr>
+                        <td class="name" data-sortval="{{ \Illuminate\Support\Str::lower($p->nombre) }}">
+                            <a href="{{ route('admin.internal-projects.show', $p) }}">{{ $p->nombre }}</a>
+                        </td>
+                        <td data-sortval="{{ \Illuminate\Support\Str::lower($p->cliente_nombre ?? '') }}">{{ $p->cliente_nombre ?: '—' }}</td>
+                        <td data-sortval="{{ \Illuminate\Support\Str::lower($p->desarrollador_nombre ?? '') }}">{{ $p->desarrollador_nombre ?: '—' }}</td>
+                        <td class="r" data-sortval="{{ $toCop((float) $p->precio, $p->moneda) }}">
+                            <span class="pd-money-primary">{{ $fmtMoney($p->precio, $p->moneda) }}</span>
+                            <span class="pd-money-currency">{{ $p->moneda }}</span>
+                        </td>
+                        <td class="r" data-sortval="{{ $toCop($saldoCliente, $p->moneda) }}">
+                            @if($saldoCliente > 0)
+                                <span class="pd-cell-cobrar">{{ $fmtMoney($saldoCliente, $p->moneda) }}</span>
+                                <span class="pd-money-currency">{{ $p->moneda }}</span>
+                            @else
+                                <span class="pd-cell-ok">Al día</span>
+                            @endif
+                        </td>
+                        <td class="r" data-sortval="{{ $toCop($saldoDev, $devMoneda) }}">
+                            @if($saldoDev > 0)
+                                <span class="pd-cell-deuda">{{ $fmtMoney($saldoDev, $devMoneda) }}</span>
+                                <span class="pd-money-currency">{{ $devMoneda }}</span>
+                            @else
+                                <span class="pd-cell-ok">—</span>
+                            @endif
+                        </td>
+                        <td data-sortval="{{ $p->fecha_entrega ? $p->fecha_entrega->timestamp : '9999999999' }}">
+                            <span class="pd-date-badge {{ $badgeClass }}"><i class="fas fa-flag-checkered"></i> {{ $badgeText }}</span>
+                        </td>
+                        <td data-sortval="{{ $p->estado }}"><span class="pd-estado {{ $p->estado }}"><span class="dot"></span>{{ $p->estado_label }}</span></td>
+                        <td class="acc r">
+                            @if($p->estado !== 'cancelado')
+                                <button type="button" class="pd-action-btn pay-client js-open-pay"
+                                    title="Registrar pago del cliente"
+                                    data-kind="cliente"
+                                    data-project-name="{{ $p->nombre }}"
+                                    data-moneda="{{ $p->moneda }}"
+                                    data-saldo="{{ $saldoCliente }}"
+                                    data-action="{{ route('admin.internal-projects.payments.store', $p) }}"
+                                ><i class="fas fa-hand-holding-usd"></i></button>
+                                @if($p->desarrollador_pago && $p->desarrollador_nombre)
+                                    <button type="button" class="pd-action-btn pay-dev js-open-pay"
+                                        title="Registrar pago al desarrollador"
+                                        data-kind="dev"
+                                        data-project-name="{{ $p->nombre }}"
+                                        data-dev-nombre="{{ $p->desarrollador_nombre }}"
+                                        data-moneda="{{ $devMoneda }}"
+                                        data-saldo="{{ $saldoDev }}"
+                                        data-action="{{ route('admin.internal-projects.developer-payments.store', $p) }}"
+                                    ><i class="fas fa-paper-plane"></i></button>
+                                @endif
+                            @endif
+                            <a href="{{ route('admin.internal-projects.show', $p) }}" class="pd-action-btn view" title="Ver detalle"><i class="fas fa-eye"></i></a>
+                            <a href="{{ route('admin.internal-projects.edit', $p) }}" class="pd-action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr><td colspan="9" class="pd-empty-cell"><i class="fas fa-briefcase me-1"></i> No hay proyectos que coincidan con los filtros.</td></tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+    (function () {
+        const table = document.getElementById('pdTable');
+        if (! table) { return; }
+        const tbody = table.querySelector('tbody');
+
+        table.querySelectorAll('th[data-sortable]').forEach(th => {
+            th.addEventListener('click', () => {
+                const colIndex = Array.from(th.parentNode.children).indexOf(th);
+                const asc = th.dataset.dir !== 'asc';
+                const type = th.dataset.type || 'text';
+
+                table.querySelectorAll('th[data-sortable]').forEach(h => {
+                    h.dataset.dir = '';
+                    h.classList.remove('sorted-asc', 'sorted-desc');
+                });
+                th.dataset.dir = asc ? 'asc' : 'desc';
+                th.classList.add(asc ? 'sorted-asc' : 'sorted-desc');
+
+                const rows = Array.from(tbody.querySelectorAll('tr')).filter(r => ! r.querySelector('.pd-empty-cell'));
+                rows.sort((a, b) => {
+                    const cellA = a.children[colIndex];
+                    const cellB = b.children[colIndex];
+                    let av = cellA.dataset.sortval ?? cellA.textContent.trim();
+                    let bv = cellB.dataset.sortval ?? cellB.textContent.trim();
+                    if (type === 'num') {
+                        av = parseFloat(av) || 0;
+                        bv = parseFloat(bv) || 0;
+                        return asc ? av - bv : bv - av;
+                    }
+                    return asc ? String(av).localeCompare(String(bv), 'es') : String(bv).localeCompare(String(av), 'es');
+                });
+                rows.forEach(r => tbody.appendChild(r));
+            });
+        });
+    })();
+    </script>
+    @endif
 </div>
 
 @endsection
@@ -482,7 +791,7 @@
 
             const saldo = parseFloat(btn.dataset.saldo || 0);
             const moneda = btn.dataset.moneda || 'COP';
-            const prefix = moneda$moneda === 'USD' ? 'US$' : ($moneda === 'EUR' ? '€' : '$');
+            const prefix = moneda === 'USD' ? 'US$' : (moneda === 'EUR' ? '€' : '$');
             const saldoTxt = saldo > 0
                 ? 'Saldo pendiente: <strong>' + prefix + Math.round(saldo).toLocaleString('es-CO') + ' ' + moneda + '</strong>'
                 : 'Sin saldo pendiente registrado.';
