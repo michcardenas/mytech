@@ -588,6 +588,11 @@ class InternalProjectController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Las bolsas de horas (soporte) se listan aparte; el resto va en la lista principal.
+        $bolsas = $projects->filter(fn ($p) => $p->es_bolsa_horas)->values();
+        $bolsas->load('bolsaMovimientos');
+        $projects = $projects->reject(fn ($p) => $p->es_bolsa_horas)->values();
+
         $activos = ['en_progreso', 'cotizado', 'pausado'];
         $sinDevKey = '__sin_dev__';
 
@@ -675,12 +680,36 @@ class InternalProjectController extends Controller
             ->get()
             ->sum(fn ($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
 
+        // Las bolsas se listan aparte, pero su dinero SÍ cuenta en los KPIs globales.
+        $hoyKpi = now()->endOfDay();
+        $bolsaCobrarCop = 0;
+        $bolsaPagarDevCop = 0;
+        foreach ($bolsas as $p) {
+            if ($p->estado !== 'cancelado') {
+                if ($p->es_recurrente) {
+                    $saldoClienteBolsa = ($p->fecha_facturacion && $p->fecha_facturacion->lte($hoyKpi)) ? (float) $p->precio : 0.0;
+                } else {
+                    $saldoClienteBolsa = max((float) $p->precio - (float) ($p->payments_sum_monto ?? 0), 0);
+                }
+                if ($saldoClienteBolsa > 0) {
+                    $bolsaCobrarCop += $p->moneda === 'USD' ? $saldoClienteBolsa * $usdCop : $saldoClienteBolsa;
+                }
+            }
+
+            if (in_array($p->estado, $activos)) {
+                $saldoDevBolsa = max((float) ($p->desarrollador_pago ?? 0) - (float) ($p->developer_payments_sum_monto ?? 0), 0);
+                if ($saldoDevBolsa > 0) {
+                    $bolsaPagarDevCop += ($p->desarrollador_moneda ?? 'COP') === 'USD' ? $saldoDevBolsa * $usdCop : $saldoDevBolsa;
+                }
+            }
+        }
+
         $resumen = [
             'devs_activos' => $grupos->filter(fn ($g) => ! $g['is_sin_dev'] && $g['activos']->isNotEmpty())->count(),
-            'proyectos_activos' => $projects->whereIn('estado', $activos)->count(),
+            'proyectos_activos' => $projects->whereIn('estado', $activos)->count() + $bolsas->whereIn('estado', $activos)->count(),
             'sin_dev' => $projects->whereIn('estado', $activos)->whereNull('desarrollador_nombre')->count(),
-            'por_pagar_dev_cop' => $grupos->sum('por_pagar_dev_cop'),
-            'por_cobrar_cop' => $grupos->sum('por_cobrar_cop'),
+            'por_pagar_dev_cop' => $grupos->sum('por_pagar_dev_cop') + $bolsaPagarDevCop,
+            'por_cobrar_cop' => $grupos->sum('por_cobrar_cop') + $bolsaCobrarCop,
             'cobrado_mes_cop' => $cobradoMes,
             'pagado_dev_mes_cop' => $pagadoDevMes,
         ];
@@ -719,7 +748,7 @@ class InternalProjectController extends Controller
         ];
 
         return view('admin.internal-projects.index', compact(
-            'grupos', 'resumen', 'usdCop', 'projects',
+            'grupos', 'resumen', 'usdCop', 'projects', 'bolsas',
             'desarrolladores', 'clientes', 'proyectos', 'estados', 'vista', 'filtros'
         ));
     }
@@ -1244,6 +1273,43 @@ class InternalProjectController extends Controller
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Horas registradas en la bolsa.');
+    }
+
+    /**
+     * Recarga (suma) horas al total contratado de una bolsa de horas.
+     */
+    public function recargarBolsa(Request $request, InternalProject $internal_project)
+    {
+        abort_unless((bool) $internal_project->es_bolsa_horas, 404);
+
+        $validated = $request->validate([
+            'horas' => 'required|numeric|min:0.01',
+            'nota' => 'nullable|string|max:255',
+        ]);
+
+        $horas = (float) $validated['horas'];
+        $fmt = fn ($h) => rtrim(rtrim(number_format((float) $h, 2, '.', ''), '0'), '.');
+
+        $internal_project->increment('horas_totales', $horas);
+        $internal_project->refresh();
+
+        // Si la bolsa tiene valor por hora, el precio se recalcula con el nuevo total.
+        if (! empty($internal_project->valor_hora)) {
+            $internal_project->update([
+                'precio' => round((float) $internal_project->horas_totales * (float) $internal_project->valor_hora, 2),
+            ]);
+        }
+
+        // Traza en la bitácora (0 h consumidas: es una recarga del pool, no consumo).
+        $nota = trim((string) ($validated['nota'] ?? ''));
+        $internal_project->bolsaMovimientos()->create([
+            'fecha' => now()->toDateString(),
+            'tema' => 'Recarga de horas',
+            'descripcion' => '➕ +'.$fmt($horas).' h — nuevo total: '.$fmt($internal_project->horas_totales).' h'.($nota !== '' ? ' · '.$nota : ''),
+            'horas' => 0,
+        ]);
+
+        return back()->with('success', 'Recarga aplicada: se sumaron '.$fmt($horas).' h a la bolsa (nuevo total: '.$fmt($internal_project->horas_totales).' h).');
     }
 
     public function updateMovimiento(Request $request, InternalProject $internal_project, BolsaMovimiento $movimiento)

@@ -259,6 +259,7 @@ Route::middleware('auth')->group(function () {
     Route::post('internal-projects/{internal_project}/movimientos/import', [App\Http\Controllers\Admin\InternalProjectController::class, 'importMovimientos'])->name('admin.internal-projects.movimientos.import');
     Route::post('internal-projects/{internal_project}/movimientos/bulk-destroy', [App\Http\Controllers\Admin\InternalProjectController::class, 'bulkDestroyMovimientos'])->name('admin.internal-projects.movimientos.bulk-destroy');
     Route::post('internal-projects/{internal_project}/movimientos', [App\Http\Controllers\Admin\InternalProjectController::class, 'storeMovimiento'])->name('admin.internal-projects.movimientos.store');
+    Route::post('internal-projects/{internal_project}/bolsa/recargar', [App\Http\Controllers\Admin\InternalProjectController::class, 'recargarBolsa'])->name('admin.internal-projects.bolsa.recargar');
     Route::put('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'updateMovimiento'])->name('admin.internal-projects.movimientos.update');
     Route::delete('internal-projects/{internal_project}/movimientos/{movimiento}', [App\Http\Controllers\Admin\InternalProjectController::class, 'destroyMovimiento'])->name('admin.internal-projects.movimientos.destroy');
     Route::get('internal-projects/{internal_project}/cuenta-cobro', [App\Http\Controllers\Admin\InternalProjectController::class, 'cuentaCobro'])->name('admin.internal-projects.cuenta-cobro');

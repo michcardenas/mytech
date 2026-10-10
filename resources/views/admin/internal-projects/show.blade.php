@@ -539,6 +539,19 @@
                 @endif
             </div>
 
+            <div class="add-form-card" style="margin-top:1rem; border-color: rgba(124,58,237,0.3); background: linear-gradient(135deg, rgba(124,58,237,0.06) 0%, rgba(124,58,237,0.01) 100%);">
+                <h4><i class="fas fa-plus-circle" style="color:#7C3AED;"></i> Recargar horas <span style="font-weight:500; color:#888; font-size:0.8rem;">(suma al total contratado)</span></h4>
+                <p style="font-size:0.76rem; color:#888; margin:-0.5rem 0 0.85rem; line-height:1.5;">Agrega horas nuevas al pool de la bolsa (ej. una recarga mensual o una nueva compra). Suben las horas <strong>contratadas</strong> y <strong>restantes</strong>; no cuenta como consumo.</p>
+                <form action="{{ route('admin.internal-projects.bolsa.recargar', $project) }}" method="POST">
+                    @csrf
+                    <div class="add-row">
+                        <div class="add-field"><label>Horas a recargar *</label><input type="number" name="horas" step="0.5" min="0.5" required placeholder="Ej: 10"></div>
+                        <div class="add-field" style="grid-column: span 2;"><label>Nota (opcional)</label><input type="text" name="nota" placeholder="Ej: recarga mensual, nueva compra..."></div>
+                        <div class="add-field"><button type="submit" class="btn-add" style="background:#7C3AED; box-shadow:0 3px 10px rgba(124,58,237,0.25);"><i class="fas fa-plus"></i> Sumar horas</button></div>
+                    </div>
+                </form>
+            </div>
+
             @if(!empty($project->puntos_acuerdo))
                 <div style="font-size:0.78rem; font-weight:700; color:#777; text-transform:uppercase; letter-spacing:0.3px; margin:0.5rem 0 0.6rem;"><i class="fas fa-list-check"></i> Puntos acordados</div>
                 <ul class="item-list">

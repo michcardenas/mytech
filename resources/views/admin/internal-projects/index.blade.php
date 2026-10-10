@@ -107,6 +107,20 @@
         .pd-table { min-width:920px; }
     }
 
+    /* Bolsas de horas (soporte) */
+    .pd-bolsas { margin-top:1.75rem; }
+    .pd-bolsas-head { display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap; margin-bottom:.75rem; }
+    .pd-bolsas-head h2 { font-size:1.05rem; font-weight:800; color:#0F172A; margin:0; display:flex; align-items:center; gap:.5rem; }
+    .pd-bolsas-head h2 i { color:#7C3AED; }
+    .pd-bolsas-tag { font-size:.66rem; text-transform:uppercase; letter-spacing:.05em; background:#EDE9FE; color:#6D28D9; padding:.2rem .5rem; border-radius:6px; font-weight:700; }
+    .pd-hbar { display:inline-block; width:90px; height:7px; background:#E5E7EB; border-radius:999px; overflow:hidden; vertical-align:middle; margin-right:.45rem; }
+    .pd-hbar-fill { display:block; height:100%; border-radius:999px; }
+    .pd-hbar-fill.ok { background:#16A34A; }
+    .pd-hbar-fill.warn { background:#F59E0B; }
+    .pd-hbar-fill.danger { background:#DC2626; }
+    .pd-hbar-pct { font-size:.78rem; color:#64748B; font-weight:600; }
+    .pd-action-btn.recarga:hover { border-color:#7C3AED; color:#7C3AED; background:#EDE9FE; }
+
     /* Dev cards */
     .pd-devs { display:flex; flex-direction:column; gap:1.1rem; }
     .pd-dev { background:#fff; border:1px solid #E5E7EB; border-radius:14px; overflow:hidden; box-shadow:0 1px 2px rgba(15,23,42,.03); }
@@ -702,6 +716,68 @@
     })();
     </script>
     @endif
+
+    @if($bolsas->isNotEmpty())
+    <div class="pd-bolsas">
+        <div class="pd-bolsas-head">
+            <h2><i class="fas fa-headset"></i> Bolsas de horas <span class="pd-bolsas-tag">Soporte</span></h2>
+            <span class="pd-result-count">{{ $bolsas->count() }} bolsa{{ $bolsas->count() === 1 ? '' : 's' }}</span>
+        </div>
+        <div class="pd-table-wrap">
+            <table class="pd-table">
+                <thead>
+                    <tr>
+                        <th>Cliente / Proyecto</th>
+                        <th>Desarrollador</th>
+                        <th class="r">Contratadas</th>
+                        <th class="r">Consumidas</th>
+                        <th class="r">Restantes</th>
+                        <th>Uso</th>
+                        <th>Estado</th>
+                        <th class="r">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($bolsas as $b)
+                        @php
+                            $consumidas = $b->horas_consumidas;
+                            $restantes = $b->horas_restantes;
+                            $pct = $b->porcentaje_horas;
+                            $barClass = $pct >= 80 ? 'danger' : ($pct >= 50 ? 'warn' : 'ok');
+                            $fmtH = fn ($h) => rtrim(rtrim(number_format((float) $h, 2, ',', '.'), '0'), ',');
+                        @endphp
+                        <tr>
+                            <td class="name">
+                                <a href="{{ route('admin.internal-projects.show', $b) }}">{{ $b->nombre }}</a>
+                                <div class="pd-proj-client">{{ $b->cliente_nombre ?: 'Sin cliente' }}</div>
+                            </td>
+                            <td>{{ $b->desarrollador_nombre ?: '—' }}</td>
+                            <td class="r">{{ $fmtH($b->horas_totales) }} h</td>
+                            <td class="r">{{ $fmtH($consumidas) }} h</td>
+                            <td class="r"><strong class="{{ $restantes <= 0 ? 'pd-cell-deuda' : 'pd-cell-cobrar' }}">{{ $fmtH($restantes) }} h</strong></td>
+                            <td>
+                                <span class="pd-hbar"><span class="pd-hbar-fill {{ $barClass }}" style="width:{{ $pct }}%"></span></span>
+                                <span class="pd-hbar-pct">{{ $pct }}%</span>
+                            </td>
+                            <td><span class="pd-estado {{ $b->estado }}"><span class="dot"></span>{{ $b->estado_label }}</span></td>
+                            <td class="r">
+                                <button type="button" class="pd-action-btn recarga js-open-recarga"
+                                    title="Recargar horas"
+                                    data-project-name="{{ $b->nombre }}"
+                                    data-totales="{{ $b->horas_totales }}"
+                                    data-restantes="{{ $restantes }}"
+                                    data-action="{{ route('admin.internal-projects.bolsa.recargar', $b) }}"
+                                ><i class="fas fa-plus"></i></button>
+                                <a href="{{ route('admin.internal-projects.show', $b) }}" class="pd-action-btn view" title="Ver detalle"><i class="fas fa-eye"></i></a>
+                                <a href="{{ route('admin.internal-projects.edit', $b) }}" class="pd-action-btn edit" title="Editar"><i class="fas fa-pen"></i></a>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @endif
 </div>
 
 @endsection
@@ -815,6 +891,66 @@
             submitBtn.className = 'btn ' + (isClient ? 'btn-success' : 'btn-primary');
 
             setTimeout(() => montoEl.focus(), 200);
+            modal.show();
+        });
+    });
+})();
+</script>
+
+{{-- Modal de recarga de horas (bolsas) --}}
+<div class="modal fade" id="recargaModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <form method="POST" id="recargaForm" class="modal-content">
+            @csrf
+            <div class="modal-header">
+                <h5 class="modal-title"><i class="fas fa-plus-circle me-2" style="color:#7C3AED;"></i> Recargar horas</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <p class="text-muted mb-3" style="font-size:.85rem;">
+                    Bolsa: <strong id="recargaProject">—</strong><br>
+                    <span id="recargaInfo" style="color:#7C3AED; font-size:.8rem;"></span>
+                </p>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Horas a recargar</label>
+                        <input type="number" name="horas" step="0.5" min="0.5" class="form-control" id="recargaHoras" placeholder="Ej: 10" required>
+                        <div class="form-text">Se suman a las horas ya contratadas de la bolsa.</div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Nota <span class="text-muted">(opcional)</span></label>
+                        <input type="text" name="nota" class="form-control" placeholder="Ej: recarga mensual, bono, nueva compra...">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-light" data-bs-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-primary" style="background:#7C3AED; border:none;"><i class="fas fa-plus"></i> Sumar horas</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const modalEl = document.getElementById('recargaModal');
+    if (! modalEl || typeof bootstrap === 'undefined') { return; }
+
+    const modal = new bootstrap.Modal(modalEl);
+    const form = document.getElementById('recargaForm');
+    const projName = document.getElementById('recargaProject');
+    const info = document.getElementById('recargaInfo');
+    const horasEl = document.getElementById('recargaHoras');
+
+    document.querySelectorAll('.js-open-recarga').forEach(btn => {
+        btn.addEventListener('click', () => {
+            form.action = btn.dataset.action;
+            projName.textContent = btn.dataset.projectName;
+            const tot = parseFloat(btn.dataset.totales || 0);
+            const rest = parseFloat(btn.dataset.restantes || 0);
+            info.textContent = 'Contratadas: ' + tot + ' h · Restantes: ' + rest + ' h';
+            horasEl.value = '';
+            setTimeout(() => horasEl.focus(), 200);
             modal.show();
         });
     });
