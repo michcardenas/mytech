@@ -1191,6 +1191,10 @@ class InternalProjectController extends Controller
 
         $this->guardarDocumentosAdjuntos($request, $project);
 
+        if ($project->developer_id) {
+            app(\App\Services\DevNotifier::class)->proyectoAsignado($project);
+        }
+
         return redirect()->route('admin.internal-projects.show', $project)
             ->with('success', 'Proyecto creado exitosamente.');
     }
@@ -1728,9 +1732,16 @@ class InternalProjectController extends Controller
 
         $validated = $this->aplicarDatosBolsa($validated, $request);
 
+        $devAnterior = $internal_project->developer_id;
+
         $internal_project->update($validated);
 
         $this->guardarDocumentosAdjuntos($request, $internal_project);
+
+        // Solo avisa si se asignó un dev nuevo o se cambió (no en cada edición).
+        if ($internal_project->developer_id && $internal_project->developer_id !== $devAnterior) {
+            app(\App\Services\DevNotifier::class)->proyectoAsignado($internal_project);
+        }
 
         return redirect()->route('admin.internal-projects.show', $internal_project)
             ->with('success', 'Proyecto actualizado exitosamente.');

@@ -27,7 +27,7 @@ trait BoardTasks
 
         $columna = $data['columna'] ?? 'por_hacer';
 
-        $project->tasks()->create([
+        $task = $project->tasks()->create([
             'titulo' => $data['titulo'],
             'descripcion' => $data['descripcion'] ?? null,
             'columna' => $columna,
@@ -37,6 +37,10 @@ trait BoardTasks
             'orden' => (int) $project->tasks()->where('columna', $columna)->max('orden') + 1,
             'created_by' => $createdBy,
         ]);
+
+        if ($task->developer_id) {
+            app(\App\Services\DevNotifier::class)->tareaAsignada($task);
+        }
     }
 
     protected function actualizarTarea(Request $request, ProjectTask $task): void
@@ -49,6 +53,8 @@ trait BoardTasks
             'fecha_limite' => 'nullable|date',
         ]);
 
+        $devAnterior = $task->developer_id;
+
         $task->update([
             'titulo' => $data['titulo'],
             'descripcion' => $data['descripcion'] ?? null,
@@ -56,6 +62,11 @@ trait BoardTasks
             'developer_id' => $data['developer_id'] ?? null,
             'fecha_limite' => $data['fecha_limite'] ?? null,
         ]);
+
+        // Solo avisa si se asignó un dev nuevo o se cambió.
+        if ($task->developer_id && $task->developer_id !== $devAnterior) {
+            app(\App\Services\DevNotifier::class)->tareaAsignada($task);
+        }
     }
 
     protected function guardarSubtarea(Request $request, ProjectTask $task): void
