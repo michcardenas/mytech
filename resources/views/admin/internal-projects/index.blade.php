@@ -314,7 +314,12 @@
         @endif
     </div>
 
-    @php $filtrosActivos = collect($filtros)->filter(fn ($v) => $v !== '' && $v !== null)->isNotEmpty(); @endphp
+    @php
+        // El estado 'en_progreso' es el default: no cuenta como filtro activo.
+        $filtrosActivos = collect($filtros)
+            ->filter(fn ($v, $k) => $v !== '' && $v !== null && ! ($k === 'estado' && $v === 'en_progreso'))
+            ->isNotEmpty();
+    @endphp
 
     <div class="pd-toolbar">
         <div class="pd-viewtoggle">

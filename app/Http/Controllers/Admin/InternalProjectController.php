@@ -570,8 +570,11 @@ class InternalProjectController extends Controller
             $query->where('id', $request->proyecto_id);
         }
 
-        if ($request->filled('estado')) {
-            $query->where('estado', $request->estado);
+        // Por defecto (primera carga, sin el parámetro) se muestra "En progreso".
+        // Si el usuario elige "Todos", el form envía estado='' y se respeta.
+        $estadoFiltro = $request->has('estado') ? (string) $request->get('estado') : 'en_progreso';
+        if ($estadoFiltro !== '') {
+            $query->where('estado', $estadoFiltro);
         }
 
         if ($request->filled('entrega_desde')) {
@@ -587,6 +590,9 @@ class InternalProjectController extends Controller
             ->orderByRaw('fecha_entrega IS NULL, fecha_entrega ASC')
             ->orderBy('created_at', 'desc')
             ->get();
+
+        // IDs de TODOS los proyectos que pasan el filtro (incluye bolsas): para escopar los KPIs del mes.
+        $idsFiltrados = $projects->pluck('id')->all();
 
         // Las bolsas de horas (soporte) se listan aparte; el resto va en la lista principal.
         $bolsas = $projects->filter(fn ($p) => $p->es_bolsa_horas)->values();
@@ -666,6 +672,7 @@ class InternalProjectController extends Controller
 
         $cobradoMes = ProjectPayment::with('project:id,moneda')
             ->whereBetween('fecha', [$ini, $fin])
+            ->whereIn('internal_project_id', $idsFiltrados)
             ->get()
             ->sum(function ($p) use ($usdCop) {
                 if ($p->monto_recibido_cop) {
@@ -677,6 +684,7 @@ class InternalProjectController extends Controller
             });
 
         $pagadoDevMes = DeveloperPayment::whereBetween('fecha', [$ini, $fin])
+            ->whereIn('internal_project_id', $idsFiltrados)
             ->get()
             ->sum(fn ($p) => ($p->moneda ?? 'COP') === 'USD' ? (float) $p->monto * $usdCop : (float) $p->monto);
 
@@ -742,7 +750,7 @@ class InternalProjectController extends Controller
             'desarrollador' => $request->get('desarrollador', ''),
             'cliente' => $request->get('cliente', ''),
             'proyecto_id' => $request->get('proyecto_id', ''),
-            'estado' => $request->get('estado', ''),
+            'estado' => $estadoFiltro,
             'entrega_desde' => $request->get('entrega_desde', ''),
             'entrega_hasta' => $request->get('entrega_hasta', ''),
         ];
