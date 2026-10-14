@@ -1,9 +1,16 @@
 @php
-    $esTarea = $tipo === 'tarea';
-    $kicker = $esTarea ? 'Nueva tarea asignada' : 'Nuevo proyecto asignado';
-    $intro = $esTarea
-        ? 'Se te ha asignado una nueva tarea en el tablero. Estos son los detalles:'
-        : 'Se te ha asignado un nuevo proyecto. Estos son los detalles:';
+    $esTarea = in_array($tipo, ['tarea', 'tareas']);
+    $kicker = match ($tipo) {
+        'tarea' => 'Nueva tarea asignada',
+        'tareas' => 'Nuevas tareas asignadas',
+        default => 'Nuevo proyecto asignado',
+    };
+    $intro = match ($tipo) {
+        'tarea' => 'Se te ha asignado una nueva tarea en el tablero. Estos son los detalles:',
+        'tareas' => 'Se te han asignado nuevas tareas en el tablero. Este es el resumen:',
+        default => 'Se te ha asignado un nuevo proyecto. Estos son los detalles:',
+    };
+    $etiquetaItem = $tipo === 'tareas' ? 'Tareas' : ($esTarea ? 'Tarea' : 'Proyecto');
 @endphp
 <!DOCTYPE html>
 <html lang="es">
@@ -33,7 +40,7 @@
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#F8FAFC; border:1px solid #E2E8F0; border-radius:10px; margin-bottom:20px;">
                                 <tr>
                                     <td style="padding:16px 18px;">
-                                        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#94A3B8; font-weight:bold;">{{ $esTarea ? 'Tarea' : 'Proyecto' }}</div>
+                                        <div style="font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:#94A3B8; font-weight:bold;">{{ $etiquetaItem }}</div>
                                         <div style="font-size:16px; font-weight:bold; color:#0F172A; margin-top:3px;">{{ $titulo }}</div>
                                     </td>
                                 </tr>

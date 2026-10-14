@@ -65,6 +65,33 @@ class DevNotifier
         ));
     }
 
+    /**
+     * Aviso único cuando se asignan varias tareas de golpe (carga por API).
+     *
+     * @param  array<int, string>  $titulos
+     */
+    public function tareasAsignadasLote(Developer $dev, InternalProject $project, array $titulos): void
+    {
+        if (! $dev->email || empty($titulos)) {
+            return;
+        }
+
+        $n = count($titulos);
+        $detalles = array_filter([
+            'Proyecto' => $project->nombre,
+            'Cantidad' => $n.' tarea'.($n === 1 ? '' : 's'),
+            'Detalle' => implode(' · ', array_slice($titulos, 0, 8)).($n > 8 ? ' …' : ''),
+        ]);
+
+        $this->enviar($dev->email, new AsignacionDevMail(
+            devNombre: $dev->nombre,
+            tipo: 'tareas',
+            titulo: $n.' tarea'.($n === 1 ? '' : 's').' en '.$project->nombre,
+            detalles: $detalles,
+            url: $this->portalUrl(),
+        ));
+    }
+
     private function portalUrl(): ?string
     {
         try {

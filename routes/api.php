@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\ClientApiController;
 use App\Http\Controllers\Api\DeveloperApiController;
 use App\Http\Controllers\Api\InternalProjectApiController;
 use App\Http\Controllers\Api\ProyectoApiController;
+use App\Http\Controllers\Api\TaskApiController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -40,4 +41,14 @@ Route::middleware('api.key')->group(function () {
     Route::get('developers/{id}', [DeveloperApiController::class, 'show'])->whereNumber('id');
     Route::match(['put', 'patch'], 'developers/{id}', [DeveloperApiController::class, 'update'])->whereNumber('id');
     Route::delete('developers/{id}', [DeveloperApiController::class, 'destroy'])->whereNumber('id');
+
+    // Tareas del tablero sobre proyectos existentes
+    Route::get('internal-projects/{id}/tasks', [TaskApiController::class, 'index'])->whereNumber('id');
+    Route::post('internal-projects/{id}/tasks', [TaskApiController::class, 'store'])->whereNumber('id');
+    Route::get('project-tasks/{id}', [TaskApiController::class, 'show'])->whereNumber('id');
+    Route::match(['put', 'patch'], 'project-tasks/{id}', [TaskApiController::class, 'update'])->whereNumber('id');
+    Route::delete('project-tasks/{id}', [TaskApiController::class, 'destroy'])->whereNumber('id');
+    Route::post('project-tasks/{id}/subtasks', [TaskApiController::class, 'storeSubtask'])->whereNumber('id');
+    Route::match(['put', 'patch'], 'project-subtasks/{id}', [TaskApiController::class, 'updateSubtask'])->whereNumber('id');
+    Route::delete('project-subtasks/{id}', [TaskApiController::class, 'destroySubtask'])->whereNumber('id');
 });

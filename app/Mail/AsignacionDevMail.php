@@ -23,9 +23,11 @@ class AsignacionDevMail extends Mailable
 
     public function build(): self
     {
-        $asunto = $this->tipo === 'tarea'
-            ? 'Nueva tarea asignada: '.$this->titulo
-            : 'Nuevo proyecto asignado: '.$this->titulo;
+        $asunto = match ($this->tipo) {
+            'tarea' => 'Nueva tarea asignada: '.$this->titulo,
+            'tareas' => 'Nuevas tareas asignadas: '.$this->titulo,
+            default => 'Nuevo proyecto asignado: '.$this->titulo,
+        };
 
         return $this->subject($asunto)->view('emails.asignacion');
     }
