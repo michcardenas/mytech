@@ -381,12 +381,30 @@ class PortalDeveloperController extends Controller
 
         $project->load(['equipo', 'files', 'tasks.developer', 'tasks.subtasks.developer', 'tasks.files', 'tasks.comments']);
 
+        // Por defecto el dev ve SOLO las tareas asignadas a el (propias o con una
+        // subtarea suya). Con ?mias=0 ve todas las del proyecto.
+        $soloMias = $request->boolean('mias', true);
+
+        $tareas = $project->tasks;
+        if ($soloMias) {
+            $tareas = $tareas->filter(function (ProjectTask $t) use ($dev) {
+                return (int) $t->developer_id === $dev->id
+                    || $t->subtasks->contains(fn ($s) => (int) $s->developer_id === $dev->id);
+            })->values();
+        }
+
         return view('portal.developer-board', [
             'project' => $project,
             'developer' => $dev,
             'columnas' => ProjectTask::COLUMNAS,
             'prioridades' => ProjectTask::PRIORIDADES,
-            'tareasPorColumna' => $project->tasks->groupBy('columna'),
+            'tareasPorColumna' => $tareas->groupBy('columna'),
+            'soloMias' => $soloMias,
+            'totalProyecto' => $project->tasks->count(),
+            'totalMias' => $project->tasks->filter(function (ProjectTask $t) use ($dev) {
+                return (int) $t->developer_id === $dev->id
+                    || $t->subtasks->contains(fn ($s) => (int) $s->developer_id === $dev->id);
+            })->count(),
             'equipo' => $project->equipo,
             'documentos' => $project->files,
             'esAdmin' => false,

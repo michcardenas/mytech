@@ -20,6 +20,9 @@
         .h-btn { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.5rem 0.9rem; border-radius: 10px; font-weight: 700; font-size: 0.8rem; text-decoration: none; border: none; cursor: pointer; }
         .h-btn-ghost { background: #f1f5f9; color: #475569; }
         .h-btn-ghost:hover { background: #e2e8f0; }
+        .h-btn-on { background: var(--grad); color: #fff; box-shadow: 0 3px 10px rgba(124,58,237,0.3); }
+        .h-filter { display: inline-flex; gap: 0.3rem; background: #f1f5f9; padding: 0.2rem; border-radius: 12px; }
+        .h-filter .h-btn { padding: 0.4rem 0.75rem; }
         .team-line { font-size: 0.8rem; color: #64748b; margin-bottom: 1rem; padding: 0 0.25rem; }
         .team-line b { color: #334155; }
     </style>
@@ -36,7 +39,17 @@
             </div>
             <div class="head-actions">
                 <a href="{{ route('portal.developer.dashboard') }}" class="h-btn h-btn-ghost"><i class="fas fa-arrow-left"></i> Mis proyectos</a>
-                <a href="{{ route('portal.developer.board-global') }}" class="h-btn h-btn-ghost"><i class="fas fa-layer-group"></i> Mis tareas</a>
+                <div class="h-filter">
+                    <a href="{{ route('portal.developer.board', [$project->id, 'mias' => 1]) }}"
+                       class="h-btn {{ $soloMias ? 'h-btn-on' : 'h-btn-ghost' }}">
+                        <i class="fas fa-user-check"></i> Mías ({{ $totalMias }})
+                    </a>
+                    <a href="{{ route('portal.developer.board', [$project->id, 'mias' => 0]) }}"
+                       class="h-btn {{ $soloMias ? 'h-btn-ghost' : 'h-btn-on' }}">
+                        <i class="fas fa-layer-group"></i> Todas ({{ $totalProyecto }})
+                    </a>
+                </div>
+                <a href="{{ route('portal.developer.board-global') }}" class="h-btn h-btn-ghost"><i class="fas fa-table-list"></i> Tablero general</a>
                 <form action="{{ route('portal.developer.logout') }}" method="POST" style="margin:0;">
                     @csrf
                     <button type="submit" class="h-btn h-btn-ghost"><i class="fas fa-sign-out-alt"></i> Salir</button>
