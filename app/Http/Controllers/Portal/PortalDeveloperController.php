@@ -274,10 +274,64 @@ class PortalDeveloperController extends Controller
             ->orderBy('nombre')
             ->get(['id', 'nombre', 'cliente_nombre']);
 
+        // === TAREAS DEL DEV (para la pestaña "Mis tareas") ===
+        $hoyIni = now()->startOfDay();
+        $hoyFin = now()->endOfDay();
+        $finSemana = now()->copy()->endOfWeek();
+
+        $misTareas = ProjectTask::with(['project:id,nombre,cliente_nombre', 'subtasks'])
+            ->forDeveloper($developer->id)
+            ->get();
+
+        $pendientesCol = $misTareas->where('columna', '!=', 'hecho');
+
+        $tareaStats = [
+            'por_hacer' => $misTareas->where('columna', 'por_hacer')->count(),
+            'en_progreso' => $misTareas->where('columna', 'en_progreso')->count(),
+            'en_revision' => $misTareas->where('columna', 'en_revision')->count(),
+            'hechas' => $misTareas->where('columna', 'hecho')->count(),
+            'total' => $misTareas->count(),
+            'pendientes' => $pendientesCol->count(),
+            'hoy' => $pendientesCol->filter(fn ($t) => $t->fecha_limite && $t->fecha_limite->betweenIncluded($hoyIni, $hoyFin))->count(),
+            'vencidas' => $pendientesCol->filter(fn ($t) => $t->fecha_limite && $t->fecha_limite->lt($hoyIni))->count(),
+            'semana' => $pendientesCol->filter(fn ($t) => $t->fecha_limite && $t->fecha_limite->gt($hoyFin) && $t->fecha_limite->lte($finSemana))->count(),
+            'sin_fecha' => $pendientesCol->filter(fn ($t) => ! $t->fecha_limite)->count(),
+        ];
+
+        // Lista "foco": vencidas + hoy (orden por fecha asc), hasta 12
+        $tareasFoco = $pendientesCol
+            ->filter(fn ($t) => $t->fecha_limite && $t->fecha_limite->lte($hoyFin))
+            ->sortBy(fn ($t) => $t->fecha_limite->timestamp)
+            ->take(12)
+            ->values();
+
+        // Info de tareas por tablero (enriquece las tarjetas de "Tus tableros")
+        $tareasPorProyecto = $misTareas->groupBy('internal_project_id');
+        $boardsInfo = $boards->map(function ($b) use ($tareasPorProyecto, $hoyIni) {
+            $ts = $tareasPorProyecto->get($b->id, collect());
+            $pend = $ts->where('columna', '!=', 'hecho');
+            $total = $ts->count();
+            $hechas = $ts->where('columna', 'hecho')->count();
+            $prox = $pend->pluck('fecha_limite')->filter()->min();
+
+            return (object) [
+                'id' => $b->id,
+                'nombre' => $b->nombre,
+                'cliente_nombre' => $b->cliente_nombre,
+                'pendientes' => $pend->count(),
+                'vencidas' => $pend->filter(fn ($t) => $t->fecha_limite && $t->fecha_limite->lt($hoyIni))->count(),
+                'total' => $total,
+                'hechas' => $hechas,
+                'pct' => $total > 0 ? (int) round(($hechas / $total) * 100) : 0,
+                'proxima' => $prox,
+            ];
+        })->sortByDesc(fn ($x) => $x->vencidas * 100000 + $x->pendientes)->values();
+
         return view('portal.developer-dashboard', compact(
             'developer', 'kpis', 'selectedMonth', 'isCurrentMonth',
             'resumenRecurrentes', 'resumenOneShot', 'monthPayments',
-            'historico', 'maxHistorico', 'paymentsAgrupados', 'boards'
+            'historico', 'maxHistorico', 'paymentsAgrupados', 'boards',
+            'tareaStats', 'tareasFoco', 'boardsInfo'
         ));
     }
 

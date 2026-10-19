@@ -176,8 +176,64 @@
         .empty i { display: block; font-size: 2.2rem; color: #cbd5e1; margin-bottom: 0.6rem; }
         .empty p { font-size: 0.9rem; }
 
+        /* === TABS === */
+        .tabs { display:flex; gap:0.4rem; background:white; padding:0.4rem; border-radius:14px; box-shadow:var(--shadow); margin-bottom:1.25rem; }
+        .tab-btn { flex:1; display:inline-flex; align-items:center; justify-content:center; gap:0.5rem; padding:0.75rem 1rem; border:none; background:transparent; color:#64748b; font-weight:800; font-size:0.9rem; border-radius:10px; cursor:pointer; transition:all 0.2s; }
+        .tab-btn i { font-size:0.9rem; }
+        .tab-btn .tab-count { font-size:0.7rem; background:#e2e8f0; color:#475569; padding:0.1rem 0.45rem; border-radius:999px; font-weight:800; }
+        .tab-btn.active { background:var(--grad); color:white; box-shadow:0 4px 14px rgba(124,58,237,0.3); }
+        .tab-btn.active .tab-count { background:rgba(255,255,255,0.25); color:white; }
+        .tab-btn.alert .tab-count { background:#fee2e2; color:#dc2626; }
+        .tab-btn.active.alert .tab-count { background:rgba(255,255,255,0.3); color:white; }
+        .tab-pane { display:none; }
+        .tab-pane.active { display:block; animation: fadeIn 0.25s ease; }
+        @keyframes fadeIn { from { opacity:0; transform:translateY(6px);} to { opacity:1; transform:none;} }
+
+        /* === MI DÍA === */
+        .day-hero { display:grid; grid-template-columns:repeat(3,1fr); gap:0.85rem; margin-bottom:1.25rem; }
+        .day-card { background:white; border-radius:16px; padding:1.3rem 1.1rem; box-shadow:var(--shadow); text-align:center; border-top:3px solid var(--purple); }
+        .day-card.red { border-top-color:#dc2626; }
+        .day-card.amber { border-top-color:#f59e0b; }
+        .day-card-num { font-size:2.4rem; font-weight:800; line-height:1; color:#0f172a; letter-spacing:-0.02em; }
+        .day-card.red .day-card-num { color:#dc2626; }
+        .day-card.amber .day-card-num { color:#d97706; }
+        .day-card-label { font-size:0.76rem; color:#64748b; font-weight:700; margin-top:0.45rem; text-transform:uppercase; letter-spacing:0.03em; }
+        .day-card-label i { margin-right:0.3rem; }
+
+        /* === FOCO (hoy/vencidas) === */
+        .foco-item { display:flex; align-items:center; gap:0.75rem; padding:0.8rem 0.4rem; border-bottom:1px solid #f1f3f5; text-decoration:none; }
+        .foco-item:last-child { border-bottom:none; }
+        .foco-item:hover { background:#fafbfc; }
+        .foco-body { flex:1; min-width:0; }
+        .foco-title { font-size:0.9rem; font-weight:700; color:#0f172a; line-height:1.25; }
+        .foco-meta { font-size:0.74rem; color:#94a3b8; margin-top:0.15rem; }
+        .due-badge { font-size:0.7rem; font-weight:800; padding:0.25rem 0.6rem; border-radius:999px; white-space:nowrap; }
+        .due-badge.late { background:#fee2e2; color:#dc2626; }
+        .due-badge.today { background:#fef3c7; color:#b45309; }
+        .prio-dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+        .prio-dot.alta { background:#dc2626; } .prio-dot.media { background:#2563eb; } .prio-dot.baja { background:#94a3b8; }
+
+        /* === TARJETAS DE TABLERO CON TAREAS === */
+        .board-card { display:flex; flex-direction:column; gap:0.5rem; padding:1rem 1.1rem; background:#fafbfc; border:1px solid #f1f3f5; border-left:3px solid var(--purple); border-radius:12px; text-decoration:none; transition:all 0.2s; }
+        .board-card:hover { transform:translateY(-2px); box-shadow:0 6px 18px rgba(124,58,237,0.08); border-color:rgba(124,58,237,0.2); }
+        .board-card.has-late { border-left-color:#dc2626; }
+        .board-card-name { font-size:0.95rem; font-weight:800; color:#0f172a; line-height:1.2; }
+        .board-card-cli { font-size:0.74rem; color:#94a3b8; }
+        .board-chips { display:flex; gap:0.4rem; flex-wrap:wrap; margin-top:0.1rem; }
+        .board-chip { font-size:0.7rem; font-weight:800; padding:0.18rem 0.55rem; border-radius:999px; background:#eef2ff; color:#4f46e5; }
+        .board-chip.late { background:#fee2e2; color:#dc2626; }
+        .board-chip.done { background:#dcfce7; color:#166534; }
+        .board-mini-bar { height:5px; background:#e2e8f0; border-radius:3px; overflow:hidden; margin-top:0.15rem; }
+        .board-mini-bar > span { display:block; height:100%; background:var(--grad); border-radius:3px; }
+        .board-card-foot { display:flex; justify-content:space-between; align-items:center; font-size:0.72rem; color:#94a3b8; font-weight:700; margin-top:0.1rem; }
+
         /* === RESPONSIVE === */
         @media (max-width: 768px) {
+            .day-hero { gap:0.5rem; }
+            .day-card { padding:1rem 0.6rem; }
+            .day-card-num { font-size:1.9rem; }
+            .day-card-label { font-size:0.66rem; }
+            .tab-btn { font-size:0.82rem; padding:0.65rem 0.5rem; }
             .wrap { padding: 1rem; }
             .month-hero { padding: 1.5rem 1.4rem; }
             .month-hero-amount { font-size: 2.4rem; }
@@ -222,6 +278,104 @@
         </form>
     </div>
 
+    {{-- ===== TABS ===== --}}
+    <div class="tabs">
+        <button type="button" class="tab-btn {{ ($tareaStats['vencidas'] + $tareaStats['hoy']) > 0 ? 'alert' : '' }}" data-tab="tareas">
+            <i class="fas fa-list-check"></i> Mis tareas
+            @if($tareaStats['pendientes'] > 0)<span class="tab-count">{{ $tareaStats['pendientes'] }}</span>@endif
+        </button>
+        <button type="button" class="tab-btn" data-tab="pagos">
+            <i class="fas fa-wallet"></i> Pagos
+        </button>
+    </div>
+
+    {{-- ================== TAB: MIS TAREAS ================== --}}
+    <div id="tab-tareas" class="tab-pane">
+
+        {{-- Mi día --}}
+        <div class="day-hero">
+            <div class="day-card red">
+                <div class="day-card-num">{{ $tareaStats['vencidas'] }}</div>
+                <div class="day-card-label"><i class="fas fa-triangle-exclamation"></i> Vencidas</div>
+            </div>
+            <div class="day-card amber">
+                <div class="day-card-num">{{ $tareaStats['hoy'] }}</div>
+                <div class="day-card-label"><i class="fas fa-bolt"></i> Para hoy</div>
+            </div>
+            <div class="day-card">
+                <div class="day-card-num">{{ $tareaStats['semana'] }}</div>
+                <div class="day-card-label"><i class="fas fa-calendar-week"></i> Esta semana</div>
+            </div>
+        </div>
+
+        {{-- KPIs de tareas --}}
+        <div class="kpi-row">
+            <div class="kpi-mini"><div class="kpi-mini-label"><i class="fas fa-inbox"></i> Por hacer</div><div class="kpi-mini-value">{{ $tareaStats['por_hacer'] }}</div></div>
+            <div class="kpi-mini amber"><div class="kpi-mini-label"><i class="fas fa-spinner"></i> En progreso</div><div class="kpi-mini-value">{{ $tareaStats['en_progreso'] }}</div></div>
+            <div class="kpi-mini" style="border-left-color:#f59e0b;"><div class="kpi-mini-label"><i class="fas fa-magnifying-glass"></i> En revisión</div><div class="kpi-mini-value">{{ $tareaStats['en_revision'] }}</div></div>
+            <div class="kpi-mini green"><div class="kpi-mini-label"><i class="fas fa-check-double"></i> Completadas</div><div class="kpi-mini-value">{{ $tareaStats['hechas'] }}</div></div>
+        </div>
+
+        {{-- Foco: vencidas + hoy --}}
+        <div class="section">
+            <div class="section-head">
+                <h3><span class="icon-circle"><i class="fas fa-bullseye"></i></span> Para hoy y vencidas</h3>
+                <a href="{{ route('portal.developer.board-global') }}" style="color:var(--purple); font-weight:700; text-decoration:none; font-size:0.8rem;">Ver todas <i class="fas fa-arrow-right" style="font-size:0.7rem;"></i></a>
+            </div>
+            @forelse($tareasFoco as $t)
+                @php
+                    $venc = $t->fecha_limite->lt(now()->startOfDay());
+                    $dias = (int) now()->startOfDay()->diffInDays($t->fecha_limite->startOfDay(), false);
+                @endphp
+                <a href="{{ route('portal.developer.board', $t->internal_project_id) }}" class="foco-item">
+                    <span class="prio-dot {{ $t->prioridad }}"></span>
+                    <div class="foco-body">
+                        <div class="foco-title">{{ $t->titulo }}</div>
+                        <div class="foco-meta"><i class="fas fa-folder" style="font-size:0.65rem;"></i> {{ optional($t->project)->nombre }}</div>
+                    </div>
+                    <span class="due-badge {{ $venc ? 'late' : 'today' }}">{{ $venc ? 'Vencido '.abs($dias).'d' : 'Hoy' }}</span>
+                </a>
+            @empty
+                <div class="empty"><i class="fas fa-mug-hot"></i><p>Sin tareas vencidas ni para hoy. ¡Vas al día!</p></div>
+            @endforelse
+        </div>
+
+        {{-- Tus tableros con info de tareas --}}
+        @if($boardsInfo->count() > 0)
+        <div class="section">
+            <div class="section-head">
+                <h3><span class="icon-circle"><i class="fas fa-table-columns"></i></span> Tus tableros</h3>
+                <a href="{{ route('portal.developer.board-global') }}" style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; color:#fff; background:var(--purple); padding:0.45rem 0.85rem; border-radius:9px; text-decoration:none;"><i class="fas fa-layer-group"></i> Ver todas mis tareas</a>
+            </div>
+            <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(250px,1fr)); gap:0.75rem;">
+                @foreach($boardsInfo as $b)
+                    <a href="{{ route('portal.developer.board', $b->id) }}" class="board-card {{ $b->vencidas > 0 ? 'has-late' : '' }}">
+                        <div class="board-card-name">{{ $b->nombre }}</div>
+                        <div class="board-card-cli"><i class="fas fa-user" style="font-size:0.65rem;"></i> {{ $b->cliente_nombre }}</div>
+                        <div class="board-chips">
+                            @if($b->vencidas > 0)<span class="board-chip late"><i class="fas fa-triangle-exclamation"></i> {{ $b->vencidas }} vencida{{ $b->vencidas == 1 ? '' : 's' }}</span>@endif
+                            <span class="board-chip">{{ $b->pendientes }} pendiente{{ $b->pendientes == 1 ? '' : 's' }}</span>
+                            @if($b->total > 0 && $b->pct >= 100)<span class="board-chip done"><i class="fas fa-check"></i> Completo</span>@endif
+                        </div>
+                        @if($b->total > 0)
+                            <div class="board-mini-bar"><span style="width:{{ $b->pct }}%;"></span></div>
+                        @endif
+                        <div class="board-card-foot">
+                            <span>@if($b->proxima)<i class="fas fa-flag-checkered" style="font-size:0.65rem;"></i> {{ \Carbon\Carbon::parse($b->proxima)->format('d/m') }}@else sin fecha @endif</span>
+                            <span>{{ $b->total > 0 ? $b->pct.'%' : '—' }}</span>
+                        </div>
+                    </a>
+                @endforeach
+            </div>
+        </div>
+        @else
+        <div class="section"><div class="empty"><i class="fas fa-table-columns"></i><p>Aún no tienes tableros asignados.</p></div></div>
+        @endif
+    </div>
+
+    {{-- ================== TAB: PAGOS ================== --}}
+    <div id="tab-pagos" class="tab-pane">
+
     {{-- ===== HERO DEL MES ===== --}}
     <div class="month-hero">
         <span class="month-hero-tag">
@@ -242,7 +396,7 @@
     <div class="month-selector">
         <div class="month-selector-track">
             @foreach($historico as $mes)
-                <a href="{{ route('portal.developer.dashboard', ['mes' => $mes['key']]) }}"
+                <a href="{{ route('portal.developer.dashboard', ['mes' => $mes['key'], 'tab' => 'pagos']) }}"
                    class="month-chip {{ $mes['is_selected'] ? 'active' : '' }} {{ $mes['is_current'] ? 'current' : '' }}"
                    title="{{ $mes['label_full'] }}">
                     {{ $mes['label_short'] }}
@@ -275,25 +429,6 @@
             <div class="kpi-mini-sub">se renuevan cada mes</div>
         </div>
     </div>
-
-    {{-- ===== TUS TABLEROS (todos los proyectos donde estás asignado) ===== --}}
-    @if($boards->count() > 0)
-    <div class="section">
-        <div class="section-head">
-            <h3><i class="fas fa-table-columns" style="color:var(--purple);"></i> Tus tableros</h3>
-            <a href="{{ route('portal.developer.board-global') }}" style="display:inline-flex; align-items:center; gap:0.4rem; font-size:0.8rem; font-weight:700; color:#fff; background:var(--purple); padding:0.45rem 0.85rem; border-radius:9px; text-decoration:none;"><i class="fas fa-layer-group"></i> Ver todas mis tareas</a>
-        </div>
-        <div style="display:grid; grid-template-columns:repeat(auto-fill,minmax(240px,1fr)); gap:0.75rem;">
-            @foreach($boards as $b)
-                <a href="{{ route('portal.developer.board', $b->id) }}" style="display:flex; flex-direction:column; gap:0.35rem; padding:0.9rem 1rem; background:#fafbfc; border:1px solid #f1f3f5; border-left:3px solid var(--purple); border-radius:12px; text-decoration:none; transition:all .2s;">
-                    <span style="font-size:0.92rem; font-weight:800; color:#0f172a;">{{ $b->nombre }}</span>
-                    <span style="font-size:0.75rem; color:#94a3b8;"><i class="fas fa-user" style="font-size:0.65rem;"></i> {{ $b->cliente_nombre }}</span>
-                    <span style="font-size:0.78rem; font-weight:700; color:var(--purple); margin-top:0.2rem;"><i class="fas fa-arrow-right" style="font-size:0.7rem;"></i> Abrir tablero</span>
-                </a>
-            @endforeach
-        </div>
-    </div>
-    @endif
 
     {{-- ===== PROYECTOS RECURRENTES (en el mes seleccionado) ===== --}}
     @if($resumenRecurrentes->count() > 0)
@@ -437,7 +572,7 @@
         </div>
         <div class="history-bars">
             @foreach($historico as $mes)
-                <a href="{{ route('portal.developer.dashboard', ['mes' => $mes['key']]) }}"
+                <a href="{{ route('portal.developer.dashboard', ['mes' => $mes['key'], 'tab' => 'pagos']) }}"
                    class="history-bar-wrap {{ $mes['is_current'] ? 'is-current' : '' }} {{ $mes['is_selected'] ? 'is-selected' : '' }} {{ $mes['total'] > 0 ? 'has-data' : '' }}"
                    title="{{ $mes['label_full'] }}: {{ $fmtCop($mes['total']) }} ({{ $mes['count'] }} pagos)">
                     <span class="history-bar-amount">{{ $mes['total'] > 0 ? '$' . number_format($mes['total'] / 1000, 0) . 'k' : '' }}</span>
@@ -486,6 +621,26 @@
         @endforeach
     </div>
     @endif
+
+    </div>{{-- /#tab-pagos --}}
 </div>
+
+<script>
+(function () {
+    const btns = document.querySelectorAll('.tab-btn');
+    const panes = { tareas: document.getElementById('tab-tareas'), pagos: document.getElementById('tab-pagos') };
+    function activate(tab) {
+        if (! panes[tab]) { tab = 'tareas'; }
+        btns.forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+        Object.keys(panes).forEach(k => panes[k] && panes[k].classList.toggle('active', k === tab));
+        try { localStorage.setItem('devDashTab', tab); } catch (e) {}
+    }
+    btns.forEach(b => b.addEventListener('click', () => activate(b.dataset.tab)));
+    const urlTab = new URLSearchParams(location.search).get('tab');
+    let initial = urlTab || 'tareas';
+    if (! urlTab) { try { initial = localStorage.getItem('devDashTab') || 'tareas'; } catch (e) {} }
+    activate(initial);
+})();
+</script>
 </body>
 </html>
