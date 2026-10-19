@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Concerns\BoardFiles;
 use App\Http\Controllers\Controller;
 use App\Models\Developer;
 use App\Models\InternalProject;
 use App\Models\ProjectSubtask;
 use App\Models\ProjectTask;
+use App\Models\ProjectTaskFile;
 use App\Services\DevNotifier;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 
@@ -23,6 +26,8 @@ use Illuminate\Validation\Rule;
  */
 class TaskApiController extends Controller
 {
+    use BoardFiles;
+
     /** GET /api/internal-projects/{id}/tasks */
     public function index(string $id): JsonResponse
     {
@@ -104,7 +109,7 @@ class TaskApiController extends Controller
     /** GET /api/project-tasks/{id} */
     public function show(string $id): JsonResponse
     {
-        return response()->json(['data' => $this->present(ProjectTask::with('subtasks')->findOrFail($id))]);
+        return response()->json(['data' => $this->present(ProjectTask::with(['subtasks', 'files'])->findOrFail($id))]);
     }
 
     /** PUT/PATCH /api/project-tasks/{id} */
@@ -185,6 +190,50 @@ class TaskApiController extends Controller
         return response()->json(['message' => 'Subtarea eliminada.']);
     }
 
+    /** GET /api/project-tasks/{id}/files */
+    public function indexFiles(string $id): JsonResponse
+    {
+        $task = ProjectTask::findOrFail($id);
+        $files = $task->files->map(fn (ProjectTaskFile $f) => $this->presentFile($f));
+
+        return response()->json(['total' => $files->count(), 'data' => $files]);
+    }
+
+    /**
+     * POST /api/project-tasks/{id}/files
+     * Multipart: campo "archivo" (requerido, <=20MB), "nombre" y "subido_por" opcionales.
+     */
+    public function storeFile(Request $request, string $id): JsonResponse
+    {
+        $task = ProjectTask::findOrFail($id);
+        $file = $this->guardarTaskFile($request, $task, $request->input('subido_por'));
+
+        return response()->json(['message' => 'Archivo adjuntado.', 'data' => $this->presentFile($file)], 201);
+    }
+
+    /** DELETE /api/project-task-files/{id} */
+    public function destroyFile(string $id): JsonResponse
+    {
+        $this->borrarTaskFile(ProjectTaskFile::findOrFail($id));
+
+        return response()->json(['message' => 'Archivo eliminado.']);
+    }
+
+    /** @return array<string, mixed> */
+    private function presentFile(ProjectTaskFile $f): array
+    {
+        return [
+            'id' => $f->id,
+            'nombre' => $f->nombre,
+            'tipo' => $f->tipo,
+            'tamano' => (int) $f->tamano,
+            'tamano_humano' => $f->tamano_formateado,
+            'url' => Storage::disk('public')->url($f->archivo),
+            'subido_por' => $f->subido_por,
+            'created_at' => optional($f->created_at)->toDateTimeString(),
+        ];
+    }
+
     /** @return array<string, mixed> */
     private function taskRules(bool $creating): array
     {
@@ -239,6 +288,9 @@ class TaskApiController extends Controller
                 ? $t->subtasks->map(fn (ProjectSubtask $s) => [
                     'id' => $s->id, 'titulo' => $s->titulo, 'hecha' => (bool) $s->hecha, 'developer_id' => $s->developer_id,
                 ])->all()
+                : [],
+            'archivos' => $t->relationLoaded('files')
+                ? $t->files->map(fn (ProjectTaskFile $f) => $this->presentFile($f))->all()
                 : [],
         ];
     }

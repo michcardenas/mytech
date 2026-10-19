@@ -39,7 +39,7 @@ trait BoardFiles
         $file->delete();
     }
 
-    protected function guardarTaskFile(Request $request, ProjectTask $task, ?string $subidoPor): void
+    protected function guardarTaskFile(Request $request, ProjectTask $task, ?string $subidoPor): ProjectTaskFile
     {
         $data = $request->validate([
             'nombre' => 'nullable|string|max:255',
@@ -49,7 +49,7 @@ trait BoardFiles
         $file = $request->file('archivo');
         $path = $file->store('internal-projects/'.$task->internal_project_id.'/tasks/'.$task->id, 'public');
 
-        $task->files()->create([
+        return $task->files()->create([
             'nombre' => ($data['nombre'] ?? null) ?: $file->getClientOriginalName(),
             'archivo' => $path,
             'tipo' => $file->getMimeType(),

@@ -51,4 +51,9 @@ Route::middleware('api.key')->group(function () {
     Route::post('project-tasks/{id}/subtasks', [TaskApiController::class, 'storeSubtask'])->whereNumber('id');
     Route::match(['put', 'patch'], 'project-subtasks/{id}', [TaskApiController::class, 'updateSubtask'])->whereNumber('id');
     Route::delete('project-subtasks/{id}', [TaskApiController::class, 'destroySubtask'])->whereNumber('id');
+
+    // Archivos adjuntos por tarea (POST multipart: campo "archivo"[, "nombre", "subido_por"])
+    Route::get('project-tasks/{id}/files', [TaskApiController::class, 'indexFiles'])->whereNumber('id');
+    Route::post('project-tasks/{id}/files', [TaskApiController::class, 'storeFile'])->whereNumber('id');
+    Route::delete('project-task-files/{id}', [TaskApiController::class, 'destroyFile'])->whereNumber('id');
 });
