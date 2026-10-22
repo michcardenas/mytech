@@ -379,7 +379,7 @@ class PortalDeveloperController extends Controller
 
         abort_unless($this->devPuedeVer($dev, $project), 403, 'No perteneces a este proyecto.');
 
-        $project->load(['equipo', 'files', 'tasks.developer', 'tasks.subtasks.developer', 'tasks.files', 'tasks.comments']);
+        $project->load(['equipo', 'files', 'areas', 'tasks.developer', 'tasks.area', 'tasks.subtasks.developer', 'tasks.files', 'tasks.comments']);
 
         // Por defecto el dev ve SOLO las tareas asignadas a el (propias o con una
         // subtarea suya). Con ?mias=0 ve todas las del proyecto.
@@ -399,6 +399,7 @@ class PortalDeveloperController extends Controller
             'columnas' => ProjectTask::COLUMNAS,
             'prioridades' => ProjectTask::PRIORIDADES,
             'tareasPorColumna' => $tareas->groupBy('columna'),
+            'areas' => $project->areas,
             'soloMias' => $soloMias,
             'totalProyecto' => $project->tasks->count(),
             'totalMias' => $project->tasks->filter(function (ProjectTask $t) use ($dev) {

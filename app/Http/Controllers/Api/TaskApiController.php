@@ -6,6 +6,7 @@ use App\Http\Controllers\Concerns\BoardFiles;
 use App\Http\Controllers\Controller;
 use App\Models\Developer;
 use App\Models\InternalProject;
+use App\Models\ProjectArea;
 use App\Models\ProjectSubtask;
 use App\Models\ProjectTask;
 use App\Models\ProjectTaskFile;
@@ -32,7 +33,7 @@ class TaskApiController extends Controller
     public function index(string $id): JsonResponse
     {
         $project = InternalProject::findOrFail($id);
-        $tasks = $project->tasks()->with('subtasks')->orderBy('columna')->orderBy('orden')->get()
+        $tasks = $project->tasks()->with(['subtasks', 'area'])->orderBy('columna')->orderBy('orden')->get()
             ->map(fn (ProjectTask $t) => $this->present($t));
 
         return response()->json(['total' => $tasks->count(), 'data' => $tasks]);
@@ -72,6 +73,7 @@ class TaskApiController extends Controller
                 'columna' => $columna,
                 'prioridad' => $data['prioridad'] ?? 'media',
                 'developer_id' => $data['developer_id'] ?? null,
+                'area_id' => $this->resolverAreaId($project, $raw),
                 'fecha_limite' => $data['fecha_limite'] ?? null,
                 'orden' => (int) $project->tasks()->where('columna', $columna)->max('orden') + 1,
             ]);
@@ -85,7 +87,7 @@ class TaskApiController extends Controller
                 ]);
             }
 
-            $creadas[] = $this->present($task->load('subtasks'));
+            $creadas[] = $this->present($task->load(['subtasks', 'area']));
             if ($task->developer_id) {
                 $avisos[$task->developer_id][] = $task->titulo;
             }
@@ -109,7 +111,7 @@ class TaskApiController extends Controller
     /** GET /api/project-tasks/{id} */
     public function show(string $id): JsonResponse
     {
-        return response()->json(['data' => $this->present(ProjectTask::with(['subtasks', 'files'])->findOrFail($id))]);
+        return response()->json(['data' => $this->present(ProjectTask::with(['subtasks', 'files', 'area'])->findOrFail($id))]);
     }
 
     /** PUT/PATCH /api/project-tasks/{id} */
@@ -118,7 +120,12 @@ class TaskApiController extends Controller
         $task = ProjectTask::findOrFail($id);
         $data = $request->validate($this->taskRules(false));
         $notificar = $request->boolean('notificar', true);
-        unset($data['notificar'], $data['subtareas']);
+
+        // Resolver area por nombre ("area") o id ("area_id") si vino en la peticion.
+        if ($request->has('area') || array_key_exists('area_id', $data)) {
+            $data['area_id'] = $this->resolverAreaId($task->project, $request->all());
+        }
+        unset($data['notificar'], $data['subtareas'], $data['area']);
 
         if (! empty($data['developer_id'])) {
             $task->project->equipo()->syncWithoutDetaching([$data['developer_id']]);
@@ -133,7 +140,7 @@ class TaskApiController extends Controller
 
         return response()->json([
             'message' => 'Tarea actualizada.',
-            'data' => $this->present($task->fresh()->load('subtasks')),
+            'data' => $this->present($task->fresh()->load(['subtasks', 'area'])),
         ]);
     }
 
@@ -234,6 +241,16 @@ class TaskApiController extends Controller
         ];
     }
 
+    /**
+     * Resuelve el area de una tarea a partir del payload: "area_id" (debe
+     * pertenecer al proyecto) o "area" por nombre (la crea si no existe).
+     * Devuelve null si no se indico area o si se mando vacia.
+     */
+    private function resolverAreaId(InternalProject $project, array $raw): ?int
+    {
+        return ProjectArea::resolverParaProyecto($project, $raw);
+    }
+
     /** @return array<string, mixed> */
     private function taskRules(bool $creating): array
     {
@@ -245,6 +262,8 @@ class TaskApiController extends Controller
             'columna' => ['sometimes', 'nullable', Rule::in(array_keys(ProjectTask::COLUMNAS))],
             'prioridad' => ['sometimes', 'nullable', Rule::in(array_keys(ProjectTask::PRIORIDADES))],
             'developer_id' => 'sometimes|nullable|exists:developers,id',
+            'area_id' => 'sometimes|nullable|integer|exists:project_areas,id',
+            'area' => 'sometimes|nullable|string|max:255',
             'fecha_limite' => 'sometimes|nullable|date',
             'subtareas' => 'sometimes|array',
             'notificar' => 'sometimes|boolean',
@@ -283,6 +302,10 @@ class TaskApiController extends Controller
             'columna' => $t->columna,
             'prioridad' => $t->prioridad,
             'developer_id' => $t->developer_id,
+            'area_id' => $t->area_id,
+            'area' => $t->relationLoaded('area') && $t->area
+                ? ['id' => $t->area->id, 'nombre' => $t->area->nombre, 'color' => $t->area->color]
+                : null,
             'fecha_limite' => optional($t->fecha_limite)->toDateString(),
             'subtareas' => $t->relationLoaded('subtasks')
                 ? $t->subtasks->map(fn (ProjectSubtask $s) => [

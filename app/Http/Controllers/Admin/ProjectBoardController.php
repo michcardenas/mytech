@@ -91,7 +91,9 @@ class ProjectBoardController extends Controller
         $project->load([
             'equipo',
             'files',
+            'areas',
             'tasks.developer',
+            'tasks.area',
             'tasks.subtasks.developer',
             'tasks.files',
             'tasks.comments',
@@ -105,6 +107,7 @@ class ProjectBoardController extends Controller
             'columnas' => ProjectTask::COLUMNAS,
             'prioridades' => ProjectTask::PRIORIDADES,
             'tareasPorColumna' => $project->tasks->groupBy('columna'),
+            'areas' => $project->areas,
             'equipo' => $project->equipo,
             'devsDisponibles' => $devsDisponibles,
             'documentos' => $project->files,

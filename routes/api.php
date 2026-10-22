@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\ClientApiController;
 use App\Http\Controllers\Api\DeveloperApiController;
 use App\Http\Controllers\Api\InternalProjectApiController;
+use App\Http\Controllers\Api\ProjectAreaApiController;
 use App\Http\Controllers\Api\ProyectoApiController;
 use App\Http\Controllers\Api\TaskApiController;
 use Illuminate\Support\Facades\Route;
@@ -56,4 +57,10 @@ Route::middleware('api.key')->group(function () {
     Route::get('project-tasks/{id}/files', [TaskApiController::class, 'indexFiles'])->whereNumber('id');
     Route::post('project-tasks/{id}/files', [TaskApiController::class, 'storeFile'])->whereNumber('id');
     Route::delete('project-task-files/{id}', [TaskApiController::class, 'destroyFile'])->whereNumber('id');
+
+    // Areas / modulos del proyecto (para agrupar y filtrar tareas por tema)
+    Route::get('internal-projects/{id}/areas', [ProjectAreaApiController::class, 'index'])->whereNumber('id');
+    Route::post('internal-projects/{id}/areas', [ProjectAreaApiController::class, 'store'])->whereNumber('id');
+    Route::match(['put', 'patch'], 'project-areas/{id}', [ProjectAreaApiController::class, 'update'])->whereNumber('id');
+    Route::delete('project-areas/{id}', [ProjectAreaApiController::class, 'destroy'])->whereNumber('id');
 });

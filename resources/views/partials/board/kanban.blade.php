@@ -91,9 +91,38 @@
     .sortable-ghost { opacity: 0.4; }
     .sortable-drag { transform: rotate(1.5deg); }
     .kb-toast { position: fixed; top: 20px; right: 20px; z-index: 9999; padding: 0.75rem 1.1rem; border-radius: 10px; color: #fff; font-weight: 700; font-size: 0.82rem; box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+    /* Area: chip, filtro y agrupacion */
+    .kb-area-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
+    .kb-area-chip { border-style: solid; border-width: 1px; }
+    .kb-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 0.6rem; justify-content: space-between; margin: 0 0.15rem 0.75rem; }
+    .kb-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 0.35rem; }
+    .kb-filter-label { font-size: 0.7rem; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.3px; margin-right: 0.1rem; }
+    .kb-fchip { display: inline-flex; align-items: center; gap: 0.35rem; font-size: 0.74rem; font-weight: 700; padding: 0.3rem 0.65rem; border-radius: 999px; border: 1px solid #e2e8f0; background: #fff; color: #475569; cursor: pointer; transition: all .15s; }
+    .kb-fchip:hover { border-color: #cbd5e1; }
+    .kb-fchip.is-active { background: #0f172a; color: #fff; border-color: #0f172a; }
+    .kb-groupbtn { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.74rem; font-weight: 700; padding: 0.35rem 0.8rem; border-radius: 10px; border: 1px solid #e2e8f0; background: #fff; color: #475569; cursor: pointer; }
+    .kb-groupbtn.is-on { background: linear-gradient(135deg,#a78bfa,#7c3aed); color: #fff; border-color: transparent; }
+    .kb-group-label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.68rem; font-weight: 800; color: #475569; text-transform: uppercase; letter-spacing: 0.3px; padding: 0.4rem 0.2rem 0.2rem; border-top: 1px dashed #e2e8f0; margin-top: 0.25rem; }
+    .kb-group-label.first { border-top: none; margin-top: 0; }
 </style>
 
+@php $areas = $areas ?? $project->areas; @endphp
 <div class="kb-wrap">
+    @if($areas->count() > 0)
+        <div class="kb-toolbar">
+            <div class="kb-filter" id="kbFilter">
+                <span class="kb-filter-label"><i class="fas fa-filter"></i> Área</span>
+                <button type="button" class="kb-fchip is-active" data-area="">Todas</button>
+                @foreach($areas as $a)
+                    <button type="button" class="kb-fchip" data-area="{{ $a->id }}">
+                        <span class="kb-area-dot" style="background: {{ $a->color }}"></span> {{ $a->nombre }}
+                    </button>
+                @endforeach
+                <button type="button" class="kb-fchip" data-area="none">Sin área</button>
+            </div>
+            <button type="button" class="kb-groupbtn" id="kbGroupBtn"><i class="fas fa-layer-group"></i> Agrupar por área</button>
+        </div>
+    @endif
     <div class="kb-board">
         @foreach($columnas as $key => $meta)
             @php $tareas = $tareasPorColumna[$key] ?? collect(); @endphp
@@ -145,6 +174,8 @@
         new Sortable(col, {
             group: 'board',
             animation: 150,
+            draggable: '.kb-card',
+            filter: '.kb-group-label',
             ghostClass: 'sortable-ghost',
             dragClass: 'sortable-drag',
             onEnd: function (evt) {
@@ -191,6 +222,94 @@
               }
           })
           .catch(() => { cb.checked = !cb.checked; toast('No se pudo actualizar la subtarea.', false); });
+    });
+})();
+
+// ===== Filtro y agrupacion por area =====
+(function () {
+    const board = document.querySelector('.kb-board');
+    const filter = document.getElementById('kbFilter');
+    if (!board || !filter) return;
+
+    const chips = [...filter.querySelectorAll('.kb-fchip')];
+    const cols = [...document.querySelectorAll('.kb-cards')];
+    const original = new Map();
+    cols.forEach(c => original.set(c, [...c.querySelectorAll('.kb-card')]));
+
+    const areaOrder = {};
+    chips.forEach((b, i) => { const a = b.getAttribute('data-area'); if (a && a !== 'none') areaOrder[a] = i; });
+
+    let activeArea = '';
+    let grouped = false;
+
+    const areaName = (id) => { const c = filter.querySelector('.kb-fchip[data-area="' + id + '"]'); return c ? c.textContent.trim() : 'Sin área'; };
+    const areaColor = (id) => {
+        if (!id) return '#94a3b8';
+        const d = filter.querySelector('.kb-fchip[data-area="' + id + '"] .kb-area-dot');
+        return d ? d.style.background : '#94a3b8';
+    };
+
+    function applyFilter() {
+        cols.forEach(col => col.querySelectorAll('.kb-card').forEach(card => {
+            const a = card.getAttribute('data-area') || '';
+            let show = true;
+            if (activeArea === 'none') show = (a === '');
+            else if (activeArea !== '') show = (a === activeArea);
+            card.style.display = show ? '' : 'none';
+        }));
+    }
+
+    function refreshCounts() {
+        document.querySelectorAll('.kb-col').forEach(col => {
+            const count = col.querySelector('.kb-col-count');
+            const visibles = [...col.querySelectorAll('.kb-card')].filter(c => c.style.display !== 'none').length;
+            if (count) count.textContent = visibles;
+        });
+    }
+
+    function render() {
+        document.querySelectorAll('.kb-group-label').forEach(l => l.remove());
+        cols.forEach(col => {
+            if (grouped) {
+                const cards = [...col.querySelectorAll('.kb-card')].sort((x, y) => {
+                    const ax = x.getAttribute('data-area') || '', ay = y.getAttribute('data-area') || '';
+                    const ox = ax === '' ? 1e9 : (areaOrder[ax] ?? 1e8);
+                    const oy = ay === '' ? 1e9 : (areaOrder[ay] ?? 1e8);
+                    return ox - oy;
+                });
+                cards.forEach(c => col.appendChild(c));
+                let last = null, first = true;
+                cards.forEach(card => {
+                    if (card.style.display === 'none') return;
+                    const a = card.getAttribute('data-area') || '';
+                    if (a !== last) {
+                        const lbl = document.createElement('div');
+                        lbl.className = 'kb-group-label' + (first ? ' first' : '');
+                        lbl.innerHTML = '<span class="kb-area-dot" style="background:' + areaColor(a) + '"></span> ' + (a ? areaName(a) : 'Sin área');
+                        col.insertBefore(lbl, card);
+                        last = a; first = false;
+                    }
+                });
+            } else {
+                (original.get(col) || []).forEach(c => col.appendChild(c));
+            }
+        });
+        refreshCounts();
+    }
+
+    chips.forEach(chip => chip.addEventListener('click', function () {
+        chips.forEach(c => c.classList.remove('is-active'));
+        chip.classList.add('is-active');
+        activeArea = chip.getAttribute('data-area');
+        applyFilter();
+        render();
+    }));
+
+    const gbtn = document.getElementById('kbGroupBtn');
+    if (gbtn) gbtn.addEventListener('click', function () {
+        grouped = !grouped;
+        gbtn.classList.toggle('is-on', grouped);
+        render();
     });
 })();
 </script>

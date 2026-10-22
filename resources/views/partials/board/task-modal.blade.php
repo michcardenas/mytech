@@ -60,6 +60,16 @@
                     </div>
                 </div>
                 <div class="tm-field">
+                    <label>Área / Módulo</label>
+                    <input type="text" name="area" id="tmArea" list="tmAreaList" maxlength="255"
+                        placeholder="Ej: Gestión Humana (elige una o escribe una nueva)" autocomplete="off">
+                    <datalist id="tmAreaList">
+                        @foreach(($areas ?? $project->areas) as $a)
+                            <option value="{{ $a->nombre }}"></option>
+                        @endforeach
+                    </datalist>
+                </div>
+                <div class="tm-field">
                     <label>Fecha límite</label>
                     <input type="date" name="fecha_limite" id="tmFecha">
                 </div>
@@ -105,6 +115,7 @@
             document.getElementById('tmDescripcion').value = btn.getAttribute('data-descripcion') || '';
             document.getElementById('tmPrioridad').value = btn.getAttribute('data-prioridad') || 'media';
             document.getElementById('tmDeveloper').value = btn.getAttribute('data-developer') || '';
+            document.getElementById('tmArea').value = btn.getAttribute('data-area') || '';
             document.getElementById('tmFecha').value = btn.getAttribute('data-fecha') || '';
             overlay.classList.add('open');
         });

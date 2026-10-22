@@ -20,7 +20,7 @@
     $subPct = $subTotal ? round($subDone / $subTotal * 100) : 0;
     $files = $t->files;
 @endphp
-<div class="kb-card {{ $t->vencida ? 'is-vencida' : '' }}" data-id="{{ $t->id }}" data-move-url="{{ $moveUrl }}" style="--c: {{ $prioMeta['color'] }}">
+<div class="kb-card {{ $t->vencida ? 'is-vencida' : '' }}" data-id="{{ $t->id }}" data-move-url="{{ $moveUrl }}" data-area="{{ $t->area_id ?? '' }}" style="--c: {{ $prioMeta['color'] }}">
     <div class="kb-card-top">
         <div class="kb-title">{{ $t->titulo }}</div>
         <div class="kb-actions">
@@ -31,6 +31,7 @@
                     data-descripcion="{{ $t->descripcion }}"
                     data-prioridad="{{ $t->prioridad }}"
                     data-developer="{{ $t->developer_id }}"
+                    data-area="{{ $t->area->nombre ?? '' }}"
                     data-fecha="{{ optional($t->fecha_limite)->format('Y-m-d') }}"
                     data-update-url="{{ $taskUpdateUrl }}"
                     title="Editar"><i class="fas fa-pen"></i></button>
@@ -49,6 +50,11 @@
     @endif
 
     <div class="kb-meta">
+        @if($t->area)
+            <span class="kb-chip kb-area-chip" style="background: {{ $t->area->color }}1a; color: {{ $t->area->color }}; border-color: {{ $t->area->color }}40;">
+                <span class="kb-area-dot" style="background: {{ $t->area->color }}"></span> {{ \Illuminate\Support\Str::limit($t->area->nombre, 18) }}
+            </span>
+        @endif
         <span class="kb-chip prio-{{ $t->prioridad }}"><i class="fas fa-flag" style="font-size:0.6rem;"></i> {{ $prioMeta['label'] }}</span>
         @if($dev)
             <span class="kb-chip"><span class="kb-av">{{ strtoupper($ini) }}</span> {{ \Illuminate\Support\Str::limit($dev->nombre, 16) }}</span>

@@ -15,6 +15,7 @@ class ProjectTask extends Model
         'columna',
         'prioridad',
         'developer_id',
+        'area_id',
         'fecha_limite',
         'orden',
         'created_by',
@@ -46,6 +47,11 @@ class ProjectTask extends Model
     public function developer(): BelongsTo
     {
         return $this->belongsTo(Developer::class);
+    }
+
+    public function area(): BelongsTo
+    {
+        return $this->belongsTo(ProjectArea::class, 'area_id');
     }
 
     public function creator(): BelongsTo

@@ -82,6 +82,12 @@ class InternalProject extends Model
         return $this->hasMany(ProjectTask::class)->orderBy('orden')->orderBy('id');
     }
 
+    /** Areas / modulos para agrupar y filtrar las tareas del tablero. */
+    public function areas()
+    {
+        return $this->hasMany(ProjectArea::class)->orderBy('orden')->orderBy('id');
+    }
+
     public function vendedor()
     {
         return $this->belongsTo(Vendedor::class);

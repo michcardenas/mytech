@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Concerns;
 
 use App\Models\InternalProject;
+use App\Models\ProjectArea;
 use App\Models\ProjectSubtask;
 use App\Models\ProjectTask;
 use Illuminate\Http\Request;
@@ -22,6 +23,8 @@ trait BoardTasks
             'columna' => ['nullable', Rule::in(array_keys(ProjectTask::COLUMNAS))],
             'prioridad' => ['nullable', Rule::in(array_keys(ProjectTask::PRIORIDADES))],
             'developer_id' => ['nullable', Rule::exists('internal_project_developer', 'developer_id')->where('internal_project_id', $project->id)],
+            'area_id' => ['nullable', 'integer', Rule::exists('project_areas', 'id')->where('internal_project_id', $project->id)],
+            'area' => 'nullable|string|max:255',
             'fecha_limite' => 'nullable|date',
         ]);
 
@@ -33,6 +36,7 @@ trait BoardTasks
             'columna' => $columna,
             'prioridad' => $data['prioridad'] ?? 'media',
             'developer_id' => $data['developer_id'] ?? null,
+            'area_id' => ProjectArea::resolverParaProyecto($project, $request->all()),
             'fecha_limite' => $data['fecha_limite'] ?? null,
             'orden' => (int) $project->tasks()->where('columna', $columna)->max('orden') + 1,
             'created_by' => $createdBy,
@@ -50,18 +54,27 @@ trait BoardTasks
             'descripcion' => 'nullable|string',
             'prioridad' => ['nullable', Rule::in(array_keys(ProjectTask::PRIORIDADES))],
             'developer_id' => ['nullable', Rule::exists('internal_project_developer', 'developer_id')->where('internal_project_id', $task->internal_project_id)],
+            'area_id' => ['nullable', 'integer', Rule::exists('project_areas', 'id')->where('internal_project_id', $task->internal_project_id)],
+            'area' => 'nullable|string|max:255',
             'fecha_limite' => 'nullable|date',
         ]);
 
         $devAnterior = $task->developer_id;
 
-        $task->update([
+        $cambios = [
             'titulo' => $data['titulo'],
             'descripcion' => $data['descripcion'] ?? null,
             'prioridad' => $data['prioridad'] ?? 'media',
             'developer_id' => $data['developer_id'] ?? null,
             'fecha_limite' => $data['fecha_limite'] ?? null,
-        ]);
+        ];
+
+        // Solo toca el area si el formulario la envio (campo "area" o "area_id").
+        if ($request->has('area') || $request->has('area_id')) {
+            $cambios['area_id'] = ProjectArea::resolverParaProyecto($task->project, $request->all());
+        }
+
+        $task->update($cambios);
 
         // Solo avisa si se asignó un dev nuevo o se cambió.
         if ($task->developer_id && $task->developer_id !== $devAnterior) {
