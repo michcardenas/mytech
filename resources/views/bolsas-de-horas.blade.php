@@ -10,6 +10,9 @@
     $waNumber = '573337246403';
     $waBase   = 'https://wa.me/' . $waNumber . '?text=';
 
+    // Precio de una hora suelta (sin bolsa), referencia para el ahorro.
+    $horaIndividual = '80.000';
+
     // Bolsas — el precio/hora se descuenta por tiempo real trabajado, vigencia 6 meses.
     $bolsas = [
         ['horas' => 5,  'precio' => '270.000',   'hora' => '54.000', 'ahorro' => null,  'nota' => null,                                  'destacada' => false],
@@ -73,6 +76,10 @@
             <h2 class="mt-4 text-section font-display text-mt-text">Elige tu bolsa de horas.</h2>
             <p class="mt-5 text-mt-text-2 text-base md:text-lg leading-relaxed">
                 Cinco tamaños. El precio por hora baja de $54.000 a $38.000 según el volumen que reserves.
+            </p>
+            <p class="mt-4 inline-flex items-center gap-2 rounded-full border border-mt-border bg-white px-3.5 py-1.5 text-[13px] text-mt-text-2 shadow-mt-soft">
+                <svg class="w-4 h-4 flex-shrink-0 text-mt-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                Una hora individual (sin bolsa) cuesta <strong class="text-mt-text font-semibold">${{ $horaIndividual }} COP</strong>. Con bolsa baja desde $54.000.
             </p>
         </div>
 
