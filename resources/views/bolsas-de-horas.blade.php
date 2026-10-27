@@ -11,15 +11,18 @@
     $waBase   = 'https://wa.me/' . $waNumber . '?text=';
 
     // Precio de una hora suelta (sin bolsa), referencia para el ahorro.
-    $horaIndividual = '80.000';
+    // USD ya incluye el +15% por costos de la transacción (PayPal). No se muestra la TRM.
+    $horaIndividual    = '80.000';
+    $horaIndividualUsd = '23';
 
     // Bolsas — el precio/hora se descuenta por tiempo real trabajado, vigencia 6 meses.
+    // 'usd' = precio de la bolsa en dólares, ya con el recargo del 15% de PayPal incluido.
     $bolsas = [
-        ['horas' => 5,  'precio' => '270.000',   'hora' => '54.000', 'ahorro' => null,  'nota' => null,                                  'destacada' => false],
-        ['horas' => 10, 'precio' => '480.000',   'hora' => '48.000', 'ahorro' => '11%', 'nota' => null,                                  'destacada' => false],
-        ['horas' => 20, 'precio' => '900.000',   'hora' => '45.000', 'ahorro' => '17%', 'nota' => null,                                  'destacada' => false],
-        ['horas' => 40, 'precio' => '1.680.000', 'hora' => '42.000', 'ahorro' => '22%', 'nota' => 'Equivale a una semana de dedicación', 'destacada' => true],
-        ['horas' => 80, 'precio' => '3.040.000', 'hora' => '38.000', 'ahorro' => '30%', 'nota' => 'Equivale a dos semanas de dedicación','destacada' => false],
+        ['horas' => 5,  'precio' => '270.000',   'hora' => '54.000', 'usd' => '78',  'ahorro' => null,  'nota' => null,                                  'destacada' => false],
+        ['horas' => 10, 'precio' => '480.000',   'hora' => '48.000', 'usd' => '138', 'ahorro' => '11%', 'nota' => null,                                  'destacada' => false],
+        ['horas' => 20, 'precio' => '900.000',   'hora' => '45.000', 'usd' => '259', 'ahorro' => '17%', 'nota' => null,                                  'destacada' => false],
+        ['horas' => 40, 'precio' => '1.680.000', 'hora' => '42.000', 'usd' => '483', 'ahorro' => '22%', 'nota' => 'Equivale a una semana de dedicación', 'destacada' => true],
+        ['horas' => 80, 'precio' => '3.040.000', 'hora' => '38.000', 'usd' => '874', 'ahorro' => '30%', 'nota' => 'Equivale a dos semanas de dedicación','destacada' => false],
     ];
 
     $waCta = $waBase . rawurlencode('Hola, me interesa una bolsa de horas prepagadas para mi proyecto.');
@@ -79,7 +82,10 @@
             </p>
             <p class="mt-4 inline-flex items-center gap-2 rounded-full border border-mt-border bg-white px-3.5 py-1.5 text-[13px] text-mt-text-2 shadow-mt-soft">
                 <svg class="w-4 h-4 flex-shrink-0 text-mt-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                Una hora individual (sin bolsa) cuesta <strong class="text-mt-text font-semibold">${{ $horaIndividual }} COP</strong>. Con bolsa baja desde $54.000.
+                Una hora individual (sin bolsa) cuesta <strong class="text-mt-text font-semibold">${{ $horaIndividual }} COP</strong> (US$ {{ $horaIndividualUsd }}). Con bolsa baja desde $54.000.
+            </p>
+            <p class="mt-3 max-w-xl text-[12.5px] text-mt-text-3 leading-relaxed">
+                Los precios en <strong class="text-mt-text-2 font-medium">USD</strong> ya incluyen un recargo por los costos de la transacción internacional (PayPal). Si pagas en pesos (COP) ese recargo no aplica.
             </p>
         </div>
 
@@ -122,6 +128,11 @@
                         </div>
                         <div class="mt-1.5 text-[13.5px] font-medium text-mt-accent">
                             ${{ $b['hora'] }} <span class="text-mt-text-3 font-normal">/ hora</span>
+                        </div>
+                        <div class="mt-2.5 pt-2.5 border-t border-dashed border-mt-border flex items-baseline gap-1.5">
+                            <span class="font-mono text-[10px] uppercase tracking-[0.14em] text-mt-text-3">USD</span>
+                            <span class="text-lg font-display font-semibold text-mt-text tracking-tight">${{ $b['usd'] }}</span>
+                            <span class="text-mt-text-3 text-[11px]">PayPal incl.</span>
                         </div>
                     </div>
 
