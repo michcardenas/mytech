@@ -12,6 +12,8 @@
     $waNumber = '573337246403';
     $waMsg = rawurlencode('Hola, quiero un chatbot con IA para WhatsApp para mi negocio.');
     $waUrl = 'https://wa.me/' . $waNumber . '?text=' . $waMsg;
+    $waMsgDemo = rawurlencode('Hola, quiero la demo gratis del chatbot con IA para mi negocio.');
+    $waDemoUrl = 'https://wa.me/' . $waNumber . '?text=' . $waMsgDemo;
     $casoUrl = url('/proyectos/crm-asistente-ia-whatsapp-clinica-jasmin-blanco');
 
     $faqs = [
@@ -106,8 +108,8 @@
                         Quiero mi chatbot con IA
                         <span aria-hidden="true">&rarr;</span>
                     </a>
-                    <a href="#caso" class="mt-btn-ghost">
-                        Ver un caso real
+                    <a href="#demo" class="mt-btn-ghost">
+                        Pídela gratis
                     </a>
                 </div>
 
@@ -176,6 +178,52 @@
                     <span class="w-1.5 h-1.5 rounded-full bg-mt-accent"></span>{{ $item }}
                 </span>
             @endforeach
+        </div>
+    </div>
+</section>
+
+{{-- ============================================================= --}}
+{{-- DEMO GANCHO · oferta sin riesgo                               --}}
+{{-- ============================================================= --}}
+<section id="demo" class="relative bg-white pt-20 md:pt-24 scroll-mt-24">
+    <div class="mt-container">
+        <div class="relative overflow-hidden rounded-3xl border border-mt-accent-line bg-mt-accent-soft px-6 py-10 md:px-12 md:py-14" data-animate>
+            <div class="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
+                <div>
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white border border-mt-accent-line text-mt-accent font-mono text-[11px] uppercase tracking-[0.16em]">
+                        Sin riesgo · gratis
+                    </span>
+                    <h2 class="mt-5 text-section font-display text-mt-text">
+                        Primero ve tu bot funcionando. Después decides.
+                    </h2>
+                    <p class="mt-5 text-mt-text-2 text-base md:text-lg leading-relaxed">
+                        Te armamos un bot de prueba con las respuestas reales de tu negocio &mdash; tus servicios, tus precios, tus preguntas frecuentes &mdash; para que lo pruebes tú mismo por WhatsApp. Si te convence, lo llevamos a producción. Si no, la demo es tuya y no pagaste nada.
+                    </p>
+                    <ul class="mt-7 grid sm:grid-cols-3 gap-4">
+                        @foreach ([
+                            'Hecho con tus datos reales',
+                            'Lo pruebas en tu propio WhatsApp',
+                            'Sin compromiso ni permanencia',
+                        ] as $d)
+                            <li class="flex items-start gap-2.5 text-mt-text">
+                                <span class="flex-shrink-0 w-5 h-5 mt-0.5 rounded-full bg-white border border-mt-accent-line flex items-center justify-center">
+                                    <svg class="w-3 h-3 text-mt-accent" aria-hidden="true" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                </span>
+                                <span class="text-[14px] leading-snug">{{ $d }}</span>
+                            </li>
+                        @endforeach
+                    </ul>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <a href="{{ $waDemoUrl }}" target="_blank" rel="noopener" class="w-full justify-center mt-btn-primary">
+                        Pedir mi demo gratis
+                        <span aria-hidden="true">&rarr;</span>
+                    </a>
+                    <p class="text-center text-mt-text-3 text-[12.5px] leading-relaxed">
+                        Te respondemos en minutos &mdash; sí, con una persona.
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </section>
@@ -413,6 +461,9 @@
                         </li>
                     @endforeach
                 </ul>
+                <p class="mt-6 text-[14px] text-mt-text-2 leading-relaxed">
+                    <strong class="text-mt-text">Sin riesgo:</strong> empiezas viendo tu bot funcionando, no pagando. <a href="#demo" class="text-mt-accent underline underline-offset-2">Pide la demo gratis &rarr;</a>
+                </p>
             </div>
 
             <div class="rounded-3xl border border-mt-border bg-white p-8 md:p-10 shadow-mt-medium" data-animate>
